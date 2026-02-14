@@ -128,6 +128,10 @@ namespace OpenRA.Mods.Common.LoadScreens
 			if (modData.FileSystemLoader is not IFileSystemExternalContent content)
 				return true;
 
+			// Skip content check in headless mode (RL training doesn't need game assets)
+			if (Game.IsHeadless)
+				return true;
+
 			return !content.InstallContentIfRequired(modData);
 		}
 	}

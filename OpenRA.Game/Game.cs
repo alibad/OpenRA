@@ -44,6 +44,9 @@ namespace OpenRA
 		public static CursorManager Cursor;
 		public static bool HideCursor;
 
+		/// <summary>True when running with the Null platform (no GPU/rendering).</summary>
+		public static bool IsHeadless => Settings?.Game?.Platform == "Null";
+
 		static WorldRenderer worldRenderer;
 		static string modLaunchWrapper;
 
@@ -198,7 +201,7 @@ namespace OpenRA
 			// Dispose of the old world before creating a new one.
 			worldRenderer?.Dispose();
 
-			Cursor.SetCursor(null);
+			Cursor?.SetCursor(null);
 			BeforeGameStart();
 
 			using (new PerfTimer("NewWorld"))
@@ -241,7 +244,7 @@ namespace OpenRA
 
 			OrderManager.StartGame();
 			worldRenderer.RefreshPalette();
-			Cursor.SetCursor(ChromeMetrics.Get<string>("DefaultCursor"));
+			Cursor?.SetCursor(ChromeMetrics.Get<string>("DefaultCursor"));
 
 			// Now loading is completed, now is the ideal time to run a GC and compact the LOH.
 			// - All the temporary garbage created during loading can be collected.
@@ -513,8 +516,12 @@ namespace OpenRA
 			using (new PerfTimer("LoadMaps"))
 				ModData.MapCache.LoadMaps(ModData);
 
-			Cursor?.Dispose();
-			Cursor = new CursorManager(ModData);
+			// Skip cursor loading in headless mode (no game art assets available)
+			if (!IsHeadless)
+			{
+				Cursor?.Dispose();
+				Cursor = new CursorManager(ModData);
+			}
 
 			var metadata = ModData.Manifest.Metadata;
 			if (!string.IsNullOrEmpty(metadata.WindowTitleTranslated))
@@ -633,7 +640,7 @@ namespace OpenRA
 			{
 				Ui.LastTickTime.AdvanceTickTime(tick);
 				Sync.RunUnsynced(world, Ui.Tick);
-				Cursor.Tick();
+				Cursor?.Tick();
 			}
 
 			if (orderManager.LastTickTime.ShouldAdvance(tick))
@@ -666,7 +673,8 @@ namespace OpenRA
 					}
 
 					// Wait until we have done our first world Tick before TickRendering
-					if (orderManager.LocalFrameNumber > 0)
+					// Skip render tick in headless mode — no rendering occurs
+					if (orderManager.LocalFrameNumber > 0 && !IsHeadless)
 						Sync.RunUnsynced(world, () => world.TickRender(worldRenderer));
 				}
 

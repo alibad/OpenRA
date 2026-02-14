@@ -277,14 +277,30 @@ namespace OpenRA
 				if (iwl == ScreenMap)
 					continue;
 
-				using (new PerfTimer(iwl.GetType().Name + ".WorldLoaded"))
-					iwl.WorldLoaded(this, wr);
+				try
+				{
+					using (new PerfTimer(iwl.GetType().Name + ".WorldLoaded"))
+						iwl.WorldLoaded(this, wr);
+				}
+				catch (Exception ex) when (Game.IsHeadless)
+				{
+					Log.Write("rl-bridge", $"Skipping WorldLoaded for {iwl.GetType().Name}: {ex.Message}");
+				}
 			}
 
 			foreach (var p in Players)
 				foreach (var iwl in p.PlayerActor.TraitsImplementing<IWorldLoaded>())
-					using (new PerfTimer(iwl.GetType().Name + ".WorldLoaded"))
-						iwl.WorldLoaded(this, wr);
+				{
+					try
+					{
+						using (new PerfTimer(iwl.GetType().Name + ".WorldLoaded"))
+							iwl.WorldLoaded(this, wr);
+					}
+					catch (Exception ex) when (Game.IsHeadless)
+					{
+						Log.Write("rl-bridge", $"Skipping WorldLoaded for {iwl.GetType().Name}: {ex.Message}");
+					}
+				}
 
 			foreach (var player in Players)
 				gameInfo.AddPlayer(player, OrderManager.LobbyInfo);
