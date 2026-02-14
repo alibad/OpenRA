@@ -31,6 +31,9 @@ namespace OpenRA
 		[Desc("Automatically start playing the given map.")]
 		public string Map;
 
+		[Desc("Add bots to map slots on auto-start. Format: slot:bottype,slot:bottype (e.g. Multi1:normal,Multi0:rl-agent).")]
+		public string Bots;
+
 		public LaunchArguments(Arguments args)
 		{
 			if (args == null)

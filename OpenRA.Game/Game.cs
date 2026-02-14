@@ -386,6 +386,7 @@ namespace OpenRA
 			Log.AddChannel("geoip", "geoip.log");
 			Log.AddChannel("nat", "nat.log");
 			Log.AddChannel("client", "client.log");
+			Log.AddChannel("rl-bridge", "rl-bridge.log");
 
 			Nat.Initialize();
 
@@ -1010,13 +1011,24 @@ namespace OpenRA
 			benchmark = new Benchmark(prefix);
 		}
 
-		public static void LoadMap(string launchMap)
+		public static void LoadMap(string launchMap, string launchBots = null)
 		{
-			var orders = new List<Order>
+			var orders = new List<Order>();
+
+			// Add bots to slots before readying up.
+			// Format: "slot:bottype,slot:bottype" e.g. "Multi1:normal" or "Multi0:rl-agent,Multi1:normal"
+			if (!string.IsNullOrEmpty(launchBots))
 			{
-				Order.Command("option gamespeed default"),
-				Order.Command($"state {Session.ClientState.Ready}")
-			};
+				foreach (var entry in launchBots.Split(','))
+				{
+					var parts = entry.Trim().Split(':');
+					if (parts.Length == 2)
+						orders.Add(Order.Command($"slot_bot {parts[0]} 0 {parts[1]}"));
+				}
+			}
+
+			orders.Add(Order.Command("option gamespeed default"));
+			orders.Add(Order.Command($"state {Session.ClientState.Ready}"));
 
 			var map = ModData.MapCache.SingleOrDefault(m => m.Uid == launchMap || Path.GetFileName(m.Path) == launchMap);
 			if (map == null)

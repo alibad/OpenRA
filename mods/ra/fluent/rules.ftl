@@ -945,6 +945,10 @@ bot-turtle-ai =
 bot-naval-ai =
     .name = Naval AI
 
+## rl-bot.yaml
+bot-rl-agent =
+    .name = RL Agent
+
 ## map-generators.yaml
 label-random-map = Random Map
 label-clear-map-generator-option-tile = Tile
