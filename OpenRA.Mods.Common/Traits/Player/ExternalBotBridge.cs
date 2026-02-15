@@ -43,9 +43,6 @@ namespace OpenRA.Mods.Common.Traits
 			"1 = every tick, 10 = every 10th tick.")]
 		public readonly int ObservationInterval = 1;
 
-		[Desc("Timeout in milliseconds waiting for the agent to respond with an action.")]
-		public readonly int TimeoutMs = 30000;
-
 		string IBotInfo.Type => Type;
 		string IBotInfo.Name => Name;
 
@@ -75,12 +72,27 @@ namespace OpenRA.Mods.Common.Traits
 		ObservationSerializer observationSerializer;
 		ActionHandler actionHandler;
 
-		// Channels for lock-step communication between game thread and gRPC stream
+		// Channels for async communication between game thread and gRPC stream.
+		// DropOldest ensures the game thread never blocks:
+		//   - Observations: capacity=1, latest overwrites stale (agent always gets freshest state)
+		//   - Actions: capacity=16, game drains all pending each tick
 		readonly Channel<RLProto.GameObservation> observationChannel =
-			Channel.CreateBounded<RLProto.GameObservation>(1);
+			Channel.CreateBounded<RLProto.GameObservation>(
+				new BoundedChannelOptions(1)
+				{
+					FullMode = BoundedChannelFullMode.DropOldest,
+					SingleWriter = true,
+					SingleReader = true,
+				});
 
 		readonly Channel<RLProto.AgentAction> actionChannel =
-			Channel.CreateBounded<RLProto.AgentAction>(1);
+			Channel.CreateBounded<RLProto.AgentAction>(
+				new BoundedChannelOptions(16)
+				{
+					FullMode = BoundedChannelFullMode.DropOldest,
+					SingleWriter = true,
+					SingleReader = true,
+				});
 
 		bool agentConnected;
 
@@ -177,6 +189,18 @@ namespace OpenRA.Mods.Common.Traits
 			if (!IsEnabled || self.World.IsLoadingGameSave)
 				return;
 
+			try
+			{
+				// Process all pending actions from agent (non-blocking drain)
+				while (actionChannel.Reader.TryRead(out var agentAction))
+					actionHandler.ProcessAction(agentAction, this);
+			}
+			catch (ChannelClosedException)
+			{
+				Log.Write("rl-bridge", "Agent disconnected (action channel closed)");
+				agentConnected = false;
+			}
+
 			// Issue any queued orders
 			while (orders.Count > 0)
 				world.IssueOrder(orders.Dequeue());
@@ -190,38 +214,18 @@ namespace OpenRA.Mods.Common.Traits
 
 			try
 			{
-				// Serialize observation and push to channel
+				// Serialize and push observation (DropOldest — never blocks)
 				var observation = observationSerializer.Serialize(world.WorldTick);
-
-				if (!observationChannel.Writer.TryWrite(observation))
-				{
-					Log.Write("rl-bridge", "Warning: observation channel full, skipping tick");
-					return;
-				}
-
-				// Block until agent responds with an action (lock-step)
-				RLProto.AgentAction agentAction;
-				using (var cts = new CancellationTokenSource(info.TimeoutMs))
-				{
-					// Synchronously wait for the action from the gRPC stream
-					var task = actionChannel.Reader.ReadAsync(cts.Token).AsTask();
-					agentAction = task.GetAwaiter().GetResult();
-				}
-
-				actionHandler.ProcessAction(agentAction, this);
-			}
-			catch (OperationCanceledException)
-			{
-				Log.Write("rl-bridge", "Agent action timeout, skipping tick");
+				observationChannel.Writer.TryWrite(observation);
 			}
 			catch (ChannelClosedException)
 			{
-				Log.Write("rl-bridge", "Agent disconnected (channel closed)");
+				Log.Write("rl-bridge", "Agent disconnected (observation channel closed)");
 				agentConnected = false;
 			}
 			catch (Exception e)
 			{
-				Log.Write("rl-bridge", $"Error in tick: {e}");
+				Log.Write("rl-bridge", $"Error serializing observation: {e}");
 			}
 		}
 

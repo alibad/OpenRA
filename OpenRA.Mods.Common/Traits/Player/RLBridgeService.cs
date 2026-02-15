@@ -9,6 +9,8 @@
  */
 #endregion
 
+using System;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using Grpc.Core;
 using RLProto = OpenRA.Mods.Common.RL;
@@ -19,13 +21,16 @@ namespace OpenRA.Mods.Common.Traits
 	/// gRPC service implementation for the RL Bridge.
 	/// Bridges between the gRPC streaming protocol and the game thread
 	/// via System.Threading.Channels on ExternalBotBridge.
-	/// Uses ExternalBotBridge.ActiveBridge to always reach the current active instance.
+	///
+	/// Observation sending and action receiving run as independent async loops
+	/// so the game thread is never blocked waiting for agent responses.
 	/// </summary>
 	public sealed class RLBridgeService : RLProto.RLBridge.RLBridgeBase
 	{
 		/// <summary>
 		/// Bidirectional streaming: game sends observations, agent sends actions.
-		/// Lock-step protocol: for each observation written, we wait for one action.
+		/// The two directions are fully decoupled — observations flow continuously
+		/// and actions are processed whenever the agent sends them.
 		/// </summary>
 		public override async Task GameSession(
 			IAsyncStreamReader<RLProto.AgentAction> requestStream,
@@ -42,35 +47,44 @@ namespace OpenRA.Mods.Common.Traits
 			bridge.OnAgentConnected();
 			Log.Write("rl-bridge", "GameSession started");
 
+			var ct = context.CancellationToken;
+
 			try
 			{
-				while (!context.CancellationToken.IsCancellationRequested)
+				// Observation sender: game → agent (runs independently)
+				var obsTask = Task.Run(async () =>
 				{
-					// Wait for the game thread to produce an observation
-					var observation = await bridge.ObservationReader.ReadAsync(context.CancellationToken);
-
-					// Send observation to the agent
-					await responseStream.WriteAsync(observation, context.CancellationToken);
-
-					// If the game is over, send the final observation and stop
-					if (observation.Done)
+					try
 					{
-						Log.Write("rl-bridge", $"Game over: {observation.Result}");
-						break;
+						while (!ct.IsCancellationRequested)
+						{
+							var obs = await bridge.ObservationReader.ReadAsync(ct);
+							await responseStream.WriteAsync(obs, ct);
+							if (obs.Done)
+							{
+								Log.Write("rl-bridge", $"Game over: {obs.Result}");
+								break;
+							}
+						}
 					}
+					catch (OperationCanceledException) { }
+					catch (ChannelClosedException) { }
+				}, ct);
 
-					// Wait for the agent to send an action
-					if (!await requestStream.MoveNext(context.CancellationToken))
+				// Action receiver: agent → game (runs independently)
+				var actionTask = Task.Run(async () =>
+				{
+					try
 					{
-						Log.Write("rl-bridge", "Agent stream ended");
-						break;
+						while (await requestStream.MoveNext(ct))
+							await bridge.ActionWriter.WriteAsync(requestStream.Current, ct);
 					}
+					catch (OperationCanceledException) { }
+					catch (ChannelClosedException) { }
+				}, ct);
 
-					var action = requestStream.Current;
-
-					// Push the action to the game thread
-					await bridge.ActionWriter.WriteAsync(action, context.CancellationToken);
-				}
+				// Exit when either loop ends (game over, disconnect, or cancel)
+				await Task.WhenAny(obsTask, actionTask);
 			}
 			finally
 			{

@@ -4,4 +4,3 @@ Player:
 		Type: rl-agent
 		Port: 9999
 		ObservationInterval: 1
-		TimeoutMs: 30000
