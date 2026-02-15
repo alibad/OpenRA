@@ -716,17 +716,30 @@ namespace OpenRA
 				// Prepare renderables (i.e. render voxels) before calling BeginFrame
 				using (new PerfSample("render_prepare"))
 				{
-					worldRenderer?.BeginFrame();
-
-					// World rendering is disabled while the loading screen is displayed
-					if (worldRenderer != null && !worldRenderer.World.IsLoadingGameSave)
+					try
 					{
-						worldRenderer.Viewport.Tick();
-						worldRenderer.PrepareRenderables();
-					}
+						worldRenderer?.BeginFrame();
 
-					Ui.PrepareRenderables();
-					worldRenderer?.EndFrame();
+						// World rendering is disabled while the loading screen is displayed
+						if (worldRenderer != null && !worldRenderer.World.IsLoadingGameSave)
+						{
+							worldRenderer.Viewport.Tick();
+							worldRenderer.PrepareRenderables();
+						}
+
+						Ui.PrepareRenderables();
+						worldRenderer?.EndFrame();
+					}
+					catch (Exception e) when (e is IndexOutOfRangeException or InvalidOperationException)
+					{
+						// Rendering errors (e.g. sprite index out of bounds for rare
+						// projectile facings) should not crash the game process.
+						// This is especially important for headless/software-rendered
+						// RL training where visual output is not observed.
+						Log.Write("debug", $"Render error (non-fatal): {e.Message}");
+						try { worldRenderer?.EndFrame(); }
+						catch { /* ignore cleanup errors */ }
+					}
 				}
 
 				// worldRenderer is null during the initial install/download screen
