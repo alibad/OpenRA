@@ -275,6 +275,18 @@ namespace OpenRA.Mods.Common.Traits
 				}
 			}
 
+			// Player and enemy faction
+			var playerFaction = player?.Faction?.InternalName ?? "";
+			var enemyFaction = "";
+			foreach (var p in world.Players)
+			{
+				if (p != player && !p.NonCombatant && p.Playable)
+				{
+					enemyFaction = p.Faction?.InternalName ?? "";
+					break;
+				}
+			}
+
 			return new RLProto.GameState
 			{
 				EpisodeId = episodeId,
@@ -282,6 +294,8 @@ namespace OpenRA.Mods.Common.Traits
 				Phase = phase,
 				Winner = winner,
 				PlayerCount = world.Players.Length,
+				PlayerFaction = playerFaction,
+				EnemyFaction = enemyFaction,
 			};
 		}
 	}

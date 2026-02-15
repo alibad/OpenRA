@@ -349,6 +349,9 @@ namespace OpenRA.Mods.Common.Traits
 			if (cargo != null)
 				unit.PassengerCount = cargo.PassengerCount;
 
+			// Building flag (for distinguishing in mixed lists)
+			unit.IsBuilding = actor.Info.HasTraitInfo<BuildingInfo>();
+
 			return unit;
 		}
 

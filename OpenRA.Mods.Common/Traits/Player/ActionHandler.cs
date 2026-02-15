@@ -95,6 +95,12 @@ namespace OpenRA.Mods.Common.Traits
 				case RLProto.ActionType.Unload:
 					return CreateUnloadOrder(cmd);
 
+				case RLProto.ActionType.PowerDown:
+					return CreatePowerDownOrder(cmd);
+
+				case RLProto.ActionType.SetPrimary:
+					return CreateSetPrimaryOrder(cmd);
+
 				default:
 					Log.Write("rl-bridge", $"Unknown action type: {cmd.Action}");
 					return null;
@@ -345,6 +351,24 @@ namespace OpenRA.Mods.Common.Traits
 				return null;
 
 			return new Order("Unload", subject, false);
+		}
+
+		Order CreatePowerDownOrder(RLProto.Command cmd)
+		{
+			var subject = world.GetActorById(cmd.ActorId);
+			if (subject == null || subject.IsDead || !subject.IsInWorld)
+				return null;
+
+			return new Order("PowerDown", subject, false);
+		}
+
+		Order CreateSetPrimaryOrder(RLProto.Command cmd)
+		{
+			var subject = world.GetActorById(cmd.ActorId);
+			if (subject == null || subject.IsDead || !subject.IsInWorld)
+				return null;
+
+			return new Order("PrimaryProducer", subject, false);
 		}
 	}
 }
