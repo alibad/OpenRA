@@ -1027,6 +1027,11 @@ namespace OpenRA
 			// Format: "slot:bottype,slot:bottype" e.g. "Multi1:normal" or "Multi0:rl-agent,Multi1:normal"
 			if (!string.IsNullOrEmpty(launchBots))
 			{
+				// Move host to spectator so all player slots are free for bots.
+				// Without this, the host auto-fills Multi0, blocking slot_bot from
+				// placing a bot there (slot_bot rejects slots with human clients).
+				orders.Add(Order.Command("spectate"));
+
 				foreach (var entry in launchBots.Split(','))
 				{
 					var parts = entry.Trim().Split(':');
