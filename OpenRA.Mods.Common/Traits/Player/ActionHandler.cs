@@ -83,6 +83,18 @@ namespace OpenRA.Mods.Common.Traits
 				case RLProto.ActionType.SetRallyPoint:
 					return CreateSetRallyPointOrder(cmd);
 
+				case RLProto.ActionType.Guard:
+					return CreateGuardOrder(cmd);
+
+				case RLProto.ActionType.SetStance:
+					return CreateSetStanceOrder(cmd);
+
+				case RLProto.ActionType.EnterTransport:
+					return CreateEnterTransportOrder(cmd);
+
+				case RLProto.ActionType.Unload:
+					return CreateUnloadOrder(cmd);
+
 				default:
 					Log.Write("rl-bridge", $"Unknown action type: {cmd.Action}");
 					return null;
@@ -285,6 +297,54 @@ namespace OpenRA.Mods.Common.Traits
 
 			var cell = new CPos(cmd.TargetX, cmd.TargetY);
 			return new Order("SetRallyPoint", subject, Target.FromCell(world, cell), false);
+		}
+
+		Order CreateGuardOrder(RLProto.Command cmd)
+		{
+			var subject = world.GetActorById(cmd.ActorId);
+			if (subject == null || subject.IsDead || !subject.IsInWorld)
+				return null;
+
+			var target = world.GetActorById(cmd.TargetActorId);
+			if (target == null || target.IsDead || !target.IsInWorld)
+				return null;
+
+			return new Order("Guard", subject, Target.FromActor(target), cmd.Queued);
+		}
+
+		Order CreateSetStanceOrder(RLProto.Command cmd)
+		{
+			var subject = world.GetActorById(cmd.ActorId);
+			if (subject == null || subject.IsDead || !subject.IsInWorld)
+				return null;
+
+			// Stance encoded in target_x: 0=HoldFire, 1=ReturnFire, 2=Defend, 3=AttackAnything
+			return new Order("SetUnitStance", subject, false)
+			{
+				ExtraData = (uint)Math.Clamp(cmd.TargetX, 0, 3)
+			};
+		}
+
+		Order CreateEnterTransportOrder(RLProto.Command cmd)
+		{
+			var subject = world.GetActorById(cmd.ActorId);
+			if (subject == null || subject.IsDead || !subject.IsInWorld)
+				return null;
+
+			var target = world.GetActorById(cmd.TargetActorId);
+			if (target == null || target.IsDead || !target.IsInWorld)
+				return null;
+
+			return new Order("EnterTransport", subject, Target.FromActor(target), cmd.Queued);
+		}
+
+		Order CreateUnloadOrder(RLProto.Command cmd)
+		{
+			var subject = world.GetActorById(cmd.ActorId);
+			if (subject == null || subject.IsDead || !subject.IsInWorld)
+				return null;
+
+			return new Order("Unload", subject, false);
 		}
 	}
 }
