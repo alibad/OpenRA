@@ -732,11 +732,10 @@ namespace OpenRA
 					}
 					catch (Exception e) when (e is IndexOutOfRangeException or InvalidOperationException)
 					{
-						// Rendering errors (e.g. sprite index out of bounds for rare
-						// projectile facings) should not crash the game process.
-						// This is especially important for headless/software-rendered
-						// RL training where visual output is not observed.
-						Log.Write("debug", $"Render error (non-fatal): {e.Message}");
+						// In headless mode, rendering errors from missing art assets are expected — swallow silently.
+						// In rendered mode, log but don't crash.
+						if (!IsHeadless)
+							Log.Write("debug", $"Render error (non-fatal): {e.Message}");
 						try { worldRenderer?.EndFrame(); }
 						catch { /* ignore cleanup errors */ }
 					}

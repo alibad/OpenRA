@@ -113,6 +113,10 @@ namespace OpenRA
 
 		public bool IsReplay => OrderManager.Connection is ReplayConnection;
 
+		/// <summary>True if the connection to the game server is alive (or if using a local EchoConnection).</summary>
+		public bool IsConnectionAlive => OrderManager.Connection is not NetworkConnection nc
+			|| nc.ConnectionState == ConnectionState.Connected;
+
 		public bool IsLoadingGameSave => OrderManager.NetFrameNumber <= OrderManager.GameSaveLastFrame;
 
 		public int GameSaveLoadingPercentage => OrderManager.NetFrameNumber * 100 / OrderManager.GameSaveLastFrame;

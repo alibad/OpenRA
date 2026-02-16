@@ -95,6 +95,7 @@ namespace OpenRA.Mods.Common.Traits
 				});
 
 		bool agentConnected;
+		bool connectionLostHandled;
 
 		IBotInfo IBot.Info => info;
 		Player IBot.Player => player;
@@ -188,6 +189,24 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			if (!IsEnabled || self.World.IsLoadingGameSave)
 				return;
+
+			// Detect internal connection loss (TCP between client and embedded server)
+			if (!connectionLostHandled && !world.IsConnectionAlive)
+			{
+				connectionLostHandled = true;
+				Log.Write("rl-bridge", $"Internal connection lost at tick {world.WorldTick}! Orders can no longer be processed. Aborting game.");
+				new Thread(() =>
+				{
+					Thread.Sleep(500);
+					Log.Write("rl-bridge", "Exiting game process due to connection loss");
+					Game.Exit();
+				})
+				{
+					IsBackground = true,
+					Name = "RL-Bridge-ConnLost"
+				}.Start();
+				return;
+			}
 
 			try
 			{
