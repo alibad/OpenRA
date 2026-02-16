@@ -238,9 +238,8 @@ namespace OpenRA.Mods.Common.Traits
 				return null;
 			}
 
-			var cell = new CPos(cmd.TargetX, cmd.TargetY);
-
 			// Find the production queue that has this building ready
+			Actor producer = null;
 			foreach (var actor in world.ActorsHavingTrait<ProductionQueue>())
 			{
 				if (actor.Owner != player || actor.IsDead || !actor.IsInWorld)
@@ -252,18 +251,95 @@ namespace OpenRA.Mods.Common.Traits
 					{
 						if (item.Done && string.Equals(item.Item, cmd.ItemType, StringComparison.OrdinalIgnoreCase))
 						{
-							return new Order("PlaceBuilding", player.PlayerActor,
-								Target.FromCell(world, cell), false)
-							{
-								TargetString = cmd.ItemType,
-								ExtraData = actor.ActorID,
-							};
+							producer = actor;
+							break;
 						}
 					}
+
+					if (producer != null) break;
+				}
+
+				if (producer != null) break;
+			}
+
+			if (producer == null)
+			{
+				Log.Write("rl-bridge", $"Cannot place '{cmd.ItemType}': no completed building in any production queue");
+				return null;
+			}
+
+			// Resolve building info for placement validation
+			var actorInfo = world.Map.Rules.Actors[cmd.ItemType.ToLowerInvariant()];
+			var bi = actorInfo.TraitInfoOrDefault<BuildingInfo>();
+
+			// Try agent's requested position first
+			var requestedCell = new CPos(cmd.TargetX, cmd.TargetY);
+			if (cmd.TargetX != 0 || cmd.TargetY != 0)
+			{
+				if (world.CanPlaceBuilding(requestedCell, actorInfo, bi, null)
+					&& bi.IsCloseEnoughToBase(world, player, actorInfo, requestedCell))
+				{
+					Log.Write("rl-bridge", $"Placing '{cmd.ItemType}' at requested ({cmd.TargetX},{cmd.TargetY})");
+					return MakePlaceOrder(cmd.ItemType, requestedCell, producer);
 				}
 			}
 
-			Log.Write("rl-bridge", $"Cannot place '{cmd.ItemType}': no completed building in any production queue");
+			// Auto-find: search outward from base center
+			var baseCenter = GetBaseCenter();
+			var foundCell = FindPlacementCell(actorInfo, bi, baseCenter);
+			if (foundCell.HasValue)
+			{
+				Log.Write("rl-bridge", $"Auto-placed '{cmd.ItemType}' at ({foundCell.Value.X},{foundCell.Value.Y}) near base center ({baseCenter.X},{baseCenter.Y})");
+				return MakePlaceOrder(cmd.ItemType, foundCell.Value, producer);
+			}
+
+			Log.Write("rl-bridge", $"Cannot place '{cmd.ItemType}': no valid cell found near base");
+			return null;
+		}
+
+		Order MakePlaceOrder(string itemType, CPos cell, Actor producer)
+		{
+			return new Order("PlaceBuilding", player.PlayerActor,
+				Target.FromCell(world, cell), false)
+			{
+				TargetString = itemType,
+				ExtraData = producer.ActorID,
+			};
+		}
+
+		CPos GetBaseCenter()
+		{
+			// Use Construction Yard location as base center
+			foreach (var actor in world.ActorsHavingTrait<BaseProvider>())
+			{
+				if (actor.Owner == player && !actor.IsDead && actor.IsInWorld)
+					return actor.Location;
+			}
+
+			// Fallback: first owned building
+			foreach (var actor in world.ActorsHavingTrait<Building>())
+			{
+				if (actor.Owner == player && !actor.IsDead && actor.IsInWorld)
+					return actor.Location;
+			}
+
+			return new CPos(world.Map.MapSize.Width / 2, world.Map.MapSize.Height / 2);
+		}
+
+		CPos? FindPlacementCell(ActorInfo actorInfo, BuildingInfo bi, CPos center)
+		{
+			// Search in expanding rings from center, up to 20 cells out
+			foreach (var cell in world.Map.FindTilesInAnnulus(center, 0, 20))
+			{
+				if (!world.CanPlaceBuilding(cell, actorInfo, bi, null))
+					continue;
+
+				if (!bi.IsCloseEnoughToBase(world, player, actorInfo, cell))
+					continue;
+
+				return cell;
+			}
+
 			return null;
 		}
 
