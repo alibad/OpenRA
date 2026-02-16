@@ -101,6 +101,9 @@ namespace OpenRA.Mods.Common.Traits
 				case RLProto.ActionType.SetPrimary:
 					return CreateSetPrimaryOrder(cmd);
 
+				case RLProto.ActionType.Surrender:
+					return new Order("Surrender", player.PlayerActor, false);
+
 				default:
 					Log.Write("rl-bridge", $"Unknown action type: {cmd.Action}");
 					return null;

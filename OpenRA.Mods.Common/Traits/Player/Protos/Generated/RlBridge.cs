@@ -160,6 +160,10 @@ namespace OpenRA.Mods.Common.RL {
     /// Set primary production building (actor_id = building)
     /// </summary>
     [pbr::OriginalName("SET_PRIMARY")] SetPrimary = 19,
+    /// <summary>
+    /// Surrender / resign — ends the game as a loss
+    /// </summary>
+    [pbr::OriginalName("SURRENDER")] Surrender = 20,
   }
 
   #endregion
