@@ -49,7 +49,7 @@ namespace OpenRA.Mods.Common.Traits
 		public override object Create(ActorInitializer init) { return new ExternalBotBridge(this, init); }
 	}
 
-	public sealed class ExternalBotBridge : ITick, IBot, INotifyCreated, IGameOver
+	public sealed class ExternalBotBridge : ITick, IBot, INotifyCreated
 	{
 		/// <summary>
 		/// Static reference holder so the gRPC service always reaches the active bridge.
@@ -169,6 +169,10 @@ namespace OpenRA.Mods.Common.Traits
 			// Register as the active bridge (so gRPC service can reach us)
 			ActiveBridge = this;
 
+			// Pause game until RL agent connects (gives LLM time to plan)
+			world.SetLocalPauseState(true);
+			Log.Write("rl-bridge", "Game paused — waiting for RL agent to connect");
+
 			Log.Write("rl-bridge", $"ExternalBotBridge activated for player {p.InternalName}, episode {episodeId}");
 
 			// Start the gRPC server (only once across all instances)
@@ -185,10 +189,30 @@ namespace OpenRA.Mods.Common.Traits
 			orders.Enqueue(order);
 		}
 
+		bool gameOverHandled;
+
 		void ITick.Tick(Actor self)
 		{
 			if (!IsEnabled || self.World.IsLoadingGameSave)
 				return;
+
+			// Detect game over in Tick (IGameOver.GameOver doesn't fire on Player traits)
+			if (!gameOverHandled && world.IsGameOver)
+			{
+				gameOverHandled = true;
+				Log.Write("rl-bridge", $"Game over detected at tick {world.WorldTick}, scheduling graceful exit");
+
+				new Thread(() =>
+				{
+					Thread.Sleep(3000);
+					Log.Write("rl-bridge", "Exiting game process to finalize replay");
+					Game.Exit();
+				})
+				{
+					IsBackground = true,
+					Name = "RL-Bridge-GameOver"
+				}.Start();
+			}
 
 			// Detect internal connection loss (TCP between client and embedded server)
 			if (!connectionLostHandled && !world.IsConnectionAlive)
@@ -254,7 +278,8 @@ namespace OpenRA.Mods.Common.Traits
 		internal void OnAgentConnected()
 		{
 			agentConnected = true;
-			Log.Write("rl-bridge", "RL agent connected via gRPC");
+			world.SetLocalPauseState(false);
+			Log.Write("rl-bridge", "RL agent connected — game unpaused");
 		}
 
 		/// <summary>
@@ -334,27 +359,5 @@ namespace OpenRA.Mods.Common.Traits
 			};
 		}
 
-		/// <summary>
-		/// When the game ends, trigger a graceful exit so the replay is finalized.
-		/// The normal Game shutdown path disposes OrderManager → Connection → ReplayRecorder,
-		/// which writes the metadata footer needed by the replay viewer.
-		/// </summary>
-		void IGameOver.GameOver(World w)
-		{
-			Log.Write("rl-bridge", $"Game over detected, scheduling graceful exit");
-
-			// Give a short delay for the final observation to be sent, then exit.
-			// Game.Exit() triggers the normal shutdown path which flushes the replay.
-			new Thread(() =>
-			{
-				Thread.Sleep(2000);
-				Log.Write("rl-bridge", "Exiting game process to finalize replay");
-				Game.Exit();
-			})
-			{
-				IsBackground = true,
-				Name = "RL-Bridge-Exit"
-			}.Start();
-		}
 	}
 }
