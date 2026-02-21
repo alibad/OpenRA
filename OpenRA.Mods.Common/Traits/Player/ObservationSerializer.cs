@@ -118,6 +118,11 @@ namespace OpenRA.Mods.Common.Traits
 				military.UnitsLost = stats.UnitsDead;
 				military.BuildingsKilled = stats.BuildingsKilled;
 				military.BuildingsLost = stats.BuildingsDead;
+				military.KillsCost = stats.KillsCost;
+				military.DeathsCost = stats.DeathsCost;
+				military.AssetsValue = stats.AssetsValue;
+				military.Experience = stats.Experience;
+				military.OrderCount = stats.OrderCount;
 			}
 
 			// Calculate army value and active unit count

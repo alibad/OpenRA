@@ -82,11 +82,18 @@ namespace OpenRA.Mods.Common.LoadScreens
 				}
 				catch { }
 
-				if (ReplayUtils.PromptConfirmReplayCompatibility(replayMeta, Game.ModData, Game.LoadShellMap))
+				// Headless games (Game.Platform=Null) don't write replay metadata,
+				// so replayMeta may be null even for valid replays from the same engine.
+				// When Launch.Replay is set, the user explicitly wants to view a replay,
+				// so skip the compatibility dialog and play directly.
+				if (replayMeta == null)
+				{
+					Game.JoinReplay(Launch.Replay);
+				}
+				else if (ReplayUtils.PromptConfirmReplayCompatibility(replayMeta, Game.ModData, Game.LoadShellMap))
+				{
 					Game.JoinReplay(Launch.Replay);
 
-				if (replayMeta != null)
-				{
 					var modID = replayMeta.GameInfo.Mod;
 					if (modID != null && modID != Game.ModData.Manifest.Id && Game.Mods.TryGetValue(modID, out var mod))
 						Game.InitializeMod(mod, args);

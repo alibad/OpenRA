@@ -170,7 +170,9 @@ namespace OpenRA.Mods.Common.Traits
 			ActiveBridge = this;
 
 			// Pause game until RL agent connects (gives LLM time to plan)
-			world.SetLocalPauseState(true);
+			// Use SetPauseState (not SetLocalPauseState) so the pause order
+			// is recorded in the replay for correct playback.
+			world.SetPauseState(true);
 			Log.Write("rl-bridge", "Game paused — waiting for RL agent to connect");
 
 			Log.Write("rl-bridge", $"ExternalBotBridge activated for player {p.InternalName}, episode {episodeId}");
@@ -278,7 +280,7 @@ namespace OpenRA.Mods.Common.Traits
 		internal void OnAgentConnected()
 		{
 			agentConnected = true;
-			world.SetLocalPauseState(false);
+			world.SetPauseState(false);
 			Log.Write("rl-bridge", "RL agent connected — game unpaused");
 		}
 
