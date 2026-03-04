@@ -97,6 +97,9 @@ namespace OpenRA.Mods.Common.Traits
 		bool agentConnected;
 		bool connectionLostHandled;
 
+		// Fast-forward: when > 0, game runs at max speed until this tick is reached
+		int pendingFastAdvanceTarget;
+
 		IBotInfo IBot.Info => info;
 		Player IBot.Player => player;
 
@@ -122,6 +125,12 @@ namespace OpenRA.Mods.Common.Traits
 				grpcServerStarted = true;
 			}
 
+			// Allow env var override for concurrent game instances
+			var port = info.Port;
+			var envPort = Environment.GetEnvironmentVariable("RL_GRPC_PORT");
+			if (!string.IsNullOrEmpty(envPort) && int.TryParse(envPort, out var p))
+				port = p;
+
 			try
 			{
 				var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -131,7 +140,7 @@ namespace OpenRA.Mods.Common.Traits
 
 				builder.WebHost.ConfigureKestrel(options =>
 				{
-					options.ListenAnyIP(info.Port, listenOptions =>
+					options.ListenAnyIP(port, listenOptions =>
 						listenOptions.Protocols = HttpProtocols.Http2);
 				});
 
@@ -143,7 +152,7 @@ namespace OpenRA.Mods.Common.Traits
 				grpcApp = builder.Build();
 				grpcApp.MapGrpcService<RLBridgeService>();
 
-				Log.Write("rl-bridge", $"gRPC server starting on port {info.Port}, episode {episodeId}");
+				Log.Write("rl-bridge", $"gRPC server starting on port {port}, episode {episodeId}");
 				grpcApp.Run();
 			}
 			catch (Exception e)
@@ -234,11 +243,33 @@ namespace OpenRA.Mods.Common.Traits
 				return;
 			}
 
+			// Check if fast-forward target tick has been reached
+			if (pendingFastAdvanceTarget > 0 && world.WorldTick >= pendingFastAdvanceTarget)
+			{
+				world.SetTickScale(1.0f);
+				Log.Write("rl-bridge", $"Fast-forward complete at tick {world.WorldTick}, restored normal speed");
+				pendingFastAdvanceTarget = 0;
+			}
+
 			try
 			{
 				// Process all pending actions from agent (non-blocking drain)
 				while (actionChannel.Reader.TryRead(out var agentAction))
+				{
+					// Intercept FAST_ADVANCE before ActionHandler
+					foreach (var cmd in agentAction.Commands)
+					{
+						if (cmd.Action == RLProto.ActionType.FastAdvance)
+						{
+							var ticks = Math.Max(1, Math.Min(cmd.Ticks, 5000));
+							pendingFastAdvanceTarget = world.WorldTick + ticks;
+							world.SetTickScale(0.025f);
+							Log.Write("rl-bridge", $"Fast-forward: {ticks} ticks from {world.WorldTick} to {pendingFastAdvanceTarget} (tickScale=0.025)");
+						}
+					}
+
 					actionHandler.ProcessAction(agentAction, this);
+				}
 			}
 			catch (ChannelClosedException)
 			{

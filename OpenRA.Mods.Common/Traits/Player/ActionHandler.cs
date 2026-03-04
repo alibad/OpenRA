@@ -104,6 +104,10 @@ namespace OpenRA.Mods.Common.Traits
 				case RLProto.ActionType.Surrender:
 					return new Order("Surrender", player.PlayerActor, false);
 
+				case RLProto.ActionType.FastAdvance:
+					// Handled by ExternalBotBridge directly (not an Order)
+					return null;
+
 				default:
 					Log.Write("rl-bridge", $"Unknown action type: {cmd.Action}");
 					return null;
