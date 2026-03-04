@@ -67,25 +67,26 @@ namespace OpenRA.Mods.Common.RL {
             "cxgEIAEoBRIWCg5yZW1haW5pbmdfY29zdBgFIAEoBRIOCgZwYXVzZWQYBiAB",
             "KAgiPAoJUmxNYXBJbmZvEg0KBXdpZHRoGAEgASgFEg4KBmhlaWdodBgCIAEo",
             "BRIQCghtYXBfbmFtZRgDIAEoCSIzCgtBZ2VudEFjdGlvbhIkCghjb21tYW5k",
-            "cxgBIAMoCzISLm9wZW5yYS5ybC5Db21tYW5kIqIBCgdDb21tYW5kEiUKBmFj",
+            "cxgBIAMoCzISLm9wZW5yYS5ybC5Db21tYW5kIrEBCgdDb21tYW5kEiUKBmFj",
             "dGlvbhgBIAEoDjIVLm9wZW5yYS5ybC5BY3Rpb25UeXBlEhAKCGFjdG9yX2lk",
             "GAIgASgNEhcKD3RhcmdldF9hY3Rvcl9pZBgDIAEoDRIQCgh0YXJnZXRfeBgE",
             "IAEoBRIQCgh0YXJnZXRfeRgFIAEoBRIRCglpdGVtX3R5cGUYBiABKAkSDgoG",
-            "cXVldWVkGAcgASgIIpEBCglHYW1lU3RhdGUSEgoKZXBpc29kZV9pZBgBIAEo",
-            "CRIMCgR0aWNrGAIgASgFEg0KBXBoYXNlGAMgASgJEg4KBndpbm5lchgEIAEo",
-            "CRIUCgxwbGF5ZXJfY291bnQYBSABKAUSFgoOcGxheWVyX2ZhY3Rpb24YBiAB",
-            "KAkSFQoNZW5lbXlfZmFjdGlvbhgHIAEoCSIOCgxTdGF0ZVJlcXVlc3QquQIK",
-            "CkFjdGlvblR5cGUSCQoFTk9fT1AQABIICgRNT1ZFEAESDwoLQVRUQUNLX01P",
-            "VkUQAhIKCgZBVFRBQ0sQAxIICgRTVE9QEAQSCwoHSEFSVkVTVBAFEgkKBUJV",
-            "SUxEEAYSCQoFVFJBSU4QBxIKCgZERVBMT1kQCBIICgRTRUxMEAkSCgoGUkVQ",
-            "QUlSEAoSEgoOUExBQ0VfQlVJTERJTkcQCxIVChFDQU5DRUxfUFJPRFVDVElP",
-            "ThAMEhMKD1NFVF9SQUxMWV9QT0lOVBANEgkKBUdVQVJEEA4SDgoKU0VUX1NU",
-            "QU5DRRAPEhMKD0VOVEVSX1RSQU5TUE9SVBAQEgoKBlVOTE9BRBAREg4KClBP",
-            "V0VSX0RPV04QEhIPCgtTRVRfUFJJTUFSWRATEg0KCVNVUlJFTkRFUhAUMowB",
-            "CghSTEJyaWRnZRJFCgtHYW1lU2Vzc2lvbhIWLm9wZW5yYS5ybC5BZ2VudEFj",
-            "dGlvbhoaLm9wZW5yYS5ybC5HYW1lT2JzZXJ2YXRpb24oATABEjkKCEdldFN0",
-            "YXRlEhcub3BlbnJhLnJsLlN0YXRlUmVxdWVzdBoULm9wZW5yYS5ybC5HYW1l",
-            "U3RhdGVCGKoCFU9wZW5SQS5Nb2RzLkNvbW1vbi5STGIGcHJvdG8z"));
+            "cXVldWVkGAcgASgIEg0KBXRpY2tzGAggASgFIpEBCglHYW1lU3RhdGUSEgoK",
+            "ZXBpc29kZV9pZBgBIAEoCRIMCgR0aWNrGAIgASgFEg0KBXBoYXNlGAMgASgJ",
+            "Eg4KBndpbm5lchgEIAEoCRIUCgxwbGF5ZXJfY291bnQYBSABKAUSFgoOcGxh",
+            "eWVyX2ZhY3Rpb24YBiABKAkSFQoNZW5lbXlfZmFjdGlvbhgHIAEoCSIOCgxT",
+            "dGF0ZVJlcXVlc3QqywIKCkFjdGlvblR5cGUSCQoFTk9fT1AQABIICgRNT1ZF",
+            "EAESDwoLQVRUQUNLX01PVkUQAhIKCgZBVFRBQ0sQAxIICgRTVE9QEAQSCwoH",
+            "SEFSVkVTVBAFEgkKBUJVSUxEEAYSCQoFVFJBSU4QBxIKCgZERVBMT1kQCBII",
+            "CgRTRUxMEAkSCgoGUkVQQUlSEAoSEgoOUExBQ0VfQlVJTERJTkcQCxIVChFD",
+            "QU5DRUxfUFJPRFVDVElPThAMEhMKD1NFVF9SQUxMWV9QT0lOVBANEgkKBUdV",
+            "QVJEEA4SDgoKU0VUX1NUQU5DRRAPEhMKD0VOVEVSX1RSQU5TUE9SVBAQEgoK",
+            "BlVOTE9BRBAREg4KClBPV0VSX0RPV04QEhIPCgtTRVRfUFJJTUFSWRATEg0K",
+            "CVNVUlJFTkRFUhAUEhAKDEZBU1RfQURWQU5DRRAVMowBCghSTEJyaWRnZRJF",
+            "CgtHYW1lU2Vzc2lvbhIWLm9wZW5yYS5ybC5BZ2VudEFjdGlvbhoaLm9wZW5y",
+            "YS5ybC5HYW1lT2JzZXJ2YXRpb24oATABEjkKCEdldFN0YXRlEhcub3BlbnJh",
+            "LnJsLlN0YXRlUmVxdWVzdBoULm9wZW5yYS5ybC5HYW1lU3RhdGVCGKoCFU9w",
+            "ZW5SQS5Nb2RzLkNvbW1vbi5STGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::OpenRA.Mods.Common.RL.ActionType), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -97,7 +98,7 @@ namespace OpenRA.Mods.Common.RL {
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlProductionInfo), global::OpenRA.Mods.Common.RL.RlProductionInfo.Parser, new[]{ "QueueType", "Item", "Progress", "RemainingTicks", "RemainingCost", "Paused" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlMapInfo), global::OpenRA.Mods.Common.RL.RlMapInfo.Parser, new[]{ "Width", "Height", "MapName" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.AgentAction), global::OpenRA.Mods.Common.RL.AgentAction.Parser, new[]{ "Commands" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.Command), global::OpenRA.Mods.Common.RL.Command.Parser, new[]{ "Action", "ActorId", "TargetActorId", "TargetX", "TargetY", "ItemType", "Queued" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.Command), global::OpenRA.Mods.Common.RL.Command.Parser, new[]{ "Action", "ActorId", "TargetActorId", "TargetX", "TargetY", "ItemType", "Queued", "Ticks" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.GameState), global::OpenRA.Mods.Common.RL.GameState.Parser, new[]{ "EpisodeId", "Tick", "Phase", "Winner", "PlayerCount", "PlayerFaction", "EnemyFaction" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.StateRequest), global::OpenRA.Mods.Common.RL.StateRequest.Parser, null, null, null, null, null)
           }));
@@ -167,6 +168,10 @@ namespace OpenRA.Mods.Common.RL {
     /// Surrender / resign — ends the game as a loss
     /// </summary>
     [pbr::OriginalName("SURRENDER")] Surrender = 20,
+    /// <summary>
+    /// Fast-forward N ticks at CPU speed (no real-time sleeping)
+    /// </summary>
+    [pbr::OriginalName("FAST_ADVANCE")] FastAdvance = 21,
   }
 
   #endregion
@@ -726,11 +731,7 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -818,11 +819,7 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -1207,11 +1204,7 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -1250,11 +1243,7 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -1750,11 +1739,7 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -1813,11 +1798,7 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -2595,11 +2576,7 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -2690,11 +2667,7 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -3449,11 +3422,7 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -3540,11 +3509,7 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -3937,11 +3902,7 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -3980,11 +3941,7 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -4239,11 +4196,7 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -4270,11 +4223,7 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -4442,11 +4391,7 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -4465,11 +4410,7 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -4526,6 +4467,7 @@ namespace OpenRA.Mods.Common.RL {
       targetY_ = other.targetY_;
       itemType_ = other.itemType_;
       queued_ = other.queued_;
+      ticks_ = other.ticks_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -4637,6 +4579,21 @@ namespace OpenRA.Mods.Common.RL {
       }
     }
 
+    /// <summary>Field number for the "ticks" field.</summary>
+    public const int TicksFieldNumber = 8;
+    private int ticks_;
+    /// <summary>
+    /// For FAST_ADVANCE: number of ticks to fast-forward
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Ticks {
+      get { return ticks_; }
+      set {
+        ticks_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -4659,6 +4616,7 @@ namespace OpenRA.Mods.Common.RL {
       if (TargetY != other.TargetY) return false;
       if (ItemType != other.ItemType) return false;
       if (Queued != other.Queued) return false;
+      if (Ticks != other.Ticks) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -4673,6 +4631,7 @@ namespace OpenRA.Mods.Common.RL {
       if (TargetY != 0) hash ^= TargetY.GetHashCode();
       if (ItemType.Length != 0) hash ^= ItemType.GetHashCode();
       if (Queued != false) hash ^= Queued.GetHashCode();
+      if (Ticks != 0) hash ^= Ticks.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4719,6 +4678,10 @@ namespace OpenRA.Mods.Common.RL {
         output.WriteRawTag(56);
         output.WriteBool(Queued);
       }
+      if (Ticks != 0) {
+        output.WriteRawTag(64);
+        output.WriteInt32(Ticks);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -4757,6 +4720,10 @@ namespace OpenRA.Mods.Common.RL {
         output.WriteRawTag(56);
         output.WriteBool(Queued);
       }
+      if (Ticks != 0) {
+        output.WriteRawTag(64);
+        output.WriteInt32(Ticks);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -4787,6 +4754,9 @@ namespace OpenRA.Mods.Common.RL {
       }
       if (Queued != false) {
         size += 1 + 1;
+      }
+      if (Ticks != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Ticks);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -4821,6 +4791,9 @@ namespace OpenRA.Mods.Common.RL {
       if (other.Queued != false) {
         Queued = other.Queued;
       }
+      if (other.Ticks != 0) {
+        Ticks = other.Ticks;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -4832,11 +4805,7 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -4868,6 +4837,10 @@ namespace OpenRA.Mods.Common.RL {
             Queued = input.ReadBool();
             break;
           }
+          case 64: {
+            Ticks = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -4879,11 +4852,7 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -4913,6 +4882,10 @@ namespace OpenRA.Mods.Common.RL {
           }
           case 56: {
             Queued = input.ReadBool();
+            break;
+          }
+          case 64: {
+            Ticks = input.ReadInt32();
             break;
           }
         }
@@ -5264,11 +5237,7 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -5311,11 +5280,7 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -5481,11 +5446,7 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -5500,11 +5461,7 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
