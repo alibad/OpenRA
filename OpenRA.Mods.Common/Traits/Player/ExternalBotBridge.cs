@@ -11,8 +11,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Channels;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -99,6 +101,9 @@ namespace OpenRA.Mods.Common.Traits
 
 		// Fast-forward: when > 0, game runs at max speed until this tick is reached
 		int pendingFastAdvanceTarget;
+
+		// Unary FastAdvance: TaskCompletionSource completed when target tick is reached
+		TaskCompletionSource<RLProto.GameObservation> pendingAdvanceResult;
 
 		IBotInfo IBot.Info => info;
 		Player IBot.Player => player;
@@ -249,6 +254,22 @@ namespace OpenRA.Mods.Common.Traits
 				world.SetTickScale(1.0f);
 				Log.Write("rl-bridge", $"Fast-forward complete at tick {world.WorldTick}, restored normal speed");
 				pendingFastAdvanceTarget = 0;
+
+				// Complete unary FastAdvance if pending
+				if (pendingAdvanceResult != null)
+				{
+					try
+					{
+						var obs = observationSerializer.Serialize(world.WorldTick);
+						pendingAdvanceResult.TrySetResult(obs);
+					}
+					catch (Exception e)
+					{
+						pendingAdvanceResult.TrySetException(e);
+					}
+
+					pendingAdvanceResult = null;
+				}
 			}
 
 			try
@@ -347,6 +368,39 @@ namespace OpenRA.Mods.Common.Traits
 		internal ChannelWriter<RLProto.AgentAction> ActionWriter => actionChannel.Writer;
 
 		/// <summary>
+		/// Unary FastAdvance: submit commands, fast-forward N ticks, return observation.
+		/// Called from the gRPC thread; completes when game thread reaches the target tick.
+		/// </summary>
+		internal async Task<RLProto.GameObservation> RequestFastAdvance(
+			int ticks, IEnumerable<RLProto.Command> commands, CancellationToken ct)
+		{
+			// Connect agent if this is the first call (unpauses game)
+			if (!agentConnected)
+				OnAgentConnected();
+
+			// Submit commands via the action channel
+			var cmds = commands.ToList();
+			if (cmds.Count > 0)
+			{
+				var action = new RLProto.AgentAction();
+				action.Commands.Add(cmds);
+				actionChannel.Writer.TryWrite(action);
+			}
+
+			// Set up fast-advance target
+			var n = Math.Max(1, Math.Min(ticks, 5000));
+			pendingAdvanceResult = new TaskCompletionSource<RLProto.GameObservation>(
+				TaskCreationOptions.RunContinuationsAsynchronously);
+			pendingFastAdvanceTarget = world.WorldTick + n;
+			world.SetTickScale(0.025f);
+
+			Log.Write("rl-bridge", $"FastAdvance (unary): {n} ticks from {world.WorldTick} to {pendingFastAdvanceTarget}");
+
+			using var reg = ct.Register(() => pendingAdvanceResult.TrySetCanceled());
+			return await pendingAdvanceResult.Task;
+		}
+
+		/// <summary>
 		/// Get a snapshot of the current game state for unary GetState RPC.
 		/// </summary>
 		internal RLProto.GameState GetCurrentState()
@@ -391,6 +445,5 @@ namespace OpenRA.Mods.Common.Traits
 				EnemyFaction = enemyFaction,
 			};
 		}
-
 	}
 }

@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Grpc.Core;
@@ -99,6 +100,30 @@ namespace OpenRA.Mods.Common.Traits
 				bridge.OnAgentDisconnected();
 				Log.Write("rl-bridge", "GameSession ended");
 			}
+		}
+
+		/// <summary>
+		/// Unary RPC: advance N ticks with optional commands, return observation.
+		/// Bypasses streaming — works reliably on all platforms including aarch64.
+		/// </summary>
+		public override async Task<RLProto.GameObservation> FastAdvance(
+			RLProto.FastAdvanceRequest request,
+			ServerCallContext context)
+		{
+			var bridge = ExternalBotBridge.ActiveBridge;
+
+			// Wait up to 60s for bridge to activate (custom maps take longer to load)
+			for (var i = 0; i < 600 && (bridge == null || !bridge.IsEnabled); i++)
+			{
+				await Task.Delay(100, context.CancellationToken);
+				bridge = ExternalBotBridge.ActiveBridge;
+			}
+
+			if (bridge == null || !bridge.IsEnabled)
+				throw new RpcException(new Status(StatusCode.Unavailable, "Bridge not activated within 60s"));
+
+			return await bridge.RequestFastAdvance(
+				request.Ticks, request.Commands, context.CancellationToken);
 		}
 
 		/// <summary>
