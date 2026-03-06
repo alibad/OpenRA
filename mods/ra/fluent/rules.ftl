@@ -945,6 +945,15 @@ bot-turtle-ai =
 bot-naval-ai =
     .name = Naval AI
 
+bot-beginner-ai =
+    .name = Beginner AI
+
+bot-easy-ai =
+    .name = Easy AI
+
+bot-medium-ai =
+    .name = Medium AI
+
 ## rl-bot.yaml
 bot-rl-agent =
     .name = RL Agent

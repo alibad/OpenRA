@@ -99,11 +99,13 @@ namespace OpenRA.Mods.Common.Traits
 		bool agentConnected;
 		bool connectionLostHandled;
 
-		// Fast-forward: when > 0, game runs at max speed until this tick is reached
-		int pendingFastAdvanceTarget;
+		// Fast-forward: when > 0, game runs at max speed until this tick is reached.
+		// Volatile: written by gRPC thread in RequestFastAdvance, read by game thread in Tick.
+		volatile int pendingFastAdvanceTarget;
 
-		// Unary FastAdvance: TaskCompletionSource completed when target tick is reached
-		TaskCompletionSource<RLProto.GameObservation> pendingAdvanceResult;
+		// Unary FastAdvance: TaskCompletionSource completed when target tick is reached.
+		// Must be set BEFORE pendingFastAdvanceTarget (volatile write provides release fence).
+		volatile TaskCompletionSource<RLProto.GameObservation> pendingAdvanceResult;
 
 		IBotInfo IBot.Info => info;
 		Player IBot.Player => player;
