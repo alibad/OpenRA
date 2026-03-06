@@ -38,9 +38,17 @@ namespace OpenRA.Mods.Common.Traits
 			ServerCallContext context)
 		{
 			var bridge = ExternalBotBridge.ActiveBridge;
+
+			// Wait up to 60s for bridge to activate (custom maps take longer to load)
+			for (var i = 0; i < 600 && (bridge == null || !bridge.IsEnabled); i++)
+			{
+				await Task.Delay(100, context.CancellationToken);
+				bridge = ExternalBotBridge.ActiveBridge;
+			}
+
 			if (bridge == null || !bridge.IsEnabled)
 			{
-				Log.Write("rl-bridge", "GameSession rejected: no active bridge");
+				Log.Write("rl-bridge", "GameSession rejected: bridge not activated within 60s timeout");
 				return;
 			}
 
