@@ -334,7 +334,11 @@ namespace OpenRA.Mods.Common.Traits
 		internal void OnAgentConnected()
 		{
 			agentConnected = true;
-			world.SetPauseState(false);
+
+			// Use SetLocalPauseState for immediate effect — SetPauseState issues an Order
+			// which requires the game loop to process it, but Tick() doesn't run while
+			// Paused is true, creating a deadlock for custom maps where loading is slow.
+			world.SetLocalPauseState(false);
 			Log.Write("rl-bridge", "RL agent connected — game unpaused");
 		}
 
