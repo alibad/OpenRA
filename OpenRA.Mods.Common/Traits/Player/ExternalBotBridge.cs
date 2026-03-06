@@ -371,7 +371,8 @@ namespace OpenRA.Mods.Common.Traits
 
 		/// <summary>
 		/// Unary FastAdvance: submit commands, fast-forward N ticks, return observation.
-		/// Called from the gRPC thread; completes when game thread reaches the target tick.
+		/// Called from the gRPC thread; routes through the action channel so the game
+		/// thread processes the fast-advance (avoids cross-thread field visibility issues).
 		/// </summary>
 		internal async Task<RLProto.GameObservation> RequestFastAdvance(
 			int ticks, IEnumerable<RLProto.Command> commands, CancellationToken ct)
@@ -380,23 +381,26 @@ namespace OpenRA.Mods.Common.Traits
 			if (!agentConnected)
 				OnAgentConnected();
 
-			// Submit commands via the action channel
-			var cmds = commands.ToList();
-			if (cmds.Count > 0)
-			{
-				var action = new RLProto.AgentAction();
-				action.Commands.Add(cmds);
-				actionChannel.Writer.TryWrite(action);
-			}
-
-			// Set up fast-advance target
+			// Set up the TCS before sending the command (game thread will complete it)
 			var n = Math.Max(1, Math.Min(ticks, 5000));
 			pendingAdvanceResult = new TaskCompletionSource<RLProto.GameObservation>(
 				TaskCreationOptions.RunContinuationsAsynchronously);
-			pendingFastAdvanceTarget = world.WorldTick + n;
-			world.SetTickScale(0.025f);
 
-			Log.Write("rl-bridge", $"FastAdvance (unary): {n} ticks from {world.WorldTick} to {pendingFastAdvanceTarget}");
+			// Build a single AgentAction with user commands + FAST_ADVANCE
+			var action = new RLProto.AgentAction();
+			var cmds = commands.ToList();
+			if (cmds.Count > 0)
+				action.Commands.Add(cmds);
+
+			// Add the FAST_ADVANCE command — game thread will process it in Tick()
+			action.Commands.Add(new RLProto.Command
+			{
+				Action = RLProto.ActionType.FastAdvance,
+				Ticks = n,
+			});
+			actionChannel.Writer.TryWrite(action);
+
+			Log.Write("rl-bridge", $"FastAdvance (unary): queued {n} ticks via action channel");
 
 			using var reg = ct.Register(() => pendingAdvanceResult.TrySetCanceled());
 			return await pendingAdvanceResult.Task;
