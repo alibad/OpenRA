@@ -848,14 +848,19 @@ namespace OpenRA
 					const int MaxTicksPerBurst = 5000;
 					var ticksBefore = OrderManager.World?.WorldTick ?? 0;
 					for (var i = 0; i < MaxTicksPerBurst && state == RunStatus.Running && OrderManager.IsFastForwarding; i++)
+					{
+						// Force TickTime to allow immediate advancement by backdating it.
+						// Without this, ShouldAdvance() gates ticks to 1ms real-time intervals.
+						OrderManager.LastTickTime.Value = 0;
 						LogicTick();
+					}
 
 					sw.Stop();
 					var ticksAfter = OrderManager.World?.WorldTick ?? 0;
 					var ticksDone = ticksAfter - ticksBefore;
 					if (fastForwardLogCount < 20 || ticksDone > 100)
 					{
-						Log.Write("perf", $"FastForward tight-loop: {ticksDone} ticks in {sw.ElapsedMilliseconds}ms ({(ticksDone > 0 ? sw.ElapsedMilliseconds / ticksDone : 0)}ms/tick)");
+						Log.Write("perf", $"FastForward tight-loop: {ticksDone} ticks in {sw.ElapsedMilliseconds}ms ({(ticksDone > 0 ? (double)sw.ElapsedMilliseconds / ticksDone : 0):F2}ms/tick)");
 						fastForwardLogCount++;
 					}
 
