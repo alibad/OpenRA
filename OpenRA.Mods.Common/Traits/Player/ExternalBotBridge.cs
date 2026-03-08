@@ -220,6 +220,27 @@ namespace OpenRA.Mods.Common.Traits
 				gameOverHandled = true;
 				Log.Write("rl-bridge", $"Game over detected at tick {world.WorldTick}, scheduling graceful exit");
 
+				// Complete any pending FastAdvance so the gRPC call returns immediately
+				// instead of hanging until the 300s deadline.
+				if (pendingAdvanceResult != null)
+				{
+					try
+					{
+						var obs = observationSerializer.Serialize(world.WorldTick);
+						obs.Done = true;
+						obs.Result = player.WinState == WinState.Won ? "win" : "lose";
+						pendingAdvanceResult.TrySetResult(obs);
+					}
+					catch (Exception e)
+					{
+						pendingAdvanceResult.TrySetException(e);
+					}
+
+					pendingAdvanceResult = null;
+					pendingFastAdvanceTarget = 0;
+					world.SetTickScale(1.0f);
+				}
+
 				new Thread(() =>
 				{
 					Thread.Sleep(3000);
@@ -237,6 +258,16 @@ namespace OpenRA.Mods.Common.Traits
 			{
 				connectionLostHandled = true;
 				Log.Write("rl-bridge", $"Internal connection lost at tick {world.WorldTick}! Orders can no longer be processed. Aborting game.");
+
+				// Complete any pending FastAdvance so gRPC doesn't hang
+				if (pendingAdvanceResult != null)
+				{
+					pendingAdvanceResult.TrySetCanceled();
+					pendingAdvanceResult = null;
+					pendingFastAdvanceTarget = 0;
+					world.SetTickScale(1.0f);
+				}
+
 				new Thread(() =>
 				{
 					Thread.Sleep(500);
