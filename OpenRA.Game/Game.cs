@@ -835,6 +835,25 @@ namespace OpenRA
 
 			while (state == RunStatus.Running)
 			{
+				// Headless fast-forward: bypass timing/render system entirely.
+				// Runs logic ticks in a tight loop with no sleep or render interleave.
+				// ExternalBotBridge sets tickScale < 1.0 during advance(), which makes
+				// IsFastForwarding true. We batch up to 5000 ticks per iteration to
+				// avoid starving other threads indefinitely.
+				if (IsHeadless && OrderManager.IsFastForwarding)
+				{
+					const int MaxTicksPerBurst = 5000;
+					for (var i = 0; i < MaxTicksPerBurst && state == RunStatus.Running && OrderManager.IsFastForwarding; i++)
+						LogicTick();
+
+					// Reset timing state so the normal loop resumes cleanly
+					nextLogic = RunTime;
+					nextRender = RunTime;
+					forcedNextRender = RunTime;
+					renderBeforeNextTick = false;
+					continue;
+				}
+
 				var logicInterval = Ui.Timestep;
 				var logicWorld = worldRenderer?.World;
 
