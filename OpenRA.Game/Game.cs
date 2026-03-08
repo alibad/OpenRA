@@ -833,6 +833,8 @@ namespace OpenRA
 			var forcedNextRender = RunTime;
 			var renderBeforeNextTick = false;
 
+			var fastForwardLogCount = 0;
+
 			while (state == RunStatus.Running)
 			{
 				// Headless fast-forward: bypass timing/render system entirely.
@@ -842,9 +844,20 @@ namespace OpenRA
 				// avoid starving other threads indefinitely.
 				if (IsHeadless && OrderManager.IsFastForwarding)
 				{
+					var sw = System.Diagnostics.Stopwatch.StartNew();
 					const int MaxTicksPerBurst = 5000;
+					var ticksBefore = OrderManager.World?.WorldTick ?? 0;
 					for (var i = 0; i < MaxTicksPerBurst && state == RunStatus.Running && OrderManager.IsFastForwarding; i++)
 						LogicTick();
+
+					sw.Stop();
+					var ticksAfter = OrderManager.World?.WorldTick ?? 0;
+					var ticksDone = ticksAfter - ticksBefore;
+					if (fastForwardLogCount < 20 || ticksDone > 100)
+					{
+						Log.Write("perf", $"FastForward tight-loop: {ticksDone} ticks in {sw.ElapsedMilliseconds}ms ({(ticksDone > 0 ? sw.ElapsedMilliseconds / ticksDone : 0)}ms/tick)");
+						fastForwardLogCount++;
+					}
 
 					// Reset timing state so the normal loop resumes cleanly
 					nextLogic = RunTime;
