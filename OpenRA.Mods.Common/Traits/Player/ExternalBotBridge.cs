@@ -61,6 +61,7 @@ namespace OpenRA.Mods.Common.Traits
 
 		static WebApplication grpcApp;
 		static bool grpcServerStarted;
+		static volatile bool suppressExitOnDisconnect;
 		static readonly object GrpcLock = new();
 
 		public bool IsEnabled;
@@ -184,6 +185,7 @@ namespace OpenRA.Mods.Common.Traits
 
 			// Register as the active bridge (so gRPC service can reach us)
 			ActiveBridge = this;
+			suppressExitOnDisconnect = false;
 
 			// Pause game until RL agent connects (gives LLM time to plan)
 			// Use SetPauseState (not SetLocalPauseState) so the pause order
@@ -241,16 +243,19 @@ namespace OpenRA.Mods.Common.Traits
 					world.SetTickScale(1.0f);
 				}
 
-				new Thread(() =>
+				if (!suppressExitOnDisconnect)
 				{
-					Thread.Sleep(3000);
-					Log.Write("rl-bridge", "Exiting game process to finalize replay");
-					Game.Exit();
-				})
-				{
-					IsBackground = true,
-					Name = "RL-Bridge-GameOver"
-				}.Start();
+					new Thread(() =>
+					{
+						Thread.Sleep(3000);
+						Log.Write("rl-bridge", "Exiting game process to finalize replay");
+						Game.Exit();
+					})
+					{
+						IsBackground = true,
+						Name = "RL-Bridge-GameOver"
+					}.Start();
+				}
 			}
 
 			// Detect internal connection loss (TCP between client and embedded server)
@@ -380,6 +385,13 @@ namespace OpenRA.Mods.Common.Traits
 		internal void OnAgentDisconnected()
 		{
 			agentConnected = false;
+
+			if (suppressExitOnDisconnect)
+			{
+				Log.Write("rl-bridge", "Agent disconnected during SoftReset, suppressing exit");
+				return;
+			}
+
 			Log.Write("rl-bridge", "RL agent disconnected, scheduling graceful exit");
 
 			new Thread(() =>
@@ -444,6 +456,41 @@ namespace OpenRA.Mods.Common.Traits
 		/// <summary>
 		/// Get a snapshot of the current game state for unary GetState RPC.
 		/// </summary>
+		/// <summary>
+		/// Request an in-process map reload. Called from gRPC thread;
+		/// schedules Game.LoadMap on the game thread via RunAfterTick.
+		/// The old bridge is deactivated; a new ExternalBotBridge instance
+		/// will be created by the new World and set itself as ActiveBridge.
+		/// </summary>
+		internal static void RequestSoftReset(string mapName, string bots)
+		{
+			Log.Write("rl-bridge", $"SoftReset requested: map={mapName}, bots={bots}");
+			suppressExitOnDisconnect = true;
+			
+			// Deactivate current bridge so new one can take over
+			var current = ActiveBridge;
+			if (current != null)
+			{
+				current.IsEnabled = false;
+				current.agentConnected = false;
+				ActiveBridge = null;
+			}
+			
+			// Schedule map reload on the game thread (NOT the gRPC thread)
+			Game.RunAfterTick(() =>
+			{
+				try
+				{
+					Log.Write("rl-bridge", $"Executing Game.LoadMap({mapName})");
+					Game.LoadMap(mapName, string.IsNullOrEmpty(bots) ? null : bots);
+				}
+				catch (Exception e)
+				{
+					Log.Write("rl-bridge", $"SoftReset LoadMap failed: {e}");
+				}
+			});
+		}
+
 		internal RLProto.GameState GetCurrentState()
 		{
 			var phase = !IsEnabled ? "waiting"

@@ -76,20 +76,23 @@ namespace OpenRA.Mods.Common.RL {
             "bGF5ZXJfY291bnQYBSABKAUSFgoOcGxheWVyX2ZhY3Rpb24YBiABKAkSFQoN",
             "ZW5lbXlfZmFjdGlvbhgHIAEoCSIOCgxTdGF0ZVJlcXVlc3QiSQoSRmFzdEFk",
             "dmFuY2VSZXF1ZXN0Eg0KBXRpY2tzGAEgASgFEiQKCGNvbW1hbmRzGAIgAygL",
-            "MhIub3BlbnJhLnJsLkNvbW1hbmQqywIKCkFjdGlvblR5cGUSCQoFTk9fT1AQ",
-            "ABIICgRNT1ZFEAESDwoLQVRUQUNLX01PVkUQAhIKCgZBVFRBQ0sQAxIICgRT",
-            "VE9QEAQSCwoHSEFSVkVTVBAFEgkKBUJVSUxEEAYSCQoFVFJBSU4QBxIKCgZE",
-            "RVBMT1kQCBIICgRTRUxMEAkSCgoGUkVQQUlSEAoSEgoOUExBQ0VfQlVJTERJ",
-            "TkcQCxIVChFDQU5DRUxfUFJPRFVDVElPThAMEhMKD1NFVF9SQUxMWV9QT0lO",
-            "VBANEgkKBUdVQVJEEA4SDgoKU0VUX1NUQU5DRRAPEhMKD0VOVEVSX1RSQU5T",
-            "UE9SVBAQEgoKBlVOTE9BRBAREg4KClBPV0VSX0RPV04QEhIPCgtTRVRfUFJJ",
-            "TUFSWRATEg0KCVNVUlJFTkRFUhAUEhAKDEZBU1RfQURWQU5DRRAVMtYBCghS",
-            "TEJyaWRnZRJFCgtHYW1lU2Vzc2lvbhIWLm9wZW5yYS5ybC5BZ2VudEFjdGlv",
-            "bhoaLm9wZW5yYS5ybC5HYW1lT2JzZXJ2YXRpb24oATABEjkKCEdldFN0YXRl",
-            "Ehcub3BlbnJhLnJsLlN0YXRlUmVxdWVzdBoULm9wZW5yYS5ybC5HYW1lU3Rh",
-            "dGUSSAoLRmFzdEFkdmFuY2USHS5vcGVucmEucmwuRmFzdEFkdmFuY2VSZXF1",
-            "ZXN0Ghoub3BlbnJhLnJsLkdhbWVPYnNlcnZhdGlvbkIYqgIVT3BlblJBLk1v",
-            "ZHMuQ29tbW9uLlJMYgZwcm90bzM="));
+            "MhIub3BlbnJhLnJsLkNvbW1hbmQiQAoQU29mdFJlc2V0UmVxdWVzdBIQCght",
+            "YXBfbmFtZRgBIAEoCRIMCgRib3RzGAIgASgJEgwKBHNlZWQYAyABKAUqywIK",
+            "CkFjdGlvblR5cGUSCQoFTk9fT1AQABIICgRNT1ZFEAESDwoLQVRUQUNLX01P",
+            "VkUQAhIKCgZBVFRBQ0sQAxIICgRTVE9QEAQSCwoHSEFSVkVTVBAFEgkKBUJV",
+            "SUxEEAYSCQoFVFJBSU4QBxIKCgZERVBMT1kQCBIICgRTRUxMEAkSCgoGUkVQ",
+            "QUlSEAoSEgoOUExBQ0VfQlVJTERJTkcQCxIVChFDQU5DRUxfUFJPRFVDVElP",
+            "ThAMEhMKD1NFVF9SQUxMWV9QT0lOVBANEgkKBUdVQVJEEA4SDgoKU0VUX1NU",
+            "QU5DRRAPEhMKD0VOVEVSX1RSQU5TUE9SVBAQEgoKBlVOTE9BRBAREg4KClBP",
+            "V0VSX0RPV04QEhIPCgtTRVRfUFJJTUFSWRATEg0KCVNVUlJFTkRFUhAUEhAK",
+            "DEZBU1RfQURWQU5DRRAVMpYCCghSTEJyaWRnZRJFCgtHYW1lU2Vzc2lvbhIW",
+            "Lm9wZW5yYS5ybC5BZ2VudEFjdGlvbhoaLm9wZW5yYS5ybC5HYW1lT2JzZXJ2",
+            "YXRpb24oATABEjkKCEdldFN0YXRlEhcub3BlbnJhLnJsLlN0YXRlUmVxdWVz",
+            "dBoULm9wZW5yYS5ybC5HYW1lU3RhdGUSSAoLRmFzdEFkdmFuY2USHS5vcGVu",
+            "cmEucmwuRmFzdEFkdmFuY2VSZXF1ZXN0Ghoub3BlbnJhLnJsLkdhbWVPYnNl",
+            "cnZhdGlvbhI+CglTb2Z0UmVzZXQSGy5vcGVucmEucmwuU29mdFJlc2V0UmVx",
+            "dWVzdBoULm9wZW5yYS5ybC5HYW1lU3RhdGVCGKoCFU9wZW5SQS5Nb2RzLkNv",
+            "bW1vbi5STGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::OpenRA.Mods.Common.RL.ActionType), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -104,7 +107,8 @@ namespace OpenRA.Mods.Common.RL {
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.Command), global::OpenRA.Mods.Common.RL.Command.Parser, new[]{ "Action", "ActorId", "TargetActorId", "TargetX", "TargetY", "ItemType", "Queued", "Ticks" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.GameState), global::OpenRA.Mods.Common.RL.GameState.Parser, new[]{ "EpisodeId", "Tick", "Phase", "Winner", "PlayerCount", "PlayerFaction", "EnemyFaction" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.StateRequest), global::OpenRA.Mods.Common.RL.StateRequest.Parser, null, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.FastAdvanceRequest), global::OpenRA.Mods.Common.RL.FastAdvanceRequest.Parser, new[]{ "Ticks", "Commands" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.FastAdvanceRequest), global::OpenRA.Mods.Common.RL.FastAdvanceRequest.Parser, new[]{ "Ticks", "Commands" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.SoftResetRequest), global::OpenRA.Mods.Common.RL.SoftResetRequest.Parser, new[]{ "MapName", "Bots", "Seed" }, null, null, null, null)
           }));
     }
     #endregion
@@ -181,7 +185,6 @@ namespace OpenRA.Mods.Common.RL {
   #endregion
 
   #region Messages
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class GameObservation : pb::IMessage<GameObservation>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -907,7 +910,6 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RlEconomy : pb::IMessage<RlEconomy>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -1282,7 +1284,6 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RlMilitary : pb::IMessage<RlMilitary>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -1857,7 +1858,6 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RlUnitInfo : pb::IMessage<RlUnitInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -2758,7 +2758,6 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RlBuildingInfo : pb::IMessage<RlBuildingInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -3596,7 +3595,6 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RlProductionInfo : pb::IMessage<RlProductionInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -3980,7 +3978,6 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RlMapInfo : pb::IMessage<RlMapInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -4250,7 +4247,6 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class AgentAction : pb::IMessage<AgentAction>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -4429,7 +4425,6 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class Command : pb::IMessage<Command>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -4899,7 +4894,6 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class GameState : pb::IMessage<GameState>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -5323,7 +5317,6 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class StateRequest : pb::IMessage<StateRequest>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -5476,7 +5469,6 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class FastAdvanceRequest : pb::IMessage<FastAdvanceRequest>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -5683,6 +5675,278 @@ namespace OpenRA.Mods.Common.RL {
           }
           case 18: {
             commands_.AddEntriesFrom(ref input, _repeated_commands_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class SoftResetRequest : pb::IMessage<SoftResetRequest>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<SoftResetRequest> _parser = new pb::MessageParser<SoftResetRequest>(() => new SoftResetRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<SoftResetRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[12]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SoftResetRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SoftResetRequest(SoftResetRequest other) : this() {
+      mapName_ = other.mapName_;
+      bots_ = other.bots_;
+      seed_ = other.seed_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SoftResetRequest Clone() {
+      return new SoftResetRequest(this);
+    }
+
+    /// <summary>Field number for the "map_name" field.</summary>
+    public const int MapNameFieldNumber = 1;
+    private string mapName_ = "";
+    /// <summary>
+    /// Map file name or UID (empty = reload same map)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string MapName {
+      get { return mapName_; }
+      set {
+        mapName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "bots" field.</summary>
+    public const int BotsFieldNumber = 2;
+    private string bots_ = "";
+    /// <summary>
+    /// Bot config "slot:type,slot:type" (empty = same config)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Bots {
+      get { return bots_; }
+      set {
+        bots_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "seed" field.</summary>
+    public const int SeedFieldNumber = 3;
+    private int seed_;
+    /// <summary>
+    /// Random seed (0 = auto)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Seed {
+      get { return seed_; }
+      set {
+        seed_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as SoftResetRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(SoftResetRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (MapName != other.MapName) return false;
+      if (Bots != other.Bots) return false;
+      if (Seed != other.Seed) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (MapName.Length != 0) hash ^= MapName.GetHashCode();
+      if (Bots.Length != 0) hash ^= Bots.GetHashCode();
+      if (Seed != 0) hash ^= Seed.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (MapName.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(MapName);
+      }
+      if (Bots.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Bots);
+      }
+      if (Seed != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(Seed);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (MapName.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(MapName);
+      }
+      if (Bots.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Bots);
+      }
+      if (Seed != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(Seed);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (MapName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(MapName);
+      }
+      if (Bots.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Bots);
+      }
+      if (Seed != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Seed);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(SoftResetRequest other) {
+      if (other == null) {
+        return;
+      }
+      if (other.MapName.Length != 0) {
+        MapName = other.MapName;
+      }
+      if (other.Bots.Length != 0) {
+        Bots = other.Bots;
+      }
+      if (other.Seed != 0) {
+        Seed = other.Seed;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            MapName = input.ReadString();
+            break;
+          }
+          case 18: {
+            Bots = input.ReadString();
+            break;
+          }
+          case 24: {
+            Seed = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            MapName = input.ReadString();
+            break;
+          }
+          case 18: {
+            Bots = input.ReadString();
+            break;
+          }
+          case 24: {
+            Seed = input.ReadInt32();
             break;
           }
         }

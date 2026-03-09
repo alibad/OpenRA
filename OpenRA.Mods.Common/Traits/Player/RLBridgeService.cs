@@ -144,5 +144,29 @@ namespace OpenRA.Mods.Common.Traits
 
 			return Task.FromResult(bridge.GetCurrentState());
 		}
+		/// <summary>
+		/// Unary RPC: reload map within the same process.
+		/// Deactivates current bridge, triggers Game.LoadMap on game thread,
+		/// waits for new bridge to activate, returns new GameState.
+		/// </summary>
+		public override async Task<RLProto.GameState> SoftReset(
+			RLProto.SoftResetRequest request,
+			ServerCallContext context)
+		{
+			ExternalBotBridge.RequestSoftReset(request.MapName, request.Bots);
+			
+			// Wait for new bridge to activate (new World creates new ExternalBotBridge)
+			for (var i = 0; i < 300; i++)  // 30s max
+			{
+				await Task.Delay(100, context.CancellationToken);
+				var bridge = ExternalBotBridge.ActiveBridge;
+				if (bridge != null && bridge.IsEnabled)
+					return bridge.GetCurrentState();
+			}
+			
+			throw new RpcException(new Status(StatusCode.DeadlineExceeded,
+				"SoftReset: new bridge did not activate within 30s"));
+		}
+
 	}
 }

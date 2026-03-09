@@ -59,6 +59,8 @@ namespace OpenRA.Mods.Common.RL {
     static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.GameState> __Marshaller_openra_rl_GameState = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.GameState.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.FastAdvanceRequest> __Marshaller_openra_rl_FastAdvanceRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.FastAdvanceRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.SoftResetRequest> __Marshaller_openra_rl_SoftResetRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.SoftResetRequest.Parser));
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::OpenRA.Mods.Common.RL.AgentAction, global::OpenRA.Mods.Common.RL.GameObservation> __Method_GameSession = new grpc::Method<global::OpenRA.Mods.Common.RL.AgentAction, global::OpenRA.Mods.Common.RL.GameObservation>(
@@ -83,6 +85,14 @@ namespace OpenRA.Mods.Common.RL {
         "FastAdvance",
         __Marshaller_openra_rl_FastAdvanceRequest,
         __Marshaller_openra_rl_GameObservation);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::OpenRA.Mods.Common.RL.SoftResetRequest, global::OpenRA.Mods.Common.RL.GameState> __Method_SoftReset = new grpc::Method<global::OpenRA.Mods.Common.RL.SoftResetRequest, global::OpenRA.Mods.Common.RL.GameState>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "SoftReset",
+        __Marshaller_openra_rl_SoftResetRequest,
+        __Marshaller_openra_rl_GameState);
 
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
@@ -129,6 +139,19 @@ namespace OpenRA.Mods.Common.RL {
       /// <returns>The response to send back to the client (wrapped by a task).</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::OpenRA.Mods.Common.RL.GameObservation> FastAdvance(global::OpenRA.Mods.Common.RL.FastAdvanceRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      /// <summary>
+      /// Unary: reload map within the same process (no JIT, no process restart).
+      /// Returns GameState when the new world is ready.
+      /// </summary>
+      /// <param name="request">The request received from the client.</param>
+      /// <param name="context">The context of the server-side call handler being invoked.</param>
+      /// <returns>The response to send back to the client (wrapped by a task).</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::OpenRA.Mods.Common.RL.GameState> SoftReset(global::OpenRA.Mods.Common.RL.SoftResetRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -286,6 +309,58 @@ namespace OpenRA.Mods.Common.RL {
       {
         return CallInvoker.AsyncUnaryCall(__Method_FastAdvance, null, options, request);
       }
+      /// <summary>
+      /// Unary: reload map within the same process (no JIT, no process restart).
+      /// Returns GameState when the new world is ready.
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::OpenRA.Mods.Common.RL.GameState SoftReset(global::OpenRA.Mods.Common.RL.SoftResetRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return SoftReset(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      /// Unary: reload map within the same process (no JIT, no process restart).
+      /// Returns GameState when the new world is ready.
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::OpenRA.Mods.Common.RL.GameState SoftReset(global::OpenRA.Mods.Common.RL.SoftResetRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_SoftReset, null, options, request);
+      }
+      /// <summary>
+      /// Unary: reload map within the same process (no JIT, no process restart).
+      /// Returns GameState when the new world is ready.
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::OpenRA.Mods.Common.RL.GameState> SoftResetAsync(global::OpenRA.Mods.Common.RL.SoftResetRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return SoftResetAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      /// Unary: reload map within the same process (no JIT, no process restart).
+      /// Returns GameState when the new world is ready.
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::OpenRA.Mods.Common.RL.GameState> SoftResetAsync(global::OpenRA.Mods.Common.RL.SoftResetRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_SoftReset, null, options, request);
+      }
       /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       protected override RLBridgeClient NewInstance(ClientBaseConfiguration configuration)
@@ -302,7 +377,8 @@ namespace OpenRA.Mods.Common.RL {
       return grpc::ServerServiceDefinition.CreateBuilder()
           .AddMethod(__Method_GameSession, serviceImpl.GameSession)
           .AddMethod(__Method_GetState, serviceImpl.GetState)
-          .AddMethod(__Method_FastAdvance, serviceImpl.FastAdvance).Build();
+          .AddMethod(__Method_FastAdvance, serviceImpl.FastAdvance)
+          .AddMethod(__Method_SoftReset, serviceImpl.SoftReset).Build();
     }
 
     /// <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
@@ -315,6 +391,7 @@ namespace OpenRA.Mods.Common.RL {
       serviceBinder.AddMethod(__Method_GameSession, serviceImpl == null ? null : new grpc::DuplexStreamingServerMethod<global::OpenRA.Mods.Common.RL.AgentAction, global::OpenRA.Mods.Common.RL.GameObservation>(serviceImpl.GameSession));
       serviceBinder.AddMethod(__Method_GetState, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.StateRequest, global::OpenRA.Mods.Common.RL.GameState>(serviceImpl.GetState));
       serviceBinder.AddMethod(__Method_FastAdvance, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.FastAdvanceRequest, global::OpenRA.Mods.Common.RL.GameObservation>(serviceImpl.FastAdvance));
+      serviceBinder.AddMethod(__Method_SoftReset, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.SoftResetRequest, global::OpenRA.Mods.Common.RL.GameState>(serviceImpl.SoftReset));
     }
 
   }
