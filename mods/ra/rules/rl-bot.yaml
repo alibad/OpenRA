@@ -3,4 +3,4 @@ Player:
 		Name: bot-rl-agent.name
 		Type: rl-agent
 		Port: 9999
-		ObservationInterval: 1
+		ObservationInterval: 9999
