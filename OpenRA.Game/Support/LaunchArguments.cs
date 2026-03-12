@@ -34,6 +34,9 @@ namespace OpenRA
 		[Desc("Add bots to map slots on auto-start. Format: slot:bottype,slot:bottype (e.g. Multi1:normal,Multi0:rl-agent).")]
 		public string Bots;
 
+		[Desc("Start in multi-session RL mode. A single process hosts multiple concurrent game sessions via gRPC.")]
+		public string MultiSession;
+
 		public LaunchArguments(Arguments args)
 		{
 			if (args == null)

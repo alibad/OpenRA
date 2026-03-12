@@ -185,7 +185,7 @@ namespace OpenRA
 
 		bool wasLoadingGameSave;
 
-		internal World(Map map, ModData modData, OrderManager orderManager, WorldType type)
+		public World(Map map, ModData modData, OrderManager orderManager, WorldType type)
 		{
 			Type = type;
 			OrderManager = orderManager;

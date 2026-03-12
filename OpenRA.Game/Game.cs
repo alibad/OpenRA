@@ -50,7 +50,7 @@ namespace OpenRA
 		static WorldRenderer worldRenderer;
 		static string modLaunchWrapper;
 
-		internal static OrderManager OrderManager;
+		public static OrderManager OrderManager;
 		static Server.Server server;
 
 		public static MersenneTwister CosmeticRandom = new(); // not synced

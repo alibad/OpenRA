@@ -117,9 +117,9 @@ namespace OpenRA.Mods.Common.Traits
 			map.Tiles.CellEntryChanged -= UpdateCell;
 			map.Height.CellEntryChanged -= UpdateCell;
 
-			spriteLayer.Dispose();
+			spriteLayer?.Dispose();
 
-			tileCache.Dispose();
+			tileCache?.Dispose();
 			disposed = true;
 		}
 
