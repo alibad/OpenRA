@@ -44,6 +44,12 @@ namespace OpenRA.Mods.Common.Traits
 			public readonly OrderManager OrderManager;
 			public readonly World World;
 
+			/// <summary>Prevents two concurrent FastAdvance calls from ticking the same World.</summary>
+			public readonly SemaphoreSlim TickLock = new(1, 1);
+
+			/// <summary>Track in-flight work so DestroySession can wait for it to finish.</summary>
+			public volatile WorkItem ActiveWorkItem;
+
 			public SessionState(OrderManager om, World w)
 			{
 				OrderManager = om;
@@ -105,15 +111,32 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			foreach (var item in workQueue.GetConsumingEnumerable())
 			{
+				var state = item.State;
+				state.ActiveWorkItem = item;
 				try
 				{
-					TickSession(item.State, item.Bridge);
+					// Per-session lock: prevents two concurrent FastAdvance calls
+					// from ticking the same World simultaneously.
+					state.TickLock.Wait();
+					try
+					{
+						TickSession(state, item.Bridge);
+					}
+					finally
+					{
+						state.TickLock.Release();
+					}
+
 					item.Completed.TrySetResult(true);
 				}
 				catch (Exception e)
 				{
 					Log.Write("rl-bridge", $"Worker error: {e}");
 					item.Completed.TrySetException(e);
+				}
+				finally
+				{
+					state.ActiveWorkItem = null;
 				}
 			}
 		}
@@ -185,6 +208,14 @@ namespace OpenRA.Mods.Common.Traits
 
 			if (SessionStates.TryRemove(sessionId, out var state))
 			{
+				// Wait for any in-flight work to finish before disposing
+				var activeWork = state.ActiveWorkItem;
+				if (activeWork != null)
+				{
+					try { activeWork.Completed.Task.Wait(TimeSpan.FromSeconds(10)); }
+					catch { /* timeout or cancelled — proceed with dispose */ }
+				}
+
 				try
 				{
 					state.World?.Dispose();
@@ -223,7 +254,7 @@ namespace OpenRA.Mods.Common.Traits
 			{
 				orderManager.LastTickTime.Value = 0;
 
-				Sync.RunUnsynced(world, () =>
+				Sync.RunUnsynced(false, world, () =>
 				{
 					orderManager.TickImmediate();
 					return true;
@@ -261,11 +292,10 @@ namespace OpenRA.Mods.Common.Traits
 				return;
 			}
 
-			// 2. Prepare map (serialized — PrepareMap modifies shared loader state)
-			Map map;
+			// 2. Load map from disk (no lock needed), then prepare (serialized — modifies shared state)
+			var map = mapPreview.ToMap();
 			lock (PrepareMapLock)
 			{
-				map = mapPreview.ToMap();
 				modData.PrepareMap(map);
 			}
 
@@ -311,6 +341,10 @@ namespace OpenRA.Mods.Common.Traits
 				return;
 			}
 
+			// 8. Store session state BEFORE re-registering bridge, so FastAdvance
+			// can find the state as soon as GetState returns "playing".
+			SessionStates[sessionId] = new SessionState(orderManager, world);
+
 			// Re-register under the requested sessionId
 			var actualId = bridge.SessionId;
 			if (actualId != sessionId)
@@ -318,9 +352,6 @@ namespace OpenRA.Mods.Common.Traits
 				ExternalBotBridge.Sessions.TryRemove(actualId, out _);
 				ExternalBotBridge.Sessions[sessionId] = bridge;
 			}
-
-			// 8. Store session state for worker pool ticking
-			SessionStates[sessionId] = new SessionState(orderManager, world);
 
 			Log.Write("rl-bridge", $"Session {sessionId}: Ready (init thread exiting)");
 		}

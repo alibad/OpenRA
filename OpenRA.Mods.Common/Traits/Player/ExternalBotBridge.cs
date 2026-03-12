@@ -66,7 +66,7 @@ namespace OpenRA.Mods.Common.Traits
 		/// True when running in multi-session mode (RLSessionManager manages lifecycle).
 		/// When false, the bridge manages its own gRPC server and calls Game.Exit() on teardown.
 		/// </summary>
-		internal static bool MultiSessionMode;
+		internal static volatile bool MultiSessionMode;
 
 		/// <summary>
 		/// In multi-session mode, set this before World creation to assign
@@ -79,7 +79,7 @@ namespace OpenRA.Mods.Common.Traits
 		static bool grpcServerStarted;
 		static readonly object GrpcLock = new();
 
-		public bool IsEnabled;
+		public volatile bool IsEnabled;
 
 		readonly ExternalBotBridgeInfo info;
 		readonly World world;
@@ -112,7 +112,7 @@ namespace OpenRA.Mods.Common.Traits
 					SingleReader = true,
 				});
 
-		bool agentConnected;
+		volatile bool agentConnected;
 		bool connectionLostHandled;
 
 		// Fast-forward: when > 0, game runs at max speed until this tick is reached.
@@ -291,18 +291,19 @@ namespace OpenRA.Mods.Common.Traits
 
 				// Complete any pending FastAdvance so the gRPC call returns immediately
 				// instead of hanging until the 300s deadline.
-				if (pendingAdvanceResult != null)
+				var gameOverTcs = pendingAdvanceResult;
+				if (gameOverTcs != null)
 				{
 					try
 					{
 						var obs = observationSerializer.Serialize(world.WorldTick);
 						obs.Done = true;
 						obs.Result = player.WinState == WinState.Won ? "win" : "lose";
-						pendingAdvanceResult.TrySetResult(obs);
+						gameOverTcs.TrySetResult(obs);
 					}
 					catch (Exception e)
 					{
-						pendingAdvanceResult.TrySetException(e);
+						gameOverTcs.TrySetException(e);
 					}
 
 					pendingAdvanceResult = null;
@@ -338,9 +339,10 @@ namespace OpenRA.Mods.Common.Traits
 				Log.Write("rl-bridge", $"Internal connection lost at tick {world.WorldTick}! Session {episodeId}.");
 
 				// Complete any pending FastAdvance so gRPC doesn't hang
-				if (pendingAdvanceResult != null)
+				var connLostTcs = pendingAdvanceResult;
+				if (connLostTcs != null)
 				{
-					pendingAdvanceResult.TrySetCanceled();
+					connLostTcs.TrySetCanceled();
 					pendingAdvanceResult = null;
 					pendingFastAdvanceTarget = 0;
 					world.SetTickScale(1.0f);
@@ -375,16 +377,17 @@ namespace OpenRA.Mods.Common.Traits
 				pendingFastAdvanceTarget = 0;
 
 				// Complete unary FastAdvance if pending
-				if (pendingAdvanceResult != null)
+				var advTcs = pendingAdvanceResult;
+				if (advTcs != null)
 				{
 					try
 					{
 						var obs = observationSerializer.Serialize(world.WorldTick);
-						pendingAdvanceResult.TrySetResult(obs);
+						advTcs.TrySetResult(obs);
 					}
 					catch (Exception e)
 					{
-						pendingAdvanceResult.TrySetException(e);
+						advTcs.TrySetException(e);
 					}
 
 					pendingAdvanceResult = null;

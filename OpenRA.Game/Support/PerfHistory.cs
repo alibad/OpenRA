@@ -16,7 +16,7 @@ namespace OpenRA.Support
 	public static class PerfHistory
 	{
 		/// <summary>When true, Increment is a no-op. Set in headless/multi-session mode to avoid lock contention.</summary>
-		public static bool Disabled;
+		public static volatile bool Disabled;
 
 		static readonly Color[] Colors =
 		[
