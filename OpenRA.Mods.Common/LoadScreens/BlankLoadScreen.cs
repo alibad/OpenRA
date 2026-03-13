@@ -11,9 +11,11 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using OpenRA.FileFormats;
 using OpenRA.FileSystem;
 using OpenRA.Mods.Common.FileSystem;
+using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.Common.Widgets.Logic;
 using OpenRA.Widgets;
 
@@ -62,6 +64,36 @@ namespace OpenRA.Mods.Common.LoadScreens
 			{
 				Game.LoadShellMap();
 				Game.RemoteDirectConnect(connect);
+				return;
+			}
+
+			// Multi-session RL mode: single process hosts multiple game sessions via gRPC
+			if (!string.IsNullOrEmpty(Launch.MultiSession))
+			{
+				Console.WriteLine("Starting in multi-session RL mode");
+				var port = 9999;
+				var envPort = Environment.GetEnvironmentVariable("RL_GRPC_PORT");
+				if (!string.IsNullOrEmpty(envPort) && int.TryParse(envPort, out var p))
+					port = p;
+				else if (int.TryParse(Launch.MultiSession, out var lp) && lp > 0)
+					port = lp;
+
+				RLSessionManager.Initialize(Game.ModData);
+
+				// Start gRPC server on a background thread (blocks that thread)
+				var grpcThread = new Thread(() => RLSessionManager.StartGrpcServer(port))
+				{
+					IsBackground = true,
+					Name = "RL-MultiSession-gRPC"
+				};
+				grpcThread.Start();
+
+				Console.WriteLine($"Multi-session gRPC server started on port {port}");
+				Console.WriteLine("Waiting for CreateSession RPCs...");
+
+				// Block the main thread — the gRPC server runs until process exit.
+				// Game.Loop() is not used in multi-session mode.
+				grpcThread.Join();
 				return;
 			}
 

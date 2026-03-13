@@ -50,7 +50,7 @@ namespace OpenRA
 		static WorldRenderer worldRenderer;
 		static string modLaunchWrapper;
 
-		internal static OrderManager OrderManager;
+		public static OrderManager OrderManager;
 		static Server.Server server;
 
 		public static MersenneTwister CosmeticRandom = new(); // not synced
@@ -835,6 +835,30 @@ namespace OpenRA
 
 			while (state == RunStatus.Running)
 			{
+				// Headless fast-forward: bypass timing/render system entirely.
+				// Runs logic ticks in a tight loop with no sleep or render interleave.
+				// ExternalBotBridge sets tickScale < 1.0 during advance(), which makes
+				// IsFastForwarding true. We batch up to 5000 ticks per iteration to
+				// avoid starving other threads indefinitely.
+				if (IsHeadless && OrderManager.IsFastForwarding)
+				{
+					const int MaxTicksPerBurst = 5000;
+					for (var i = 0; i < MaxTicksPerBurst && state == RunStatus.Running && OrderManager.IsFastForwarding; i++)
+					{
+						// Force TickTime to allow immediate advancement by backdating it.
+						// Without this, ShouldAdvance() gates ticks to 1ms real-time intervals.
+						OrderManager.LastTickTime.Value = 0;
+						LogicTick();
+					}
+
+					// Reset timing state so the normal loop resumes cleanly
+					nextLogic = RunTime;
+					nextRender = RunTime;
+					forcedNextRender = RunTime;
+					renderBeforeNextTick = false;
+					continue;
+				}
+
 				var logicInterval = Ui.Timestep;
 				var logicWorld = worldRenderer?.World;
 

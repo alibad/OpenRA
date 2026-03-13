@@ -154,6 +154,12 @@ namespace OpenRA
 		// Hide the OrderManager from mod code
 		public void IssueOrder(Order o) { OrderManager.IssueOrder(o); }
 
+		/// <summary>
+		/// Set the tick speed scale for fast-forward during RL training.
+		/// 1.0 = normal speed, 0.025 = ~40x faster, etc.
+		/// </summary>
+		public void SetTickScale(float scale) { OrderManager.ReceiveTickScale(scale); }
+
 		readonly Type defaultOrderGeneratorType;
 
 		IOrderGenerator orderGenerator;
@@ -179,7 +185,7 @@ namespace OpenRA
 
 		bool wasLoadingGameSave;
 
-		internal World(Map map, ModData modData, OrderManager orderManager, WorldType type)
+		public World(Map map, ModData modData, OrderManager orderManager, WorldType type)
 		{
 			Type = type;
 			OrderManager = orderManager;

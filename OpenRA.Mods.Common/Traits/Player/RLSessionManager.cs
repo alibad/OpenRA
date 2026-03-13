@@ -1,0 +1,486 @@
+#region Copyright & License Information
+/*
+ * Copyright (c) The OpenRA Developers and Contributors
+ * This file is part of OpenRA, which is free software. It is made
+ * available to you under the terms of the GNU General Public License
+ * as published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version. For more
+ * information, see COPYING.
+ */
+#endregion
+
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using OpenRA.Network;
+using OpenRA.Primitives;
+using OpenRA.Support;
+using OpenRA.Traits;
+
+namespace OpenRA.Mods.Common.Traits
+{
+	/// <summary>
+	/// Manages multiple concurrent RL game sessions within a single process.
+	/// Shares ModData (loaded once) across all sessions. A fixed-size pool of
+	/// worker threads processes game ticks — sessions without pending FastAdvance
+	/// use zero CPU. Workers are dedicated threads (not the .NET ThreadPool)
+	/// to avoid starving gRPC request handling.
+	/// </summary>
+	public static class RLSessionManager
+	{
+		static ModData modData;
+		static readonly object PrepareMapLock = new();
+		static int nextClientIndex = 100;
+
+		/// <summary>
+		/// Per-session state needed for ticking.
+		/// </summary>
+		internal sealed class SessionState
+		{
+			public readonly OrderManager OrderManager;
+			public readonly World World;
+
+			/// <summary>Prevents two concurrent FastAdvance calls from ticking the same World.</summary>
+			public readonly SemaphoreSlim TickLock = new(1, 1);
+
+			/// <summary>Track in-flight work so DestroySession can wait for it to finish.</summary>
+			public volatile WorkItem ActiveWorkItem;
+
+			public SessionState(OrderManager om, World w)
+			{
+				OrderManager = om;
+				World = w;
+			}
+		}
+
+		/// <summary>Session state registry, keyed by session ID.</summary>
+		internal static readonly ConcurrentDictionary<string, SessionState> SessionStates = new();
+
+		/// <summary>
+		/// Work item submitted to the worker pool when FastAdvance is requested.
+		/// </summary>
+		internal sealed class WorkItem
+		{
+			public readonly SessionState State;
+			public readonly ExternalBotBridge Bridge;
+			public readonly TaskCompletionSource<bool> Completed = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+			public WorkItem(SessionState s, ExternalBotBridge b) { State = s; Bridge = b; }
+		}
+
+		/// <summary>Bounded work queue. If full, FastAdvance returns RESOURCE_EXHAUSTED.</summary>
+		static BlockingCollection<WorkItem> workQueue;
+		static Thread[] workers;
+
+		/// <summary>
+		/// Initialize with shared ModData. Called once at process start.
+		/// Starts the worker pool.
+		/// </summary>
+		public static void Initialize(ModData md)
+		{
+			modData = md;
+			ExternalBotBridge.MultiSessionMode = true;
+			Support.PerfHistory.Disabled = true;
+
+			var workerCount = Environment.ProcessorCount;
+			workQueue = new BlockingCollection<WorkItem>(boundedCapacity: workerCount * 4);
+			workers = new Thread[workerCount];
+
+			for (var i = 0; i < workerCount; i++)
+			{
+				workers[i] = new Thread(WorkerLoop)
+				{
+					IsBackground = true,
+					Name = $"RL-Worker-{i}"
+				};
+				workers[i].Start();
+			}
+
+			Log.Write("rl-bridge", $"RLSessionManager initialized: {workerCount} workers, queue capacity {workerCount * 4}");
+		}
+
+		/// <summary>
+		/// Worker thread loop. Pulls work items and ticks sessions until
+		/// their fast-advance is complete.
+		/// </summary>
+		static void WorkerLoop()
+		{
+			foreach (var item in workQueue.GetConsumingEnumerable())
+			{
+				var state = item.State;
+				state.ActiveWorkItem = item;
+				try
+				{
+					// Per-session lock: prevents two concurrent FastAdvance calls
+					// from ticking the same World simultaneously.
+					state.TickLock.Wait();
+					try
+					{
+						TickSession(state, item.Bridge);
+					}
+					finally
+					{
+						state.TickLock.Release();
+					}
+
+					item.Completed.TrySetResult(true);
+				}
+				catch (Exception e)
+				{
+					Log.Write("rl-bridge", $"Worker error: {e}");
+					item.Completed.TrySetException(e);
+				}
+				finally
+				{
+					state.ActiveWorkItem = null;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Submit a tick work item to the worker pool.
+		/// Returns the WorkItem so the caller can await completion.
+		/// Throws if the queue is full (RESOURCE_EXHAUSTED).
+		/// </summary>
+		internal static WorkItem SubmitWork(SessionState state, ExternalBotBridge bridge)
+		{
+			var item = new WorkItem(state, bridge);
+			if (!workQueue.TryAdd(item, TimeSpan.Zero))
+				return null; // Queue full — caller should return RESOURCE_EXHAUSTED
+
+			return item;
+		}
+
+		/// <summary>
+		/// Start the gRPC server on the specified port. Blocks until shutdown.
+		/// </summary>
+		public static void StartGrpcServer(int port)
+		{
+			Log.Write("rl-bridge", $"Starting multi-session gRPC server on port {port}");
+			ExternalBotBridge.StartGrpcServer(port);
+		}
+
+		/// <summary>
+		/// Create a new game session. Returns the session_id immediately;
+		/// the game world is created asynchronously on a background thread
+		/// that exits once initialization is complete.
+		/// </summary>
+		public static string CreateSession(string mapName, string bots, int seed)
+		{
+			var sessionId = Guid.NewGuid().ToString("N")[..12];
+			Log.Write("rl-bridge", $"Creating session {sessionId}: map={mapName}, bots={bots}, seed={seed}");
+
+			var thread = new Thread(() =>
+			{
+				try
+				{
+					InitSession(sessionId, mapName, bots, seed);
+				}
+				catch (Exception e)
+				{
+					Log.Write("rl-bridge", $"Session {sessionId} init failed: {e}");
+					SessionStates.TryRemove(sessionId, out _);
+
+					if (ExternalBotBridge.Sessions.TryRemove(sessionId, out var crashed))
+						crashed.Deactivate();
+				}
+			})
+			{
+				IsBackground = true,
+				Name = $"RL-Init-{sessionId}"
+			};
+			thread.Start();
+
+			return sessionId;
+		}
+
+		/// <summary>
+		/// Destroy a session and clean up its resources.
+		/// </summary>
+		public static void DestroySession(string sessionId)
+		{
+			if (ExternalBotBridge.Sessions.TryGetValue(sessionId, out var bridge))
+				bridge.Deactivate();
+
+			if (SessionStates.TryRemove(sessionId, out var state))
+			{
+				// Wait for any in-flight work to finish before disposing
+				var activeWork = state.ActiveWorkItem;
+				if (activeWork != null)
+				{
+					try { activeWork.Completed.Task.Wait(TimeSpan.FromSeconds(10)); }
+					catch { /* timeout or cancelled — proceed with dispose */ }
+				}
+
+				try
+				{
+					state.World?.Dispose();
+				}
+				catch (Exception e)
+				{
+					Log.Write("rl-bridge", $"Error disposing world for {sessionId}: {e.Message}");
+				}
+
+				try
+				{
+					state.OrderManager?.Dispose();
+				}
+				catch (Exception e)
+				{
+					Log.Write("rl-bridge", $"Error disposing OrderManager for {sessionId}: {e.Message}");
+				}
+			}
+
+			Log.Write("rl-bridge", $"Session {sessionId} destroyed");
+		}
+
+		/// <summary>
+		/// Tick a session's game forward until fast-advance completes or game ends.
+		/// Called by worker threads, not by gRPC threads.
+		/// </summary>
+		static void TickSession(SessionState state, ExternalBotBridge bridge)
+		{
+			var orderManager = state.OrderManager;
+			var world = state.World;
+
+			var tickCount = 0;
+			var maxTicks = 10000; // Safety limit
+
+			while (!world.IsGameOver && !bridge.SessionDone.IsSet && tickCount < maxTicks)
+			{
+				orderManager.LastTickTime.Value = 0;
+
+				Sync.RunUnsynced(false, world, () =>
+				{
+					orderManager.TickImmediate();
+					return true;
+				});
+
+				var didTick = orderManager.TryTick();
+				if (didTick)
+					world.Tick();
+
+				tickCount++;
+
+				// Once fast-forward is done, stop ticking
+				if (!orderManager.IsFastForwarding)
+					break;
+			}
+
+			if (tickCount >= maxTicks)
+				Log.Write("rl-bridge", $"TickSession: safety limit reached after {maxTicks} ticks!");
+		}
+
+		/// <summary>
+		/// Initialize a game session: create World, find bridge, register state.
+		/// The calling thread exits after this returns — no persistent tick loop.
+		/// </summary>
+		static void InitSession(string sessionId, string mapName, string bots, int seed)
+		{
+			// 1. Find the map
+			var mapPreview = modData.MapCache
+				.FirstOrDefault(m => m.Status == MapStatus.Available &&
+					(Path.GetFileName(m.Path) == mapName || m.Uid == mapName));
+
+			if (mapPreview == null)
+			{
+				Log.Write("rl-bridge", $"Session {sessionId}: Map '{mapName}' not found");
+				return;
+			}
+
+			// 2. Load map from disk (no lock needed), then prepare (serialized — modifies shared state)
+			var map = mapPreview.ToMap();
+			lock (PrepareMapLock)
+			{
+				modData.PrepareMap(map);
+			}
+
+			// 3. Create isolated OrderManager with EchoConnection (no network)
+			var connection = new EchoConnection();
+			var orderManager = new OrderManager(connection);
+
+			// 4. Build LobbyInfo with map slots and bot assignments
+			SetupLobbyInfo(orderManager, mapPreview, map, bots, seed);
+
+			// 5. Create world (serialized — accesses Game.OrderManager static)
+			Log.Write("rl-bridge", $"Session {sessionId}: Creating world");
+			lock (PrepareMapLock)
+			{
+				Game.OrderManager = orderManager;
+				ExternalBotBridge.NextSessionId = sessionId;
+				orderManager.World = new World(map, modData, orderManager, WorldType.Regular);
+				ExternalBotBridge.NextSessionId = null;
+			}
+
+			// 6. LoadComplete and start
+			orderManager.World.LoadComplete(null);
+			orderManager.StartGame();
+
+			// 7. Find the ExternalBotBridge
+			ExternalBotBridge bridge = null;
+			var world = orderManager.World;
+			foreach (var player in world.Players)
+			{
+				var b = player.PlayerActor.TraitOrDefault<ExternalBotBridge>();
+				if (b != null && b.IsEnabled)
+				{
+					bridge = b;
+					break;
+				}
+			}
+
+			if (bridge == null)
+			{
+				Log.Write("rl-bridge", $"Session {sessionId}: ExternalBotBridge not found");
+				world.Dispose();
+				orderManager.Dispose();
+				return;
+			}
+
+			// 8. Store session state BEFORE re-registering bridge, so FastAdvance
+			// can find the state as soon as GetState returns "playing".
+			SessionStates[sessionId] = new SessionState(orderManager, world);
+
+			// Re-register under the requested sessionId
+			var actualId = bridge.SessionId;
+			if (actualId != sessionId)
+			{
+				ExternalBotBridge.Sessions.TryRemove(actualId, out _);
+				ExternalBotBridge.Sessions[sessionId] = bridge;
+			}
+
+			Log.Write("rl-bridge", $"Session {sessionId}: Ready (init thread exiting)");
+		}
+
+		/// <summary>
+		/// Build LobbyInfo for a game session with the specified bot configuration.
+		/// </summary>
+		static void SetupLobbyInfo(OrderManager orderManager, MapPreview mapPreview, Map map, string botsConfig, int seed)
+		{
+			var lobbyInfo = orderManager.LobbyInfo;
+
+			lobbyInfo.GlobalSettings.Map = mapPreview.Uid;
+			lobbyInfo.GlobalSettings.RandomSeed = seed != 0 ? seed : new MersenneTwister().Next();
+			lobbyInfo.GlobalSettings.EnableSingleplayer = true;
+
+			var mapPlayers = new MapPlayers(map.PlayerDefinitions);
+			lobbyInfo.Slots.Clear();
+			foreach (var kv in mapPlayers.Players.Where(p => p.Value.Playable))
+			{
+				lobbyInfo.Slots[kv.Key] = new Session.Slot
+				{
+					PlayerReference = kv.Key,
+					Closed = false,
+					AllowBots = kv.Value.AllowBots,
+					LockFaction = kv.Value.LockFaction,
+					LockColor = kv.Value.LockColor,
+					LockTeam = kv.Value.LockTeam,
+					LockHandicap = kv.Value.LockHandicap,
+					LockSpawn = kv.Value.LockSpawn,
+					Required = kv.Value.Required,
+				};
+			}
+
+			var hostClient = new Session.Client
+			{
+				Index = connection_LocalClientId(),
+				Name = "RL-Host",
+				State = Session.ClientState.Ready,
+				Faction = "Random",
+				SpawnPoint = 0,
+				Team = 0,
+				IsAdmin = true,
+			};
+			lobbyInfo.Clients.Add(hostClient);
+
+			if (!string.IsNullOrEmpty(botsConfig))
+			{
+				var botInfos = mapPreview.PlayerActorInfo.TraitInfos<IBotInfo>().ToList();
+				var rng = new MersenneTwister();
+
+				foreach (var entry in botsConfig.Split(','))
+				{
+					var parts = entry.Trim().Split(':');
+					if (parts.Length != 2)
+						continue;
+
+					var slotName = parts[0];
+					var botType = parts[1];
+
+					if (!lobbyInfo.Slots.ContainsKey(slotName))
+					{
+						Log.Write("rl-bridge", $"Slot '{slotName}' not found in map, skipping bot");
+						continue;
+					}
+
+					var botInfo = botInfos.FirstOrDefault(b => b.Type == botType);
+					if (botInfo == null)
+					{
+						Log.Write("rl-bridge", $"Bot type '{botType}' not found, skipping");
+						continue;
+					}
+
+					var clientIndex = Interlocked.Increment(ref nextClientIndex);
+					var botClient = new Session.Client
+					{
+						Index = clientIndex,
+						Name = botInfo.Name,
+						Bot = botType,
+						Slot = slotName,
+						Faction = "Random",
+						SpawnPoint = 0,
+						Team = 0,
+						Handicap = 0,
+						State = Session.ClientState.NotReady,
+						BotControllerClientIndex = connection_LocalClientId(),
+						Color = Color.FromArgb(rng.Next(256), rng.Next(256), rng.Next(256)),
+						PreferredColor = Color.FromArgb(rng.Next(256), rng.Next(256), rng.Next(256)),
+					};
+
+					var pr = mapPlayers.Players.GetValueOrDefault(slotName);
+					if (pr != null)
+						SyncClientToPlayerReference(botClient, pr);
+
+					lobbyInfo.Clients.Add(botClient);
+				}
+			}
+
+			var options = mapPreview.PlayerActorInfo.TraitInfos<ILobbyOptions>()
+				.Concat(mapPreview.WorldActorInfo.TraitInfos<ILobbyOptions>())
+				.SelectMany(t => t.LobbyOptions(mapPreview));
+
+			foreach (var o in options)
+			{
+				lobbyInfo.GlobalSettings.LobbyOptions[o.Id] = new Session.LobbyOptionState
+				{
+					IsLocked = o.IsLocked,
+					Value = o.DefaultValue,
+					PreferredValue = o.DefaultValue,
+				};
+			}
+		}
+
+		static int connection_LocalClientId() => 1;
+
+		static void SyncClientToPlayerReference(Session.Client c, PlayerReference pr)
+		{
+			if (pr == null)
+				return;
+
+			if (pr.LockFaction)
+				c.Faction = pr.Faction;
+			if (pr.LockSpawn)
+				c.SpawnPoint = pr.Spawn;
+			if (pr.LockTeam)
+				c.Team = pr.Team;
+			if (pr.LockHandicap)
+				c.Handicap = pr.Handicap;
+
+			c.Color = pr.LockColor ? pr.Color : c.PreferredColor;
+		}
+	}
+}
