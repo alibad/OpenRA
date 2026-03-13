@@ -37,8 +37,8 @@ namespace OpenRA.Mods.Common.Traits
 			if (!string.IsNullOrEmpty(sessionId))
 			{
 				// Session should already exist (created by CreateSession RPC)
-				// But give it a moment to register after World creation
-				for (var i = 0; i < 600; i++)
+				// CreateSession now blocks until ready, but keep a generous timeout
+				for (var i = 0; i < 3000; i++)
 				{
 					var b = ExternalBotBridge.LookupSession(sessionId);
 					if (b != null && b.IsEnabled)
@@ -143,7 +143,7 @@ namespace OpenRA.Mods.Common.Traits
 
 				if (bridge == null)
 					throw new RpcException(new Status(StatusCode.Unavailable,
-						$"Bridge not activated within 60s (session_id={request.SessionId})"));
+						$"Bridge not activated within 300s (session_id={request.SessionId})"));
 
 				return await bridge.RequestFastAdvance(
 					request.Ticks, request.Commands, context.CancellationToken);

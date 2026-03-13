@@ -166,8 +166,8 @@ namespace OpenRA.Mods.Common.Traits
 
 		/// <summary>
 		/// Create a new game session. Returns the session_id immediately;
-		/// the game world is created asynchronously on a background thread
-		/// that exits once initialization is complete.
+		/// the game world is created asynchronously on a background thread.
+		/// FastAdvance will wait for the bridge to activate before proceeding.
 		/// </summary>
 		public static string CreateSession(string mapName, string bots, int seed)
 		{
