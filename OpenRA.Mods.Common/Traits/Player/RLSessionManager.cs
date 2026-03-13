@@ -320,9 +320,16 @@ namespace OpenRA.Mods.Common.Traits
 			orderManager.World.LoadComplete(null);
 			orderManager.StartGame();
 
-			// 7. Find the ExternalBotBridge
-			ExternalBotBridge bridge = null;
 			var world = orderManager.World;
+
+			// 7. Register session state IMMEDIATELY after world is ready, BEFORE
+			// the bridge becomes visible to gRPC. This prevents a race where
+			// FastAdvance finds the bridge (via WaitForBridge) but SessionStates
+			// hasn't been populated yet, causing NOT_FOUND.
+			SessionStates[sessionId] = new SessionState(orderManager, world);
+
+			// 8. Find the ExternalBotBridge
+			ExternalBotBridge bridge = null;
 			foreach (var player in world.Players)
 			{
 				var b = player.PlayerActor.TraitOrDefault<ExternalBotBridge>();
@@ -336,14 +343,11 @@ namespace OpenRA.Mods.Common.Traits
 			if (bridge == null)
 			{
 				Log.Write("rl-bridge", $"Session {sessionId}: ExternalBotBridge not found");
+				SessionStates.TryRemove(sessionId, out _);
 				world.Dispose();
 				orderManager.Dispose();
 				return;
 			}
-
-			// 8. Store session state BEFORE re-registering bridge, so FastAdvance
-			// can find the state as soon as GetState returns "playing".
-			SessionStates[sessionId] = new SessionState(orderManager, world);
 
 			// Re-register under the requested sessionId
 			var actualId = bridge.SessionId;

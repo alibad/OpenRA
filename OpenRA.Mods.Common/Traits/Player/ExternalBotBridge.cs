@@ -542,9 +542,18 @@ namespace OpenRA.Mods.Common.Traits
 
 			if (MultiSessionMode)
 			{
-				// Submit to worker pool — dedicated threads handle ticking,
-				// gRPC thread stays free to handle other requests.
-				if (!RLSessionManager.SessionStates.TryGetValue(episodeId, out var state))
+				// Wait briefly for session state — it may still be registering
+				// if FastAdvance arrives right after the bridge activates during
+				// World creation but before InitSession registers SessionStates.
+				RLSessionManager.SessionState state = null;
+				for (var retry = 0; retry < 50; retry++)
+				{
+					if (RLSessionManager.SessionStates.TryGetValue(episodeId, out state))
+						break;
+					Thread.Sleep(100);
+				}
+
+				if (state == null)
 					throw new RpcException(new Status(StatusCode.NotFound,
 						$"Session state not found for {episodeId}"));
 
