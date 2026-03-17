@@ -9,8 +9,9 @@ using grpc = global::Grpc.Core;
 
 namespace OpenRA.Mods.Common.RL {
   /// <summary>
-  /// The RL Bridge service allows an external agent to interact with OpenRA
-  /// via bidirectional streaming (lock-step) or unary state queries.
+  /// The RL Bridge service allows an external agent to interact with OpenRA.
+  /// In multi-session mode, a single gRPC server hosts many concurrent game
+  /// sessions, each identified by a session_id.
   /// </summary>
   public static partial class RLBridge
   {
@@ -60,7 +61,13 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.FastAdvanceRequest> __Marshaller_openra_rl_FastAdvanceRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.FastAdvanceRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.SoftResetRequest> __Marshaller_openra_rl_SoftResetRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.SoftResetRequest.Parser));
+    static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.CreateSessionRequest> __Marshaller_openra_rl_CreateSessionRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.CreateSessionRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.CreateSessionResponse> __Marshaller_openra_rl_CreateSessionResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.CreateSessionResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.DestroySessionRequest> __Marshaller_openra_rl_DestroySessionRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.DestroySessionRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.DestroySessionResponse> __Marshaller_openra_rl_DestroySessionResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.DestroySessionResponse.Parser));
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::OpenRA.Mods.Common.RL.AgentAction, global::OpenRA.Mods.Common.RL.GameObservation> __Method_GameSession = new grpc::Method<global::OpenRA.Mods.Common.RL.AgentAction, global::OpenRA.Mods.Common.RL.GameObservation>(
@@ -87,12 +94,20 @@ namespace OpenRA.Mods.Common.RL {
         __Marshaller_openra_rl_GameObservation);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::OpenRA.Mods.Common.RL.SoftResetRequest, global::OpenRA.Mods.Common.RL.GameState> __Method_SoftReset = new grpc::Method<global::OpenRA.Mods.Common.RL.SoftResetRequest, global::OpenRA.Mods.Common.RL.GameState>(
+    static readonly grpc::Method<global::OpenRA.Mods.Common.RL.CreateSessionRequest, global::OpenRA.Mods.Common.RL.CreateSessionResponse> __Method_CreateSession = new grpc::Method<global::OpenRA.Mods.Common.RL.CreateSessionRequest, global::OpenRA.Mods.Common.RL.CreateSessionResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
-        "SoftReset",
-        __Marshaller_openra_rl_SoftResetRequest,
-        __Marshaller_openra_rl_GameState);
+        "CreateSession",
+        __Marshaller_openra_rl_CreateSessionRequest,
+        __Marshaller_openra_rl_CreateSessionResponse);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::OpenRA.Mods.Common.RL.DestroySessionRequest, global::OpenRA.Mods.Common.RL.DestroySessionResponse> __Method_DestroySession = new grpc::Method<global::OpenRA.Mods.Common.RL.DestroySessionRequest, global::OpenRA.Mods.Common.RL.DestroySessionResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "DestroySession",
+        __Marshaller_openra_rl_DestroySessionRequest,
+        __Marshaller_openra_rl_DestroySessionResponse);
 
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
@@ -144,14 +159,19 @@ namespace OpenRA.Mods.Common.RL {
       }
 
       /// <summary>
-      /// Unary: reload map within the same process (no JIT, no process restart).
-      /// Returns GameState when the new world is ready.
+      /// Session management (multi-session mode)
       /// </summary>
       /// <param name="request">The request received from the client.</param>
       /// <param name="context">The context of the server-side call handler being invoked.</param>
       /// <returns>The response to send back to the client (wrapped by a task).</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::OpenRA.Mods.Common.RL.GameState> SoftReset(global::OpenRA.Mods.Common.RL.SoftResetRequest request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::OpenRA.Mods.Common.RL.CreateSessionResponse> CreateSession(global::OpenRA.Mods.Common.RL.CreateSessionRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::OpenRA.Mods.Common.RL.DestroySessionResponse> DestroySession(global::OpenRA.Mods.Common.RL.DestroySessionRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -310,8 +330,7 @@ namespace OpenRA.Mods.Common.RL {
         return CallInvoker.AsyncUnaryCall(__Method_FastAdvance, null, options, request);
       }
       /// <summary>
-      /// Unary: reload map within the same process (no JIT, no process restart).
-      /// Returns GameState when the new world is ready.
+      /// Session management (multi-session mode)
       /// </summary>
       /// <param name="request">The request to send to the server.</param>
       /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
@@ -319,25 +338,23 @@ namespace OpenRA.Mods.Common.RL {
       /// <param name="cancellationToken">An optional token for canceling the call.</param>
       /// <returns>The response received from the server.</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::OpenRA.Mods.Common.RL.GameState SoftReset(global::OpenRA.Mods.Common.RL.SoftResetRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual global::OpenRA.Mods.Common.RL.CreateSessionResponse CreateSession(global::OpenRA.Mods.Common.RL.CreateSessionRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
-        return SoftReset(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+        return CreateSession(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       /// <summary>
-      /// Unary: reload map within the same process (no JIT, no process restart).
-      /// Returns GameState when the new world is ready.
+      /// Session management (multi-session mode)
       /// </summary>
       /// <param name="request">The request to send to the server.</param>
       /// <param name="options">The options for the call.</param>
       /// <returns>The response received from the server.</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::OpenRA.Mods.Common.RL.GameState SoftReset(global::OpenRA.Mods.Common.RL.SoftResetRequest request, grpc::CallOptions options)
+      public virtual global::OpenRA.Mods.Common.RL.CreateSessionResponse CreateSession(global::OpenRA.Mods.Common.RL.CreateSessionRequest request, grpc::CallOptions options)
       {
-        return CallInvoker.BlockingUnaryCall(__Method_SoftReset, null, options, request);
+        return CallInvoker.BlockingUnaryCall(__Method_CreateSession, null, options, request);
       }
       /// <summary>
-      /// Unary: reload map within the same process (no JIT, no process restart).
-      /// Returns GameState when the new world is ready.
+      /// Session management (multi-session mode)
       /// </summary>
       /// <param name="request">The request to send to the server.</param>
       /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
@@ -345,21 +362,40 @@ namespace OpenRA.Mods.Common.RL {
       /// <param name="cancellationToken">An optional token for canceling the call.</param>
       /// <returns>The call object.</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::OpenRA.Mods.Common.RL.GameState> SoftResetAsync(global::OpenRA.Mods.Common.RL.SoftResetRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncUnaryCall<global::OpenRA.Mods.Common.RL.CreateSessionResponse> CreateSessionAsync(global::OpenRA.Mods.Common.RL.CreateSessionRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
-        return SoftResetAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+        return CreateSessionAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       /// <summary>
-      /// Unary: reload map within the same process (no JIT, no process restart).
-      /// Returns GameState when the new world is ready.
+      /// Session management (multi-session mode)
       /// </summary>
       /// <param name="request">The request to send to the server.</param>
       /// <param name="options">The options for the call.</param>
       /// <returns>The call object.</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::OpenRA.Mods.Common.RL.GameState> SoftResetAsync(global::OpenRA.Mods.Common.RL.SoftResetRequest request, grpc::CallOptions options)
+      public virtual grpc::AsyncUnaryCall<global::OpenRA.Mods.Common.RL.CreateSessionResponse> CreateSessionAsync(global::OpenRA.Mods.Common.RL.CreateSessionRequest request, grpc::CallOptions options)
       {
-        return CallInvoker.AsyncUnaryCall(__Method_SoftReset, null, options, request);
+        return CallInvoker.AsyncUnaryCall(__Method_CreateSession, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::OpenRA.Mods.Common.RL.DestroySessionResponse DestroySession(global::OpenRA.Mods.Common.RL.DestroySessionRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return DestroySession(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::OpenRA.Mods.Common.RL.DestroySessionResponse DestroySession(global::OpenRA.Mods.Common.RL.DestroySessionRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_DestroySession, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::OpenRA.Mods.Common.RL.DestroySessionResponse> DestroySessionAsync(global::OpenRA.Mods.Common.RL.DestroySessionRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return DestroySessionAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::OpenRA.Mods.Common.RL.DestroySessionResponse> DestroySessionAsync(global::OpenRA.Mods.Common.RL.DestroySessionRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_DestroySession, null, options, request);
       }
       /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
@@ -378,7 +414,8 @@ namespace OpenRA.Mods.Common.RL {
           .AddMethod(__Method_GameSession, serviceImpl.GameSession)
           .AddMethod(__Method_GetState, serviceImpl.GetState)
           .AddMethod(__Method_FastAdvance, serviceImpl.FastAdvance)
-          .AddMethod(__Method_SoftReset, serviceImpl.SoftReset).Build();
+          .AddMethod(__Method_CreateSession, serviceImpl.CreateSession)
+          .AddMethod(__Method_DestroySession, serviceImpl.DestroySession).Build();
     }
 
     /// <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
@@ -391,7 +428,8 @@ namespace OpenRA.Mods.Common.RL {
       serviceBinder.AddMethod(__Method_GameSession, serviceImpl == null ? null : new grpc::DuplexStreamingServerMethod<global::OpenRA.Mods.Common.RL.AgentAction, global::OpenRA.Mods.Common.RL.GameObservation>(serviceImpl.GameSession));
       serviceBinder.AddMethod(__Method_GetState, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.StateRequest, global::OpenRA.Mods.Common.RL.GameState>(serviceImpl.GetState));
       serviceBinder.AddMethod(__Method_FastAdvance, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.FastAdvanceRequest, global::OpenRA.Mods.Common.RL.GameObservation>(serviceImpl.FastAdvance));
-      serviceBinder.AddMethod(__Method_SoftReset, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.SoftResetRequest, global::OpenRA.Mods.Common.RL.GameState>(serviceImpl.SoftReset));
+      serviceBinder.AddMethod(__Method_CreateSession, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.CreateSessionRequest, global::OpenRA.Mods.Common.RL.CreateSessionResponse>(serviceImpl.CreateSession));
+      serviceBinder.AddMethod(__Method_DestroySession, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.DestroySessionRequest, global::OpenRA.Mods.Common.RL.DestroySessionResponse>(serviceImpl.DestroySession));
     }
 
   }
