@@ -74,25 +74,31 @@ namespace OpenRA.Mods.Common.RL {
             "GAggASgFIpEBCglHYW1lU3RhdGUSEgoKZXBpc29kZV9pZBgBIAEoCRIMCgR0",
             "aWNrGAIgASgFEg0KBXBoYXNlGAMgASgJEg4KBndpbm5lchgEIAEoCRIUCgxw",
             "bGF5ZXJfY291bnQYBSABKAUSFgoOcGxheWVyX2ZhY3Rpb24YBiABKAkSFQoN",
-            "ZW5lbXlfZmFjdGlvbhgHIAEoCSIOCgxTdGF0ZVJlcXVlc3QiSQoSRmFzdEFk",
-            "dmFuY2VSZXF1ZXN0Eg0KBXRpY2tzGAEgASgFEiQKCGNvbW1hbmRzGAIgAygL",
-            "MhIub3BlbnJhLnJsLkNvbW1hbmQiQAoQU29mdFJlc2V0UmVxdWVzdBIQCght",
-            "YXBfbmFtZRgBIAEoCRIMCgRib3RzGAIgASgJEgwKBHNlZWQYAyABKAUqywIK",
-            "CkFjdGlvblR5cGUSCQoFTk9fT1AQABIICgRNT1ZFEAESDwoLQVRUQUNLX01P",
-            "VkUQAhIKCgZBVFRBQ0sQAxIICgRTVE9QEAQSCwoHSEFSVkVTVBAFEgkKBUJV",
-            "SUxEEAYSCQoFVFJBSU4QBxIKCgZERVBMT1kQCBIICgRTRUxMEAkSCgoGUkVQ",
-            "QUlSEAoSEgoOUExBQ0VfQlVJTERJTkcQCxIVChFDQU5DRUxfUFJPRFVDVElP",
-            "ThAMEhMKD1NFVF9SQUxMWV9QT0lOVBANEgkKBUdVQVJEEA4SDgoKU0VUX1NU",
-            "QU5DRRAPEhMKD0VOVEVSX1RSQU5TUE9SVBAQEgoKBlVOTE9BRBAREg4KClBP",
-            "V0VSX0RPV04QEhIPCgtTRVRfUFJJTUFSWRATEg0KCVNVUlJFTkRFUhAUEhAK",
-            "DEZBU1RfQURWQU5DRRAVMpYCCghSTEJyaWRnZRJFCgtHYW1lU2Vzc2lvbhIW",
-            "Lm9wZW5yYS5ybC5BZ2VudEFjdGlvbhoaLm9wZW5yYS5ybC5HYW1lT2JzZXJ2",
-            "YXRpb24oATABEjkKCEdldFN0YXRlEhcub3BlbnJhLnJsLlN0YXRlUmVxdWVz",
-            "dBoULm9wZW5yYS5ybC5HYW1lU3RhdGUSSAoLRmFzdEFkdmFuY2USHS5vcGVu",
-            "cmEucmwuRmFzdEFkdmFuY2VSZXF1ZXN0Ghoub3BlbnJhLnJsLkdhbWVPYnNl",
-            "cnZhdGlvbhI+CglTb2Z0UmVzZXQSGy5vcGVucmEucmwuU29mdFJlc2V0UmVx",
-            "dWVzdBoULm9wZW5yYS5ybC5HYW1lU3RhdGVCGKoCFU9wZW5SQS5Nb2RzLkNv",
-            "bW1vbi5STGIGcHJvdG8z"));
+            "ZW5lbXlfZmFjdGlvbhgHIAEoCSIiCgxTdGF0ZVJlcXVlc3QSEgoKc2Vzc2lv",
+            "bl9pZBgBIAEoCSJdChJGYXN0QWR2YW5jZVJlcXVlc3QSDQoFdGlja3MYASAB",
+            "KAUSJAoIY29tbWFuZHMYAiADKAsyEi5vcGVucmEucmwuQ29tbWFuZBISCgpz",
+            "ZXNzaW9uX2lkGAMgASgJIkQKFENyZWF0ZVNlc3Npb25SZXF1ZXN0EhAKCG1h",
+            "cF9uYW1lGAEgASgJEgwKBGJvdHMYAiABKAkSDAoEc2VlZBgDIAEoBSIrChVD",
+            "cmVhdGVTZXNzaW9uUmVzcG9uc2USEgoKc2Vzc2lvbl9pZBgBIAEoCSIrChVE",
+            "ZXN0cm95U2Vzc2lvblJlcXVlc3QSEgoKc2Vzc2lvbl9pZBgBIAEoCSIYChZE",
+            "ZXN0cm95U2Vzc2lvblJlc3BvbnNlKssCCgpBY3Rpb25UeXBlEgkKBU5PX09Q",
+            "EAASCAoETU9WRRABEg8KC0FUVEFDS19NT1ZFEAISCgoGQVRUQUNLEAMSCAoE",
+            "U1RPUBAEEgsKB0hBUlZFU1QQBRIJCgVCVUlMRBAGEgkKBVRSQUlOEAcSCgoG",
+            "REVQTE9ZEAgSCAoEU0VMTBAJEgoKBlJFUEFJUhAKEhIKDlBMQUNFX0JVSUxE",
+            "SU5HEAsSFQoRQ0FOQ0VMX1BST0RVQ1RJT04QDBITCg9TRVRfUkFMTFlfUE9J",
+            "TlQQDRIJCgVHVUFSRBAOEg4KClNFVF9TVEFOQ0UQDxITCg9FTlRFUl9UUkFO",
+            "U1BPUlQQEBIKCgZVTkxPQUQQERIOCgpQT1dFUl9ET1dOEBISDwoLU0VUX1BS",
+            "SU1BUlkQExINCglTVVJSRU5ERVIQFBIQCgxGQVNUX0FEVkFOQ0UQFTKBAwoI",
+            "UkxCcmlkZ2USRQoLR2FtZVNlc3Npb24SFi5vcGVucmEucmwuQWdlbnRBY3Rp",
+            "b24aGi5vcGVucmEucmwuR2FtZU9ic2VydmF0aW9uKAEwARI5CghHZXRTdGF0",
+            "ZRIXLm9wZW5yYS5ybC5TdGF0ZVJlcXVlc3QaFC5vcGVucmEucmwuR2FtZVN0",
+            "YXRlEkgKC0Zhc3RBZHZhbmNlEh0ub3BlbnJhLnJsLkZhc3RBZHZhbmNlUmVx",
+            "dWVzdBoaLm9wZW5yYS5ybC5HYW1lT2JzZXJ2YXRpb24SUgoNQ3JlYXRlU2Vz",
+            "c2lvbhIfLm9wZW5yYS5ybC5DcmVhdGVTZXNzaW9uUmVxdWVzdBogLm9wZW5y",
+            "YS5ybC5DcmVhdGVTZXNzaW9uUmVzcG9uc2USVQoORGVzdHJveVNlc3Npb24S",
+            "IC5vcGVucmEucmwuRGVzdHJveVNlc3Npb25SZXF1ZXN0GiEub3BlbnJhLnJs",
+            "LkRlc3Ryb3lTZXNzaW9uUmVzcG9uc2VCGKoCFU9wZW5SQS5Nb2RzLkNvbW1v",
+            "bi5STGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::OpenRA.Mods.Common.RL.ActionType), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -106,9 +112,12 @@ namespace OpenRA.Mods.Common.RL {
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.AgentAction), global::OpenRA.Mods.Common.RL.AgentAction.Parser, new[]{ "Commands" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.Command), global::OpenRA.Mods.Common.RL.Command.Parser, new[]{ "Action", "ActorId", "TargetActorId", "TargetX", "TargetY", "ItemType", "Queued", "Ticks" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.GameState), global::OpenRA.Mods.Common.RL.GameState.Parser, new[]{ "EpisodeId", "Tick", "Phase", "Winner", "PlayerCount", "PlayerFaction", "EnemyFaction" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.StateRequest), global::OpenRA.Mods.Common.RL.StateRequest.Parser, null, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.FastAdvanceRequest), global::OpenRA.Mods.Common.RL.FastAdvanceRequest.Parser, new[]{ "Ticks", "Commands" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.SoftResetRequest), global::OpenRA.Mods.Common.RL.SoftResetRequest.Parser, new[]{ "MapName", "Bots", "Seed" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.StateRequest), global::OpenRA.Mods.Common.RL.StateRequest.Parser, new[]{ "SessionId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.FastAdvanceRequest), global::OpenRA.Mods.Common.RL.FastAdvanceRequest.Parser, new[]{ "Ticks", "Commands", "SessionId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.CreateSessionRequest), global::OpenRA.Mods.Common.RL.CreateSessionRequest.Parser, new[]{ "MapName", "Bots", "Seed" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.CreateSessionResponse), global::OpenRA.Mods.Common.RL.CreateSessionResponse.Parser, new[]{ "SessionId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.DestroySessionRequest), global::OpenRA.Mods.Common.RL.DestroySessionRequest.Parser, new[]{ "SessionId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.DestroySessionResponse), global::OpenRA.Mods.Common.RL.DestroySessionResponse.Parser, null, null, null, null, null)
           }));
     }
     #endregion
@@ -185,6 +194,7 @@ namespace OpenRA.Mods.Common.RL {
   #endregion
 
   #region Messages
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class GameObservation : pb::IMessage<GameObservation>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -738,7 +748,11 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -826,7 +840,11 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -910,6 +928,7 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RlEconomy : pb::IMessage<RlEconomy>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -1210,7 +1229,11 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -1249,7 +1272,11 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -1284,6 +1311,7 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RlMilitary : pb::IMessage<RlMilitary>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -1744,7 +1772,11 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -1803,7 +1835,11 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -1858,6 +1894,7 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RlUnitInfo : pb::IMessage<RlUnitInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -2580,7 +2617,11 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -2671,7 +2712,11 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -2758,6 +2803,7 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RlBuildingInfo : pb::IMessage<RlBuildingInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -3425,7 +3471,11 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -3512,7 +3562,11 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -3595,6 +3649,7 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RlProductionInfo : pb::IMessage<RlProductionInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -3904,7 +3959,11 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -3943,7 +4002,11 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -3978,6 +4041,7 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RlMapInfo : pb::IMessage<RlMapInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -4197,7 +4261,11 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -4224,7 +4292,11 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -4247,6 +4319,7 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class AgentAction : pb::IMessage<AgentAction>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -4391,7 +4464,11 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -4410,7 +4487,11 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -4425,6 +4506,7 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class Command : pb::IMessage<Command>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -4804,7 +4886,11 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -4851,7 +4937,11 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -4894,6 +4984,7 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class GameState : pb::IMessage<GameState>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -5235,7 +5326,11 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -5278,7 +5373,11 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -5317,6 +5416,7 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class StateRequest : pb::IMessage<StateRequest>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -5351,6 +5451,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public StateRequest(StateRequest other) : this() {
+      sessionId_ = other.sessionId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -5358,6 +5459,21 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public StateRequest Clone() {
       return new StateRequest(this);
+    }
+
+    /// <summary>Field number for the "session_id" field.</summary>
+    public const int SessionIdFieldNumber = 1;
+    private string sessionId_ = "";
+    /// <summary>
+    /// Route to specific session (multi-session mode)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string SessionId {
+      get { return sessionId_; }
+      set {
+        sessionId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5375,6 +5491,7 @@ namespace OpenRA.Mods.Common.RL {
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (SessionId != other.SessionId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -5382,6 +5499,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
+      if (SessionId.Length != 0) hash ^= SessionId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -5400,6 +5518,10 @@ namespace OpenRA.Mods.Common.RL {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
+      if (SessionId.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(SessionId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -5410,6 +5532,10 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (SessionId.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(SessionId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -5420,6 +5546,9 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
+      if (SessionId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(SessionId);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -5432,6 +5561,9 @@ namespace OpenRA.Mods.Common.RL {
       if (other == null) {
         return;
       }
+      if (other.SessionId.Length != 0) {
+        SessionId = other.SessionId;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -5443,10 +5575,18 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
+          case 10: {
+            SessionId = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -5458,10 +5598,18 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
+          case 10: {
+            SessionId = input.ReadString();
+            break;
+          }
         }
       }
     }
@@ -5469,6 +5617,7 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class FastAdvanceRequest : pb::IMessage<FastAdvanceRequest>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -5505,6 +5654,7 @@ namespace OpenRA.Mods.Common.RL {
     public FastAdvanceRequest(FastAdvanceRequest other) : this() {
       ticks_ = other.ticks_;
       commands_ = other.commands_.Clone();
+      sessionId_ = other.sessionId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -5537,6 +5687,21 @@ namespace OpenRA.Mods.Common.RL {
       get { return commands_; }
     }
 
+    /// <summary>Field number for the "session_id" field.</summary>
+    public const int SessionIdFieldNumber = 3;
+    private string sessionId_ = "";
+    /// <summary>
+    /// Route to specific session (multi-session mode)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string SessionId {
+      get { return sessionId_; }
+      set {
+        sessionId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -5554,6 +5719,7 @@ namespace OpenRA.Mods.Common.RL {
       }
       if (Ticks != other.Ticks) return false;
       if(!commands_.Equals(other.commands_)) return false;
+      if (SessionId != other.SessionId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -5563,6 +5729,7 @@ namespace OpenRA.Mods.Common.RL {
       int hash = 1;
       if (Ticks != 0) hash ^= Ticks.GetHashCode();
       hash ^= commands_.GetHashCode();
+      if (SessionId.Length != 0) hash ^= SessionId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -5586,6 +5753,10 @@ namespace OpenRA.Mods.Common.RL {
         output.WriteInt32(Ticks);
       }
       commands_.WriteTo(output, _repeated_commands_codec);
+      if (SessionId.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(SessionId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -5601,6 +5772,10 @@ namespace OpenRA.Mods.Common.RL {
         output.WriteInt32(Ticks);
       }
       commands_.WriteTo(ref output, _repeated_commands_codec);
+      if (SessionId.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(SessionId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -5615,6 +5790,9 @@ namespace OpenRA.Mods.Common.RL {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Ticks);
       }
       size += commands_.CalculateSize(_repeated_commands_codec);
+      if (SessionId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(SessionId);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -5631,6 +5809,9 @@ namespace OpenRA.Mods.Common.RL {
         Ticks = other.Ticks;
       }
       commands_.Add(other.commands_);
+      if (other.SessionId.Length != 0) {
+        SessionId = other.SessionId;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -5642,7 +5823,11 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -5652,6 +5837,10 @@ namespace OpenRA.Mods.Common.RL {
           }
           case 18: {
             commands_.AddEntriesFrom(input, _repeated_commands_codec);
+            break;
+          }
+          case 26: {
+            SessionId = input.ReadString();
             break;
           }
         }
@@ -5665,7 +5854,11 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -5677,6 +5870,10 @@ namespace OpenRA.Mods.Common.RL {
             commands_.AddEntriesFrom(ref input, _repeated_commands_codec);
             break;
           }
+          case 26: {
+            SessionId = input.ReadString();
+            break;
+          }
         }
       }
     }
@@ -5684,16 +5881,17 @@ namespace OpenRA.Mods.Common.RL {
 
   }
 
-  public sealed partial class SoftResetRequest : pb::IMessage<SoftResetRequest>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class CreateSessionRequest : pb::IMessage<CreateSessionRequest>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
   {
-    private static readonly pb::MessageParser<SoftResetRequest> _parser = new pb::MessageParser<SoftResetRequest>(() => new SoftResetRequest());
+    private static readonly pb::MessageParser<CreateSessionRequest> _parser = new pb::MessageParser<CreateSessionRequest>(() => new CreateSessionRequest());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<SoftResetRequest> Parser { get { return _parser; } }
+    public static pb::MessageParser<CreateSessionRequest> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -5709,7 +5907,7 @@ namespace OpenRA.Mods.Common.RL {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public SoftResetRequest() {
+    public CreateSessionRequest() {
       OnConstruction();
     }
 
@@ -5717,7 +5915,7 @@ namespace OpenRA.Mods.Common.RL {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public SoftResetRequest(SoftResetRequest other) : this() {
+    public CreateSessionRequest(CreateSessionRequest other) : this() {
       mapName_ = other.mapName_;
       bots_ = other.bots_;
       seed_ = other.seed_;
@@ -5726,15 +5924,15 @@ namespace OpenRA.Mods.Common.RL {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public SoftResetRequest Clone() {
-      return new SoftResetRequest(this);
+    public CreateSessionRequest Clone() {
+      return new CreateSessionRequest(this);
     }
 
     /// <summary>Field number for the "map_name" field.</summary>
     public const int MapNameFieldNumber = 1;
     private string mapName_ = "";
     /// <summary>
-    /// Map file name or UID (empty = reload same map)
+    /// Map filename or UID
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -5749,7 +5947,7 @@ namespace OpenRA.Mods.Common.RL {
     public const int BotsFieldNumber = 2;
     private string bots_ = "";
     /// <summary>
-    /// Bot config "slot:type,slot:type" (empty = same config)
+    /// Bot config: "Multi1:rl-agent,Multi0:beginner"
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -5764,7 +5962,7 @@ namespace OpenRA.Mods.Common.RL {
     public const int SeedFieldNumber = 3;
     private int seed_;
     /// <summary>
-    /// Random seed (0 = auto)
+    /// Random seed (0 = random)
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -5778,12 +5976,12 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
-      return Equals(other as SoftResetRequest);
+      return Equals(other as CreateSessionRequest);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(SoftResetRequest other) {
+    public bool Equals(CreateSessionRequest other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -5882,7 +6080,7 @@ namespace OpenRA.Mods.Common.RL {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(SoftResetRequest other) {
+    public void MergeFrom(CreateSessionRequest other) {
       if (other == null) {
         return;
       }
@@ -5906,7 +6104,11 @@ namespace OpenRA.Mods.Common.RL {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -5933,7 +6135,11 @@ namespace OpenRA.Mods.Common.RL {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -5949,6 +6155,563 @@ namespace OpenRA.Mods.Common.RL {
             Seed = input.ReadInt32();
             break;
           }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class CreateSessionResponse : pb::IMessage<CreateSessionResponse>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<CreateSessionResponse> _parser = new pb::MessageParser<CreateSessionResponse>(() => new CreateSessionResponse());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<CreateSessionResponse> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[13]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CreateSessionResponse() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CreateSessionResponse(CreateSessionResponse other) : this() {
+      sessionId_ = other.sessionId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CreateSessionResponse Clone() {
+      return new CreateSessionResponse(this);
+    }
+
+    /// <summary>Field number for the "session_id" field.</summary>
+    public const int SessionIdFieldNumber = 1;
+    private string sessionId_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string SessionId {
+      get { return sessionId_; }
+      set {
+        sessionId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as CreateSessionResponse);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(CreateSessionResponse other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (SessionId != other.SessionId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (SessionId.Length != 0) hash ^= SessionId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (SessionId.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(SessionId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (SessionId.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(SessionId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (SessionId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(SessionId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(CreateSessionResponse other) {
+      if (other == null) {
+        return;
+      }
+      if (other.SessionId.Length != 0) {
+        SessionId = other.SessionId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            SessionId = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            SessionId = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class DestroySessionRequest : pb::IMessage<DestroySessionRequest>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<DestroySessionRequest> _parser = new pb::MessageParser<DestroySessionRequest>(() => new DestroySessionRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<DestroySessionRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[14]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DestroySessionRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DestroySessionRequest(DestroySessionRequest other) : this() {
+      sessionId_ = other.sessionId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DestroySessionRequest Clone() {
+      return new DestroySessionRequest(this);
+    }
+
+    /// <summary>Field number for the "session_id" field.</summary>
+    public const int SessionIdFieldNumber = 1;
+    private string sessionId_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string SessionId {
+      get { return sessionId_; }
+      set {
+        sessionId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as DestroySessionRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(DestroySessionRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (SessionId != other.SessionId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (SessionId.Length != 0) hash ^= SessionId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (SessionId.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(SessionId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (SessionId.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(SessionId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (SessionId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(SessionId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(DestroySessionRequest other) {
+      if (other == null) {
+        return;
+      }
+      if (other.SessionId.Length != 0) {
+        SessionId = other.SessionId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            SessionId = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            SessionId = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class DestroySessionResponse : pb::IMessage<DestroySessionResponse>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<DestroySessionResponse> _parser = new pb::MessageParser<DestroySessionResponse>(() => new DestroySessionResponse());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<DestroySessionResponse> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[15]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DestroySessionResponse() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DestroySessionResponse(DestroySessionResponse other) : this() {
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DestroySessionResponse Clone() {
+      return new DestroySessionResponse(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as DestroySessionResponse);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(DestroySessionResponse other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(DestroySessionResponse other) {
+      if (other == null) {
+        return;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
         }
       }
     }
