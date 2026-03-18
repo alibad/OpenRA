@@ -281,7 +281,8 @@ namespace OpenRA.Mods.Common.Traits
 		/// </summary>
 		static void InitSession(string sessionId, string mapName, string bots, int seed)
 		{
-			// 1. Find the map
+			// 1. Find the map (rescan maps dir first — scenarios are generated at runtime)
+			modData.MapCache.LoadMaps(modData);
 			var mapPreview = modData.MapCache
 				.FirstOrDefault(m => m.Status == MapStatus.Available &&
 					(Path.GetFileName(m.Path) == mapName || m.Uid == mapName));
