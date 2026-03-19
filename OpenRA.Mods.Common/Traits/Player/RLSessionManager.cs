@@ -298,7 +298,7 @@ namespace OpenRA.Mods.Common.Traits
 
 			if (mapPreview == null)
 			{
-				Log.Write("rl-bridge", $"Session {sessionId}: Map '{mapName}' not found");
+				Log.Write("rl-bridge", $"Session {sessionId}: Map '{mapName}' not found after rescan");
 				return;
 			}
 
