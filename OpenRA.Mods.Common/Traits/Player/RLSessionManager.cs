@@ -321,16 +321,12 @@ namespace OpenRA.Mods.Common.Traits
 			// 2. Load map from disk (per-session — each needs its own Map instance)
 			var map = mapPreview.ToMap();
 
-			// 3. PrepareMap (cached per UID — only the first session for each map pays the cost).
-			//    Required even in headless: traits query sequences during init and crash if unresolved.
+			// 3. PrepareMap — must run for every map (sprite sequences are map-specific,
+			//    and randomized scenarios produce unique map UIDs every time).
 			//    Serialized because it mutates global statics (ChromeMetrics, ChromeProvider, Sound).
 			lock (WorldCreateLock)
 			{
-				if (PreparedMapUids.Add(mapPreview.Uid))
-				{
-					Log.Write("rl-bridge", $"Session {sessionId}: First use of map {mapPreview.Uid}, running PrepareMap");
-					modData.PrepareMap(map);
-				}
+				modData.PrepareMap(map);
 			}
 
 			// 4. Create isolated OrderManager with EchoConnection (no network)
