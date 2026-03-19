@@ -281,11 +281,20 @@ namespace OpenRA.Mods.Common.Traits
 		/// </summary>
 		static void InitSession(string sessionId, string mapName, string bots, int seed)
 		{
-			// 1. Find the map (rescan maps dir first — scenarios are generated at runtime)
-			modData.MapCache.LoadMaps(modData);
+			// 1. Find the map (rescan only if not found — scenarios are generated at runtime)
 			var mapPreview = modData.MapCache
 				.FirstOrDefault(m => m.Status == MapStatus.Available &&
 					(Path.GetFileName(m.Path) == mapName || m.Uid == mapName));
+
+			if (mapPreview == null)
+			{
+				// Map not in cache — rescan maps directory (new scenario .oramap written at runtime)
+				Log.Write("rl-bridge", $"Session {sessionId}: Map '{mapName}' not in cache, rescanning...");
+				modData.MapCache.LoadMaps(modData);
+				mapPreview = modData.MapCache
+					.FirstOrDefault(m => m.Status == MapStatus.Available &&
+						(Path.GetFileName(m.Path) == mapName || m.Uid == mapName));
+			}
 
 			if (mapPreview == null)
 			{
