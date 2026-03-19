@@ -71,8 +71,9 @@ namespace OpenRA.Mods.Common.Traits
 		/// <summary>
 		/// In multi-session mode, set this before World creation to assign
 		/// a specific session ID to the next bridge that gets constructed.
-		/// World creation is serialized under PrepareMapLock, so this is safe.
+		/// ThreadStatic so multiple init threads can create Worlds concurrently.
 		/// </summary>
+		[ThreadStatic]
 		internal static string NextSessionId;
 
 		static WebApplication grpcApp;

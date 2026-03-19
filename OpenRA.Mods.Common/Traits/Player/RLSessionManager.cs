@@ -33,7 +33,13 @@ namespace OpenRA.Mods.Common.Traits
 	public static class RLSessionManager
 	{
 		static ModData modData;
-		static readonly object PrepareMapLock = new();
+		static readonly object MapCacheLock = new();
+		static readonly object WorldCreateLock = new();
+		static readonly HashSet<string> PreparedMapUids = new();
+
+		/// <summary>Cache resolved MapPreview by map name to avoid repeated MapCache enumeration.</summary>
+		static readonly ConcurrentDictionary<string, MapPreview> ResolvedMaps = new();
+
 		static int nextClientIndex = 100;
 
 		/// <summary>
@@ -281,54 +287,73 @@ namespace OpenRA.Mods.Common.Traits
 		/// </summary>
 		static void InitSession(string sessionId, string mapName, string bots, int seed)
 		{
-			// 1. Find the map (rescan only if not found — scenarios are generated at runtime)
-			var mapPreview = modData.MapCache
-				.FirstOrDefault(m => m.Status == MapStatus.Available &&
-					(Path.GetFileName(m.Path) == mapName || m.Uid == mapName));
+			// 1. Resolve map (cached — only first request per map name hits MapCache).
+			//    MapCache.GetEnumerator() calls UpdateMaps() which mutates collections,
+			//    so all MapCache access must be serialized via MapCacheLock.
+			var mapPreview = ResolvedMaps.GetOrAdd(mapName, name =>
+			{
+				lock (MapCacheLock)
+				{
+					var mp = modData.MapCache
+						.FirstOrDefault(m => m.Status == MapStatus.Available &&
+							(Path.GetFileName(m.Path) == name || m.Uid == name));
+
+					if (mp == null)
+					{
+						Log.Write("rl-bridge", $"Session {sessionId}: Map '{name}' not in cache, rescanning...");
+						modData.MapCache.LoadMaps(modData);
+						mp = modData.MapCache
+							.FirstOrDefault(m => m.Status == MapStatus.Available &&
+								(Path.GetFileName(m.Path) == name || m.Uid == name));
+					}
+
+					return mp;
+				}
+			});
 
 			if (mapPreview == null)
 			{
-				// Map not in cache — rescan maps directory (new scenario .oramap written at runtime)
-				Log.Write("rl-bridge", $"Session {sessionId}: Map '{mapName}' not in cache, rescanning...");
-				modData.MapCache.LoadMaps(modData);
-				mapPreview = modData.MapCache
-					.FirstOrDefault(m => m.Status == MapStatus.Available &&
-						(Path.GetFileName(m.Path) == mapName || m.Uid == mapName));
-			}
-
-			if (mapPreview == null)
-			{
-				Log.Write("rl-bridge", $"Session {sessionId}: Map '{mapName}' not found after rescan");
+				Log.Write("rl-bridge", $"Session {sessionId}: Map '{mapName}' not found");
+				ResolvedMaps.TryRemove(mapName, out _); // Don't cache failures
 				return;
 			}
 
-			// 2. Load map from disk (no lock needed), then prepare (serialized — modifies shared state)
+			// 2. Load map from disk (per-session — each needs its own Map instance)
 			var map = mapPreview.ToMap();
-			lock (PrepareMapLock)
+
+			// 3. PrepareMap (cached per UID — only the first session for each map pays the cost).
+			//    Required even in headless: traits query sequences during init and crash if unresolved.
+			//    Serialized because it mutates global statics (ChromeMetrics, ChromeProvider, Sound).
+			lock (WorldCreateLock)
 			{
-				modData.PrepareMap(map);
+				if (PreparedMapUids.Add(mapPreview.Uid))
+				{
+					Log.Write("rl-bridge", $"Session {sessionId}: First use of map {mapPreview.Uid}, running PrepareMap");
+					modData.PrepareMap(map);
+				}
 			}
 
-			// 3. Create isolated OrderManager with EchoConnection (no network)
+			// 4. Create isolated OrderManager with EchoConnection (no network)
+			// These are per-session objects, safe to create outside the lock.
 			var connection = new EchoConnection();
 			var orderManager = new OrderManager(connection);
 
-			// 4. Build LobbyInfo with map slots and bot assignments
+			// 5. Build LobbyInfo with map slots and bot assignments
 			SetupLobbyInfo(orderManager, mapPreview, map, bots, seed);
 
-			// 5. Create world (serialized — accesses Game.OrderManager static)
+			// 6. World creation + LoadComplete (serialized — traits access shared state).
+			//    With PrepareMap cached and map lookup cached, the lock only covers
+			//    World construction (~300ms per session). 64 sessions ≈ 19s total.
 			Log.Write("rl-bridge", $"Session {sessionId}: Creating world");
-			lock (PrepareMapLock)
+			lock (WorldCreateLock)
 			{
 				Game.OrderManager = orderManager;
 				ExternalBotBridge.NextSessionId = sessionId;
 				orderManager.World = new World(map, modData, orderManager, WorldType.Regular);
 				ExternalBotBridge.NextSessionId = null;
+				orderManager.World.LoadComplete(null);
+				orderManager.StartGame();
 			}
-
-			// 6. LoadComplete and start
-			orderManager.World.LoadComplete(null);
-			orderManager.StartGame();
 
 			var world = orderManager.World;
 
