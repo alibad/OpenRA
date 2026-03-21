@@ -290,6 +290,14 @@ namespace OpenRA.Mods.Common.Traits
 			// 1. Resolve map (cached — only first request per map name hits MapCache).
 			//    MapCache.GetEnumerator() calls UpdateMaps() which mutates collections,
 			//    so all MapCache access must be serialized via MapCacheLock.
+			//
+			//    PERF: Avoid LoadMaps() which rescans ALL map files in every directory.
+			//    With 60+ stock maps plus accumulated scenario maps from previous waves,
+			//    LoadMaps() takes ~1-2s per call. With 20 sessions each calling LoadMaps()
+			//    (because each has a unique map name), total rescan time is 20-40s —
+			//    enough to push later sessions past the 60s wait_for_ready timeout.
+			//
+			//    Instead, load just the specific map file via LoadMap() (single file I/O).
 			var mapPreview = ResolvedMaps.GetOrAdd(mapName, name =>
 			{
 				lock (MapCacheLock)
@@ -300,11 +308,31 @@ namespace OpenRA.Mods.Common.Traits
 
 					if (mp == null)
 					{
-						Log.Write("rl-bridge", $"Session {sessionId}: Map '{name}' not in cache, rescanning...");
-						modData.MapCache.LoadMaps(modData);
+						// Try loading just this specific map file from known map directories
+						// instead of rescanning everything with LoadMaps().
+						Log.Write("rl-bridge", $"Session {sessionId}: Map '{name}' not in cache, loading single map...");
+						foreach (var kv in modData.MapCache.MapLocations)
+						{
+							if (kv.Key.Contains(name))
+							{
+								modData.MapCache.LoadMap(name, kv.Key, kv.Value, null);
+								break;
+							}
+						}
+
 						mp = modData.MapCache
 							.FirstOrDefault(m => m.Status == MapStatus.Available &&
 								(Path.GetFileName(m.Path) == name || m.Uid == name));
+
+						// Fallback: if single-file load didn't work, do full rescan
+						if (mp == null)
+						{
+							Log.Write("rl-bridge", $"Session {sessionId}: Single-file load failed, full rescan...");
+							modData.MapCache.LoadMaps(modData);
+							mp = modData.MapCache
+								.FirstOrDefault(m => m.Status == MapStatus.Available &&
+									(Path.GetFileName(m.Path) == name || m.Uid == name));
+						}
 					}
 
 					return mp;
@@ -320,6 +348,7 @@ namespace OpenRA.Mods.Common.Traits
 
 			// 2. Load map from disk (per-session — each needs its own Map instance)
 			var map = mapPreview.ToMap();
+			Log.Write("rl-bridge", $"Session {sessionId}: Map loaded from {mapPreview.Path}, {map.ActorDefinitions.Count()} actor defs");
 
 			// 3. PrepareMap — must run for every map (sprite sequences are map-specific,
 			//    and randomized scenarios produce unique map UIDs every time).

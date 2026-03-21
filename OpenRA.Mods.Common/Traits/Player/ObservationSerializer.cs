@@ -190,6 +190,9 @@ namespace OpenRA.Mods.Common.Traits
 
 		void SerializeVisibleEnemies(RLProto.GameObservation obs)
 		{
+			var enemyCount = 0;
+			var visibleCount = 0;
+			var buildingCount = 0;
 			foreach (var actor in world.Actors)
 			{
 				if (actor.Owner == player || actor.Owner.NonCombatant
@@ -199,8 +202,11 @@ namespace OpenRA.Mods.Common.Traits
 				if (actor == world.WorldActor)
 					continue;
 
+				enemyCount++;
 				try
 				{
+					var isBuilding = actor.Info.HasTraitInfo<BuildingInfo>();
+					if (isBuilding) buildingCount++;
 					// Check if visible through shroud/fog
 					if (player.Shroud.IsVisible(actor.CenterPosition))
 					{
@@ -224,6 +230,8 @@ namespace OpenRA.Mods.Common.Traits
 					// Actor may be in a transitional state — skip it
 				}
 			}
+			if (obs.Tick % 500 == 0 || obs.Tick < 10)
+				Log.Write("rl-bridge", $"Tick {obs.Tick}: {enemyCount} enemy actors, {buildingCount} buildings, {obs.VisibleEnemyBuildings.Count} visible bldgs");
 		}
 
 		RLProto.RlBuildingInfo SerializeBuilding(Actor actor, float hpPercent, string owner)
