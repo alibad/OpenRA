@@ -56,11 +56,13 @@ message GameObservation {
   // Visible enemy buildings (separate from visible_enemies which only has units)
   repeated RlBuildingInfo visible_enemy_buildings = 16;
 
+  // Fog of war exploration progress (0-100)
+  float explored_percent = 17;
+
   // Server-side interrupt detection results
-  bool interrupted = 17;           // true if advance ended early due to interrupt
-  string interrupt_reason = 18;    // signal name (e.g. "enemy_spotted")
-  int32 actual_ticks_advanced = 19; // ticks actually advanced (may be < requested)
-  float explored_percent = 20;     // percentage of map explored (fog of war cleared)
+  bool interrupted = 18;           // true if advance ended early due to interrupt
+  string interrupt_reason = 19;    // signal name (e.g. "enemy_spotted")
+  int32 actual_ticks_advanced = 20; // ticks actually advanced (may be < requested)
 }
 
 message RlEconomy {
