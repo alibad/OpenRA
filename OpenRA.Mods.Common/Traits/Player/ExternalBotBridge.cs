@@ -138,6 +138,13 @@ namespace OpenRA.Mods.Common.Traits
 		readonly HashSet<uint> prevOwnBuildingIds = new();
 		float prevExploredPct;
 
+		// Reusable collections for CheckInterrupts() (avoid GC pressure)
+		readonly HashSet<uint> curEnemyIds = new();
+		readonly HashSet<uint> curOwnUnitIds = new();
+		readonly Dictionary<uint, float> curOwnUnitHp = new();
+		readonly HashSet<uint> curEnemyBuildingIds = new();
+		readonly HashSet<uint> curOwnBuildingIds = new();
+
 		string pendingInterruptReason;
 
 		/// <summary>
@@ -575,12 +582,17 @@ namespace OpenRA.Mods.Common.Traits
 			if (observationSerializer == null)
 				return null;
 
-			// Collect current state IDs
-			var currentEnemyIds = new HashSet<uint>();
-			var currentOwnUnitIds = new HashSet<uint>();
-			var currentOwnUnitHp = new Dictionary<uint, float>();
-			var currentEnemyBuildingIds = new HashSet<uint>();
-			var currentOwnBuildingIds = new HashSet<uint>();
+			// Reuse collections to avoid GC pressure (called every 25 ticks)
+			curEnemyIds.Clear();
+			curOwnUnitIds.Clear();
+			curOwnUnitHp.Clear();
+			curEnemyBuildingIds.Clear();
+			curOwnBuildingIds.Clear();
+			var currentEnemyIds = curEnemyIds;
+			var currentOwnUnitIds = curOwnUnitIds;
+			var currentOwnUnitHp = curOwnUnitHp;
+			var currentEnemyBuildingIds = curEnemyBuildingIds;
+			var currentOwnBuildingIds = curOwnBuildingIds;
 
 			var shroud = player?.Shroud;
 
@@ -616,14 +628,9 @@ namespace OpenRA.Mods.Common.Traits
 					currentEnemyBuildingIds.Add(a.ActorID);
 			}
 
-			// Get explored percentage (reuses shroud from above)
-			float exploredPct = 0f;
-			if (shroud != null)
-			{
-				var totalCells = world.Map.AllCells.Count();
-				var exploredCells = world.Map.AllCells.Count(c => shroud.IsExplored(c));
-				exploredPct = totalCells > 0 ? (float)exploredCells / totalCells * 100f : 0f;
-			}
+			// Skip expensive exploration_milestone check in C# — let Python handle it.
+			// Iterating all map cells (6000+) every 25 ticks × 64 sessions kills CPU.
+			float exploredPct = prevExploredPct;
 
 			// On first check of a new advance, just populate prev-state without firing.
 			// Otherwise the first check always triggers (empty prev = everything is "new").
