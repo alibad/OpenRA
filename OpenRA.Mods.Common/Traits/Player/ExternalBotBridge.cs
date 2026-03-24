@@ -124,6 +124,22 @@ namespace OpenRA.Mods.Common.Traits
 		// Must be set BEFORE pendingFastAdvanceTarget (volatile write provides release fence).
 		volatile TaskCompletionSource<RLProto.GameObservation> pendingAdvanceResult;
 
+		// Server-side interrupt detection state
+		volatile int interruptCheckInterval;  // check every N ticks (0 = disabled)
+		int interruptNextCheckTick;           // next tick to run interrupt checks
+		int fastAdvanceStartTick;             // tick when current advance started
+		HashSet<string> enabledInterrupts = new();
+
+		// Previous-state tracking for delta-based interrupt detection
+		readonly HashSet<uint> prevVisibleEnemyIds = new();
+		readonly HashSet<uint> prevOwnUnitIds = new();
+		readonly Dictionary<uint, float> prevUnitHpPct = new();
+		readonly HashSet<uint> prevEnemyBuildingIds = new();
+		readonly HashSet<uint> prevOwnBuildingIds = new();
+		float prevExploredPct;
+
+		string pendingInterruptReason;
+
 		/// <summary>
 		/// Signaled when the session is done (game over or destroyed). Used by
 		/// RLSessionManager to know when to stop the tick loop for this session.
@@ -370,11 +386,31 @@ namespace OpenRA.Mods.Common.Traits
 				return;
 			}
 
-			// Check if fast-forward target tick has been reached
+			// Check for server-side interrupts during fast-forward
+			if (pendingFastAdvanceTarget > 0 && interruptCheckInterval > 0
+				&& world.WorldTick >= interruptNextCheckTick
+				&& pendingInterruptReason == null)
+			{
+				interruptNextCheckTick = world.WorldTick + interruptCheckInterval;
+				var signal = CheckInterrupts();
+				if (signal != null)
+				{
+					pendingInterruptReason = signal;
+					// Stop advancing — complete on the next Tick check below
+					pendingFastAdvanceTarget = world.WorldTick;
+					Log.Write("rl-bridge", $"Interrupt [{signal}] at tick {world.WorldTick} (started at {fastAdvanceStartTick})");
+				}
+			}
+
+			// Check if fast-forward target tick has been reached (or interrupted)
 			if (pendingFastAdvanceTarget > 0 && world.WorldTick >= pendingFastAdvanceTarget)
 			{
 				world.SetTickScale(1.0f);
-				Log.Write("rl-bridge", $"Fast-forward complete at tick {world.WorldTick}, restored normal speed");
+				var reason = pendingInterruptReason;
+				if (reason != null)
+					Log.Write("rl-bridge", $"Fast-forward interrupted at tick {world.WorldTick} by [{reason}]");
+				else
+					Log.Write("rl-bridge", $"Fast-forward complete at tick {world.WorldTick}, restored normal speed");
 				pendingFastAdvanceTarget = 0;
 
 				// Complete unary FastAdvance if pending
@@ -384,6 +420,23 @@ namespace OpenRA.Mods.Common.Traits
 					try
 					{
 						var obs = observationSerializer.Serialize(world.WorldTick);
+						// Set interrupt fields
+						if (reason != null)
+						{
+							obs.Interrupted = true;
+							obs.InterruptReason = reason;
+						}
+						obs.ActualTicksAdvanced = world.WorldTick - fastAdvanceStartTick;
+
+						// Set explored_percent
+						var shroud = player?.Shroud;
+						if (shroud != null)
+						{
+							var totalCells = world.Map.AllCells.Count();
+							var exploredCells = world.Map.AllCells.Count(c => shroud.IsExplored(c));
+							obs.ExploredPercent = totalCells > 0 ? (float)exploredCells / totalCells * 100f : 0f;
+						}
+
 						advTcs.TrySetResult(obs);
 					}
 					catch (Exception e)
@@ -392,6 +445,7 @@ namespace OpenRA.Mods.Common.Traits
 					}
 
 					pendingAdvanceResult = null;
+					pendingInterruptReason = null;
 				}
 			}
 
@@ -503,13 +557,204 @@ namespace OpenRA.Mods.Common.Traits
 		internal ChannelWriter<RLProto.AgentAction> ActionWriter => actionChannel.Writer;
 
 		/// <summary>
+		/// Check all enabled interrupt signals against current world state.
+		/// Returns the signal name if one fires, null otherwise.
+		/// Called from Tick() every interruptCheckInterval ticks during fast-advance.
+		/// </summary>
+		string CheckInterrupts()
+		{
+			if (observationSerializer == null)
+				return null;
+
+			// Collect current state IDs
+			var currentEnemyIds = new HashSet<uint>();
+			var currentOwnUnitIds = new HashSet<uint>();
+			var currentOwnUnitHp = new Dictionary<uint, float>();
+			var currentEnemyBuildingIds = new HashSet<uint>();
+			var currentOwnBuildingIds = new HashSet<uint>();
+
+			foreach (var a in world.ActorsHavingTrait<Mobile>())
+			{
+				if (a.IsDead || !a.IsInWorld)
+					continue;
+
+				var owner = a.Owner;
+				if (owner == player)
+				{
+					currentOwnUnitIds.Add(a.ActorID);
+					var health = a.TraitOrDefault<Health>();
+					if (health != null)
+						currentOwnUnitHp[a.ActorID] = (float)health.HP / health.MaxHP;
+				}
+				else if (owner != player && !owner.NonCombatant && player.CanViewActor(a))
+				{
+					currentEnemyIds.Add(a.ActorID);
+				}
+			}
+
+			foreach (var a in world.ActorsHavingTrait<Building>())
+			{
+				if (a.IsDead || !a.IsInWorld)
+					continue;
+
+				if (a.Owner == player)
+					currentOwnBuildingIds.Add(a.ActorID);
+				else if (a.Owner != player && !a.Owner.NonCombatant && player.CanViewActor(a))
+					currentEnemyBuildingIds.Add(a.ActorID);
+			}
+
+			// Get explored percentage
+			var shroud = player.Shroud;
+			float exploredPct = 0f;
+			if (shroud != null)
+			{
+				var totalCells = world.Map.AllCells.Count();
+				var exploredCells = world.Map.AllCells.Count(c => shroud.IsExplored(c));
+				exploredPct = totalCells > 0 ? (float)exploredCells / totalCells * 100f : 0f;
+			}
+
+			// Check signals in priority order
+			// Priority 0: game_over
+			if (enabledInterrupts.Contains("game_over") && world.IsGameOver)
+			{
+				UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
+					currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+				return "game_over";
+			}
+
+			// Priority 1: enemy_spotted (new enemy unit visible)
+			if (enabledInterrupts.Contains("enemy_spotted"))
+			{
+				foreach (var id in currentEnemyIds)
+				{
+					if (!prevVisibleEnemyIds.Contains(id))
+					{
+						UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
+							currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+						return "enemy_spotted";
+					}
+				}
+			}
+
+			// Priority 1: unit_destroyed (own unit lost)
+			if (enabledInterrupts.Contains("unit_destroyed"))
+			{
+				foreach (var id in prevOwnUnitIds)
+				{
+					if (!currentOwnUnitIds.Contains(id))
+					{
+						UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
+							currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+						return "unit_destroyed";
+					}
+				}
+			}
+
+			// Priority 1: under_attack (own unit HP dropped >5%)
+			if (enabledInterrupts.Contains("under_attack"))
+			{
+				foreach (var kvp in prevUnitHpPct)
+				{
+					if (currentOwnUnitHp.TryGetValue(kvp.Key, out var currentHp))
+					{
+						if (kvp.Value - currentHp > 0.05f)
+						{
+							UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
+								currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+							return "under_attack";
+						}
+					}
+				}
+			}
+
+			// Priority 4: building_discovered (new enemy building visible)
+			if (enabledInterrupts.Contains("building_discovered"))
+			{
+				foreach (var id in currentEnemyBuildingIds)
+				{
+					if (!prevEnemyBuildingIds.Contains(id))
+					{
+						UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
+							currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+						return "building_discovered";
+					}
+				}
+			}
+
+			// Priority 4: enemy_building_destroyed
+			if (enabledInterrupts.Contains("enemy_building_destroyed"))
+			{
+				foreach (var id in prevEnemyBuildingIds)
+				{
+					if (!currentEnemyBuildingIds.Contains(id))
+					{
+						UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
+							currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+						return "enemy_building_destroyed";
+					}
+				}
+			}
+
+			// Priority 4: own_building_destroyed
+			if (enabledInterrupts.Contains("own_building_destroyed"))
+			{
+				foreach (var id in prevOwnBuildingIds)
+				{
+					if (!currentOwnBuildingIds.Contains(id))
+					{
+						UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
+							currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+						return "own_building_destroyed";
+					}
+				}
+			}
+
+			// Priority 6: exploration_milestone (10% increments)
+			if (enabledInterrupts.Contains("exploration_milestone"))
+			{
+				var prevBucket = (int)(prevExploredPct / 10f);
+				var curBucket = (int)(exploredPct / 10f);
+				if (curBucket > prevBucket)
+				{
+					UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
+						currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+					return "exploration_milestone";
+				}
+			}
+
+			// No interrupt — update prev state for next check
+			UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
+				currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+			return null;
+		}
+
+		void UpdatePrevState(HashSet<uint> enemyIds, HashSet<uint> ownUnitIds,
+			Dictionary<uint, float> ownUnitHp, HashSet<uint> enemyBuildingIds,
+			HashSet<uint> ownBuildingIds, float exploredPct)
+		{
+			prevVisibleEnemyIds.Clear();
+			prevVisibleEnemyIds.UnionWith(enemyIds);
+			prevOwnUnitIds.Clear();
+			prevOwnUnitIds.UnionWith(ownUnitIds);
+			prevUnitHpPct.Clear();
+			foreach (var kvp in ownUnitHp)
+				prevUnitHpPct[kvp.Key] = kvp.Value;
+			prevEnemyBuildingIds.Clear();
+			prevEnemyBuildingIds.UnionWith(enemyBuildingIds);
+			prevOwnBuildingIds.Clear();
+			prevOwnBuildingIds.UnionWith(ownBuildingIds);
+			prevExploredPct = exploredPct;
+		}
+
+		/// <summary>
 		/// Unary FastAdvance: submit commands, fast-forward N ticks, return observation.
 		/// In multi-session mode, acquires a worker slot and ticks inline on the
 		/// calling (gRPC) thread. Returns RESOURCE_EXHAUSTED if all workers are busy.
 		/// In single-session mode, routes through the action channel to the game thread.
 		/// </summary>
 		internal async Task<RLProto.GameObservation> RequestFastAdvance(
-			int ticks, IEnumerable<RLProto.Command> commands, CancellationToken ct)
+			int ticks, IEnumerable<RLProto.Command> commands, CancellationToken ct,
+			int checkEventsEvery = 0, IEnumerable<string> enabledInterruptNames = null)
 		{
 			// Fail fast if session is already dead
 			if (SessionDone.IsSet)
@@ -521,6 +766,16 @@ namespace OpenRA.Mods.Common.Traits
 				OnAgentConnected();
 
 			var n = Math.Max(1, Math.Min(ticks, 5000));
+
+			// Configure server-side interrupt detection
+			interruptCheckInterval = Math.Max(0, checkEventsEvery);
+			fastAdvanceStartTick = world.WorldTick;
+			interruptNextCheckTick = world.WorldTick + Math.Max(interruptCheckInterval, 1);
+			pendingInterruptReason = null;
+			enabledInterrupts.Clear();
+			if (enabledInterruptNames != null)
+				foreach (var name in enabledInterruptNames)
+					enabledInterrupts.Add(name);
 
 			// Set up the TCS before queueing — worker will complete it via ITick.Tick.
 			// Keep a local reference because ITick.Tick nulls the field after completion.

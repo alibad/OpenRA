@@ -55,6 +55,12 @@ message GameObservation {
 
   // Visible enemy buildings (separate from visible_enemies which only has units)
   repeated RlBuildingInfo visible_enemy_buildings = 16;
+
+  // Server-side interrupt detection results
+  bool interrupted = 17;           // true if advance ended early due to interrupt
+  string interrupt_reason = 18;    // signal name (e.g. "enemy_spotted")
+  int32 actual_ticks_advanced = 19; // ticks actually advanced (may be < requested)
+  float explored_percent = 20;     // percentage of map explored (fog of war cleared)
 }
 
 message RlEconomy {
@@ -206,6 +212,12 @@ message FastAdvanceRequest {
   int32 ticks = 1;
   repeated Command commands = 2;
   string session_id = 3;  // Route to specific session (multi-session mode)
+
+  // Server-side interrupt detection: check for events every N ticks during
+  // the advance. If an interrupt fires, advance ends early with interrupted=true.
+  // 0 = disabled (legacy behavior: advance full ticks, no interrupt checks).
+  int32 check_events_every = 4;
+  repeated string enabled_interrupts = 5;  // Signal names: "enemy_spotted", "building_discovered", etc.
 }
 
 // ─── Session Management (Multi-Session Mode) ────────────────────────────────

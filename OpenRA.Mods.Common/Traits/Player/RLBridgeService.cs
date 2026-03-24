@@ -146,7 +146,9 @@ namespace OpenRA.Mods.Common.Traits
 						$"Bridge not activated within 300s (session_id={request.SessionId})"));
 
 				return await bridge.RequestFastAdvance(
-					request.Ticks, request.Commands, context.CancellationToken);
+					request.Ticks, request.Commands, context.CancellationToken,
+					request.CheckEventsEvery,
+					request.EnabledInterrupts.Count > 0 ? request.EnabledInterrupts : null);
 			}
 			catch (RpcException)
 			{
