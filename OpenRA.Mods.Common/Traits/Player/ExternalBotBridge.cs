@@ -392,13 +392,22 @@ namespace OpenRA.Mods.Common.Traits
 				&& pendingInterruptReason == null)
 			{
 				interruptNextCheckTick = world.WorldTick + interruptCheckInterval;
-				var signal = CheckInterrupts();
-				if (signal != null)
+				try
 				{
-					pendingInterruptReason = signal;
-					// Stop advancing — complete on the next Tick check below
-					pendingFastAdvanceTarget = world.WorldTick;
-					Log.Write("rl-bridge", $"Interrupt [{signal}] at tick {world.WorldTick} (started at {fastAdvanceStartTick})");
+					var signal = CheckInterrupts();
+					if (signal != null)
+					{
+						pendingInterruptReason = signal;
+						// Stop advancing — complete on the next Tick check below
+						pendingFastAdvanceTarget = world.WorldTick;
+						Console.Error.WriteLine($"[rl-bridge] Interrupt [{signal}] at tick {world.WorldTick} (started at {fastAdvanceStartTick})");
+					}
+				}
+				catch (Exception e)
+				{
+					Console.Error.WriteLine($"[rl-bridge] CheckInterrupts ERROR at tick {world.WorldTick}: {e}");
+					// Disable further checks to avoid repeated errors
+					interruptCheckInterval = 0;
 				}
 			}
 
@@ -573,6 +582,8 @@ namespace OpenRA.Mods.Common.Traits
 			var currentEnemyBuildingIds = new HashSet<uint>();
 			var currentOwnBuildingIds = new HashSet<uint>();
 
+			var shroud = player?.Shroud;
+
 			foreach (var a in world.ActorsHavingTrait<Mobile>())
 			{
 				if (a.IsDead || !a.IsInWorld)
@@ -586,7 +597,8 @@ namespace OpenRA.Mods.Common.Traits
 					if (health != null)
 						currentOwnUnitHp[a.ActorID] = (float)health.HP / health.MaxHP;
 				}
-				else if (owner != player && !owner.NonCombatant && player.CanViewActor(a))
+				else if (owner != player && !owner.NonCombatant
+					&& (shroud == null || shroud.IsVisible(a.CenterPosition)))
 				{
 					currentEnemyIds.Add(a.ActorID);
 				}
@@ -599,18 +611,28 @@ namespace OpenRA.Mods.Common.Traits
 
 				if (a.Owner == player)
 					currentOwnBuildingIds.Add(a.ActorID);
-				else if (a.Owner != player && !a.Owner.NonCombatant && player.CanViewActor(a))
+				else if (a.Owner != player && !a.Owner.NonCombatant
+					&& (shroud == null || shroud.IsVisible(a.CenterPosition)))
 					currentEnemyBuildingIds.Add(a.ActorID);
 			}
 
-			// Get explored percentage
-			var shroud = player.Shroud;
+			// Get explored percentage (reuses shroud from above)
 			float exploredPct = 0f;
 			if (shroud != null)
 			{
 				var totalCells = world.Map.AllCells.Count();
 				var exploredCells = world.Map.AllCells.Count(c => shroud.IsExplored(c));
 				exploredPct = totalCells > 0 ? (float)exploredCells / totalCells * 100f : 0f;
+			}
+
+			// On first check of a new advance, just populate prev-state without firing.
+			// Otherwise the first check always triggers (empty prev = everything is "new").
+			bool isFirstCheck = prevVisibleEnemyIds.Count == 0 && prevOwnUnitIds.Count == 0;
+			if (isFirstCheck)
+			{
+				UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
+					currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+				return null;
 			}
 
 			// Check signals in priority order
@@ -776,6 +798,9 @@ namespace OpenRA.Mods.Common.Traits
 			if (enabledInterruptNames != null)
 				foreach (var name in enabledInterruptNames)
 					enabledInterrupts.Add(name);
+
+			if (interruptCheckInterval > 0)
+				Console.Error.WriteLine($"[rl-bridge] FastAdvance {n} ticks with interrupt check every {interruptCheckInterval} ticks, {enabledInterrupts.Count} signals (session {episodeId})");
 
 			// Set up the TCS before queueing — worker will complete it via ITick.Tick.
 			// Keep a local reference because ITick.Tick nulls the field after completion.
