@@ -145,6 +145,18 @@ namespace OpenRA.Mods.Common.Traits
 		readonly HashSet<uint> curEnemyBuildingIds = new();
 		readonly HashSet<uint> curOwnBuildingIds = new();
 
+		// Track which own units were moving (not idle) for unit_arrived detection
+		readonly HashSet<uint> prevMovingUnitIds = new();
+
+		// Cached actor references: populated once at advance start via SnapshotActors(),
+		// then reused for fast delta checks. Full refresh every 4th check to catch
+		// newly spawned actors (harvesters, produced units). This avoids expensive
+		// ActorsHavingTrait<T>() enumeration on every check across 64 sessions.
+		readonly List<Actor> cachedMobileActors = new();
+		readonly List<Actor> cachedBuildingActors = new();
+		int interruptCheckCount;
+		const int FullRefreshEveryNChecks = 4;
+
 		string pendingInterruptReason;
 
 		/// <summary>
@@ -573,30 +585,46 @@ namespace OpenRA.Mods.Common.Traits
 		internal ChannelWriter<RLProto.AgentAction> ActionWriter => actionChannel.Writer;
 
 		/// <summary>
+		/// Snapshot all Mobile and Building actors into cached lists.
+		/// Called once at advance start and refreshed every FullRefreshEveryNChecks.
+		/// </summary>
+		void SnapshotActors()
+		{
+			cachedMobileActors.Clear();
+			cachedMobileActors.AddRange(world.ActorsHavingTrait<Mobile>());
+			cachedBuildingActors.Clear();
+			cachedBuildingActors.AddRange(world.ActorsHavingTrait<Building>());
+		}
+
+		/// <summary>
 		/// Check all enabled interrupt signals against current world state.
 		/// Returns the signal name if one fires, null otherwise.
-		/// Called from Tick() every interruptCheckInterval ticks during fast-advance.
+		/// Uses cached actor references for fast iteration (no trait dictionary walk).
+		/// Full trait re-enumeration every 4th check to catch newly spawned actors.
 		/// </summary>
 		string CheckInterrupts()
 		{
 			if (observationSerializer == null)
 				return null;
 
-			// Reuse collections to avoid GC pressure (called every 25 ticks)
+			// Periodically refresh cached actor lists to catch new spawns (harvesters, produced units)
+			interruptCheckCount++;
+			if (interruptCheckCount >= FullRefreshEveryNChecks)
+			{
+				SnapshotActors();
+				interruptCheckCount = 0;
+			}
+
+			// Build current state from cached actor references (fast — no trait lookup)
 			curEnemyIds.Clear();
 			curOwnUnitIds.Clear();
 			curOwnUnitHp.Clear();
 			curEnemyBuildingIds.Clear();
 			curOwnBuildingIds.Clear();
-			var currentEnemyIds = curEnemyIds;
-			var currentOwnUnitIds = curOwnUnitIds;
-			var currentOwnUnitHp = curOwnUnitHp;
-			var currentEnemyBuildingIds = curEnemyBuildingIds;
-			var currentOwnBuildingIds = curOwnBuildingIds;
 
 			var shroud = player?.Shroud;
 
-			foreach (var a in world.ActorsHavingTrait<Mobile>())
+			foreach (var a in cachedMobileActors)
 			{
 				if (a.IsDead || !a.IsInWorld)
 					continue;
@@ -604,156 +632,175 @@ namespace OpenRA.Mods.Common.Traits
 				var owner = a.Owner;
 				if (owner == player)
 				{
-					currentOwnUnitIds.Add(a.ActorID);
+					curOwnUnitIds.Add(a.ActorID);
 					var health = a.TraitOrDefault<Health>();
 					if (health != null)
-						currentOwnUnitHp[a.ActorID] = (float)health.HP / health.MaxHP;
+						curOwnUnitHp[a.ActorID] = (float)health.HP / health.MaxHP;
 				}
-				else if (owner != player && !owner.NonCombatant
+				else if (!owner.NonCombatant
 					&& (shroud == null || shroud.IsVisible(a.CenterPosition)))
 				{
-					currentEnemyIds.Add(a.ActorID);
+					curEnemyIds.Add(a.ActorID);
 				}
 			}
 
-			foreach (var a in world.ActorsHavingTrait<Building>())
+			foreach (var a in cachedBuildingActors)
 			{
 				if (a.IsDead || !a.IsInWorld)
 					continue;
 
 				if (a.Owner == player)
-					currentOwnBuildingIds.Add(a.ActorID);
-				else if (a.Owner != player && !a.Owner.NonCombatant
+					curOwnBuildingIds.Add(a.ActorID);
+				else if (!a.Owner.NonCombatant
 					&& (shroud == null || shroud.IsVisible(a.CenterPosition)))
-					currentEnemyBuildingIds.Add(a.ActorID);
+					curEnemyBuildingIds.Add(a.ActorID);
 			}
 
-			// Skip expensive exploration_milestone check in C# — let Python handle it.
-			// Iterating all map cells (6000+) every 25 ticks × 64 sessions kills CPU.
 			float exploredPct = prevExploredPct;
 
 			// On first check of a new advance, just populate prev-state without firing.
-			// Otherwise the first check always triggers (empty prev = everything is "new").
 			bool isFirstCheck = prevVisibleEnemyIds.Count == 0 && prevOwnUnitIds.Count == 0;
 			if (isFirstCheck)
 			{
-				UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
-					currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+				UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
+					curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
 				return null;
 			}
 
 			// Check signals in priority order
-			// Priority 0: game_over
 			if (enabledInterrupts.Contains("game_over") && world.IsGameOver)
 			{
-				UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
-					currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+				UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
+					curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
 				return "game_over";
 			}
 
-			// Priority 1: enemy_spotted (new enemy unit visible)
 			if (enabledInterrupts.Contains("enemy_spotted"))
 			{
-				foreach (var id in currentEnemyIds)
+				foreach (var id in curEnemyIds)
 				{
 					if (!prevVisibleEnemyIds.Contains(id))
 					{
-						UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
-							currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+						UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
+							curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
 						return "enemy_spotted";
 					}
 				}
 			}
 
-			// Priority 1: unit_destroyed (own unit lost)
 			if (enabledInterrupts.Contains("unit_destroyed"))
 			{
 				foreach (var id in prevOwnUnitIds)
 				{
-					if (!currentOwnUnitIds.Contains(id))
+					if (!curOwnUnitIds.Contains(id))
 					{
-						UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
-							currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+						UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
+							curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
 						return "unit_destroyed";
 					}
 				}
 			}
 
-			// Priority 1: under_attack (own unit HP dropped >5%)
 			if (enabledInterrupts.Contains("under_attack"))
 			{
 				foreach (var kvp in prevUnitHpPct)
 				{
-					if (currentOwnUnitHp.TryGetValue(kvp.Key, out var currentHp))
+					if (curOwnUnitHp.TryGetValue(kvp.Key, out var currentHp))
 					{
 						if (kvp.Value - currentHp > 0.05f)
 						{
-							UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
-								currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+							UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
+								curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
 							return "under_attack";
 						}
 					}
 				}
 			}
 
-			// Priority 4: building_discovered (new enemy building visible)
 			if (enabledInterrupts.Contains("building_discovered"))
 			{
-				foreach (var id in currentEnemyBuildingIds)
+				foreach (var id in curEnemyBuildingIds)
 				{
 					if (!prevEnemyBuildingIds.Contains(id))
 					{
-						UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
-							currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+						UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
+							curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
 						return "building_discovered";
 					}
 				}
 			}
 
-			// Priority 4: enemy_building_destroyed
 			if (enabledInterrupts.Contains("enemy_building_destroyed"))
 			{
 				foreach (var id in prevEnemyBuildingIds)
 				{
-					if (!currentEnemyBuildingIds.Contains(id))
+					if (!curEnemyBuildingIds.Contains(id))
 					{
-						UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
-							currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+						UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
+							curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
 						return "enemy_building_destroyed";
 					}
 				}
 			}
 
-			// Priority 4: own_building_destroyed
 			if (enabledInterrupts.Contains("own_building_destroyed"))
 			{
 				foreach (var id in prevOwnBuildingIds)
 				{
-					if (!currentOwnBuildingIds.Contains(id))
+					if (!curOwnBuildingIds.Contains(id))
 					{
-						UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
-							currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+						UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
+							curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
 						return "own_building_destroyed";
 					}
 				}
 			}
 
-			// Priority 6: exploration_milestone (10% increments)
+			// Priority 3: unit_arrived (was moving, now idle)
+			if (enabledInterrupts.Contains("unit_arrived"))
+			{
+				foreach (var a in cachedMobileActors)
+				{
+					if (a.IsDead || !a.IsInWorld || a.Owner != player)
+						continue;
+					if (prevMovingUnitIds.Contains(a.ActorID) && a.IsIdle)
+					{
+						UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
+							curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
+						UpdateMovingUnits();
+						return "unit_arrived";
+					}
+				}
+			}
+
+			// Priority 5: production_complete (own unit count increased)
+			if (enabledInterrupts.Contains("production_complete"))
+			{
+				if (curOwnUnitIds.Count > prevOwnUnitIds.Count)
+				{
+					UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
+						curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
+					UpdateMovingUnits();
+					return "production_complete";
+				}
+			}
+
 			if (enabledInterrupts.Contains("exploration_milestone"))
 			{
 				var prevBucket = (int)(prevExploredPct / 10f);
 				var curBucket = (int)(exploredPct / 10f);
 				if (curBucket > prevBucket)
 				{
-					UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
-						currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+					UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
+						curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
+					UpdateMovingUnits();
 					return "exploration_milestone";
 				}
 			}
 
-			// No interrupt — update prev state for next check
-			UpdatePrevState(currentEnemyIds, currentOwnUnitIds, currentOwnUnitHp,
-				currentEnemyBuildingIds, currentOwnBuildingIds, exploredPct);
+			UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
+				curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
+			UpdateMovingUnits();
 			return null;
 		}
 
@@ -773,6 +820,16 @@ namespace OpenRA.Mods.Common.Traits
 			prevOwnBuildingIds.Clear();
 			prevOwnBuildingIds.UnionWith(ownBuildingIds);
 			prevExploredPct = exploredPct;
+		}
+
+		void UpdateMovingUnits()
+		{
+			prevMovingUnitIds.Clear();
+			foreach (var a in cachedMobileActors)
+			{
+				if (!a.IsDead && a.IsInWorld && a.Owner == player && !a.IsIdle)
+					prevMovingUnitIds.Add(a.ActorID);
+			}
 		}
 
 		/// <summary>
@@ -801,13 +858,19 @@ namespace OpenRA.Mods.Common.Traits
 			fastAdvanceStartTick = world.WorldTick;
 			interruptNextCheckTick = world.WorldTick + Math.Max(interruptCheckInterval, 1);
 			pendingInterruptReason = null;
+			interruptCheckCount = 0;
 			enabledInterrupts.Clear();
 			if (enabledInterruptNames != null)
 				foreach (var name in enabledInterruptNames)
 					enabledInterrupts.Add(name);
 
+			// Snapshot actors once at advance start — CheckInterrupts uses cached lists
+			// instead of expensive ActorsHavingTrait calls on every check
 			if (interruptCheckInterval > 0)
-				Console.Error.WriteLine($"[rl-bridge] FastAdvance {n} ticks with interrupt check every {interruptCheckInterval} ticks, {enabledInterrupts.Count} signals (session {episodeId})");
+			{
+				SnapshotActors();
+				Console.Error.WriteLine($"[rl-bridge] FastAdvance {n} ticks with interrupt check every {interruptCheckInterval} ticks, {enabledInterrupts.Count} signals, {cachedMobileActors.Count} mobile + {cachedBuildingActors.Count} buildings cached (session {episodeId})");
+			}
 
 			// Set up the TCS before queueing — worker will complete it via ITick.Tick.
 			// Keep a local reference because ITick.Tick nulls the field after completion.
