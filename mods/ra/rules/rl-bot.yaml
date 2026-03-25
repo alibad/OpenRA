@@ -4,3 +4,6 @@ Player:
 		Type: rl-agent
 		Port: 9999
 		ObservationInterval: 9999
+	ModularBot@DummyAI:
+		Name: Dummy (Passive)
+		Type: dummy
