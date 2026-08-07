@@ -24,7 +24,7 @@ namespace OpenRA.Mods.Common.RL {
     static RlBridgeReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cg9ybF9icmlkZ2UucHJvdG8SCW9wZW5yYS5ybCKXBAoPR2FtZU9ic2VydmF0",
+            "Cg9ybF9icmlkZ2UucHJvdG8SCW9wZW5yYS5ybCL/BAoPR2FtZU9ic2VydmF0",
             "aW9uEgwKBHRpY2sYASABKAUSEgoKZXBpc29kZV9pZBgCIAEoCRIlCgdlY29u",
             "b215GAMgASgLMhQub3BlbnJhLnJsLlJsRWNvbm9teRInCghtaWxpdGFyeRgE",
             "IAEoCzIVLm9wZW5yYS5ybC5SbE1pbGl0YXJ5EiQKBXVuaXRzGAUgAygLMhUu",
@@ -36,63 +36,68 @@ namespace OpenRA.Mods.Common.RL {
             "GAoQc3BhdGlhbF9jaGFubmVscxgLIAEoBRIMCgRkb25lGAwgASgIEg4KBnJl",
             "d2FyZBgNIAEoAhIOCgZyZXN1bHQYDiABKAkSHAoUYXZhaWxhYmxlX3Byb2R1",
             "Y3Rpb24YDyADKAkSOgoXdmlzaWJsZV9lbmVteV9idWlsZGluZ3MYECADKAsy",
-            "GS5vcGVucmEucmwuUmxCdWlsZGluZ0luZm8iiQEKCVJsRWNvbm9teRIMCgRj",
-            "YXNoGAEgASgFEgsKA29yZRgCIAEoBRIWCg5wb3dlcl9wcm92aWRlZBgDIAEo",
-            "BRIVCg1wb3dlcl9kcmFpbmVkGAQgASgFEhkKEXJlc291cmNlX2NhcGFjaXR5",
-            "GAUgASgFEhcKD2hhcnZlc3Rlcl9jb3VudBgGIAEoBSL/AQoKUmxNaWxpdGFy",
-            "eRIUCgx1bml0c19raWxsZWQYASABKAUSEgoKdW5pdHNfbG9zdBgCIAEoBRIY",
-            "ChBidWlsZGluZ3Nfa2lsbGVkGAMgASgFEhYKDmJ1aWxkaW5nc19sb3N0GAQg",
-            "ASgFEhIKCmFybXlfdmFsdWUYBSABKAUSGQoRYWN0aXZlX3VuaXRfY291bnQY",
-            "BiABKAUSEgoKa2lsbHNfY29zdBgHIAEoBRITCgtkZWF0aHNfY29zdBgIIAEo",
-            "BRIUCgxhc3NldHNfdmFsdWUYCSABKAUSEgoKZXhwZXJpZW5jZRgKIAEoBRIT",
-            "CgtvcmRlcl9jb3VudBgLIAEoBSLnAgoKUmxVbml0SW5mbxIQCghhY3Rvcl9p",
-            "ZBgBIAEoDRIMCgR0eXBlGAIgASgJEg0KBXBvc194GAMgASgFEg0KBXBvc195",
-            "GAQgASgFEg4KBmNlbGxfeBgFIAEoBRIOCgZjZWxsX3kYBiABKAUSEgoKaHBf",
-            "cGVyY2VudBgHIAEoAhIPCgdpc19pZGxlGAggASgIEhgKEGN1cnJlbnRfYWN0",
-            "aXZpdHkYCSABKAkSDQoFb3duZXIYCiABKAkSDAoEYW1tbxgLIAEoBRISCgpj",
-            "YW5fYXR0YWNrGAwgASgIEg4KBmZhY2luZxgNIAEoBRIYChBleHBlcmllbmNl",
-            "X2xldmVsGA4gASgFEg4KBnN0YW5jZRgPIAEoBRINCgVzcGVlZBgQIAEoBRIU",
-            "CgxhdHRhY2tfcmFuZ2UYESABKAUSFwoPcGFzc2VuZ2VyX2NvdW50GBIgASgF",
-            "EhMKC2lzX2J1aWxkaW5nGBMgASgIIucCCg5SbEJ1aWxkaW5nSW5mbxIQCghh",
-            "Y3Rvcl9pZBgBIAEoDRIMCgR0eXBlGAIgASgJEg0KBXBvc194GAMgASgFEg0K",
-            "BXBvc195GAQgASgFEhIKCmhwX3BlcmNlbnQYBSABKAISDQoFb3duZXIYBiAB",
-            "KAkSFAoMaXNfcHJvZHVjaW5nGAcgASgIEhsKE3Byb2R1Y3Rpb25fcHJvZ3Jl",
-            "c3MYCCABKAISFgoOcHJvZHVjaW5nX2l0ZW0YCSABKAkSEgoKaXNfcG93ZXJl",
-            "ZBgKIAEoCBIUCgxpc19yZXBhaXJpbmcYCyABKAgSEgoKc2VsbF92YWx1ZRgM",
-            "IAEoBRIPCgdyYWxseV94GA0gASgFEg8KB3JhbGx5X3kYDiABKAUSFAoMcG93",
-            "ZXJfYW1vdW50GA8gASgFEhMKC2Nhbl9wcm9kdWNlGBAgAygJEg4KBmNlbGxf",
-            "eBgRIAEoBRIOCgZjZWxsX3kYEiABKAUihwEKEFJsUHJvZHVjdGlvbkluZm8S",
-            "EgoKcXVldWVfdHlwZRgBIAEoCRIMCgRpdGVtGAIgASgJEhAKCHByb2dyZXNz",
-            "GAMgASgCEhcKD3JlbWFpbmluZ190aWNrcxgEIAEoBRIWCg5yZW1haW5pbmdf",
-            "Y29zdBgFIAEoBRIOCgZwYXVzZWQYBiABKAgiPAoJUmxNYXBJbmZvEg0KBXdp",
-            "ZHRoGAEgASgFEg4KBmhlaWdodBgCIAEoBRIQCghtYXBfbmFtZRgDIAEoCSIz",
-            "CgtBZ2VudEFjdGlvbhIkCghjb21tYW5kcxgBIAMoCzISLm9wZW5yYS5ybC5D",
-            "b21tYW5kIrEBCgdDb21tYW5kEiUKBmFjdGlvbhgBIAEoDjIVLm9wZW5yYS5y",
-            "bC5BY3Rpb25UeXBlEhAKCGFjdG9yX2lkGAIgASgNEhcKD3RhcmdldF9hY3Rv",
-            "cl9pZBgDIAEoDRIQCgh0YXJnZXRfeBgEIAEoBRIQCgh0YXJnZXRfeRgFIAEo",
-            "BRIRCglpdGVtX3R5cGUYBiABKAkSDgoGcXVldWVkGAcgASgIEg0KBXRpY2tz",
-            "GAggASgFIpEBCglHYW1lU3RhdGUSEgoKZXBpc29kZV9pZBgBIAEoCRIMCgR0",
-            "aWNrGAIgASgFEg0KBXBoYXNlGAMgASgJEg4KBndpbm5lchgEIAEoCRIUCgxw",
-            "bGF5ZXJfY291bnQYBSABKAUSFgoOcGxheWVyX2ZhY3Rpb24YBiABKAkSFQoN",
-            "ZW5lbXlfZmFjdGlvbhgHIAEoCSIiCgxTdGF0ZVJlcXVlc3QSEgoKc2Vzc2lv",
-            "bl9pZBgBIAEoCSJdChJGYXN0QWR2YW5jZVJlcXVlc3QSDQoFdGlja3MYASAB",
-            "KAUSJAoIY29tbWFuZHMYAiADKAsyEi5vcGVucmEucmwuQ29tbWFuZBISCgpz",
-            "ZXNzaW9uX2lkGAMgASgJIkQKFENyZWF0ZVNlc3Npb25SZXF1ZXN0EhAKCG1h",
-            "cF9uYW1lGAEgASgJEgwKBGJvdHMYAiABKAkSDAoEc2VlZBgDIAEoBSIrChVD",
-            "cmVhdGVTZXNzaW9uUmVzcG9uc2USEgoKc2Vzc2lvbl9pZBgBIAEoCSIrChVE",
-            "ZXN0cm95U2Vzc2lvblJlcXVlc3QSEgoKc2Vzc2lvbl9pZBgBIAEoCSIYChZE",
-            "ZXN0cm95U2Vzc2lvblJlc3BvbnNlKssCCgpBY3Rpb25UeXBlEgkKBU5PX09Q",
-            "EAASCAoETU9WRRABEg8KC0FUVEFDS19NT1ZFEAISCgoGQVRUQUNLEAMSCAoE",
-            "U1RPUBAEEgsKB0hBUlZFU1QQBRIJCgVCVUlMRBAGEgkKBVRSQUlOEAcSCgoG",
-            "REVQTE9ZEAgSCAoEU0VMTBAJEgoKBlJFUEFJUhAKEhIKDlBMQUNFX0JVSUxE",
-            "SU5HEAsSFQoRQ0FOQ0VMX1BST0RVQ1RJT04QDBITCg9TRVRfUkFMTFlfUE9J",
-            "TlQQDRIJCgVHVUFSRBAOEg4KClNFVF9TVEFOQ0UQDxITCg9FTlRFUl9UUkFO",
-            "U1BPUlQQEBIKCgZVTkxPQUQQERIOCgpQT1dFUl9ET1dOEBISDwoLU0VUX1BS",
-            "SU1BUlkQExINCglTVVJSRU5ERVIQFBIQCgxGQVNUX0FEVkFOQ0UQFTKBAwoI",
-            "UkxCcmlkZ2USRQoLR2FtZVNlc3Npb24SFi5vcGVucmEucmwuQWdlbnRBY3Rp",
-            "b24aGi5vcGVucmEucmwuR2FtZU9ic2VydmF0aW9uKAEwARI5CghHZXRTdGF0",
-            "ZRIXLm9wZW5yYS5ybC5TdGF0ZVJlcXVlc3QaFC5vcGVucmEucmwuR2FtZVN0",
-            "YXRlEkgKC0Zhc3RBZHZhbmNlEh0ub3BlbnJhLnJsLkZhc3RBZHZhbmNlUmVx",
+            "GS5vcGVucmEucmwuUmxCdWlsZGluZ0luZm8SGAoQZXhwbG9yZWRfcGVyY2Vu",
+            "dBgRIAEoAhITCgtpbnRlcnJ1cHRlZBgSIAEoCBIYChBpbnRlcnJ1cHRfcmVh",
+            "c29uGBMgASgJEh0KFWFjdHVhbF90aWNrc19hZHZhbmNlZBgUIAEoBSKJAQoJ",
+            "UmxFY29ub215EgwKBGNhc2gYASABKAUSCwoDb3JlGAIgASgFEhYKDnBvd2Vy",
+            "X3Byb3ZpZGVkGAMgASgFEhUKDXBvd2VyX2RyYWluZWQYBCABKAUSGQoRcmVz",
+            "b3VyY2VfY2FwYWNpdHkYBSABKAUSFwoPaGFydmVzdGVyX2NvdW50GAYgASgF",
+            "Iv8BCgpSbE1pbGl0YXJ5EhQKDHVuaXRzX2tpbGxlZBgBIAEoBRISCgp1bml0",
+            "c19sb3N0GAIgASgFEhgKEGJ1aWxkaW5nc19raWxsZWQYAyABKAUSFgoOYnVp",
+            "bGRpbmdzX2xvc3QYBCABKAUSEgoKYXJteV92YWx1ZRgFIAEoBRIZChFhY3Rp",
+            "dmVfdW5pdF9jb3VudBgGIAEoBRISCgpraWxsc19jb3N0GAcgASgFEhMKC2Rl",
+            "YXRoc19jb3N0GAggASgFEhQKDGFzc2V0c192YWx1ZRgJIAEoBRISCgpleHBl",
+            "cmllbmNlGAogASgFEhMKC29yZGVyX2NvdW50GAsgASgFIucCCgpSbFVuaXRJ",
+            "bmZvEhAKCGFjdG9yX2lkGAEgASgNEgwKBHR5cGUYAiABKAkSDQoFcG9zX3gY",
+            "AyABKAUSDQoFcG9zX3kYBCABKAUSDgoGY2VsbF94GAUgASgFEg4KBmNlbGxf",
+            "eRgGIAEoBRISCgpocF9wZXJjZW50GAcgASgCEg8KB2lzX2lkbGUYCCABKAgS",
+            "GAoQY3VycmVudF9hY3Rpdml0eRgJIAEoCRINCgVvd25lchgKIAEoCRIMCgRh",
+            "bW1vGAsgASgFEhIKCmNhbl9hdHRhY2sYDCABKAgSDgoGZmFjaW5nGA0gASgF",
+            "EhgKEGV4cGVyaWVuY2VfbGV2ZWwYDiABKAUSDgoGc3RhbmNlGA8gASgFEg0K",
+            "BXNwZWVkGBAgASgFEhQKDGF0dGFja19yYW5nZRgRIAEoBRIXCg9wYXNzZW5n",
+            "ZXJfY291bnQYEiABKAUSEwoLaXNfYnVpbGRpbmcYEyABKAgi5wIKDlJsQnVp",
+            "bGRpbmdJbmZvEhAKCGFjdG9yX2lkGAEgASgNEgwKBHR5cGUYAiABKAkSDQoF",
+            "cG9zX3gYAyABKAUSDQoFcG9zX3kYBCABKAUSEgoKaHBfcGVyY2VudBgFIAEo",
+            "AhINCgVvd25lchgGIAEoCRIUCgxpc19wcm9kdWNpbmcYByABKAgSGwoTcHJv",
+            "ZHVjdGlvbl9wcm9ncmVzcxgIIAEoAhIWCg5wcm9kdWNpbmdfaXRlbRgJIAEo",
+            "CRISCgppc19wb3dlcmVkGAogASgIEhQKDGlzX3JlcGFpcmluZxgLIAEoCBIS",
+            "CgpzZWxsX3ZhbHVlGAwgASgFEg8KB3JhbGx5X3gYDSABKAUSDwoHcmFsbHlf",
+            "eRgOIAEoBRIUCgxwb3dlcl9hbW91bnQYDyABKAUSEwoLY2FuX3Byb2R1Y2UY",
+            "ECADKAkSDgoGY2VsbF94GBEgASgFEg4KBmNlbGxfeRgSIAEoBSKHAQoQUmxQ",
+            "cm9kdWN0aW9uSW5mbxISCgpxdWV1ZV90eXBlGAEgASgJEgwKBGl0ZW0YAiAB",
+            "KAkSEAoIcHJvZ3Jlc3MYAyABKAISFwoPcmVtYWluaW5nX3RpY2tzGAQgASgF",
+            "EhYKDnJlbWFpbmluZ19jb3N0GAUgASgFEg4KBnBhdXNlZBgGIAEoCCI8CglS",
+            "bE1hcEluZm8SDQoFd2lkdGgYASABKAUSDgoGaGVpZ2h0GAIgASgFEhAKCG1h",
+            "cF9uYW1lGAMgASgJIjMKC0FnZW50QWN0aW9uEiQKCGNvbW1hbmRzGAEgAygL",
+            "MhIub3BlbnJhLnJsLkNvbW1hbmQisQEKB0NvbW1hbmQSJQoGYWN0aW9uGAEg",
+            "ASgOMhUub3BlbnJhLnJsLkFjdGlvblR5cGUSEAoIYWN0b3JfaWQYAiABKA0S",
+            "FwoPdGFyZ2V0X2FjdG9yX2lkGAMgASgNEhAKCHRhcmdldF94GAQgASgFEhAK",
+            "CHRhcmdldF95GAUgASgFEhEKCWl0ZW1fdHlwZRgGIAEoCRIOCgZxdWV1ZWQY",
+            "ByABKAgSDQoFdGlja3MYCCABKAUikQEKCUdhbWVTdGF0ZRISCgplcGlzb2Rl",
+            "X2lkGAEgASgJEgwKBHRpY2sYAiABKAUSDQoFcGhhc2UYAyABKAkSDgoGd2lu",
+            "bmVyGAQgASgJEhQKDHBsYXllcl9jb3VudBgFIAEoBRIWCg5wbGF5ZXJfZmFj",
+            "dGlvbhgGIAEoCRIVCg1lbmVteV9mYWN0aW9uGAcgASgJIiIKDFN0YXRlUmVx",
+            "dWVzdBISCgpzZXNzaW9uX2lkGAEgASgJIpUBChJGYXN0QWR2YW5jZVJlcXVl",
+            "c3QSDQoFdGlja3MYASABKAUSJAoIY29tbWFuZHMYAiADKAsyEi5vcGVucmEu",
+            "cmwuQ29tbWFuZBISCgpzZXNzaW9uX2lkGAMgASgJEhoKEmNoZWNrX2V2ZW50",
+            "c19ldmVyeRgEIAEoBRIaChJlbmFibGVkX2ludGVycnVwdHMYBSADKAkiRAoU",
+            "Q3JlYXRlU2Vzc2lvblJlcXVlc3QSEAoIbWFwX25hbWUYASABKAkSDAoEYm90",
+            "cxgCIAEoCRIMCgRzZWVkGAMgASgFIisKFUNyZWF0ZVNlc3Npb25SZXNwb25z",
+            "ZRISCgpzZXNzaW9uX2lkGAEgASgJIisKFURlc3Ryb3lTZXNzaW9uUmVxdWVz",
+            "dBISCgpzZXNzaW9uX2lkGAEgASgJIhgKFkRlc3Ryb3lTZXNzaW9uUmVzcG9u",
+            "c2UqywIKCkFjdGlvblR5cGUSCQoFTk9fT1AQABIICgRNT1ZFEAESDwoLQVRU",
+            "QUNLX01PVkUQAhIKCgZBVFRBQ0sQAxIICgRTVE9QEAQSCwoHSEFSVkVTVBAF",
+            "EgkKBUJVSUxEEAYSCQoFVFJBSU4QBxIKCgZERVBMT1kQCBIICgRTRUxMEAkS",
+            "CgoGUkVQQUlSEAoSEgoOUExBQ0VfQlVJTERJTkcQCxIVChFDQU5DRUxfUFJP",
+            "RFVDVElPThAMEhMKD1NFVF9SQUxMWV9QT0lOVBANEgkKBUdVQVJEEA4SDgoK",
+            "U0VUX1NUQU5DRRAPEhMKD0VOVEVSX1RSQU5TUE9SVBAQEgoKBlVOTE9BRBAR",
+            "Eg4KClBPV0VSX0RPV04QEhIPCgtTRVRfUFJJTUFSWRATEg0KCVNVUlJFTkRF",
+            "UhAUEhAKDEZBU1RfQURWQU5DRRAVMsEDCghSTEJyaWRnZRJFCgtHYW1lU2Vz",
+            "c2lvbhIWLm9wZW5yYS5ybC5BZ2VudEFjdGlvbhoaLm9wZW5yYS5ybC5HYW1l",
+            "T2JzZXJ2YXRpb24oATABEjkKCEdldFN0YXRlEhcub3BlbnJhLnJsLlN0YXRl",
+            "UmVxdWVzdBoULm9wZW5yYS5ybC5HYW1lU3RhdGUSPgoHT2JzZXJ2ZRIXLm9w",
+            "ZW5yYS5ybC5TdGF0ZVJlcXVlc3QaGi5vcGVucmEucmwuR2FtZU9ic2VydmF0",
+            "aW9uEkgKC0Zhc3RBZHZhbmNlEh0ub3BlbnJhLnJsLkZhc3RBZHZhbmNlUmVx",
             "dWVzdBoaLm9wZW5yYS5ybC5HYW1lT2JzZXJ2YXRpb24SUgoNQ3JlYXRlU2Vz",
             "c2lvbhIfLm9wZW5yYS5ybC5DcmVhdGVTZXNzaW9uUmVxdWVzdBogLm9wZW5y",
             "YS5ybC5DcmVhdGVTZXNzaW9uUmVzcG9uc2USVQoORGVzdHJveVNlc3Npb24S",
@@ -102,7 +107,7 @@ namespace OpenRA.Mods.Common.RL {
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::OpenRA.Mods.Common.RL.ActionType), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.GameObservation), global::OpenRA.Mods.Common.RL.GameObservation.Parser, new[]{ "Tick", "EpisodeId", "Economy", "Military", "Units", "Buildings", "Production", "VisibleEnemies", "MapInfo", "SpatialMap", "SpatialChannels", "Done", "Reward", "Result", "AvailableProduction", "VisibleEnemyBuildings" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.GameObservation), global::OpenRA.Mods.Common.RL.GameObservation.Parser, new[]{ "Tick", "EpisodeId", "Economy", "Military", "Units", "Buildings", "Production", "VisibleEnemies", "MapInfo", "SpatialMap", "SpatialChannels", "Done", "Reward", "Result", "AvailableProduction", "VisibleEnemyBuildings", "ExploredPercent", "Interrupted", "InterruptReason", "ActualTicksAdvanced" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlEconomy), global::OpenRA.Mods.Common.RL.RlEconomy.Parser, new[]{ "Cash", "Ore", "PowerProvided", "PowerDrained", "ResourceCapacity", "HarvesterCount" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlMilitary), global::OpenRA.Mods.Common.RL.RlMilitary.Parser, new[]{ "UnitsKilled", "UnitsLost", "BuildingsKilled", "BuildingsLost", "ArmyValue", "ActiveUnitCount", "KillsCost", "DeathsCost", "AssetsValue", "Experience", "OrderCount" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlUnitInfo), global::OpenRA.Mods.Common.RL.RlUnitInfo.Parser, new[]{ "ActorId", "Type", "PosX", "PosY", "CellX", "CellY", "HpPercent", "IsIdle", "CurrentActivity", "Owner", "Ammo", "CanAttack", "Facing", "ExperienceLevel", "Stance", "Speed", "AttackRange", "PassengerCount", "IsBuilding" }, null, null, null, null),
@@ -113,7 +118,7 @@ namespace OpenRA.Mods.Common.RL {
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.Command), global::OpenRA.Mods.Common.RL.Command.Parser, new[]{ "Action", "ActorId", "TargetActorId", "TargetX", "TargetY", "ItemType", "Queued", "Ticks" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.GameState), global::OpenRA.Mods.Common.RL.GameState.Parser, new[]{ "EpisodeId", "Tick", "Phase", "Winner", "PlayerCount", "PlayerFaction", "EnemyFaction" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.StateRequest), global::OpenRA.Mods.Common.RL.StateRequest.Parser, new[]{ "SessionId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.FastAdvanceRequest), global::OpenRA.Mods.Common.RL.FastAdvanceRequest.Parser, new[]{ "Ticks", "Commands", "SessionId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.FastAdvanceRequest), global::OpenRA.Mods.Common.RL.FastAdvanceRequest.Parser, new[]{ "Ticks", "Commands", "SessionId", "CheckEventsEvery", "EnabledInterrupts" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.CreateSessionRequest), global::OpenRA.Mods.Common.RL.CreateSessionRequest.Parser, new[]{ "MapName", "Bots", "Seed" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.CreateSessionResponse), global::OpenRA.Mods.Common.RL.CreateSessionResponse.Parser, new[]{ "SessionId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.DestroySessionRequest), global::OpenRA.Mods.Common.RL.DestroySessionRequest.Parser, new[]{ "SessionId" }, null, null, null, null),
@@ -245,6 +250,10 @@ namespace OpenRA.Mods.Common.RL {
       result_ = other.result_;
       availableProduction_ = other.availableProduction_.Clone();
       visibleEnemyBuildings_ = other.visibleEnemyBuildings_.Clone();
+      exploredPercent_ = other.exploredPercent_;
+      interrupted_ = other.interrupted_;
+      interruptReason_ = other.interruptReason_;
+      actualTicksAdvanced_ = other.actualTicksAdvanced_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -460,6 +469,66 @@ namespace OpenRA.Mods.Common.RL {
       get { return visibleEnemyBuildings_; }
     }
 
+    /// <summary>Field number for the "explored_percent" field.</summary>
+    public const int ExploredPercentFieldNumber = 17;
+    private float exploredPercent_;
+    /// <summary>
+    /// Fog of war exploration progress (0-100)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float ExploredPercent {
+      get { return exploredPercent_; }
+      set {
+        exploredPercent_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "interrupted" field.</summary>
+    public const int InterruptedFieldNumber = 18;
+    private bool interrupted_;
+    /// <summary>
+    /// Server-side interrupt detection results
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Interrupted {
+      get { return interrupted_; }
+      set {
+        interrupted_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "interrupt_reason" field.</summary>
+    public const int InterruptReasonFieldNumber = 19;
+    private string interruptReason_ = "";
+    /// <summary>
+    /// signal name (e.g. "enemy_spotted")
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string InterruptReason {
+      get { return interruptReason_; }
+      set {
+        interruptReason_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "actual_ticks_advanced" field.</summary>
+    public const int ActualTicksAdvancedFieldNumber = 20;
+    private int actualTicksAdvanced_;
+    /// <summary>
+    /// ticks actually advanced (may be &lt; requested)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ActualTicksAdvanced {
+      get { return actualTicksAdvanced_; }
+      set {
+        actualTicksAdvanced_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -491,6 +560,10 @@ namespace OpenRA.Mods.Common.RL {
       if (Result != other.Result) return false;
       if(!availableProduction_.Equals(other.availableProduction_)) return false;
       if(!visibleEnemyBuildings_.Equals(other.visibleEnemyBuildings_)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(ExploredPercent, other.ExploredPercent)) return false;
+      if (Interrupted != other.Interrupted) return false;
+      if (InterruptReason != other.InterruptReason) return false;
+      if (ActualTicksAdvanced != other.ActualTicksAdvanced) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -514,6 +587,10 @@ namespace OpenRA.Mods.Common.RL {
       if (Result.Length != 0) hash ^= Result.GetHashCode();
       hash ^= availableProduction_.GetHashCode();
       hash ^= visibleEnemyBuildings_.GetHashCode();
+      if (ExploredPercent != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(ExploredPercent);
+      if (Interrupted != false) hash ^= Interrupted.GetHashCode();
+      if (InterruptReason.Length != 0) hash ^= InterruptReason.GetHashCode();
+      if (ActualTicksAdvanced != 0) hash ^= ActualTicksAdvanced.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -578,6 +655,22 @@ namespace OpenRA.Mods.Common.RL {
       }
       availableProduction_.WriteTo(output, _repeated_availableProduction_codec);
       visibleEnemyBuildings_.WriteTo(output, _repeated_visibleEnemyBuildings_codec);
+      if (ExploredPercent != 0F) {
+        output.WriteRawTag(141, 1);
+        output.WriteFloat(ExploredPercent);
+      }
+      if (Interrupted != false) {
+        output.WriteRawTag(144, 1);
+        output.WriteBool(Interrupted);
+      }
+      if (InterruptReason.Length != 0) {
+        output.WriteRawTag(154, 1);
+        output.WriteString(InterruptReason);
+      }
+      if (ActualTicksAdvanced != 0) {
+        output.WriteRawTag(160, 1);
+        output.WriteInt32(ActualTicksAdvanced);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -634,6 +727,22 @@ namespace OpenRA.Mods.Common.RL {
       }
       availableProduction_.WriteTo(ref output, _repeated_availableProduction_codec);
       visibleEnemyBuildings_.WriteTo(ref output, _repeated_visibleEnemyBuildings_codec);
+      if (ExploredPercent != 0F) {
+        output.WriteRawTag(141, 1);
+        output.WriteFloat(ExploredPercent);
+      }
+      if (Interrupted != false) {
+        output.WriteRawTag(144, 1);
+        output.WriteBool(Interrupted);
+      }
+      if (InterruptReason.Length != 0) {
+        output.WriteRawTag(154, 1);
+        output.WriteString(InterruptReason);
+      }
+      if (ActualTicksAdvanced != 0) {
+        output.WriteRawTag(160, 1);
+        output.WriteInt32(ActualTicksAdvanced);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -680,6 +789,18 @@ namespace OpenRA.Mods.Common.RL {
       }
       size += availableProduction_.CalculateSize(_repeated_availableProduction_codec);
       size += visibleEnemyBuildings_.CalculateSize(_repeated_visibleEnemyBuildings_codec);
+      if (ExploredPercent != 0F) {
+        size += 2 + 4;
+      }
+      if (Interrupted != false) {
+        size += 2 + 1;
+      }
+      if (InterruptReason.Length != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeStringSize(InterruptReason);
+      }
+      if (ActualTicksAdvanced != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ActualTicksAdvanced);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -737,6 +858,18 @@ namespace OpenRA.Mods.Common.RL {
       }
       availableProduction_.Add(other.availableProduction_);
       visibleEnemyBuildings_.Add(other.visibleEnemyBuildings_);
+      if (other.ExploredPercent != 0F) {
+        ExploredPercent = other.ExploredPercent;
+      }
+      if (other.Interrupted != false) {
+        Interrupted = other.Interrupted;
+      }
+      if (other.InterruptReason.Length != 0) {
+        InterruptReason = other.InterruptReason;
+      }
+      if (other.ActualTicksAdvanced != 0) {
+        ActualTicksAdvanced = other.ActualTicksAdvanced;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -829,6 +962,22 @@ namespace OpenRA.Mods.Common.RL {
             visibleEnemyBuildings_.AddEntriesFrom(input, _repeated_visibleEnemyBuildings_codec);
             break;
           }
+          case 141: {
+            ExploredPercent = input.ReadFloat();
+            break;
+          }
+          case 144: {
+            Interrupted = input.ReadBool();
+            break;
+          }
+          case 154: {
+            InterruptReason = input.ReadString();
+            break;
+          }
+          case 160: {
+            ActualTicksAdvanced = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -919,6 +1068,22 @@ namespace OpenRA.Mods.Common.RL {
           }
           case 130: {
             visibleEnemyBuildings_.AddEntriesFrom(ref input, _repeated_visibleEnemyBuildings_codec);
+            break;
+          }
+          case 141: {
+            ExploredPercent = input.ReadFloat();
+            break;
+          }
+          case 144: {
+            Interrupted = input.ReadBool();
+            break;
+          }
+          case 154: {
+            InterruptReason = input.ReadString();
+            break;
+          }
+          case 160: {
+            ActualTicksAdvanced = input.ReadInt32();
             break;
           }
         }
@@ -5655,6 +5820,8 @@ namespace OpenRA.Mods.Common.RL {
       ticks_ = other.ticks_;
       commands_ = other.commands_.Clone();
       sessionId_ = other.sessionId_;
+      checkEventsEvery_ = other.checkEventsEvery_;
+      enabledInterrupts_ = other.enabledInterrupts_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -5702,6 +5869,37 @@ namespace OpenRA.Mods.Common.RL {
       }
     }
 
+    /// <summary>Field number for the "check_events_every" field.</summary>
+    public const int CheckEventsEveryFieldNumber = 4;
+    private int checkEventsEvery_;
+    /// <summary>
+    /// Server-side interrupt detection: check for events every N ticks during
+    /// the advance. If an interrupt fires, advance ends early with interrupted=true.
+    /// 0 = disabled (legacy behavior: advance full ticks, no interrupt checks).
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CheckEventsEvery {
+      get { return checkEventsEvery_; }
+      set {
+        checkEventsEvery_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "enabled_interrupts" field.</summary>
+    public const int EnabledInterruptsFieldNumber = 5;
+    private static readonly pb::FieldCodec<string> _repeated_enabledInterrupts_codec
+        = pb::FieldCodec.ForString(42);
+    private readonly pbc::RepeatedField<string> enabledInterrupts_ = new pbc::RepeatedField<string>();
+    /// <summary>
+    /// Signal names: "enemy_spotted", "building_discovered", etc.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<string> EnabledInterrupts {
+      get { return enabledInterrupts_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -5720,6 +5918,8 @@ namespace OpenRA.Mods.Common.RL {
       if (Ticks != other.Ticks) return false;
       if(!commands_.Equals(other.commands_)) return false;
       if (SessionId != other.SessionId) return false;
+      if (CheckEventsEvery != other.CheckEventsEvery) return false;
+      if(!enabledInterrupts_.Equals(other.enabledInterrupts_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -5730,6 +5930,8 @@ namespace OpenRA.Mods.Common.RL {
       if (Ticks != 0) hash ^= Ticks.GetHashCode();
       hash ^= commands_.GetHashCode();
       if (SessionId.Length != 0) hash ^= SessionId.GetHashCode();
+      if (CheckEventsEvery != 0) hash ^= CheckEventsEvery.GetHashCode();
+      hash ^= enabledInterrupts_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -5757,6 +5959,11 @@ namespace OpenRA.Mods.Common.RL {
         output.WriteRawTag(26);
         output.WriteString(SessionId);
       }
+      if (CheckEventsEvery != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(CheckEventsEvery);
+      }
+      enabledInterrupts_.WriteTo(output, _repeated_enabledInterrupts_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -5776,6 +5983,11 @@ namespace OpenRA.Mods.Common.RL {
         output.WriteRawTag(26);
         output.WriteString(SessionId);
       }
+      if (CheckEventsEvery != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(CheckEventsEvery);
+      }
+      enabledInterrupts_.WriteTo(ref output, _repeated_enabledInterrupts_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -5793,6 +6005,10 @@ namespace OpenRA.Mods.Common.RL {
       if (SessionId.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(SessionId);
       }
+      if (CheckEventsEvery != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(CheckEventsEvery);
+      }
+      size += enabledInterrupts_.CalculateSize(_repeated_enabledInterrupts_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -5812,6 +6028,10 @@ namespace OpenRA.Mods.Common.RL {
       if (other.SessionId.Length != 0) {
         SessionId = other.SessionId;
       }
+      if (other.CheckEventsEvery != 0) {
+        CheckEventsEvery = other.CheckEventsEvery;
+      }
+      enabledInterrupts_.Add(other.enabledInterrupts_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -5843,6 +6063,14 @@ namespace OpenRA.Mods.Common.RL {
             SessionId = input.ReadString();
             break;
           }
+          case 32: {
+            CheckEventsEvery = input.ReadInt32();
+            break;
+          }
+          case 42: {
+            enabledInterrupts_.AddEntriesFrom(input, _repeated_enabledInterrupts_codec);
+            break;
+          }
         }
       }
     #endif
@@ -5872,6 +6100,14 @@ namespace OpenRA.Mods.Common.RL {
           }
           case 26: {
             SessionId = input.ReadString();
+            break;
+          }
+          case 32: {
+            CheckEventsEvery = input.ReadInt32();
+            break;
+          }
+          case 42: {
+            enabledInterrupts_.AddEntriesFrom(ref input, _repeated_enabledInterrupts_codec);
             break;
           }
         }

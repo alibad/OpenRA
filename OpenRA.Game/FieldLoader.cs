@@ -526,7 +526,10 @@ namespace OpenRA
 
 		static object ParseDateTime(string fieldName, Type fieldType, string value)
 		{
-			if (DateTime.TryParseExact(value, "yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var dt))
+			// Serialized values do not include a time-zone offset. Parsing with
+			// AssumeUniversal converts them to local time and makes round-trips
+			// depend on the machine time zone.
+			if (DateTime.TryParseExact(value, "yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
 				return dt;
 			return InvalidValueAction(value, fieldType, fieldName);
 		}

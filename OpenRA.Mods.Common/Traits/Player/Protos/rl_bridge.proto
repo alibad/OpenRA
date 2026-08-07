@@ -15,6 +15,10 @@ service RLBridge {
   // Unary: query current game state on demand.
   rpc GetState(StateRequest) returns (GameState);
 
+  // Unary: read the latest fog-respecting observation without advancing or
+  // pausing the game. Used by the observation-only OpenRA AI companion.
+  rpc Observe(StateRequest) returns (GameObservation);
+
   // Unary: advance N ticks with optional commands, return observation.
   // Bypasses streaming — works reliably on all platforms.
   rpc FastAdvance(FastAdvanceRequest) returns (GameObservation);

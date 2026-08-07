@@ -181,6 +181,21 @@ namespace OpenRA.Mods.Common.Traits
 		}
 
 		/// <summary>
+		/// Read the latest companion observation without changing game speed,
+		/// issuing an order, or revealing information hidden by fog of war.
+		/// </summary>
+		public override Task<RLProto.GameObservation> Observe(
+			RLProto.StateRequest request,
+			ServerCallContext context)
+		{
+			if (CompanionBridge.TryGetObservation(out var observation))
+				return Task.FromResult(observation);
+
+			throw new RpcException(new Status(StatusCode.Unavailable,
+				"No local companion observation is available. Start OpenRA with OPENRA_AI_COMPANION=1."));
+		}
+
+		/// <summary>
 		/// Create a new game session. Only available in multi-session mode.
 		/// </summary>
 		public override Task<RLProto.CreateSessionResponse> CreateSession(
