@@ -191,7 +191,6 @@ namespace OpenRA.Mods.Common.Traits
 		void SerializeVisibleEnemies(RLProto.GameObservation obs)
 		{
 			var enemyCount = 0;
-			var visibleCount = 0;
 			var buildingCount = 0;
 			foreach (var actor in world.Actors)
 			{
