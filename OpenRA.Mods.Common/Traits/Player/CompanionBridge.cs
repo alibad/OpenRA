@@ -33,8 +33,10 @@ namespace OpenRA.Mods.Common.Traits
 	public sealed class CompanionBridge : ITick, INotifyCreated, INotifyActorDisposing
 	{
 		static readonly object CurrentLock = new();
+		const long SpokenStatusTimeoutMilliseconds = 12000;
 		static CompanionBridge current;
 		static RLProto.CompanionStatus companionStatus = ReadyStatus();
+		static long companionStatusUpdatedAt = Environment.TickCount64;
 
 		readonly CompanionBridgeInfo info;
 		readonly World world;
@@ -63,6 +65,7 @@ namespace OpenRA.Mods.Common.Traits
 			{
 				current = this;
 				companionStatus = ReadyStatus();
+				companionStatusUpdatedAt = Environment.TickCount64;
 			}
 
 			var port = 9998;
@@ -143,6 +146,7 @@ namespace OpenRA.Mods.Common.Traits
 					return false;
 
 				companionStatus = status.Clone();
+				companionStatusUpdatedAt = Environment.TickCount64;
 				return true;
 			}
 		}
@@ -156,6 +160,15 @@ namespace OpenRA.Mods.Common.Traits
 					state = null;
 					message = null;
 					return false;
+				}
+
+				// Insights describe a moment in time. Never leave one pinned
+				// after the companion or audio process has moved on.
+				if ((companionStatus.State == "speaking" || companionStatus.State == "insight")
+					&& Environment.TickCount64 - companionStatusUpdatedAt >= SpokenStatusTimeoutMilliseconds)
+				{
+					companionStatus = ReadyStatus();
+					companionStatusUpdatedAt = Environment.TickCount64;
 				}
 
 				state = companionStatus.State;
