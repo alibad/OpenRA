@@ -2,6 +2,22 @@ Container@PLAYER_WIDGETS:
 	Logic: LoadIngameChatLogic
 	Children:
 		Container@CHAT_ROOT:
+		Background@AI_COMPANION_STRIP:
+			Logic: CompanionStatusLogic
+			X: WINDOW_WIDTH / 2 - WIDTH / 2
+			Y: 8
+			Width: 440
+			Height: 30
+			Background: dialog4
+			ClickThrough: true
+			Children:
+				Label@STATUS:
+					X: 8
+					Width: PARENT_WIDTH - 16
+					Height: PARENT_HEIGHT
+					Align: Center
+					Font: TinyBold
+					Contrast: true
 		LogicKeyListener@PLAYER_KEYHANDLER:
 			Logic: RemoveFromControlGroupHotkeyLogic
 				RemoveFromControlGroupKey: RemoveFromControlGroup

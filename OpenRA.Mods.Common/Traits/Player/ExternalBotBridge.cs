@@ -218,7 +218,9 @@ namespace OpenRA.Mods.Common.Traits
 
 				builder.WebHost.ConfigureKestrel(options =>
 				{
-					options.ListenAnyIP(port, listenOptions =>
+					// The bridge is a local game companion endpoint, not a LAN service.
+					// Loopback-only binding also avoids unnecessary firewall prompts.
+					options.ListenLocalhost(port, listenOptions =>
 						listenOptions.Protocols = HttpProtocols.Http2);
 				});
 

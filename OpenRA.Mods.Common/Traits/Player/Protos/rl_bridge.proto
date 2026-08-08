@@ -19,6 +19,9 @@ service RLBridge {
   // pausing the game. Used by the observation-only OpenRA AI companion.
   rpc Observe(StateRequest) returns (GameObservation);
 
+  // Unary: publish companion lifecycle state for the non-modal in-game HUD.
+  rpc UpdateCompanionStatus(CompanionStatus) returns (CompanionStatusAck);
+
   // Unary: advance N ticks with optional commands, return observation.
   // Bypasses streaming — works reliably on all platforms.
   rpc FastAdvance(FastAdvanceRequest) returns (GameObservation);
@@ -210,6 +213,17 @@ message GameState {
 
 message StateRequest {
   string session_id = 1;  // Route to specific session (multi-session mode)
+}
+
+message CompanionStatus {
+  string state = 1;    // ready, listening, thinking, speaking, muted, disabled, error
+  string message = 2;  // Short player-facing HUD copy
+  bool enabled = 3;
+  bool muted = 4;
+}
+
+message CompanionStatusAck {
+  bool accepted = 1;
 }
 
 // ─── Fast Advance (Unary) ───────────────────────────────────────────────────

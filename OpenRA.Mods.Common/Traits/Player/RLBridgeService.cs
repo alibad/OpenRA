@@ -196,6 +196,19 @@ namespace OpenRA.Mods.Common.Traits
 		}
 
 		/// <summary>
+		/// Publish the companion lifecycle state for the unobtrusive in-game HUD.
+		/// </summary>
+		public override Task<RLProto.CompanionStatusAck> UpdateCompanionStatus(
+			RLProto.CompanionStatus request,
+			ServerCallContext context)
+		{
+			return Task.FromResult(new RLProto.CompanionStatusAck
+			{
+				Accepted = CompanionBridge.UpdateStatus(request)
+			});
+		}
+
+		/// <summary>
 		/// Create a new game session. Only available in multi-session mode.
 		/// </summary>
 		public override Task<RLProto.CreateSessionResponse> CreateSession(

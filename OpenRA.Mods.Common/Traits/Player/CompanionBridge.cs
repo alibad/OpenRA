@@ -34,6 +34,7 @@ namespace OpenRA.Mods.Common.Traits
 	{
 		static readonly object CurrentLock = new();
 		static CompanionBridge current;
+		static RLProto.CompanionStatus companionStatus = ReadyStatus();
 
 		readonly CompanionBridgeInfo info;
 		readonly World world;
@@ -59,7 +60,10 @@ namespace OpenRA.Mods.Common.Traits
 				return;
 
 			lock (CurrentLock)
+			{
 				current = this;
+				companionStatus = ReadyStatus();
+			}
 
 			var port = 9998;
 			var envPort = Environment.GetEnvironmentVariable("OPENRA_AI_GRPC_PORT");
@@ -117,6 +121,45 @@ namespace OpenRA.Mods.Common.Traits
 				}
 
 				observation = bridge.latestObservation.Clone();
+				return true;
+			}
+		}
+
+		static RLProto.CompanionStatus ReadyStatus()
+		{
+			return new RLProto.CompanionStatus
+			{
+				State = "ready",
+				Message = "AI READY  •  HOLD CTRL+SPACE TO ASK",
+				Enabled = true
+			};
+		}
+
+		internal static bool UpdateStatus(RLProto.CompanionStatus status)
+		{
+			lock (CurrentLock)
+			{
+				if (current == null || !current.enabled)
+					return false;
+
+				companionStatus = status.Clone();
+				return true;
+			}
+		}
+
+		internal static bool TryGetStatus(out string state, out string message)
+		{
+			lock (CurrentLock)
+			{
+				if (current == null || !current.enabled)
+				{
+					state = null;
+					message = null;
+					return false;
+				}
+
+				state = companionStatus.State;
+				message = companionStatus.Message;
 				return true;
 			}
 		}
