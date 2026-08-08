@@ -44,6 +44,20 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			return JsonDocument.Parse(body);
 		}
 
+		public static async Task<byte[]> GetBytesAsync(Uri baseUri, string path, int timeoutSeconds = 12)
+		{
+			using var client = HttpClientFactory.Create();
+			using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
+			using var response = await client.GetAsync(new Uri(baseUri, path), cancellation.Token);
+			if (!response.IsSuccessStatusCode)
+			{
+				var body = await response.Content.ReadAsStringAsync(cancellation.Token);
+				throw new InvalidOperationException($"Local AI service returned {(int)response.StatusCode}: {body}");
+			}
+
+			return await response.Content.ReadAsByteArrayAsync(cancellation.Token);
+		}
+
 		public static async Task<JsonDocument> PostAsync(Uri baseUri, string path, object payload, int timeoutSeconds = 20)
 		{
 			using var client = HttpClientFactory.Create();

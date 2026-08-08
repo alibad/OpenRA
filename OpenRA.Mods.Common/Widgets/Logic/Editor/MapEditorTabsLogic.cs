@@ -18,7 +18,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 {
 	public class MapEditorTabsLogic : ChromeLogic
 	{
-		enum MenuType { Select, Tiles, Layers, Actors, Tools, History }
+		enum MenuType { Select, Tiles, Layers, Actors, Tools, History, EarthAI }
 
 		readonly World world;
 		readonly Widget panelContainer;
@@ -46,6 +46,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			SetupTab("ACTORS_TAB", "ACTOR_WIDGETS", MenuType.Actors);
 			SetupTab("TOOLS_TAB", "TOOLS_WIDGETS", MenuType.Tools);
 			SetupTab("HISTORY_TAB", "HISTORY_WIDGETS", MenuType.History);
+			SetupTab("EARTH_AI_TAB", "EARTH_AI_WIDGETS", MenuType.EarthAI);
 		}
 
 		protected override void Dispose(bool disposing)

@@ -176,6 +176,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					latitude = lat,
 					longitude = lon,
 					title = string.IsNullOrWhiteSpace(title.Text) ? "Earth Skirmish" : title.Text.Trim(),
+					location_name = string.IsNullOrWhiteSpace(location.Text) ? "Selected Earth location" : location.Text.Trim(),
 					radius_m = radiusMeters,
 					map_size = mapSize,
 					seed = seedValue,

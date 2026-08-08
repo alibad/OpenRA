@@ -453,6 +453,227 @@ Container@EDITOR_WORLD_ROOT:
 									Width: PARENT_WIDTH
 									Height: 25
 									Align: Left
+		Container@EARTH_AI_WIDGETS:
+			X: WINDOW_WIDTH - 320
+			Y: 354
+			Width: 310
+			Height: WINDOW_HEIGHT - 458
+			Visible: false
+			Logic: EarthAIEditorLogic
+			Children:
+				ScrollPanel@EARTH_AI_SCROLL:
+					X: 5
+					Y: 5
+					Width: PARENT_WIDTH - 10
+					Height: PARENT_HEIGHT - 2
+					TopBottomSpacing: 4
+					ItemSpacing: 0
+					Children:
+						Container@EARTH_AI_WORKBENCH:
+							X: 5
+							Width: PARENT_WIDTH - 22
+							Height: 870
+							Children:
+								Label@WORKBENCH_TITLE:
+									Y: 4
+									Width: PARENT_WIDTH
+									Height: 22
+									Text: label-editor-earth-ai-title
+									Align: Center
+									Font: Bold
+								Label@CURRENT_MAP:
+									Y: 27
+									Width: PARENT_WIDTH
+									Height: 18
+									Text: label-editor-earth-ai-current-map
+									Font: TinyBold
+								Label@EARTH_SOURCE:
+									Y: 44
+									Width: PARENT_WIDTH
+									Height: 32
+									Font: Tiny
+									TextColor: 9BEF9B
+								Background@EARTH_SECTION:
+									Y: 78
+									Width: PARENT_WIDTH
+									Height: 13
+									Background: separator
+									Children:
+										Label@LABEL:
+											Width: PARENT_WIDTH
+											Height: PARENT_HEIGHT
+											Text: label-editor-earth-ai-source
+											Align: Center
+											Font: TinyBold
+								LabelForInput@EARTH_LOCATION_LABEL:
+									Y: 258
+									Width: PARENT_WIDTH
+									Height: 18
+									Text: label-editor-earth-ai-location
+									For: EARTH_LOCATION
+									Font: Tiny
+								EarthMapPreview@EARTH_PREVIEW:
+									Y: 99
+									Width: PARENT_WIDTH
+									Height: 140
+								Label@EARTH_ATTRIBUTION:
+									X: 4
+									Y: 220
+									Width: PARENT_WIDTH - 8
+									Height: 16
+									Text: label-editor-earth-ai-attribution
+									Align: Right
+									Font: Tiny
+									Contrast: true
+								Label@EARTH_MAP_HINT:
+									Y: 240
+									Width: PARENT_WIDTH
+									Height: 16
+									Text: label-editor-earth-ai-map-hint
+									Align: Center
+									Font: TinyBold
+								TextField@EARTH_LOCATION:
+									Y: 276
+									Width: PARENT_WIDTH - 68
+									Height: 25
+									MaxLength: 160
+								Button@FIND_EARTH_LOCATION:
+									X: PARENT_WIDTH - 64
+									Y: 276
+									Width: 64
+									Height: 25
+									Text: button-editor-earth-ai-find
+									Font: TinyBold
+								TextField@EARTH_LATITUDE:
+									Y: 306
+									Width: (PARENT_WIDTH - 6) / 2
+									Height: 23
+									MaxLength: 20
+								TextField@EARTH_LONGITUDE:
+									X: (PARENT_WIDTH + 6) / 2
+									Y: 306
+									Width: (PARENT_WIDTH - 6) / 2
+									Height: 23
+									MaxLength: 20
+								Background@MISSION_SECTION:
+									Y: 339
+									Width: PARENT_WIDTH
+									Height: 13
+									Background: separator
+									Children:
+										Label@LABEL:
+											Width: PARENT_WIDTH
+											Height: PARENT_HEIGHT
+											Text: label-editor-earth-ai-mission
+											Align: Center
+											Font: TinyBold
+								TextField@MISSION_TITLE:
+									Y: 361
+									Width: PARENT_WIDTH
+									Height: 25
+									MaxLength: 64
+								DropDownButton@MISSION_ARCHETYPE:
+									Y: 391
+									Width: PARENT_WIDTH
+									Height: 25
+									Font: Bold
+								TextField@MISSION_DIRECTION:
+									Y: 421
+									Width: PARENT_WIDTH
+									Height: 25
+									MaxLength: 240
+								Button@DRAFT_MISSION:
+									Y: 451
+									Width: PARENT_WIDTH
+									Height: 27
+									Text: button-editor-earth-ai-draft
+									Font: Bold
+								Label@AI_DRAFT:
+									Y: 483
+									Width: PARENT_WIDTH
+									Height: 58
+									Font: Tiny
+									TextColor: F2D675
+								Background@BUILD_SECTION:
+									Y: 545
+									Width: PARENT_WIDTH
+									Height: 13
+									Background: separator
+									Children:
+										Label@LABEL:
+											Width: PARENT_WIDTH
+											Height: PARENT_HEIGHT
+											Text: label-editor-earth-ai-build
+											Align: Center
+											Font: TinyBold
+								DropDownButton@EARTH_MAP_SIZE:
+									Y: 567
+									Width: PARENT_WIDTH
+									Height: 25
+								TextField@EARTH_RADIUS:
+									Y: 597
+									Width: (PARENT_WIDTH - 6) / 2
+									Height: 23
+									MaxLength: 8
+								TextField@TERRAIN_SEED:
+									X: (PARENT_WIDTH + 6) / 2
+									Y: 597
+									Width: (PARENT_WIDTH - 6) / 2
+									Height: 23
+									MaxLength: 10
+								Button@BUILD_EARTH_MAP:
+									Y: 627
+									Width: PARENT_WIDTH
+									Height: 29
+									Text: button-editor-earth-ai-build
+									Font: Bold
+								Button@REMIX_EARTH_MAP:
+									Y: 661
+									Width: PARENT_WIDTH
+									Height: 27
+									Text: button-editor-earth-ai-remix
+									Font: Bold
+								Background@HEALTH_SECTION:
+									Y: 698
+									Width: PARENT_WIDTH
+									Height: 13
+									Background: separator
+									Children:
+										Label@LABEL:
+											Width: PARENT_WIDTH
+											Height: PARENT_HEIGHT
+											Text: label-editor-earth-ai-health
+											Align: Center
+											Font: TinyBold
+								Label@MAP_HEALTH:
+									Y: 719
+									Width: PARENT_WIDTH
+									Height: 48
+									Font: Tiny
+								Button@REFRESH_MAP_HEALTH:
+									Y: 769
+									Width: (PARENT_WIDTH - 6) / 2
+									Height: 25
+									Text: button-editor-earth-ai-analyze
+									Font: TinyBold
+								Button@PLAYTEST_MAP:
+									X: (PARENT_WIDTH + 6) / 2
+									Y: 769
+									Width: (PARENT_WIDTH - 6) / 2
+									Height: 25
+									Text: button-editor-earth-ai-playtest
+									Font: TinyBold
+								Button@AI_SETTINGS:
+									Y: 799
+									Width: PARENT_WIDTH
+									Height: 25
+									Text: button-editor-earth-ai-settings
+									Font: TinyBold
+								Label@WORKBENCH_STATUS:
+									Y: 829
+									Width: PARENT_WIDTH
+									Height: 34
+									Font: Tiny
 		Container@SELECT_WIDGETS:
 			X: WINDOW_WIDTH - 320
 			Y: 354
@@ -683,7 +904,7 @@ Container@EDITOR_WORLD_ROOT:
 			Children:
 				Button@SELECT_TAB:
 					X: 0
-					Width: 49
+					Width: 42
 					Height: 25
 					Key: EditorSelectTab
 					TooltipTemplate: BUTTON_TOOLTIP
@@ -691,13 +912,13 @@ Container@EDITOR_WORLD_ROOT:
 					TooltipContainer: TOOLTIP_CONTAINER
 					Children:
 						Image@ICON:
-							X: 20
+							X: 16
 							Y: 5
 							ImageCollection: editor
 							ImageName: select
 				Button@TILES_TAB:
-					X: 49
-					Width: 49
+					X: 42
+					Width: 42
 					Height: 25
 					Key: EditorTilesTab
 					TooltipTemplate: BUTTON_TOOLTIP
@@ -705,13 +926,13 @@ Container@EDITOR_WORLD_ROOT:
 					TooltipContainer: TOOLTIP_CONTAINER
 					Children:
 						Image@ICON:
-							X: 17
+							X: 14
 							Y: 5
 							ImageCollection: editor
 							ImageName: tiles
 				Button@OVERLAYS_TAB:
-					X: 98
-					Width: 49
+					X: 84
+					Width: 42
 					Height: 25
 					Key: EditorOverlaysTab
 					TooltipTemplate: BUTTON_TOOLTIP
@@ -719,13 +940,13 @@ Container@EDITOR_WORLD_ROOT:
 					TooltipContainer: TOOLTIP_CONTAINER
 					Children:
 						Image@ICON:
-							X: 17
+							X: 14
 							Y: 5
 							ImageCollection: editor
 							ImageName: overlays
 				Button@ACTORS_TAB:
-					X: 147
-					Width: 48
+					X: 126
+					Width: 42
 					Height: 25
 					Key: EditorActorsTab
 					TooltipTemplate: BUTTON_TOOLTIP
@@ -733,13 +954,13 @@ Container@EDITOR_WORLD_ROOT:
 					TooltipContainer: TOOLTIP_CONTAINER
 					Children:
 						Image@ICON:
-							X: 16
+							X: 13
 							Y: 5
 							ImageCollection: editor
 							ImageName: actors
 				Button@TOOLS_TAB:
-					X: 195
-					Width: 48
+					X: 168
+					Width: 42
 					Height: 25
 					Key: EditorToolsTab
 					TooltipTemplate: BUTTON_TOOLTIP
@@ -747,13 +968,13 @@ Container@EDITOR_WORLD_ROOT:
 					TooltipContainer: TOOLTIP_CONTAINER
 					Children:
 						Image@ICON:
-							X: 16
+							X: 13
 							Y: 5
 							ImageCollection: editor
 							ImageName: tools
 				Button@HISTORY_TAB:
-					X: 243
-					Width: 49
+					X: 210
+					Width: 42
 					Height: 25
 					Key: EditorHistoryTab
 					TooltipTemplate: BUTTON_TOOLTIP
@@ -761,10 +982,24 @@ Container@EDITOR_WORLD_ROOT:
 					TooltipContainer: TOOLTIP_CONTAINER
 					Children:
 						Image@ICON:
-							X: 17
+							X: 14
 							Y: 5
 							ImageCollection: editor
 							ImageName: history
+				Button@EARTH_AI_TAB:
+					X: 252
+					Width: 40
+					Height: 25
+					TooltipTemplate: BUTTON_TOOLTIP
+					TooltipText: button-map-editor-tab-container-earth-ai-tooltip
+					TooltipContainer: TOOLTIP_CONTAINER
+					Children:
+						Label@ICON:
+							Width: PARENT_WIDTH
+							Height: PARENT_HEIGHT
+							Text: label-editor-earth-ai-tab
+							Align: Center
+							Font: TinyBold
 		Button@COPY_BUTTON:
 			X: 60
 			Width: 50

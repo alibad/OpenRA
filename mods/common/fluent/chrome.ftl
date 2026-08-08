@@ -754,6 +754,26 @@ button-earth-generate = Generate + Install Map
 button-earth-play = Play Generated Map
 button-earth-edit = Edit Generated Map
 
+## Native editor Earth + AI workbench
+button-map-editor-tab-container-earth-ai-tooltip = Earth + AI workbench
+label-editor-earth-ai-tab = AI
+label-editor-earth-ai-title = EARTH + AI WORKBENCH
+label-editor-earth-ai-current-map = CURRENT MAP
+label-editor-earth-ai-source = 1. EARTH SOURCE
+label-editor-earth-ai-location = Place, landmark, or region
+label-editor-earth-ai-attribution = © OpenStreetMap contributors
+label-editor-earth-ai-map-hint = CLICK THE MAP TO MOVE THE EARTH PIN
+button-editor-earth-ai-find = FIND
+label-editor-earth-ai-mission = 2. MISSION DRAWER
+button-editor-earth-ai-draft = AI DRAFT MISSION
+label-editor-earth-ai-build = 3. BUILD + OPEN
+button-editor-earth-ai-build = BUILD + OPEN IN EDITOR
+button-editor-earth-ai-remix = MAGIC REMIX (NEW TERRAIN SEED)
+label-editor-earth-ai-health = MAP HEALTH
+button-editor-earth-ai-analyze = ANALYZE
+button-editor-earth-ai-playtest = PLAYTEST...
+button-editor-earth-ai-settings = AI SETTINGS
+
 ## tooltips.yaml
 label-latency-tooltip-prefix = Latency:
 label-anonymous-player-tooltip-name = Anonymous Player
