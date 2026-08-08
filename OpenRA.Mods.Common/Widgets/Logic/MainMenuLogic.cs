@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -35,6 +36,15 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		[FluentReference("author", "datetime")]
 		const string AuthorDateTime = "label-author-datetime";
+
+		[FluentReference]
+		const string LocalToolLaunchFailedTitle = "dialog-local-tool-launch-failed.title";
+
+		[FluentReference("url")]
+		const string LocalToolLaunchFailedPrompt = "dialog-local-tool-launch-failed.prompt";
+
+		[FluentReference]
+		const string LocalToolLaunchFailedAccept = "dialog-local-tool-launch-failed.confirm";
 
 		protected enum MenuType { Main, Singleplayer, Extras, MapEditor, WorldTools, StartupPrompts, None }
 
@@ -65,10 +75,37 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			Game.RunAfterTick(Ui.ResetTooltips);
 		}
 
-		static void OpenLocalTool(string environmentVariable, string fallbackUrl)
+		void OpenLocalTool(string environmentVariable, string fallbackUrl)
 		{
 			var configuredUrl = Environment.GetEnvironmentVariable(environmentVariable);
-			Game.Renderer.TryOpenUrl(string.IsNullOrWhiteSpace(configuredUrl) ? fallbackUrl : configuredUrl);
+			var url = string.IsNullOrWhiteSpace(configuredUrl) ? fallbackUrl : configuredUrl;
+			var validUrl = Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
+				(uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+
+			if (validUrl)
+			{
+				try
+				{
+					using var process = Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+					if (process != null)
+						return;
+				}
+				catch (Exception e)
+				{
+					Log.Write("debug", $"Shell failed to open OpenRA AI local tool at '{url}': {e}");
+				}
+
+				if (Game.Renderer.TryOpenUrl(url))
+					return;
+			}
+
+			ConfirmationDialogs.ButtonPrompt(
+				modData,
+				LocalToolLaunchFailedTitle,
+				LocalToolLaunchFailedPrompt,
+				textArguments: ["url", url],
+				onCancel: () => { },
+				cancelText: LocalToolLaunchFailedAccept);
 		}
 
 		[ObjectCreator.UseCtor]
