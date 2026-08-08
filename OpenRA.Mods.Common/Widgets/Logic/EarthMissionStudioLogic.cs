@@ -100,17 +100,20 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		async System.Threading.Tasks.Task SearchAsync()
 		{
+			var query = location.Text.Trim();
 			SetBusy("Finding that place on Earth...");
 			try
 			{
 				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_WORLD_STUDIO_URL", "http://127.0.0.1:8788/");
-				using var document = await OpenRAAILocalClient.GetAsync(baseUri, "v1/geocode?query=" + Uri.EscapeDataString(location.Text.Trim()), 20);
+				using var document = await OpenRAAILocalClient.GetAsync(baseUri, "v1/geocode?query=" + Uri.EscapeDataString(query), 20);
 				var result = document.RootElement.Clone();
 				Game.RunAfterTick(() =>
 				{
-					var name = result.GetProperty("name").GetString() ?? location.Text.Trim();
+					var resultName = result.GetProperty("name").GetString() ?? query;
+					var name = ReadableLocationName(resultName, query);
 					latitude.Text = result.GetProperty("latitude").GetDouble().ToString("0.######", CultureInfo.InvariantCulture);
 					longitude.Text = result.GetProperty("longitude").GetDouble().ToString("0.######", CultureInfo.InvariantCulture);
+					location.Text = name;
 					title.Text = name.Split(',')[0].Trim() + " Crossing";
 					selection = WidgetUtils.TruncateText($"Selected: {name}", selectionLabel.Bounds.Width,
 						Game.Renderer.Fonts[selectionLabel.Font]);
@@ -121,6 +124,34 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{
 				Game.RunAfterTick(() => SetIdle($"Location search failed: {e.Message}"));
 			}
+		}
+
+		static string ReadableLocationName(string resultName, string query)
+		{
+			if (UsesLatinScript(resultName))
+				return resultName;
+			if (UsesLatinScript(query))
+				return query;
+
+			return "Selected Earth location";
+		}
+
+		static bool UsesLatinScript(string value)
+		{
+			if (string.IsNullOrWhiteSpace(value))
+				return false;
+
+			foreach (var character in value)
+			{
+				if (!char.IsLetter(character))
+					continue;
+
+				var codepoint = (int)character;
+				if (codepoint < 0x0041 || codepoint > 0x024F)
+					return false;
+			}
+
+			return true;
 		}
 
 		async System.Threading.Tasks.Task GenerateAsync()
