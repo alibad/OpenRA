@@ -576,7 +576,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				settingsButton.OnClick = () => Ui.OpenWindow("SETTINGS_PANEL", new WidgetArgs
 				{
 					{ "onExit", DoNothing },
-					{ "worldRenderer", worldRenderer }
+					{ "worldRenderer", worldRenderer },
+					{ "initialPanel", null }
 				});
 			}
 

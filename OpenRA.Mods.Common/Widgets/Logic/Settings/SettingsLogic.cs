@@ -79,7 +79,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		[ObjectCreator.UseCtor]
 		public SettingsLogic(Widget widget, Action onExit, WorldRenderer worldRenderer, Dictionary<string, MiniYaml> logicArgs, ModData modData,
-			string initialPanel = null)
+			string initialPanel)
 		{
 			panelContainer = widget.Get("PANEL_CONTAINER");
 			var panelTemplate = panelContainer.Get<ContainerWidget>("PANEL_TEMPLATE");

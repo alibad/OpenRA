@@ -463,6 +463,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				{
 					{ "world", world },
 					{ "worldRenderer", worldRenderer },
+					{ "initialPanel", null },
 					{ "onExit", () => hideMenu = false },
 				});
 			};
