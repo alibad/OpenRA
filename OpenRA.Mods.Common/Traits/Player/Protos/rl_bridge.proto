@@ -70,6 +70,10 @@ message GameObservation {
   bool interrupted = 18;           // true if advance ended early due to interrupt
   string interrupt_reason = 19;    // signal name (e.g. "enemy_spotted")
   int32 actual_ticks_advanced = 20; // ticks actually advanced (may be < requested)
+
+  // Enemy buildings that were previously observed but are currently under fog.
+  // Contains only the player's last-known, frozen state and never live hidden state.
+  repeated RlBuildingInfo remembered_enemy_buildings = 21;
 }
 
 message RlEconomy {

@@ -75,10 +75,43 @@ namespace OpenRA.Mods.Common.Traits
 
 			SerializeOwnedActors(obs);
 			SerializeVisibleEnemies(obs);
+			SerializeRememberedEnemyBuildings(obs);
 			SerializeProduction(obs);
 			SerializeSpatialMap(obs);
 
 			return obs;
+		}
+
+		void SerializeRememberedEnemyBuildings(RLProto.GameObservation obs)
+		{
+			var frozenLayer = player.FrozenActorLayer;
+			if (frozenLayer == null)
+				return;
+
+			foreach (var frozen in frozenLayer.FrozenActorsInRegion(world.Map.AllCells))
+			{
+				if (frozen.Owner == player || frozen.Owner.NonCombatant ||
+					!frozen.Info.HasTraitInfo<BuildingInfo>())
+					continue;
+
+				var cell = world.Map.CellContaining(frozen.CenterPosition);
+				var healthInfo = frozen.Info.TraitInfoOrDefault<HealthInfo>();
+				var hpPercent = healthInfo != null && healthInfo.HP > 0
+					? (float)frozen.HP / healthInfo.HP
+					: 1f;
+
+				obs.RememberedEnemyBuildings.Add(new RLProto.RlBuildingInfo
+				{
+					ActorId = frozen.ID,
+					Type = frozen.Info.Name,
+					PosX = frozen.CenterPosition.X,
+					PosY = frozen.CenterPosition.Y,
+					CellX = cell.X,
+					CellY = cell.Y,
+					HpPercent = hpPercent,
+					Owner = frozen.Owner.InternalName,
+				});
+			}
 		}
 
 		RLProto.RlEconomy SerializeEconomy()
@@ -426,6 +459,8 @@ namespace OpenRA.Mods.Common.Traits
 			var ownUnitDensity = new int[height * width];
 			var enemyBuildingCells = new bool[height * width];
 			var enemyUnitDensity = new int[height * width];
+			var exploredCells = 0;
+			var totalCells = 0;
 
 			foreach (var actor in world.Actors)
 			{
@@ -476,6 +511,7 @@ namespace OpenRA.Mods.Common.Traits
 
 				var baseIdx = (y * width + x) * SpatialChannelCount;
 				var cellIdx = y * width + x;
+				totalCells++;
 
 				// Ch 0: Terrain type index
 				data[baseIdx + 0] = map.GetTerrainIndex(cell);
@@ -498,9 +534,13 @@ namespace OpenRA.Mods.Common.Traits
 				}
 
 				// Ch 4: Fog of war (0=hidden, 0.5=explored, 1=visible)
+				var explored = shroud.IsExplored(cell);
+				if (explored)
+					exploredCells++;
+
 				if (shroud.IsVisible(cell))
 					data[baseIdx + 4] = 1f;
-				else if (shroud.IsExplored(cell))
+				else if (explored)
 					data[baseIdx + 4] = 0.5f;
 
 				// Ch 5-8: Actor density (pre-computed above)
@@ -516,6 +556,7 @@ namespace OpenRA.Mods.Common.Traits
 
 			obs.SpatialMap = Google.Protobuf.ByteString.CopyFrom(bytes);
 			obs.SpatialChannels = SpatialChannelCount;
+			obs.ExploredPercent = totalCells > 0 ? (float)exploredCells / totalCells * 100f : 0f;
 		}
 	}
 }

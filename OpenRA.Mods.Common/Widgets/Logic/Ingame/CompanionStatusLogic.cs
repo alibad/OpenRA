@@ -65,8 +65,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 				return state switch
 				{
-					"listening" => Color.Cyan,
-					"thinking" => Color.Gold,
+					"listening" or "transcript" => Color.Cyan,
+					"transcribing" or "thinking" => Color.Gold,
 					"speaking" or "insight" => Color.LightGreen,
 					"error" => Color.OrangeRed,
 					"muted" or "disabled" => Color.Gray,

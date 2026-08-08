@@ -59,6 +59,10 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.GameState> __Marshaller_openra_rl_GameState = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.GameState.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.CompanionStatus> __Marshaller_openra_rl_CompanionStatus = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.CompanionStatus.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.CompanionStatusAck> __Marshaller_openra_rl_CompanionStatusAck = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.CompanionStatusAck.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.FastAdvanceRequest> __Marshaller_openra_rl_FastAdvanceRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.FastAdvanceRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::OpenRA.Mods.Common.RL.CreateSessionRequest> __Marshaller_openra_rl_CreateSessionRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::OpenRA.Mods.Common.RL.CreateSessionRequest.Parser));
@@ -92,6 +96,14 @@ namespace OpenRA.Mods.Common.RL {
         "Observe",
         __Marshaller_openra_rl_StateRequest,
         __Marshaller_openra_rl_GameObservation);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::OpenRA.Mods.Common.RL.CompanionStatus, global::OpenRA.Mods.Common.RL.CompanionStatusAck> __Method_UpdateCompanionStatus = new grpc::Method<global::OpenRA.Mods.Common.RL.CompanionStatus, global::OpenRA.Mods.Common.RL.CompanionStatusAck>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "UpdateCompanionStatus",
+        __Marshaller_openra_rl_CompanionStatus,
+        __Marshaller_openra_rl_CompanionStatusAck);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::OpenRA.Mods.Common.RL.FastAdvanceRequest, global::OpenRA.Mods.Common.RL.GameObservation> __Method_FastAdvance = new grpc::Method<global::OpenRA.Mods.Common.RL.FastAdvanceRequest, global::OpenRA.Mods.Common.RL.GameObservation>(
@@ -167,6 +179,18 @@ namespace OpenRA.Mods.Common.RL {
       }
 
       /// <summary>
+      /// Unary: publish companion lifecycle state for the non-modal in-game HUD.
+      /// </summary>
+      /// <param name="request">The request received from the client.</param>
+      /// <param name="context">The context of the server-side call handler being invoked.</param>
+      /// <returns>The response to send back to the client (wrapped by a task).</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::OpenRA.Mods.Common.RL.CompanionStatusAck> UpdateCompanionStatus(global::OpenRA.Mods.Common.RL.CompanionStatus request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      /// <summary>
       /// Unary: advance N ticks with optional commands, return observation.
       /// Bypasses streaming — works reliably on all platforms.
       /// </summary>
@@ -208,6 +232,7 @@ namespace OpenRA.Mods.Common.RL {
           .AddMethod(__Method_GameSession, serviceImpl.GameSession)
           .AddMethod(__Method_GetState, serviceImpl.GetState)
           .AddMethod(__Method_Observe, serviceImpl.Observe)
+          .AddMethod(__Method_UpdateCompanionStatus, serviceImpl.UpdateCompanionStatus)
           .AddMethod(__Method_FastAdvance, serviceImpl.FastAdvance)
           .AddMethod(__Method_CreateSession, serviceImpl.CreateSession)
           .AddMethod(__Method_DestroySession, serviceImpl.DestroySession).Build();
@@ -223,6 +248,7 @@ namespace OpenRA.Mods.Common.RL {
       serviceBinder.AddMethod(__Method_GameSession, serviceImpl == null ? null : new grpc::DuplexStreamingServerMethod<global::OpenRA.Mods.Common.RL.AgentAction, global::OpenRA.Mods.Common.RL.GameObservation>(serviceImpl.GameSession));
       serviceBinder.AddMethod(__Method_GetState, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.StateRequest, global::OpenRA.Mods.Common.RL.GameState>(serviceImpl.GetState));
       serviceBinder.AddMethod(__Method_Observe, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.StateRequest, global::OpenRA.Mods.Common.RL.GameObservation>(serviceImpl.Observe));
+      serviceBinder.AddMethod(__Method_UpdateCompanionStatus, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.CompanionStatus, global::OpenRA.Mods.Common.RL.CompanionStatusAck>(serviceImpl.UpdateCompanionStatus));
       serviceBinder.AddMethod(__Method_FastAdvance, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.FastAdvanceRequest, global::OpenRA.Mods.Common.RL.GameObservation>(serviceImpl.FastAdvance));
       serviceBinder.AddMethod(__Method_CreateSession, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.CreateSessionRequest, global::OpenRA.Mods.Common.RL.CreateSessionResponse>(serviceImpl.CreateSession));
       serviceBinder.AddMethod(__Method_DestroySession, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenRA.Mods.Common.RL.DestroySessionRequest, global::OpenRA.Mods.Common.RL.DestroySessionResponse>(serviceImpl.DestroySession));
