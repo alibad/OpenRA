@@ -2,8 +2,11 @@ Background@EARTH_MISSION_PANEL:
 	Logic: EarthMissionStudioLogic
 	X: (WINDOW_WIDTH - WIDTH) / 2
 	Y: (WINDOW_HEIGHT - HEIGHT) / 2
-	Width: 1300
-	Height: 740
+	# WINDOW_* is reported in physical pixels while widget coordinates use the
+	# UI-scaled resolution. The 2/3 conversion keeps this full-screen workbench
+	# inside the usable area at 150% Windows display scaling.
+	Width: WINDOW_WIDTH * 2 / 3 - 40
+	Height: WINDOW_HEIGHT * 2 / 3 - 30
 	Children:
 		Label@TITLE_LABEL:
 			Y: 10
@@ -45,16 +48,21 @@ Background@EARTH_MISSION_PANEL:
 			X: 20
 			Y: 88
 			Width: (PARENT_WIDTH - 50) / 2
-			Height: 300
+			Height: PARENT_HEIGHT * 44 / 100
 			Background: dialog3
 			Children:
 				Label@EARTH_VIEW_TITLE:
 					X: 8
 					Y: 5
-					Width: PARENT_WIDTH - 16
+					Width: PARENT_WIDTH - 190
 					Height: 18
 					Text: label-earth-real-map-title
 					Font: TinyBold
+				DropDownButton@EARTH_LAYER:
+					X: PARENT_WIDTH - 174
+					Y: 3
+					Width: 166
+					Height: 21
 				EarthMapPreview@EARTH_PREVIEW:
 					X: 6
 					Y: 25
@@ -81,7 +89,7 @@ Background@EARTH_MISSION_PANEL:
 			X: (PARENT_WIDTH + 10) / 2
 			Y: 88
 			Width: (PARENT_WIDTH - 50) / 2
-			Height: 300
+			Height: PARENT_HEIGHT * 44 / 100
 			Background: dialog3
 			Children:
 				Label@GAME_VIEW_TITLE:
@@ -114,7 +122,7 @@ Background@EARTH_MISSION_PANEL:
 					Contrast: true
 		Container@MISSION_ROW:
 			X: 20
-			Y: 400
+			Y: PARENT_HEIGHT * 44 / 100 + 100
 			Width: PARENT_WIDTH - 40
 			Height: 50
 			Children:
@@ -169,7 +177,7 @@ Background@EARTH_MISSION_PANEL:
 							Height: 27
 		Container@STORY_ROW:
 			X: 20
-			Y: 456
+			Y: PARENT_HEIGHT * 44 / 100 + 156
 			Width: PARENT_WIDTH - 40
 			Height: 50
 			Children:
@@ -206,9 +214,9 @@ Background@EARTH_MISSION_PANEL:
 					Text: button-earth-advanced
 		Background@TERRAIN_INTEL_CARD:
 			X: 20
-			Y: 514
+			Y: PARENT_HEIGHT * 70 / 100
 			Width: (PARENT_WIDTH - 50) * 42 / 100
-			Height: 145
+			Height: PARENT_HEIGHT * 22 / 100
 			Background: dialog3
 			Children:
 				Label@TERRAIN_INTEL_TITLE:
@@ -218,46 +226,173 @@ Background@EARTH_MISSION_PANEL:
 					Height: 17
 					Text: label-earth-terrain-intel
 					Font: TinyBold
-				Label@RELIEF:
+				Label@VISION_STATUS:
+					X: PARENT_WIDTH / 2
+					Y: 4
+					Width: PARENT_WIDTH / 2 - 8
+					Height: 17
+					Align: Right
+					Font: Tiny
+				Background@RELIEF_CARD:
 					X: 8
-					Y: PARENT_HEIGHT / 2 - 27
-					Width: PARENT_WIDTH / 5 - 8
-					Height: 54
-					Align: Center
-					Font: TinyBold
-				Label@WATER:
-					X: PARENT_WIDTH / 5
-					Y: PARENT_HEIGHT / 2 - 27
-					Width: PARENT_WIDTH / 5
-					Height: 54
-					Align: Center
-					Font: TinyBold
-				Label@URBAN:
-					X: PARENT_WIDTH * 2 / 5
-					Y: PARENT_HEIGHT / 2 - 27
-					Width: PARENT_WIDTH / 5
-					Height: 54
-					Align: Center
-					Font: TinyBold
-				Label@VEGETATION:
-					X: PARENT_WIDTH * 3 / 5
-					Y: PARENT_HEIGHT / 2 - 27
-					Width: PARENT_WIDTH / 5
-					Height: 54
-					Align: Center
-					Font: TinyBold
-				Label@LANDMARKS:
-					X: PARENT_WIDTH * 4 / 5
-					Y: PARENT_HEIGHT / 2 - 27
-					Width: PARENT_WIDTH / 5 - 8
-					Height: 54
-					Align: Center
-					Font: TinyBold
+					Y: 25
+					Width: (PARENT_WIDTH - 24) / 5
+					Height: PARENT_HEIGHT - 33
+					Background: dialog4
+					Children:
+						Label@LABEL:
+							Y: 6
+							Width: PARENT_WIDTH
+							Height: 16
+							Text: label-earth-intel-relief
+							Align: Center
+							Font: Tiny
+						Label@VALUE:
+							Y: 25
+							Width: PARENT_WIDTH
+							Height: 22
+							Align: Center
+							Font: Bold
+						ProgressBar@BAR:
+							X: 8
+							Y: 52
+							Width: PARENT_WIDTH - 16
+							Height: 12
+						Label@DETAIL:
+							Y: 68
+							Width: PARENT_WIDTH
+							Height: 16
+							Align: Center
+							Font: Tiny
+				Background@WATER_CARD:
+					X: 10 + (PARENT_WIDTH - 24) / 5
+					Y: 25
+					Width: (PARENT_WIDTH - 24) / 5
+					Height: PARENT_HEIGHT - 33
+					Background: dialog4
+					Children:
+						Label@LABEL:
+							Y: 6
+							Width: PARENT_WIDTH
+							Height: 16
+							Text: label-earth-intel-water
+							Align: Center
+							Font: Tiny
+						Label@VALUE:
+							Y: 25
+							Width: PARENT_WIDTH
+							Height: 22
+							Align: Center
+							Font: Bold
+						ProgressBar@BAR:
+							X: 8
+							Y: 52
+							Width: PARENT_WIDTH - 16
+							Height: 12
+						Label@DETAIL:
+							Y: 68
+							Width: PARENT_WIDTH
+							Height: 16
+							Align: Center
+							Font: Tiny
+				Background@URBAN_CARD:
+					X: 12 + (PARENT_WIDTH - 24) * 2 / 5
+					Y: 25
+					Width: (PARENT_WIDTH - 24) / 5
+					Height: PARENT_HEIGHT - 33
+					Background: dialog4
+					Children:
+						Label@LABEL:
+							Y: 6
+							Width: PARENT_WIDTH
+							Height: 16
+							Text: label-earth-intel-urban
+							Align: Center
+							Font: Tiny
+						Label@VALUE:
+							Y: 25
+							Width: PARENT_WIDTH
+							Height: 22
+							Align: Center
+							Font: Bold
+						ProgressBar@BAR:
+							X: 8
+							Y: 52
+							Width: PARENT_WIDTH - 16
+							Height: 12
+						Label@DETAIL:
+							Y: 68
+							Width: PARENT_WIDTH
+							Height: 16
+							Align: Center
+							Font: Tiny
+				Background@VEGETATION_CARD:
+					X: 14 + (PARENT_WIDTH - 24) * 3 / 5
+					Y: 25
+					Width: (PARENT_WIDTH - 24) / 5
+					Height: PARENT_HEIGHT - 33
+					Background: dialog4
+					Children:
+						Label@LABEL:
+							Y: 6
+							Width: PARENT_WIDTH
+							Height: 16
+							Text: label-earth-intel-vegetation
+							Align: Center
+							Font: Tiny
+						Label@VALUE:
+							Y: 25
+							Width: PARENT_WIDTH
+							Height: 22
+							Align: Center
+							Font: Bold
+						ProgressBar@BAR:
+							X: 8
+							Y: 52
+							Width: PARENT_WIDTH - 16
+							Height: 12
+						Label@DETAIL:
+							Y: 68
+							Width: PARENT_WIDTH
+							Height: 16
+							Align: Center
+							Font: Tiny
+				Background@LANDMARKS_CARD:
+					X: 16 + (PARENT_WIDTH - 24) * 4 / 5
+					Y: 25
+					Width: (PARENT_WIDTH - 24) / 5
+					Height: PARENT_HEIGHT - 33
+					Background: dialog4
+					Children:
+						Label@LABEL:
+							Y: 6
+							Width: PARENT_WIDTH
+							Height: 16
+							Text: label-earth-intel-landmarks
+							Align: Center
+							Font: Tiny
+						Label@VALUE:
+							Y: 25
+							Width: PARENT_WIDTH
+							Height: 22
+							Align: Center
+							Font: Bold
+						ProgressBar@BAR:
+							X: 8
+							Y: 52
+							Width: PARENT_WIDTH - 16
+							Height: 12
+						Label@DETAIL:
+							Y: 68
+							Width: PARENT_WIDTH
+							Height: 16
+							Align: Center
+							Font: Tiny
 		Background@PROGRESS_CARD:
 			X: 30 + (PARENT_WIDTH - 50) * 42 / 100
-			Y: 514
+			Y: PARENT_HEIGHT * 70 / 100
 			Width: (PARENT_WIDTH - 50) * 58 / 100 - 10
-			Height: 145
+			Height: PARENT_HEIGHT * 22 / 100
 			Background: dialog3
 			Children:
 				Label@PROGRESS_TITLE:
@@ -303,6 +438,11 @@ Background@EARTH_MISSION_PANEL:
 					Width: PARENT_WIDTH / 2 - 10
 					Height: 17
 					Font: Tiny
+				ProgressBar@GENERATION_BAR:
+					X: 8
+					Y: PARENT_HEIGHT - 38
+					Width: PARENT_WIDTH - 16
+					Height: 12
 				Label@STATUS:
 					X: 8
 					Y: PARENT_HEIGHT - 19
@@ -311,7 +451,7 @@ Background@EARTH_MISSION_PANEL:
 					Font: TinyBold
 		Background@ADVANCED_OPTIONS:
 			X: PARENT_WIDTH - 365
-			Y: 506
+			Y: PARENT_HEIGHT * 70 / 100 - 8
 			Width: 345
 			Height: 145
 			Background: dialog4

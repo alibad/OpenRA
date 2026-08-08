@@ -60,10 +60,16 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{ "creative-remix", "Creative Remix" }
 		};
 
+		static readonly Dictionary<string, string> ImageryStyleLabels = new()
+		{
+			{ "satellite", "Satellite 2025" },
+			{ "terrain", "Terrain" }
+		};
+
 		static readonly string[] PipelineLabels =
 		[
 			"1  Earth geometry",
-			"2  Terrain image",
+			"2  Earth imagery",
 			"3  AI terrain vision",
 			"4  Gameplay translation",
 			"5  Map validation",
@@ -81,8 +87,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		readonly LabelWidget statusLabel;
 		readonly LabelWidget coordinateStatusLabel;
 		readonly LabelWidget previewBadgeLabel;
+		readonly LabelWidget earthAttributionLabel;
+		readonly LabelWidget visionStatusLabel;
 		readonly EarthMapPreviewWidget earthPreview;
 		readonly GeneratedMapPreviewWidget generatedPreview;
+		readonly ProgressBarWidget generationBar;
 		readonly LabelWidget[] pipelineLabels;
 		readonly Widget advancedOptions;
 
@@ -94,15 +103,27 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		int radiusMeters = 3500;
 		int generationStage;
 		string archetype = "Balanced Skirmish";
-		string generationMode = "reality-first";
+		string generationMode = "playability-first";
+		string imageryStyle = "satellite";
 		string status = "Select a location, inspect its terrain, then create the battlefield.";
 		string previewBadge = "PLAYABLE PREVIEW  |  WAITING";
 		string generatedMapUid;
-		string reliefIntel = "RELIEF\nPending";
-		string waterIntel = "WATER\nPending";
-		string urbanIntel = "URBAN\nPending";
-		string vegetationIntel = "VEGETATION\nPending";
-		string landmarkIntel = "LANDMARKS\nPending";
+		string visionStatus = "SATELLITE + MAP DATA | AWAITING SCAN";
+		string reliefIntel = "Pending";
+		string waterIntel = "Pending";
+		string urbanIntel = "Pending";
+		string vegetationIntel = "Pending";
+		string landmarkIntel = "Pending";
+		string reliefDetail = "Not scanned";
+		string waterDetail = "Not scanned";
+		string urbanDetail = "Not scanned";
+		string vegetationDetail = "Not scanned";
+		string landmarkDetail = "Not scanned";
+		int reliefPercent;
+		int waterPercent;
+		int urbanPercent;
+		int vegetationPercent;
+		int landmarkPercent;
 
 		[ObjectCreator.UseCtor]
 		public EarthMissionStudioLogic(Widget widget, ModData modData, Action onExit, Action<string> onPlay, Action<string> onEdit)
@@ -132,6 +153,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			coordinateStatusLabel.GetText = CoordinateStatus;
 			previewBadgeLabel = widget.Get<LabelWidget>("PREVIEW_BADGE");
 			previewBadgeLabel.GetText = () => previewBadge;
+			earthAttributionLabel = widget.Get<LabelWidget>("EARTH_ATTRIBUTION");
+			earthAttributionLabel.GetText = EarthAttribution;
+			visionStatusLabel = widget.Get<LabelWidget>("VISION_STATUS");
+			visionStatusLabel.GetText = () => visionStatus;
 
 			earthPreview = widget.Get<EarthMapPreviewWidget>("EARTH_PREVIEW");
 			earthPreview.OnMapClick = MoveEarthPin;
@@ -141,11 +166,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			gameEmpty.GetText = () => "Your generated battlefield will appear here.\nTerrain, resources, and spawn points update when ready.";
 			gameEmpty.IsVisible = () => generatedMapUid == null;
 
-			widget.Get<LabelWidget>("RELIEF").GetText = () => reliefIntel;
-			widget.Get<LabelWidget>("WATER").GetText = () => waterIntel;
-			widget.Get<LabelWidget>("URBAN").GetText = () => urbanIntel;
-			widget.Get<LabelWidget>("VEGETATION").GetText = () => vegetationIntel;
-			widget.Get<LabelWidget>("LANDMARKS").GetText = () => landmarkIntel;
+			BindIntelCard(widget.Get("RELIEF_CARD"), () => reliefIntel, () => reliefDetail, () => reliefPercent);
+			BindIntelCard(widget.Get("WATER_CARD"), () => waterIntel, () => waterDetail, () => waterPercent);
+			BindIntelCard(widget.Get("URBAN_CARD"), () => urbanIntel, () => urbanDetail, () => urbanPercent);
+			BindIntelCard(widget.Get("VEGETATION_CARD"), () => vegetationIntel, () => vegetationDetail, () => vegetationPercent);
+			BindIntelCard(widget.Get("LANDMARKS_CARD"), () => landmarkIntel, () => landmarkDetail, () => landmarkPercent);
 
 			pipelineLabels = new LabelWidget[PipelineLabels.Length];
 			for (var index = 0; index < PipelineLabels.Length; index++)
@@ -157,11 +182,17 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				pipelineLabels[index] = label;
 			}
 
+			generationBar = widget.Get<ProgressBarWidget>("GENERATION_BAR");
+			generationBar.GetPercentage = () => generationStage * 100 / PipelineLabels.Length;
+			generationBar.IsIndeterminate = () => busy && generationStage == 0;
+
 			BindDropdown(widget.Get<DropDownButtonWidget>("MAP_SIZE"), MapSizeLabels, () => mapSize, value => mapSize = value, 260);
 			BindDropdown(widget.Get<DropDownButtonWidget>("RADIUS"), RadiusLabels, () => radiusMeters, SelectRadius, 220);
 			BindDropdown(widget.Get<DropDownButtonWidget>("MISSION_ARCHETYPE"), ArchetypeLabels, () => archetype, SelectArchetype, 260);
 			BindDropdown(widget.Get<DropDownButtonWidget>("GENERATION_MODE"), GenerationModeLabels,
 				() => generationMode, value => generationMode = value, 230);
+			BindDropdown(widget.Get<DropDownButtonWidget>("EARTH_LAYER"), ImageryStyleLabels,
+				() => imageryStyle, SelectImageryStyle, 190);
 
 			var search = widget.Get<ButtonWidget>("SEARCH");
 			search.IsDisabled = () => busy || string.IsNullOrWhiteSpace(location.Text);
@@ -185,6 +216,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			widget.Get<ButtonWidget>("BACK").OnClick = Close;
 
 			_ = RefreshEarthPreviewAsync(true);
+		}
+
+		static void BindIntelCard(Widget card, Func<string> value, Func<string> detail, Func<int> percentage)
+		{
+			card.Get<LabelWidget>("VALUE").GetText = value;
+			card.Get<LabelWidget>("DETAIL").GetText = detail;
+			card.Get<ProgressBarWidget>("BAR").GetPercentage = percentage;
 		}
 
 		void BindDropdown<T>(DropDownButtonWidget dropdown, Dictionary<T, string> options,
@@ -215,6 +253,23 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			archetype = value;
 			if (string.IsNullOrWhiteSpace(story.Text))
 				story.Text = ArchetypeDirections[value];
+		}
+
+		void SelectImageryStyle(string value)
+		{
+			imageryStyle = value;
+			visionStatus = value == "satellite" ?
+				"SATELLITE + MAP DATA | AWAITING SCAN" : "TERRAIN + MAP DATA | AWAITING SCAN";
+			earthPreviewLoaded = false;
+			SetStatus($"Switching Earth reconnaissance to {ImageryStyleLabels[value].ToLowerInvariant()}...");
+			_ = RefreshEarthPreviewAsync(false);
+		}
+
+		string EarthAttribution()
+		{
+			return imageryStyle == "satellite" ?
+				"Sentinel-2 Cloudless 2025 | EOX | modified Copernicus data" :
+				"OpenTopoMap | OpenStreetMap contributors | SRTM";
 		}
 
 		string CoordinateStatus()
@@ -283,6 +338,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				if (codepoint < 0x0041 || codepoint > 0x024F)
 					return false;
 			}
+
 			return true;
 		}
 
@@ -297,7 +353,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{
 				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_WORLD_STUDIO_URL", "http://127.0.0.1:8788/");
 				var path = "v1/terrain-view?latitude=" + lat.ToString(CultureInfo.InvariantCulture) +
-					"&longitude=" + lon.ToString(CultureInfo.InvariantCulture) + "&radius_m=" + radiusMeters;
+					"&longitude=" + lon.ToString(CultureInfo.InvariantCulture) + "&radius_m=" + radiusMeters +
+					"&style=" + Uri.EscapeDataString(imageryStyle);
 				var bytes = await OpenRAAILocalClient.GetBytesAsync(baseUri, path, 45);
 				await using var stream = new MemoryStream(bytes);
 				var preview = new Png(stream);
@@ -306,7 +363,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					earthPreview.Update(preview, new float2(0.5f, 0.5f));
 					earthPreviewLoaded = true;
 					if (!busy)
-						SetStatus("Terrain view ready. This exact image will be sent through the AI layer during generation.");
+						SetStatus($"{ImageryStyleLabels[imageryStyle]} ready. This exact image will be sent through the AI layer during generation.");
 				});
 			}
 			catch (Exception e)
@@ -325,7 +382,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var selectedLongitude = lon + eastMeters / (111320.0 * Math.Max(0.15, Math.Cos(lat * Math.PI / 180.0)));
 			latitude.Text = selectedLatitude.ToString("0.######", CultureInfo.InvariantCulture);
 			longitude.Text = selectedLongitude.ToString("0.######", CultureInfo.InvariantCulture);
-			SetStatus("Battlefield center moved. Refreshing the Earth terrain view...");
+			SetStatus("Battlefield center moved. Refreshing Earth reconnaissance...");
 			_ = RefreshEarthPreviewAsync(false);
 		}
 
@@ -359,6 +416,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					seed = seedValue,
 					story_seed = string.IsNullOrWhiteSpace(story.Text) ? ArchetypeDirections[archetype] : story.Text.Trim(),
 					generation_mode = generationMode,
+					imagery_style = imageryStyle,
 					source = "openstreetmap"
 				};
 
@@ -382,6 +440,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 						result = job.GetProperty("result").Clone();
 						break;
 					}
+
 					if (state == "failed")
 						throw new InvalidOperationException(message);
 				}
@@ -455,6 +514,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			if (!result.TryGetProperty("synthesis", out var synthesis))
 				return;
 			var analysis = synthesis.GetProperty("analysis");
+			var biome = ReadString(analysis, "biome", "mapped");
 			var relief = ReadString(analysis, "relief", "Mapped");
 			var water = ReadRatio(analysis, "water_confidence");
 			var urban = ReadRatio(analysis, "urban_density");
@@ -464,13 +524,36 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			if (synthesis.TryGetProperty("feature_counts", out var counts))
 				landmarks = ReadCount(counts, "building") + ReadCount(counts, "landmark") + ReadCount(counts, "rail");
 
-			reliefIntel = $"RELIEF\n{TitleCase(relief)}";
-			waterIntel = $"WATER\n{water:P0}";
-			urbanIntel = $"URBAN\n{urban:P0}";
-			vegetationIntel = $"VEGETATION\n{vegetation:P0}";
-			landmarkIntel = $"LANDMARKS\n{landmarks}";
+			var visionUsed = analysis.TryGetProperty("vision_used", out var visionValue) && visionValue.GetBoolean();
+			reliefIntel = TitleCase(relief);
+			waterIntel = water.ToString("P0", CultureInfo.InvariantCulture);
+			urbanIntel = urban.ToString("P0", CultureInfo.InvariantCulture);
+			vegetationIntel = vegetation.ToString("P0", CultureInfo.InvariantCulture);
+			landmarkIntel = landmarks.ToString(CultureInfo.InvariantCulture);
+			reliefPercent = (int)Math.Round(confidence * 100);
+			waterPercent = (int)Math.Round(water * 100);
+			urbanPercent = (int)Math.Round(urban * 100);
+			vegetationPercent = (int)Math.Round(vegetation * 100);
+			landmarkPercent = Math.Min(100, landmarks * 8);
+			reliefDetail = visionUsed ? $"Vision {confidence:P0}" : $"Map confidence {confidence:P0}";
+			waterDetail = DensityLabel(water);
+			urbanDetail = DensityLabel(urban);
+			vegetationDetail = DensityLabel(vegetation);
+			landmarkDetail = landmarks == 1 ? "Mapped feature" : "Mapped features";
+			var evidence = visionUsed ? "AI VISION" : "MAP FALLBACK";
+			visionStatus = $"{TitleCase(biome).ToUpperInvariant()} | {evidence} | " +
+				ImageryStyleLabels[imageryStyle].ToUpperInvariant();
 			var tileset = synthesis.TryGetProperty("tileset", out var value) ? value.GetString() ?? "OPENRA" : "OPENRA";
 			previewBadge = $"{tileset.ToUpperInvariant()}  |  EARTH MATCH {confidence:P0}";
+		}
+
+		static string DensityLabel(double value)
+		{
+			if (value >= 0.66)
+				return "High signal";
+			if (value >= 0.33)
+				return "Medium signal";
+			return "Low signal";
 		}
 
 		static string ReadString(JsonElement element, string name, string fallback)
@@ -495,11 +578,14 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		void ResetIntel()
 		{
-			reliefIntel = "RELIEF\nReading";
-			waterIntel = "WATER\nReading";
-			urbanIntel = "URBAN\nReading";
-			vegetationIntel = "VEGETATION\nReading";
-			landmarkIntel = "LANDMARKS\nReading";
+			reliefIntel = "Scanning";
+			waterIntel = "Scanning";
+			urbanIntel = "Scanning";
+			vegetationIntel = "Scanning";
+			landmarkIntel = "Scanning";
+			reliefDetail = waterDetail = urbanDetail = vegetationDetail = landmarkDetail = "Reading Earth";
+			reliefPercent = waterPercent = urbanPercent = vegetationPercent = landmarkPercent = 0;
+			visionStatus = $"{ImageryStyleLabels[imageryStyle].ToUpperInvariant()} + MAP DATA | SCANNING";
 		}
 
 		bool HasValidCoordinates()

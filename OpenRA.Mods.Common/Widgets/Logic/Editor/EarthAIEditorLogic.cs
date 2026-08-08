@@ -242,7 +242,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					if (string.IsNullOrWhiteSpace(title.Text) || title.Text == world.Map.Title)
 						title.Text = location.Text.Split(',')[0].Trim() + " Crossing";
 					earthLinked = true;
-					source = "EARTH LINKED  •  TERRAIN VIEW WILL BE SENT TO AI";
+					source = "EARTH LINKED  |  SATELLITE VIEW WILL BE SENT TO AI";
 					SetIdle("Location linked. Draft a mission or build the battlefield now.");
 					_ = RefreshEarthPreviewAsync();
 				});
@@ -264,16 +264,17 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{
 				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_WORLD_STUDIO_URL", "http://127.0.0.1:8788/");
 				var path = "v1/terrain-view?latitude=" + lat.ToString(CultureInfo.InvariantCulture) +
-					"&longitude=" + lon.ToString(CultureInfo.InvariantCulture) + "&radius_m=" + radiusMeters;
+					"&longitude=" + lon.ToString(CultureInfo.InvariantCulture) + "&radius_m=" + radiusMeters +
+					"&style=satellite";
 				var bytes = await OpenRAAILocalClient.GetBytesAsync(baseUri, path, 45);
 				await using var stream = new MemoryStream(bytes);
 				var preview = new Png(stream);
 				Game.RunAfterTick(() =>
 				{
 					earthPreview.Update(preview, new float2(0.5f, 0.5f));
-					source = "TERRAIN VIEW READY  •  THIS EXACT IMAGE GOES TO AI";
+					source = "SATELLITE VIEW READY  |  THIS EXACT IMAGE GOES TO AI";
 					if (!busy)
-						SetStatus("Terrain captured. Pick a fidelity mode, then generate the OpenRA translation.");
+						SetStatus("Satellite image captured. Pick a fidelity mode, then generate the OpenRA translation.");
 				});
 			}
 			catch (Exception e)
@@ -388,6 +389,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					seed = seedValue,
 					story_seed = direction.Text.Trim(),
 					generation_mode = remix ? "creative-remix" : generationMode,
+					imagery_style = "satellite",
 					source = "openstreetmap"
 				};
 

@@ -239,6 +239,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					SwitchMenu(MenuType.MapEditor);
 				};
 				worldToolsMenu.Get<ButtonWidget>("BACK_BUTTON").OnClick = () => SwitchMenu(MenuType.Main);
+
+				// Enables deterministic local UI capture without adding a visible debug control.
+				if (Environment.GetEnvironmentVariable("OPENRA_AI_START_EARTH_STUDIO") == "1")
+					Game.RunAfterTick(worldToolsMenu.Get<ButtonWidget>("EARTH_STUDIO_BUTTON").OnClick);
 			}
 
 			var newsBG = widget.GetOrNull("NEWS_BG");
