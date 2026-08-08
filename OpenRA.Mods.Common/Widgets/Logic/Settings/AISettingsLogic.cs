@@ -19,6 +19,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 {
 	public class AISettingsLogic : ChromeLogic
 	{
+		const string DefaultAILayerUrl = "http://127.0.0.1:4000";
+
 		static readonly Dictionary<string, string> PaceLabels = new()
 		{
 			{ "calm", "Calm" },
@@ -33,23 +35,75 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{ "off", "Never for updates" }
 		};
 
+		static readonly Dictionary<string, string> DefaultProviderLabels = new()
+		{
+			{ "openai", "OpenAI" },
+			{ "anthropic", "Anthropic / Claude" },
+			{ "gemini", "Google / Gemini" },
+			{ "local", "Local models" },
+			{ "custom", "Custom endpoint" }
+		};
+
+		static readonly Dictionary<string, string> DefaultVoiceLabels = new()
+		{
+			{ "alloy", "Alloy" },
+			{ "echo", "Echo" },
+			{ "fable", "Fable" },
+			{ "onyx", "Onyx" },
+			{ "nova", "Nova" },
+			{ "shimmer", "Shimmer" }
+		};
+
+		sealed class ModelOption
+		{
+			public string Id { get; init; }
+			public string Label { get; init; }
+			public string Provider { get; init; }
+			public string Mode { get; init; }
+		}
+
+		readonly Dictionary<string, string> providerLabels = new(DefaultProviderLabels);
+		readonly Dictionary<string, string> voiceLabels = new(DefaultVoiceLabels);
+		readonly List<ModelOption> models =
+		[
+			new() { Id = "gpt-5.5", Label = "GPT-5.5", Provider = "openai", Mode = "chat" },
+			new() { Id = "claude-opus", Label = "Claude Opus", Provider = "anthropic", Mode = "chat" },
+			new() { Id = "claude-sonnet", Label = "Claude Sonnet", Provider = "anthropic", Mode = "chat" },
+			new() { Id = "claude-haiku", Label = "Claude Haiku", Provider = "anthropic", Mode = "chat" },
+			new() { Id = "gemini-pro", Label = "Gemini Pro", Provider = "gemini", Mode = "chat" },
+			new() { Id = "gemini-flash", Label = "Gemini Flash", Provider = "gemini", Mode = "chat" },
+			new() { Id = "local-small", Label = "Local Small", Provider = "local", Mode = "chat" },
+			new() { Id = "local-coder", Label = "Local Coder", Provider = "local", Mode = "chat" },
+			new() { Id = "openai-transcribe", Label = "OpenAI Transcription", Provider = "openai", Mode = "audio_transcription" },
+			new() { Id = "local-whisper", Label = "Local Whisper", Provider = "local", Mode = "audio_transcription" },
+			new() { Id = "openai-tts", Label = "OpenAI Voice", Provider = "openai", Mode = "audio_speech" },
+			new() { Id = "local-kokoro", Label = "Local Voice", Provider = "local", Mode = "audio_speech" }
+		];
+
 		bool companionEnabled = true;
 		bool voiceEnabled = true;
 		bool busy;
+		bool catalogueAvailable = true;
+		string provider = "openai";
 		string pace = "calm";
 		string voicePriority = "critical";
-		string status = "Connecting to the local AI layer...";
+		string textModel = "gpt-5.5";
+		string visionModel = "gpt-5.5";
+		string transcribeModel = "openai-transcribe";
+		string speechModel = "openai-tts";
+		string speechVoice = "alloy";
+		string aiLayerUrl = DefaultAILayerUrl;
+		string status = "Connecting to the AI layer...";
 		string costTotal = "Session estimate: waiting for usage";
 		string costBreakdown = "Text --  |  Speech --  |  Transcription --";
-		string costAssumptions = "Estimates appear after the local companion reports its active routes.";
+		string costAssumptions = "Estimates appear after the companion reports its active routes.";
 
-		TextFieldWidget routerUrl;
-		TextFieldWidget textModel;
-		TextFieldWidget visionModel;
-		TextFieldWidget transcribeModel;
-		TextFieldWidget speechModel;
-		TextFieldWidget speechVoice;
+		ScrollPanelWidget scrollPanel;
+		TextFieldWidget customEndpoint;
+		TextFieldWidget customTextModel;
+		TextFieldWidget customVisionModel;
 		LabelWidget statusLabel;
+		LabelWidget providerStatusLabel;
 		LabelWidget costAssumptionsLabel;
 
 		[ObjectCreator.UseCtor]
@@ -67,16 +121,32 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			voice.IsChecked = () => voiceEnabled;
 			voice.OnClick = () => voiceEnabled = !voiceEnabled;
 
-			BindDropdown(panel.Get<DropDownButtonWidget>("PACE"), PaceLabels, () => pace, value => pace = value);
-			BindDropdown(panel.Get<DropDownButtonWidget>("VOICE_PRIORITY"), VoicePriorityLabels, () => voicePriority, value => voicePriority = value);
+			BindDropdown(panel.Get<DropDownButtonWidget>("PACE"), () => PaceLabels, () => pace, value => pace = value);
+			BindDropdown(panel.Get<DropDownButtonWidget>("VOICE_PRIORITY"), () => VoicePriorityLabels,
+				() => voicePriority, value => voicePriority = value);
 
-			routerUrl = panel.Get<TextFieldWidget>("ROUTER_URL");
-			textModel = panel.Get<TextFieldWidget>("TEXT_MODEL");
-			visionModel = panel.Get<TextFieldWidget>("VISION_MODEL");
-			transcribeModel = panel.Get<TextFieldWidget>("TRANSCRIBE_MODEL");
-			speechModel = panel.Get<TextFieldWidget>("SPEECH_MODEL");
-			speechVoice = panel.Get<TextFieldWidget>("SPEECH_VOICE");
+			BindDropdown(panel.Get<DropDownButtonWidget>("PROVIDER"), () => providerLabels, () => provider, SelectProvider);
+			BindDropdown(panel.Get<DropDownButtonWidget>("TEXT_MODEL"),
+				() => ModelLabels("chat", provider, textModel), () => textModel, value => textModel = value);
+			BindDropdown(panel.Get<DropDownButtonWidget>("VISION_MODEL"),
+				() => ModelLabels("chat", provider, visionModel), () => visionModel, value => visionModel = value);
+			BindDropdown(panel.Get<DropDownButtonWidget>("TRANSCRIBE_MODEL"),
+				() => ModelLabels("audio_transcription", null, transcribeModel), () => transcribeModel, value => transcribeModel = value);
+			BindDropdown(panel.Get<DropDownButtonWidget>("SPEECH_MODEL"),
+				() => ModelLabels("audio_speech", null, speechModel), () => speechModel, value => speechModel = value);
+			BindDropdown(panel.Get<DropDownButtonWidget>("SPEECH_VOICE"), () => voiceLabels,
+				() => speechVoice, value => speechVoice = value);
+			panel.Get("TEXT_MODEL_CONTAINER").IsVisible = () => provider != "custom";
+			panel.Get("VISION_PICKER_ROW").IsVisible = () => provider != "custom";
 
+			customEndpoint = panel.Get<TextFieldWidget>("CUSTOM_ENDPOINT");
+			customTextModel = panel.Get<TextFieldWidget>("CUSTOM_TEXT_MODEL");
+			customVisionModel = panel.Get<TextFieldWidget>("CUSTOM_VISION_MODEL");
+			panel.Get("CUSTOM_ENDPOINT_ROW").IsVisible = () => provider == "custom";
+			panel.Get("CUSTOM_MODELS_ROW").IsVisible = () => provider == "custom";
+
+			providerStatusLabel = panel.Get<LabelWidget>("PROVIDER_STATUS");
+			providerStatusLabel.GetText = ProviderStatus;
 			statusLabel = panel.Get<LabelWidget>("STATUS");
 			statusLabel.GetText = () => status;
 			panel.Get<LabelWidget>("COST_TOTAL").GetText = () => costTotal;
@@ -94,7 +164,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			refresh.IsDisabled = () => busy;
 			refresh.OnClick = () => _ = LoadAsync();
 
-			SettingsUtils.AdjustSettingsScrollPanelLayout(panel.Get<ScrollPanelWidget>("SETTINGS_SCROLLPANEL"));
+			scrollPanel = panel.Get<ScrollPanelWidget>("SETTINGS_SCROLLPANEL");
+			SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
 			_ = LoadAsync();
 			return () =>
 			{
@@ -109,24 +180,34 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{
 				companionEnabled = true;
 				voiceEnabled = true;
+				provider = "openai";
 				pace = "calm";
 				voicePriority = "critical";
-				routerUrl.Text = "http://127.0.0.1:4000";
-				textModel.Text = "gpt-5.5";
-				visionModel.Text = "gpt-5.5";
-				transcribeModel.Text = "openai-transcribe";
-				speechModel.Text = "openai-tts";
-				speechVoice.Text = "alloy";
+				textModel = "gpt-5.5";
+				visionModel = "gpt-5.5";
+				transcribeModel = "openai-transcribe";
+				speechModel = "openai-tts";
+				speechVoice = "alloy";
+				aiLayerUrl = DefaultAILayerUrl;
+				customEndpoint.Text = DefaultAILayerUrl;
+				customTextModel.Text = "model-name";
+				customVisionModel.Text = "model-name";
+				SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
 				_ = ApplyAsync();
 			};
 		}
 
-		static void BindDropdown(DropDownButtonWidget dropdown, Dictionary<string, string> options,
+		void BindDropdown(DropDownButtonWidget dropdown, Func<Dictionary<string, string>> getOptions,
 			Func<string> getValue, Action<string> setValue)
 		{
-			dropdown.GetText = () => options.TryGetValue(getValue(), out var value) ? value : getValue();
+			dropdown.GetText = () =>
+			{
+				var options = getOptions();
+				return options.TryGetValue(getValue(), out var value) ? value : getValue();
+			};
 			dropdown.OnMouseDown = _ =>
 			{
+				var options = getOptions();
 				ScrollItemWidget SetupItem(string key, ScrollItemWidget template)
 				{
 					var item = ScrollItemWidget.Setup(template, () => getValue() == key, () => setValue(key));
@@ -138,15 +219,78 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			};
 		}
 
+		Dictionary<string, string> ModelLabels(string mode, string modelProvider, string current)
+		{
+			var options = models
+				.Where(model => model.Mode == mode && (modelProvider == null || model.Provider == modelProvider))
+				.ToDictionary(model => model.Id, model => model.Label);
+			if (!string.IsNullOrEmpty(current) && !options.ContainsKey(current))
+				options[current] = current;
+			return options;
+		}
+
+		void SelectProvider(string value)
+		{
+			if (provider == value)
+				return;
+			provider = value;
+			if (provider == "custom")
+			{
+				customEndpoint.Text = string.IsNullOrWhiteSpace(customEndpoint.Text) ? DefaultAILayerUrl : customEndpoint.Text;
+				customTextModel.Text = textModel;
+				customVisionModel.Text = visionModel;
+			}
+			else
+			{
+				var compatible = models.Where(model => model.Mode == "chat" && model.Provider == provider).ToList();
+				if (compatible.Count > 0)
+				{
+					textModel = compatible[0].Id;
+					visionModel = compatible[0].Id;
+				}
+			}
+
+			SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
+		}
+
+		string ProviderStatus()
+		{
+			string message;
+			if (provider == "custom")
+				message = "Custom OpenAI-compatible endpoint. You control the URL and model IDs.";
+			else if (provider == "local")
+				message = "Local models are registered with the AI layer. No manual URL is needed.";
+			else
+				message = "Credentials and routing are managed by the AI layer. No endpoint URL is needed.";
+			if (!catalogueAvailable)
+				message = "AI layer catalogue is offline. Showing safe fallback choices.";
+			return WidgetUtils.TruncateText(message, providerStatusLabel.Bounds.Width,
+				Game.Renderer.Fonts[providerStatusLabel.Font]);
+		}
+
 		async System.Threading.Tasks.Task LoadAsync()
 		{
-			SetBusy("Reading local AI settings...");
+			SetBusy("Reading AI settings...");
 			try
 			{
 				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_CONSOLE_URL", "http://127.0.0.1:8787/");
-				using var document = await OpenRAAILocalClient.GetAsync(baseUri, "v1/state");
-				var snapshot = document.RootElement.Clone();
-				Game.RunAfterTick(() => ApplyState(snapshot, "AI layer connected. Settings and usage are current."));
+				using var stateDocument = await OpenRAAILocalClient.GetAsync(baseUri, "v1/state");
+				var state = stateDocument.RootElement.Clone();
+				JsonElement catalogue = default;
+				var hasCatalogue = false;
+				try
+				{
+					using var catalogueDocument = await OpenRAAILocalClient.GetAsync(baseUri, "v1/catalog");
+					catalogue = catalogueDocument.RootElement.Clone();
+					hasCatalogue = true;
+				}
+				catch { }
+				Game.RunAfterTick(() =>
+				{
+					if (hasCatalogue)
+						ApplyCatalogue(catalogue);
+					ApplyState(state, "AI layer connected. Models and usage are current.");
+				});
 			}
 			catch (Exception e)
 			{
@@ -173,7 +317,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		async System.Threading.Tasks.Task TestAsync()
 		{
-			SetBusy("Testing text and voice routes...");
+			SetBusy("Testing the selected model and voice...");
 			try
 			{
 				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_CONSOLE_URL", "http://127.0.0.1:8787/");
@@ -185,8 +329,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				Game.RunAfterTick(() =>
 				{
 					SetIdle(speechPlayed
-						? $"Diagnostic passed. Text replied in {latency} ms; voice played locally."
-						: $"Text passed in {latency} ms. Enable AI voice to include speech in this test.");
+						? $"Diagnostic passed. The model replied in {latency} ms and voice played locally."
+						: $"The model passed in {latency} ms. Enable AI voice to include speech in this test.");
 					_ = RefreshUsageAsync();
 				});
 			}
@@ -198,18 +342,20 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		Dictionary<string, object> BuildPayload()
 		{
+			var custom = provider == "custom";
 			return new Dictionary<string, object>
 			{
 				{ "companion_enabled", companionEnabled },
 				{ "voice_enabled", voiceEnabled },
 				{ "notification_pace", pace },
 				{ "voice_priority", voicePriority },
-				{ "router_url", routerUrl.Text.Trim() },
-				{ "text_model", textModel.Text.Trim() },
-				{ "vision_model", visionModel.Text.Trim() },
-				{ "transcribe_model", transcribeModel.Text.Trim() },
-				{ "speech_model", speechModel.Text.Trim() },
-				{ "speech_voice", speechVoice.Text.Trim() }
+				{ "model_provider", provider },
+				{ "router_url", custom ? customEndpoint.Text.Trim() : aiLayerUrl },
+				{ "text_model", custom ? customTextModel.Text.Trim() : textModel },
+				{ "vision_model", custom ? customVisionModel.Text.Trim() : visionModel },
+				{ "transcribe_model", transcribeModel },
+				{ "speech_model", speechModel },
+				{ "speech_voice", speechVoice }
 			};
 		}
 
@@ -225,6 +371,31 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			catch { }
 		}
 
+		void ApplyCatalogue(JsonElement root)
+		{
+			catalogueAvailable = root.TryGetProperty("router_available", out var available) && available.GetBoolean();
+			providerLabels.Clear();
+			foreach (var value in root.GetProperty("providers").EnumerateArray())
+				providerLabels[value.GetProperty("id").GetString()] = value.GetProperty("label").GetString();
+
+			models.Clear();
+			foreach (var value in root.GetProperty("models").EnumerateArray())
+			{
+				models.Add(new ModelOption
+				{
+					Id = value.GetProperty("id").GetString(),
+					Label = value.GetProperty("label").GetString(),
+					Provider = value.GetProperty("provider").GetString(),
+					Mode = value.GetProperty("mode").GetString()
+				});
+			}
+
+			voiceLabels.Clear();
+			foreach (var value in root.GetProperty("voices").EnumerateArray())
+				voiceLabels[value.GetProperty("id").GetString()] = value.GetProperty("label").GetString();
+			SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
+		}
+
 		void ApplyState(JsonElement root, string message)
 		{
 			var config = root.GetProperty("config");
@@ -232,14 +403,29 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			voiceEnabled = config.GetProperty("voice_enabled").GetBoolean();
 			pace = config.GetProperty("notification_pace").GetString() ?? "calm";
 			voicePriority = config.GetProperty("voice_priority").GetString() ?? "critical";
-			routerUrl.Text = config.GetProperty("router_url").GetString() ?? "";
-			textModel.Text = config.GetProperty("text_model").GetString() ?? "";
-			visionModel.Text = config.GetProperty("vision_model").GetString() ?? "";
-			transcribeModel.Text = config.GetProperty("transcribe_model").GetString() ?? "";
-			speechModel.Text = config.GetProperty("speech_model").GetString() ?? "";
-			speechVoice.Text = config.GetProperty("speech_voice").GetString() ?? "";
+			textModel = config.GetProperty("text_model").GetString() ?? "gpt-5.5";
+			visionModel = config.GetProperty("vision_model").GetString() ?? textModel;
+			transcribeModel = config.GetProperty("transcribe_model").GetString() ?? "openai-transcribe";
+			speechModel = config.GetProperty("speech_model").GetString() ?? "openai-tts";
+			speechVoice = config.GetProperty("speech_voice").GetString() ?? "alloy";
+			provider = config.TryGetProperty("model_provider", out var configuredProvider)
+				? configuredProvider.GetString() ?? InferProvider(textModel)
+				: InferProvider(textModel);
+			var configuredUrl = config.GetProperty("router_url").GetString() ?? DefaultAILayerUrl;
+			if (provider == "custom")
+				customEndpoint.Text = configuredUrl;
+			else
+				aiLayerUrl = configuredUrl;
+			customTextModel.Text = textModel;
+			customVisionModel.Text = visionModel;
 			ApplyUsage(root.GetProperty("usage"));
+			SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
 			SetIdle(message);
+		}
+
+		string InferProvider(string model)
+		{
+			return models.FirstOrDefault(option => option.Id == model)?.Provider ?? "custom";
 		}
 
 		void ApplyUsage(JsonElement usage)
@@ -275,12 +461,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		void YieldTextFocus()
 		{
-			routerUrl?.YieldKeyboardFocus();
-			textModel?.YieldKeyboardFocus();
-			visionModel?.YieldKeyboardFocus();
-			transcribeModel?.YieldKeyboardFocus();
-			speechModel?.YieldKeyboardFocus();
-			speechVoice?.YieldKeyboardFocus();
+			customEndpoint?.YieldKeyboardFocus();
+			customTextModel?.YieldKeyboardFocus();
+			customVisionModel?.YieldKeyboardFocus();
 		}
 	}
 }

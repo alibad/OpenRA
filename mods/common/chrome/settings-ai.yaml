@@ -23,7 +23,7 @@ Container@AI_PANEL:
 							Font: TinyBold
 							Align: Center
 							Text: label-ai-companion-section
-				Container@ROW:
+				Container@COMPANION_TOGGLES_ROW:
 					Width: PARENT_WIDTH - 24
 					Height: 22
 					Children:
@@ -37,7 +37,7 @@ Container@AI_PANEL:
 							Width: PARENT_WIDTH / 2 - 20
 							Height: 20
 							Text: checkbox-ai-voice-enabled
-				Container@ROW:
+				Container@COMPANION_PACE_ROW:
 					Width: PARENT_WIDTH - 24
 					Height: 50
 					Children:
@@ -65,7 +65,7 @@ Container@AI_PANEL:
 									Y: 25
 									Width: PARENT_WIDTH
 									Height: 25
-				Background@ROUTER_SECTION_HEADER:
+				Background@MODEL_SECTION_HEADER:
 					X: 5
 					Width: PARENT_WIDTH - 34
 					Height: 13
@@ -77,103 +77,156 @@ Container@AI_PANEL:
 							Height: PARENT_HEIGHT
 							Font: TinyBold
 							Align: Center
-							Text: label-ai-layer-section
-				Container@ROW:
+							Text: label-ai-model-section
+				Container@MODEL_PICKER_ROW:
 					Width: PARENT_WIDTH - 24
 					Height: 50
 					Children:
-						LabelForInput@ROUTER_URL_LABEL:
+						Container@PROVIDER_CONTAINER:
 							X: 10
-							Width: PARENT_WIDTH - 20
-							Height: 20
-							Text: label-ai-router-url
-							For: ROUTER_URL
-						TextField@ROUTER_URL:
-							X: 10
-							Y: 25
-							Width: PARENT_WIDTH - 20
-							Height: 25
-							MaxLength: 160
-				Container@ROW:
+							Width: PARENT_WIDTH / 2 - 20
+							Children:
+								Label@PROVIDER_LABEL:
+									Width: PARENT_WIDTH
+									Height: 20
+									Text: label-ai-provider
+								DropDownButton@PROVIDER:
+									Y: 25
+									Width: PARENT_WIDTH
+									Height: 25
+						Container@TEXT_MODEL_CONTAINER:
+							X: PARENT_WIDTH / 2 + 10
+							Width: PARENT_WIDTH / 2 - 20
+							Children:
+								Label@TEXT_MODEL_LABEL:
+									Width: PARENT_WIDTH
+									Height: 20
+									Text: label-ai-text-model
+								DropDownButton@TEXT_MODEL:
+									Y: 25
+									Width: PARENT_WIDTH
+									Height: 25
+				Container@VISION_PICKER_ROW:
 					Width: PARENT_WIDTH - 24
-					Height: 50
+					Height: 67
 					Children:
-						LabelForInput@VISION_MODEL_LABEL:
+						Label@VISION_MODEL_LABEL:
 							X: 10
 							Width: PARENT_WIDTH - 20
 							Height: 20
 							Text: label-ai-vision-model
-							For: VISION_MODEL
-						TextField@VISION_MODEL:
+						DropDownButton@VISION_MODEL:
+							X: 10
+							Y: 25
+							Width: PARENT_WIDTH - 20
+							Height: 25
+						Label@PROVIDER_STATUS:
+							X: 10
+							Y: 51
+							Width: PARENT_WIDTH - 20
+							Height: 16
+							Font: Tiny
+				Container@CUSTOM_ENDPOINT_ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 50
+					Children:
+						LabelForInput@CUSTOM_ENDPOINT_LABEL:
+							X: 10
+							Width: PARENT_WIDTH - 20
+							Height: 20
+							Text: label-ai-custom-endpoint
+							For: CUSTOM_ENDPOINT
+						TextField@CUSTOM_ENDPOINT:
 							X: 10
 							Y: 25
 							Width: PARENT_WIDTH - 20
 							Height: 25
 							MaxLength: 160
-				Container@ROW:
+				Container@CUSTOM_MODELS_ROW:
 					Width: PARENT_WIDTH - 24
 					Height: 50
 					Children:
-						Container@TEXT_MODEL_CONTAINER:
+						Container@CUSTOM_TEXT_CONTAINER:
 							X: 10
 							Width: PARENT_WIDTH / 2 - 20
 							Children:
-								LabelForInput@TEXT_MODEL_LABEL:
+								LabelForInput@CUSTOM_TEXT_LABEL:
 									Width: PARENT_WIDTH
 									Height: 20
-									Text: label-ai-text-model
-									For: TEXT_MODEL
-								TextField@TEXT_MODEL:
+									Text: label-ai-custom-text-model
+									For: CUSTOM_TEXT_MODEL
+								TextField@CUSTOM_TEXT_MODEL:
 									Y: 25
 									Width: PARENT_WIDTH
 									Height: 25
 									MaxLength: 160
-						Container@VOICE_CONTAINER:
+						Container@CUSTOM_VISION_CONTAINER:
 							X: PARENT_WIDTH / 2 + 10
 							Width: PARENT_WIDTH / 2 - 20
 							Children:
-								LabelForInput@VOICE_LABEL:
+								LabelForInput@CUSTOM_VISION_LABEL:
 									Width: PARENT_WIDTH
 									Height: 20
-									Text: label-ai-speech-voice
-									For: SPEECH_VOICE
-								TextField@SPEECH_VOICE:
+									Text: label-ai-custom-vision-model
+									For: CUSTOM_VISION_MODEL
+								TextField@CUSTOM_VISION_MODEL:
 									Y: 25
 									Width: PARENT_WIDTH
 									Height: 25
 									MaxLength: 160
-				Container@ROW:
+				Background@VOICE_SECTION_HEADER:
+					X: 5
+					Width: PARENT_WIDTH - 34
+					Height: 13
+					Background: separator
+					ClickThrough: True
+					Children:
+						Label@LABEL:
+							Width: PARENT_WIDTH
+							Height: PARENT_HEIGHT
+							Font: TinyBold
+							Align: Center
+							Text: label-ai-voice-section
+				Container@VOICE_ROUTES_ROW:
 					Width: PARENT_WIDTH - 24
 					Height: 50
 					Children:
 						Container@TRANSCRIBE_CONTAINER:
 							X: 10
-							Width: PARENT_WIDTH / 2 - 20
+							Width: (PARENT_WIDTH - 40) / 3
 							Children:
-								LabelForInput@TRANSCRIBE_LABEL:
+								Label@TRANSCRIBE_LABEL:
 									Width: PARENT_WIDTH
 									Height: 20
 									Text: label-ai-transcription-model
-									For: TRANSCRIBE_MODEL
-								TextField@TRANSCRIBE_MODEL:
+								DropDownButton@TRANSCRIBE_MODEL:
 									Y: 25
 									Width: PARENT_WIDTH
 									Height: 25
-									MaxLength: 160
 						Container@SPEECH_CONTAINER:
-							X: PARENT_WIDTH / 2 + 10
-							Width: PARENT_WIDTH / 2 - 20
+							X: 20 + (PARENT_WIDTH - 40) / 3
+							Width: (PARENT_WIDTH - 40) / 3
 							Children:
-								LabelForInput@SPEECH_LABEL:
+								Label@SPEECH_LABEL:
 									Width: PARENT_WIDTH
 									Height: 20
 									Text: label-ai-speech-model
-									For: SPEECH_MODEL
-								TextField@SPEECH_MODEL:
+								DropDownButton@SPEECH_MODEL:
 									Y: 25
 									Width: PARENT_WIDTH
 									Height: 25
-									MaxLength: 160
+						Container@VOICE_CONTAINER:
+							X: 30 + 2 * (PARENT_WIDTH - 40) / 3
+							Width: (PARENT_WIDTH - 40) / 3
+							Children:
+								Label@VOICE_LABEL:
+									Width: PARENT_WIDTH
+									Height: 20
+									Text: label-ai-speech-voice
+								DropDownButton@SPEECH_VOICE:
+									Y: 25
+									Width: PARENT_WIDTH
+									Height: 25
 				Background@COST_SECTION_HEADER:
 					X: 5
 					Width: PARENT_WIDTH - 34
@@ -187,9 +240,9 @@ Container@AI_PANEL:
 							Font: TinyBold
 							Align: Center
 							Text: label-ai-cost-section
-				Container@ROW:
+				Container@COST_ROW:
 					Width: PARENT_WIDTH - 24
-					Height: 72
+					Height: 62
 					Children:
 						Label@COST_TOTAL:
 							X: 10
@@ -206,9 +259,9 @@ Container@AI_PANEL:
 							X: 10
 							Y: 38
 							Width: PARENT_WIDTH - 20
-							Height: 34
+							Height: 24
 							Font: Tiny
-				Container@ROW:
+				Container@ACTIONS_ROW:
 					Width: PARENT_WIDTH - 24
 					Height: 52
 					Children:
