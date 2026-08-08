@@ -4,16 +4,16 @@ Container@PLAYER_WIDGETS:
 		Container@CHAT_ROOT:
 		Background@AI_COMPANION_STRIP:
 			Logic: CompanionStatusLogic
-			X: WINDOW_WIDTH / 2 - WIDTH / 2
+			X: (WINDOW_WIDTH - 250) / 2 - WIDTH / 2
 			Y: 8
-			Width: 440
+			Width: 320
 			Height: 30
 			Background: dialog4
 			ClickThrough: true
 			Children:
 				Label@STATUS:
-					X: 8
-					Width: PARENT_WIDTH - 16
+					X: 12
+					Width: PARENT_WIDTH - 24
 					Height: PARENT_HEIGHT
 					Align: Center
 					Font: TinyBold
