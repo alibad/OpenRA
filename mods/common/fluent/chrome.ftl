@@ -469,10 +469,6 @@ button-main-menu-ai-companion = AI Companion
 button-main-menu-world-tools = World Tools
 button-world-tools-earth-studio = Earth Mission Studio
 button-world-tools-native-editor = Native Map Editor
-dialog-local-tool-launch-failed =
-    .title = Could Not Open Local Tool
-    .prompt = Open { $url } in your browser. If it is unavailable, launch OpenRA AI using Play-OpenRAAI.cmd first.
-    .confirm = OK
 button-singleplayer-menu-skirmish = Skirmish
 button-singleplayer-menu-load = Load
 button-extras-menu-replays = Replays
@@ -720,8 +716,43 @@ button-panel-gameplay = Gameplay
 button-panel-input = Input
 button-panel-display = Display
 button-panel-audio = Audio
+button-panel-ai = AI
 button-panel-hotkeys = Hotkeys
 button-panel-advanced = Advanced
+
+## settings-ai.yaml
+label-ai-companion-section = Companion Experience
+checkbox-ai-enabled = Enable AI companion
+checkbox-ai-voice-enabled = Enable AI voice
+label-ai-notification-pace = Update pace:
+label-ai-voice-priority = Speak updates when:
+label-ai-layer-section = Local AI Layer
+label-ai-router-url = AI layer URL:
+label-ai-text-model = Text model route:
+label-ai-transcription-model = Transcription route:
+label-ai-speech-model = Speech route:
+label-ai-speech-voice = Voice:
+label-ai-cost-section = Session Cost Estimate
+button-ai-apply = Apply Now
+button-ai-test = Test AI + Voice
+button-ai-refresh-costs = Refresh Costs
+
+## earth-mission-studio.yaml
+label-earth-mission-title = Earth Mission Studio
+label-earth-location-section = Select Any Place on Earth
+label-earth-location-search = Place, landmark, or region:
+button-earth-search = Find Place
+label-earth-latitude = Latitude:
+label-earth-longitude = Longitude:
+label-earth-mission-section = Shape the Battlefield
+label-earth-mission-name = Mission name:
+label-earth-map-size = Map size:
+label-earth-radius = Earth area radius (meters):
+label-earth-seed = Terrain seed:
+label-earth-story-seed = Story direction (optional):
+button-earth-generate = Generate + Install Map
+button-earth-play = Play Generated Map
+button-earth-edit = Edit Generated Map
 
 ## tooltips.yaml
 label-latency-tooltip-prefix = Latency:

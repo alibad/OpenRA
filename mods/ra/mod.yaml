@@ -136,6 +136,7 @@ ChromeLayout:
 	common|chrome/settings.yaml
 	common|chrome/settings-display.yaml
 	common|chrome/settings-audio.yaml
+	common|chrome/settings-ai.yaml
 	common|chrome/settings-input.yaml
 	common|chrome/settings-hotkeys.yaml
 	common|chrome/settings-gameplay.yaml
@@ -162,6 +163,7 @@ ChromeLayout:
 	common|chrome/musicplayer.yaml
 	common|chrome/tooltips.yaml
 	common|chrome/assetbrowser.yaml
+	common|chrome/earth-mission-studio.yaml
 	common|chrome/missionbrowser.yaml
 	common|chrome/confirmation-dialogs.yaml
 	common|chrome/editor.yaml

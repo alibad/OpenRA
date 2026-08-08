@@ -136,8 +136,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				{
 					"listening" or "transcript" => Color.Cyan,
 					"transcribing" or "thinking" => Color.Gold,
-					"speaking" or "insight" => Color.LightGreen,
-					"error" => Color.OrangeRed,
+					"speaking" or "insight" or "routine" => Color.LightGreen,
+					"important" or "speaking-important" => Color.Gold,
+					"critical" or "speaking-critical" or "error" => Color.OrangeRed,
 					"muted" or "disabled" => Color.Gray,
 					_ => Color.White
 				};

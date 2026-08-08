@@ -1,0 +1,211 @@
+Background@EARTH_MISSION_PANEL:
+	Logic: EarthMissionStudioLogic
+	X: (WINDOW_WIDTH - WIDTH) / 2
+	Y: (WINDOW_HEIGHT - HEIGHT) / 2
+	Width: 720
+	Height: 560
+	Children:
+		Label@TITLE_LABEL:
+			Y: 18
+			Width: PARENT_WIDTH
+			Height: 25
+			Text: label-earth-mission-title
+			Align: Center
+			Font: Bold
+		Background@LOCATION_SECTION_HEADER:
+			X: 25
+			Y: 55
+			Width: PARENT_WIDTH - 50
+			Height: 13
+			Background: separator
+			Children:
+				Label@LABEL:
+					Width: PARENT_WIDTH
+					Height: PARENT_HEIGHT
+					Font: TinyBold
+					Align: Center
+					Text: label-earth-location-section
+		LabelForInput@LOCATION_LABEL:
+			X: 30
+			Y: 78
+			Width: 500
+			Height: 20
+			Text: label-earth-location-search
+			For: LOCATION
+		TextField@LOCATION:
+			X: 30
+			Y: 102
+			Width: 520
+			Height: 28
+			MaxLength: 160
+		Button@SEARCH:
+			X: 560
+			Y: 102
+			Width: 130
+			Height: 28
+			Text: button-earth-search
+			Font: Bold
+		Label@SELECTION:
+			X: 30
+			Y: 136
+			Width: PARENT_WIDTH - 60
+			Height: 20
+			Font: Tiny
+		Container@COORDINATES:
+			X: 30
+			Y: 160
+			Width: PARENT_WIDTH - 60
+			Height: 50
+			Children:
+				Container@LATITUDE_CONTAINER:
+					Width: PARENT_WIDTH / 2 - 10
+					Children:
+						LabelForInput@LATITUDE_LABEL:
+							Width: PARENT_WIDTH
+							Height: 20
+							Text: label-earth-latitude
+							For: LATITUDE
+						TextField@LATITUDE:
+							Y: 24
+							Width: PARENT_WIDTH
+							Height: 26
+							MaxLength: 20
+				Container@LONGITUDE_CONTAINER:
+					X: PARENT_WIDTH / 2 + 10
+					Width: PARENT_WIDTH / 2 - 10
+					Children:
+						LabelForInput@LONGITUDE_LABEL:
+							Width: PARENT_WIDTH
+							Height: 20
+							Text: label-earth-longitude
+							For: LONGITUDE
+						TextField@LONGITUDE:
+							Y: 24
+							Width: PARENT_WIDTH
+							Height: 26
+							MaxLength: 20
+		Background@MISSION_SECTION_HEADER:
+			X: 25
+			Y: 222
+			Width: PARENT_WIDTH - 50
+			Height: 13
+			Background: separator
+			Children:
+				Label@LABEL:
+					Width: PARENT_WIDTH
+					Height: PARENT_HEIGHT
+					Font: TinyBold
+					Align: Center
+					Text: label-earth-mission-section
+		Container@MISSION_ROW:
+			X: 30
+			Y: 245
+			Width: PARENT_WIDTH - 60
+			Height: 50
+			Children:
+				Container@TITLE_CONTAINER:
+					Width: PARENT_WIDTH / 2 - 10
+					Children:
+						LabelForInput@TITLE_INPUT_LABEL:
+							Width: PARENT_WIDTH
+							Height: 20
+							Text: label-earth-mission-name
+							For: TITLE
+						TextField@TITLE:
+							Y: 24
+							Width: PARENT_WIDTH
+							Height: 26
+							MaxLength: 64
+				Container@SIZE_CONTAINER:
+					X: PARENT_WIDTH / 2 + 10
+					Width: PARENT_WIDTH / 2 - 10
+					Children:
+						Label@SIZE_LABEL:
+							Width: PARENT_WIDTH
+							Height: 20
+							Text: label-earth-map-size
+						DropDownButton@MAP_SIZE:
+							Y: 24
+							Width: PARENT_WIDTH
+							Height: 26
+		Container@PARAMETERS_ROW:
+			X: 30
+			Y: 305
+			Width: PARENT_WIDTH - 60
+			Height: 50
+			Children:
+				Container@RADIUS_CONTAINER:
+					Width: PARENT_WIDTH / 2 - 10
+					Children:
+						LabelForInput@RADIUS_LABEL:
+							Width: PARENT_WIDTH
+							Height: 20
+							Text: label-earth-radius
+							For: RADIUS
+						TextField@RADIUS:
+							Y: 24
+							Width: PARENT_WIDTH
+							Height: 26
+							MaxLength: 8
+				Container@SEED_CONTAINER:
+					X: PARENT_WIDTH / 2 + 10
+					Width: PARENT_WIDTH / 2 - 10
+					Children:
+						LabelForInput@SEED_LABEL:
+							Width: PARENT_WIDTH
+							Height: 20
+							Text: label-earth-seed
+							For: SEED
+						TextField@SEED:
+							Y: 24
+							Width: PARENT_WIDTH
+							Height: 26
+							MaxLength: 10
+		LabelForInput@STORY_LABEL:
+			X: 30
+			Y: 365
+			Width: PARENT_WIDTH - 60
+			Height: 20
+			Text: label-earth-story-seed
+			For: STORY
+		TextField@STORY:
+			X: 30
+			Y: 389
+			Width: PARENT_WIDTH - 60
+			Height: 28
+			MaxLength: 240
+		Button@GENERATE:
+			X: 30
+			Y: 430
+			Width: 210
+			Height: 30
+			Text: button-earth-generate
+			Font: Bold
+		Label@STATUS:
+			X: 255
+			Y: 426
+			Width: PARENT_WIDTH - 285
+			Height: 42
+			Font: Tiny
+		Button@PLAY:
+			X: 30
+			Y: PARENT_HEIGHT - 55
+			Width: 180
+			Height: 30
+			Text: button-earth-play
+			Font: Bold
+		Button@EDIT:
+			X: 220
+			Y: PARENT_HEIGHT - 55
+			Width: 180
+			Height: 30
+			Text: button-earth-edit
+			Font: Bold
+		Button@BACK:
+			Key: escape
+			X: PARENT_WIDTH - 190
+			Y: PARENT_HEIGHT - 55
+			Width: 160
+			Height: 30
+			Text: button-back
+			Font: Bold

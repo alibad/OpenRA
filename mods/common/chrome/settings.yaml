@@ -6,6 +6,7 @@ Background@SETTINGS_PANEL:
 			INPUT_PANEL: button-panel-input
 			DISPLAY_PANEL: button-panel-display
 			AUDIO_PANEL: button-panel-audio
+			AI_PANEL: button-panel-ai
 			HOTKEYS_PANEL: button-panel-hotkeys
 			ADVANCED_PANEL: button-panel-advanced
 	X: (WINDOW_WIDTH - WIDTH) / 2

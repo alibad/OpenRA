@@ -1,0 +1,224 @@
+Container@AI_PANEL:
+	Logic: AISettingsLogic
+	Width: PARENT_WIDTH
+	Height: PARENT_HEIGHT
+	Children:
+		ScrollPanel@SETTINGS_SCROLLPANEL:
+			Width: PARENT_WIDTH
+			Height: PARENT_HEIGHT
+			CollapseHiddenChildren: True
+			TopBottomSpacing: 5
+			ItemSpacing: 8
+			Children:
+				Background@COMPANION_SECTION_HEADER:
+					X: 5
+					Width: PARENT_WIDTH - 34
+					Height: 13
+					Background: separator
+					ClickThrough: True
+					Children:
+						Label@LABEL:
+							Width: PARENT_WIDTH
+							Height: PARENT_HEIGHT
+							Font: TinyBold
+							Align: Center
+							Text: label-ai-companion-section
+				Container@ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 22
+					Children:
+						Checkbox@AI_ENABLED:
+							X: 10
+							Width: PARENT_WIDTH / 2 - 20
+							Height: 20
+							Text: checkbox-ai-enabled
+						Checkbox@VOICE_ENABLED:
+							X: PARENT_WIDTH / 2 + 10
+							Width: PARENT_WIDTH / 2 - 20
+							Height: 20
+							Text: checkbox-ai-voice-enabled
+				Container@ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 50
+					Children:
+						Container@PACE_CONTAINER:
+							X: 10
+							Width: PARENT_WIDTH / 2 - 20
+							Children:
+								Label@PACE_LABEL:
+									Width: PARENT_WIDTH
+									Height: 20
+									Text: label-ai-notification-pace
+								DropDownButton@PACE:
+									Y: 25
+									Width: PARENT_WIDTH
+									Height: 25
+						Container@VOICE_PRIORITY_CONTAINER:
+							X: PARENT_WIDTH / 2 + 10
+							Width: PARENT_WIDTH / 2 - 20
+							Children:
+								Label@VOICE_PRIORITY_LABEL:
+									Width: PARENT_WIDTH
+									Height: 20
+									Text: label-ai-voice-priority
+								DropDownButton@VOICE_PRIORITY:
+									Y: 25
+									Width: PARENT_WIDTH
+									Height: 25
+				Background@ROUTER_SECTION_HEADER:
+					X: 5
+					Width: PARENT_WIDTH - 34
+					Height: 13
+					Background: separator
+					ClickThrough: True
+					Children:
+						Label@LABEL:
+							Width: PARENT_WIDTH
+							Height: PARENT_HEIGHT
+							Font: TinyBold
+							Align: Center
+							Text: label-ai-layer-section
+				Container@ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 50
+					Children:
+						LabelForInput@ROUTER_URL_LABEL:
+							X: 10
+							Width: PARENT_WIDTH - 20
+							Height: 20
+							Text: label-ai-router-url
+							For: ROUTER_URL
+						TextField@ROUTER_URL:
+							X: 10
+							Y: 25
+							Width: PARENT_WIDTH - 20
+							Height: 25
+							MaxLength: 160
+				Container@ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 50
+					Children:
+						Container@TEXT_MODEL_CONTAINER:
+							X: 10
+							Width: PARENT_WIDTH / 2 - 20
+							Children:
+								LabelForInput@TEXT_MODEL_LABEL:
+									Width: PARENT_WIDTH
+									Height: 20
+									Text: label-ai-text-model
+									For: TEXT_MODEL
+								TextField@TEXT_MODEL:
+									Y: 25
+									Width: PARENT_WIDTH
+									Height: 25
+									MaxLength: 160
+						Container@VOICE_CONTAINER:
+							X: PARENT_WIDTH / 2 + 10
+							Width: PARENT_WIDTH / 2 - 20
+							Children:
+								LabelForInput@VOICE_LABEL:
+									Width: PARENT_WIDTH
+									Height: 20
+									Text: label-ai-speech-voice
+									For: SPEECH_VOICE
+								TextField@SPEECH_VOICE:
+									Y: 25
+									Width: PARENT_WIDTH
+									Height: 25
+									MaxLength: 160
+				Container@ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 50
+					Children:
+						Container@TRANSCRIBE_CONTAINER:
+							X: 10
+							Width: PARENT_WIDTH / 2 - 20
+							Children:
+								LabelForInput@TRANSCRIBE_LABEL:
+									Width: PARENT_WIDTH
+									Height: 20
+									Text: label-ai-transcription-model
+									For: TRANSCRIBE_MODEL
+								TextField@TRANSCRIBE_MODEL:
+									Y: 25
+									Width: PARENT_WIDTH
+									Height: 25
+									MaxLength: 160
+						Container@SPEECH_CONTAINER:
+							X: PARENT_WIDTH / 2 + 10
+							Width: PARENT_WIDTH / 2 - 20
+							Children:
+								LabelForInput@SPEECH_LABEL:
+									Width: PARENT_WIDTH
+									Height: 20
+									Text: label-ai-speech-model
+									For: SPEECH_MODEL
+								TextField@SPEECH_MODEL:
+									Y: 25
+									Width: PARENT_WIDTH
+									Height: 25
+									MaxLength: 160
+				Background@COST_SECTION_HEADER:
+					X: 5
+					Width: PARENT_WIDTH - 34
+					Height: 13
+					Background: separator
+					ClickThrough: True
+					Children:
+						Label@LABEL:
+							Width: PARENT_WIDTH
+							Height: PARENT_HEIGHT
+							Font: TinyBold
+							Align: Center
+							Text: label-ai-cost-section
+				Container@ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 72
+					Children:
+						Label@COST_TOTAL:
+							X: 10
+							Width: PARENT_WIDTH - 20
+							Height: 18
+							Font: Bold
+						Label@COST_BREAKDOWN:
+							X: 10
+							Y: 20
+							Width: PARENT_WIDTH - 20
+							Height: 18
+							Font: Tiny
+						Label@COST_ASSUMPTIONS:
+							X: 10
+							Y: 38
+							Width: PARENT_WIDTH - 20
+							Height: 34
+							Font: Tiny
+				Container@ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 52
+					Children:
+						Label@STATUS:
+							X: 10
+							Width: PARENT_WIDTH - 20
+							Height: 18
+							Font: Tiny
+						Button@APPLY:
+							X: 10
+							Y: 25
+							Width: 150
+							Height: 25
+							Text: button-ai-apply
+							Font: Bold
+						Button@TEST:
+							X: 170
+							Y: 25
+							Width: 170
+							Height: 25
+							Text: button-ai-test
+							Font: Bold
+						Button@REFRESH_USAGE:
+							X: 350
+							Y: 25
+							Width: 150
+							Height: 25
+							Text: button-ai-refresh-costs
+							Font: Bold

@@ -78,7 +78,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		bool needsRestart = false;
 
 		[ObjectCreator.UseCtor]
-		public SettingsLogic(Widget widget, Action onExit, WorldRenderer worldRenderer, Dictionary<string, MiniYaml> logicArgs, ModData modData)
+		public SettingsLogic(Widget widget, Action onExit, WorldRenderer worldRenderer, Dictionary<string, MiniYaml> logicArgs, ModData modData,
+			string initialPanel = null)
 		{
 			panelContainer = widget.Get("PANEL_CONTAINER");
 			var panelTemplate = panelContainer.Get<ContainerWidget>("PANEL_TEMPLATE");
@@ -94,6 +95,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			if (logicArgs.TryGetValue("Panels", out var settingsPanels))
 			{
 				panels = settingsPanels.ToDictionary(kv => kv.Value);
+				if (!string.IsNullOrEmpty(initialPanel) && panels.ContainsKey(initialPanel))
+					activePanel = initialPanel;
 
 				foreach (var panel in panels)
 				{

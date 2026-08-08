@@ -11,7 +11,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -36,15 +35,6 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		[FluentReference("author", "datetime")]
 		const string AuthorDateTime = "label-author-datetime";
-
-		[FluentReference]
-		const string LocalToolLaunchFailedTitle = "dialog-local-tool-launch-failed.title";
-
-		[FluentReference("url")]
-		const string LocalToolLaunchFailedPrompt = "dialog-local-tool-launch-failed.prompt";
-
-		[FluentReference]
-		const string LocalToolLaunchFailedAccept = "dialog-local-tool-launch-failed.confirm";
 
 		protected enum MenuType { Main, Singleplayer, Extras, MapEditor, WorldTools, StartupPrompts, None }
 
@@ -75,39 +65,6 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			Game.RunAfterTick(Ui.ResetTooltips);
 		}
 
-		void OpenLocalTool(string environmentVariable, string fallbackUrl)
-		{
-			var configuredUrl = Environment.GetEnvironmentVariable(environmentVariable);
-			var url = string.IsNullOrWhiteSpace(configuredUrl) ? fallbackUrl : configuredUrl;
-			var validUrl = Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
-				(uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
-
-			if (validUrl)
-			{
-				try
-				{
-					using var process = Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-					if (process != null)
-						return;
-				}
-				catch (Exception e)
-				{
-					Log.Write("debug", $"Shell failed to open OpenRA AI local tool at '{url}': {e}");
-				}
-
-				if (Game.Renderer.TryOpenUrl(url))
-					return;
-			}
-
-			ConfirmationDialogs.ButtonPrompt(
-				modData,
-				LocalToolLaunchFailedTitle,
-				LocalToolLaunchFailedPrompt,
-				textArguments: ["url", url],
-				onCancel: () => { },
-				cancelText: LocalToolLaunchFailedAccept);
-		}
-
 		[ObjectCreator.UseCtor]
 		public MainMenuLogic(Widget widget, World world, ModData modData)
 		{
@@ -125,8 +82,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			var aiCompanionButton = mainMenu.GetOrNull<ButtonWidget>("AI_COMPANION_BUTTON");
 			if (aiCompanionButton != null)
-				aiCompanionButton.OnClick = () => OpenLocalTool(
-					"OPENRA_AI_CONSOLE_URL", "http://127.0.0.1:8787/");
+				aiCompanionButton.OnClick = () => OpenSettings(MenuType.Main, "AI_PANEL");
 
 			var worldToolsButton = mainMenu.GetOrNull<ButtonWidget>("WORLD_TOOLS_BUTTON");
 			if (worldToolsButton != null)
@@ -140,14 +96,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				contentButton.OnClick = () => contentInstaller?.ManageContent(modData);
 			}
 
-			mainMenu.Get<ButtonWidget>("SETTINGS_BUTTON").OnClick = () =>
-			{
-				SwitchMenu(MenuType.None);
-				Game.OpenWindow("SETTINGS_PANEL", new WidgetArgs
-				{
-					{ "onExit", () => SwitchMenu(MenuType.Main) }
-				});
-			};
+			mainMenu.Get<ButtonWidget>("SETTINGS_BUTTON").OnClick = () => OpenSettings(MenuType.Main);
 
 			mainMenu.Get<ButtonWidget>("EXTRAS_BUTTON").OnClick = () => SwitchMenu(MenuType.Extras);
 
@@ -274,8 +223,16 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			if (worldToolsMenu != null)
 			{
 				worldToolsMenu.IsVisible = () => menuType == MenuType.WorldTools;
-				worldToolsMenu.Get<ButtonWidget>("EARTH_STUDIO_BUTTON").OnClick = () => OpenLocalTool(
-					"OPENRA_AI_WORLD_STUDIO_URL", "http://127.0.0.1:8788/");
+				worldToolsMenu.Get<ButtonWidget>("EARTH_STUDIO_BUTTON").OnClick = () =>
+				{
+					SwitchMenu(MenuType.None);
+					Game.OpenWindow("EARTH_MISSION_PANEL", new WidgetArgs
+					{
+						{ "onExit", () => SwitchMenu(MenuType.WorldTools) },
+						{ "onPlay", (Action<string>)StartSkirmishGame },
+						{ "onEdit", (Action<string>)LoadMapIntoEditor }
+					});
+				};
 				worldToolsMenu.Get<ButtonWidget>("NATIVE_EDITOR_BUTTON").OnClick = () =>
 				{
 					modData.MapCache.UpdateMaps();
@@ -511,11 +468,27 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			rootMenu.Parent.RemoveChild(rootMenu);
 		}
 
+		void OpenSettings(MenuType returnTo, string initialPanel = null)
+		{
+			SwitchMenu(MenuType.None);
+			Game.OpenWindow("SETTINGS_PANEL", new WidgetArgs
+			{
+				{ "onExit", () => SwitchMenu(returnTo) },
+				{ "initialPanel", initialPanel }
+			});
+		}
+
 		void StartSkirmishGame()
+		{
+			StartSkirmishGame(null);
+		}
+
+		void StartSkirmishGame(string requestedMap)
 		{
 			SwitchMenu(MenuType.None);
 
-			var map = modData.MapCache.ChooseInitialMap(modData.MapCache.PickLastModifiedMap(MapVisibility.Lobby) ?? Game.Settings.Server.Map, Game.CosmeticRandom);
+			var initialMap = requestedMap ?? modData.MapCache.PickLastModifiedMap(MapVisibility.Lobby) ?? Game.Settings.Server.Map;
+			var map = modData.MapCache.ChooseInitialMap(initialMap, Game.CosmeticRandom);
 			Game.Settings.Server.Map = map;
 			Game.Settings.Save();
 

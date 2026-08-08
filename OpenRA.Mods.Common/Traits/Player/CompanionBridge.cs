@@ -207,7 +207,10 @@ namespace OpenRA.Mods.Common.Traits
 
 				// Insights describe a moment in time. Never leave one pinned
 				// after the companion or audio process has moved on.
-				if ((companionStatus.State == "speaking" || companionStatus.State == "insight")
+				if ((companionStatus.State == "speaking" || companionStatus.State == "insight" ||
+					companionStatus.State == "routine" || companionStatus.State == "important" ||
+					companionStatus.State == "critical" || companionStatus.State == "speaking-important" ||
+					companionStatus.State == "speaking-critical")
 					&& Environment.TickCount64 - companionStatusUpdatedAt >= SpokenStatusTimeoutMilliseconds)
 				{
 					companionStatus = IdleStatus(companionStatus.Enabled, companionStatus.Muted);
