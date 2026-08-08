@@ -34,6 +34,7 @@ namespace OpenRA.Mods.Common.Traits
 	{
 		static readonly object CurrentLock = new();
 		const long SpokenStatusTimeoutMilliseconds = 12000;
+		const long ErrorStatusTimeoutMilliseconds = 4000;
 		static CompanionBridge current;
 		static RLProto.CompanionStatus companionStatus = ReadyStatus();
 		static long companionStatusUpdatedAt = Environment.TickCount64;
@@ -130,11 +131,19 @@ namespace OpenRA.Mods.Common.Traits
 
 		static RLProto.CompanionStatus ReadyStatus()
 		{
+			return IdleStatus(true, false);
+		}
+
+		static RLProto.CompanionStatus IdleStatus(bool enabled, bool muted)
+		{
 			return new RLProto.CompanionStatus
 			{
-				State = "ready",
-				Message = "AI READY  •  HOLD CTRL+SPACE TO ASK",
-				Enabled = true
+				State = !enabled ? "disabled" : muted ? "muted" : "ready",
+				Message = !enabled ? "AI OFF  •  CTRL+SHIFT+A TO ENABLE" : muted
+					? "AI VOICE OFF  •  TEXT INSIGHTS STAY ON"
+					: "AI READY  •  HOLD CTRL+SPACE TO ASK",
+				Enabled = enabled,
+				Muted = muted
 			};
 		}
 
@@ -151,7 +160,39 @@ namespace OpenRA.Mods.Common.Traits
 			}
 		}
 
+		internal static bool UpdateLocalVoiceState(bool muted)
+		{
+			lock (CurrentLock)
+			{
+				if (current == null || !current.enabled)
+					return false;
+
+				companionStatus = IdleStatus(companionStatus.Enabled, muted);
+				companionStatusUpdatedAt = Environment.TickCount64;
+				return true;
+			}
+		}
+
+		internal static bool UpdateLocalControlError(string message)
+		{
+			lock (CurrentLock)
+			{
+				if (current == null || !current.enabled)
+					return false;
+
+				companionStatus.State = "error";
+				companionStatus.Message = message;
+				companionStatusUpdatedAt = Environment.TickCount64;
+				return true;
+			}
+		}
+
 		internal static bool TryGetStatus(out string state, out string message)
+		{
+			return TryGetStatus(out state, out message, out _, out _);
+		}
+
+		internal static bool TryGetStatus(out string state, out string message, out bool statusEnabled, out bool muted)
 		{
 			lock (CurrentLock)
 			{
@@ -159,6 +200,8 @@ namespace OpenRA.Mods.Common.Traits
 				{
 					state = null;
 					message = null;
+					statusEnabled = false;
+					muted = false;
 					return false;
 				}
 
@@ -167,12 +210,20 @@ namespace OpenRA.Mods.Common.Traits
 				if ((companionStatus.State == "speaking" || companionStatus.State == "insight")
 					&& Environment.TickCount64 - companionStatusUpdatedAt >= SpokenStatusTimeoutMilliseconds)
 				{
-					companionStatus = ReadyStatus();
+					companionStatus = IdleStatus(companionStatus.Enabled, companionStatus.Muted);
+					companionStatusUpdatedAt = Environment.TickCount64;
+				}
+				else if (companionStatus.State == "error"
+					&& Environment.TickCount64 - companionStatusUpdatedAt >= ErrorStatusTimeoutMilliseconds)
+				{
+					companionStatus = IdleStatus(companionStatus.Enabled, companionStatus.Muted);
 					companionStatusUpdatedAt = Environment.TickCount64;
 				}
 
 				state = companionStatus.State;
 				message = companionStatus.Message;
+				statusEnabled = companionStatus.Enabled;
+				muted = companionStatus.Muted;
 				return true;
 			}
 		}

@@ -9,15 +9,26 @@ Container@PLAYER_WIDGETS:
 			Width: 320
 			Height: 30
 			Background: dialog4
-			ClickThrough: true
+			ClickThrough: false
 			Children:
 				Label@STATUS:
 					X: 12
-					Width: PARENT_WIDTH - 24
+					Width: PARENT_WIDTH - 122
 					Height: PARENT_HEIGHT
 					Align: Center
 					Font: TinyBold
 					Contrast: true
+				Button@VOICE_TOGGLE:
+					X: PARENT_WIDTH - WIDTH - 4
+					Y: 4
+					Width: 94
+					Height: 22
+					Font: TinyBold
+					Text: button-ai-companion-voice-on
+					TooltipText: button-ai-companion-voice-toggle.tooltip
+					TooltipDesc: button-ai-companion-voice-toggle.tooltipdesc
+					TooltipContainer: TOOLTIP_CONTAINER
+					TooltipTemplate: BUTTON_WITH_DESC_HIGHLIGHT_TOOLTIP
 		LogicKeyListener@PLAYER_KEYHANDLER:
 			Logic: RemoveFromControlGroupHotkeyLogic
 				RemoveFromControlGroupKey: RemoveFromControlGroup
