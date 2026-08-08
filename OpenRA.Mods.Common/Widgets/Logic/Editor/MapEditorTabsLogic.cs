@@ -47,6 +47,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			SetupTab("TOOLS_TAB", "TOOLS_WIDGETS", MenuType.Tools);
 			SetupTab("HISTORY_TAB", "HISTORY_WIDGETS", MenuType.History);
 			SetupTab("EARTH_AI_TAB", "EARTH_AI_WIDGETS", MenuType.EarthAI);
+			if (EarthAIEditorLogic.ConsumeOpenRequest())
+			{
+				menuType = MenuType.EarthAI;
+				lastSelectedTab = MenuType.EarthAI;
+			}
 		}
 
 		protected override void Dispose(bool disposing)

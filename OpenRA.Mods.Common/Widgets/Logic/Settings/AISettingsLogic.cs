@@ -45,6 +45,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		TextFieldWidget routerUrl;
 		TextFieldWidget textModel;
+		TextFieldWidget visionModel;
 		TextFieldWidget transcribeModel;
 		TextFieldWidget speechModel;
 		TextFieldWidget speechVoice;
@@ -71,6 +72,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			routerUrl = panel.Get<TextFieldWidget>("ROUTER_URL");
 			textModel = panel.Get<TextFieldWidget>("TEXT_MODEL");
+			visionModel = panel.Get<TextFieldWidget>("VISION_MODEL");
 			transcribeModel = panel.Get<TextFieldWidget>("TRANSCRIBE_MODEL");
 			speechModel = panel.Get<TextFieldWidget>("SPEECH_MODEL");
 			speechVoice = panel.Get<TextFieldWidget>("SPEECH_VOICE");
@@ -111,6 +113,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				voicePriority = "critical";
 				routerUrl.Text = "http://127.0.0.1:4000";
 				textModel.Text = "gpt-5.5";
+				visionModel.Text = "gpt-5.5";
 				transcribeModel.Text = "openai-transcribe";
 				speechModel.Text = "openai-tts";
 				speechVoice.Text = "alloy";
@@ -203,6 +206,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				{ "voice_priority", voicePriority },
 				{ "router_url", routerUrl.Text.Trim() },
 				{ "text_model", textModel.Text.Trim() },
+				{ "vision_model", visionModel.Text.Trim() },
 				{ "transcribe_model", transcribeModel.Text.Trim() },
 				{ "speech_model", speechModel.Text.Trim() },
 				{ "speech_voice", speechVoice.Text.Trim() }
@@ -230,6 +234,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			voicePriority = config.GetProperty("voice_priority").GetString() ?? "critical";
 			routerUrl.Text = config.GetProperty("router_url").GetString() ?? "";
 			textModel.Text = config.GetProperty("text_model").GetString() ?? "";
+			visionModel.Text = config.GetProperty("vision_model").GetString() ?? "";
 			transcribeModel.Text = config.GetProperty("transcribe_model").GetString() ?? "";
 			speechModel.Text = config.GetProperty("speech_model").GetString() ?? "";
 			speechVoice.Text = config.GetProperty("speech_voice").GetString() ?? "";
@@ -272,6 +277,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		{
 			routerUrl?.YieldKeyboardFocus();
 			textModel?.YieldKeyboardFocus();
+			visionModel?.YieldKeyboardFocus();
 			transcribeModel?.YieldKeyboardFocus();
 			speechModel?.YieldKeyboardFocus();
 			speechVoice?.YieldKeyboardFocus();

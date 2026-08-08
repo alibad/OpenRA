@@ -17,17 +17,13 @@ using System.Linq;
 using System.Text.Json;
 using OpenRA.FileFormats;
 using OpenRA.Graphics;
-using OpenRA.Mods.Common.Widgets;
 using OpenRA.Mods.Common.Traits;
-using OpenRA.Primitives;
 using OpenRA.Widgets;
 
 namespace OpenRA.Mods.Common.Widgets.Logic
 {
 	public class EarthAIEditorLogic : ChromeLogic
 	{
-		const int EarthMapZoom = 11;
-
 		static readonly Dictionary<int, string> MapSizeLabels = new()
 		{
 			{ 64, "64 x 64  -  Fast" },
@@ -42,6 +38,22 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{ "Urban Siege", "Fight through dense approaches toward a fortified center with alternate routes for armor and infantry." },
 			{ "Supply Raid", "Disrupt the enemy economy while defending exposed resource fields and a vulnerable reinforcement route." }
 		};
+
+		static readonly Dictionary<string, string> GenerationModeLabels = new()
+		{
+			{ "reality-first", "Reality First  -  Closest Match" },
+			{ "playability-first", "Balanced  -  Earth + Playability" },
+			{ "creative-remix", "Creative Remix  -  Earth Inspired" }
+		};
+
+		public static bool OpenOnNextEditor { get; set; }
+
+		public static bool ConsumeOpenRequest()
+		{
+			var open = OpenOnNextEditor;
+			OpenOnNextEditor = false;
+			return open;
+		}
 
 		readonly ModData modData;
 		readonly World world;
@@ -64,6 +76,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		bool earthLinked;
 		int mapSize;
 		string archetype = "Balanced Skirmish";
+		string generationMode = "reality-first";
+		string realitySummary = "";
 		string source = "STANDARD MAP  •  ADD AN EARTH SOURCE";
 		string mapHealth = "Analyzing map...";
 		string draft = "Ask AI for a playable objective and tactical twist.";
@@ -114,6 +128,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			sizeDropdown.GetText = () => MapSizeLabels[mapSize];
 			sizeDropdown.OnMouseDown = _ => ShowMapSizeDropdown(sizeDropdown);
 
+			var modeDropdown = widget.Get<DropDownButtonWidget>("GENERATION_MODE");
+			modeDropdown.GetText = () => GenerationModeLabels[generationMode];
+			modeDropdown.OnMouseDown = _ => ShowGenerationModeDropdown(modeDropdown);
+
 			var find = widget.Get<ButtonWidget>("FIND_EARTH_LOCATION");
 			find.IsDisabled = () => busy || string.IsNullOrWhiteSpace(location.Text);
 			find.OnClick = () => _ = SearchAsync();
@@ -162,9 +180,21 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				mapSize = selection.GetProperty("map_size").GetInt32();
 				if (selection.TryGetProperty("story_seed", out var storySeed))
 					direction.Text = storySeed.GetString() ?? "";
+				if (selection.TryGetProperty("generation_mode", out var mode) &&
+					GenerationModeLabels.ContainsKey(mode.GetString() ?? ""))
+					generationMode = mode.GetString() ?? "reality-first";
+
+				if (document.RootElement.TryGetProperty("analysis", out var analysis))
+				{
+					var confidence = analysis.TryGetProperty("confidence", out var value) ? value.GetDouble() : 0;
+					var visionUsed = analysis.TryGetProperty("vision_used", out var used) && used.GetBoolean();
+					var biome = analysis.TryGetProperty("biome", out var biomeValue) ? biomeValue.GetString() : "terrain";
+					var summary = analysis.TryGetProperty("summary", out var summaryValue) ? summaryValue.GetString() : "Earth terrain translated.";
+					realitySummary = $"EARTH MATCH {confidence:P0}  •  {biome?.ToUpperInvariant()}  •  {(visionUsed ? "TERRAIN VISION + OSM" : "OSM FALLBACK")}\n{summary}";
+				}
 
 				earthLinked = true;
-				source = "EARTH LINKED  •  OSM  •  READY TO REMIX";
+				source = "EARTH LINKED  •  TERRAIN VIEW + OSM  •  READY";
 			}
 			catch (Exception e)
 			{
@@ -183,8 +213,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var resourceCells = world.Map.Resources.Count(resource => resource.Type != 0);
 			var healthy = spawns >= 2 && players >= 2 && (mines > 0 || resourceCells > 0);
 
+			var health = $"{(healthy ? "READY" : "NEEDS ATTENTION")}  •  {spawns} spawns  •  {players} players  •  {mines} mines  •  {resourceCells} resource cells";
+			if (!string.IsNullOrWhiteSpace(realitySummary))
+				health += "\n" + realitySummary;
 			mapHealth = WidgetUtils.WrapText(
-				$"{(healthy ? "READY" : "NEEDS ATTENTION")}  •  {spawns} spawns  •  {players} players  •  {mines} mines  •  {resourceCells} resource cells",
+				health,
 				mapHealthLabel.Bounds.Width,
 				Game.Renderer.Fonts[mapHealthLabel.Font]);
 			SetStatus(actionManager.HasUnsavedItems()
@@ -209,7 +242,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					if (string.IsNullOrWhiteSpace(title.Text) || title.Text == world.Map.Title)
 						title.Text = location.Text.Split(',')[0].Trim() + " Crossing";
 					earthLinked = true;
-					source = "EARTH LINKED  •  OSM  •  READY TO BUILD";
+					source = "EARTH LINKED  •  TERRAIN VIEW WILL BE SENT TO AI";
 					SetIdle("Location linked. Draft a mission or build the battlefield now.");
 					_ = RefreshEarthPreviewAsync();
 				});
@@ -223,18 +256,25 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		async System.Threading.Tasks.Task RefreshEarthPreviewAsync()
 		{
 			if (!double.TryParse(latitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var lat) ||
-				!double.TryParse(longitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var lon))
+				!double.TryParse(longitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var lon) ||
+				!int.TryParse(radius.Text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var radiusMeters))
 				return;
 
 			try
 			{
-				var (_, _, pinPosition) = WebMercatorTile(lat, lon);
 				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_WORLD_STUDIO_URL", "http://127.0.0.1:8788/");
-				var path = $"v1/map-tile?latitude={lat.ToString(CultureInfo.InvariantCulture)}&longitude={lon.ToString(CultureInfo.InvariantCulture)}&zoom={EarthMapZoom}";
-				var bytes = await OpenRAAILocalClient.GetBytesAsync(baseUri, path, 20);
-				using var stream = new MemoryStream(bytes);
+				var path = "v1/terrain-view?latitude=" + lat.ToString(CultureInfo.InvariantCulture) +
+					"&longitude=" + lon.ToString(CultureInfo.InvariantCulture) + "&radius_m=" + radiusMeters;
+				var bytes = await OpenRAAILocalClient.GetBytesAsync(baseUri, path, 45);
+				await using var stream = new MemoryStream(bytes);
 				var preview = new Png(stream);
-				Game.RunAfterTick(() => earthPreview.Update(preview, pinPosition));
+				Game.RunAfterTick(() =>
+				{
+					earthPreview.Update(preview, new float2(0.5f, 0.5f));
+					source = "TERRAIN VIEW READY  •  THIS EXACT IMAGE GOES TO AI";
+					if (!busy)
+						SetStatus("Terrain captured. Pick a fidelity mode, then generate the OpenRA translation.");
+				});
 			}
 			catch (Exception e)
 			{
@@ -245,32 +285,20 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		void MoveEarthPin(float2 point)
 		{
 			if (!double.TryParse(latitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var lat) ||
-				!double.TryParse(longitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var lon))
+				!double.TryParse(longitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var lon) ||
+				!int.TryParse(radius.Text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var radiusMeters))
 				return;
 
-			var (tileX, tileY, _) = WebMercatorTile(lat, lon);
-			var scale = 1 << EarthMapZoom;
-			var worldX = tileX + point.X;
-			var worldY = tileY + point.Y;
-			var selectedLongitude = worldX / scale * 360.0 - 180.0;
-			var selectedLatitude = Math.Atan(Math.Sinh(Math.PI * (1.0 - 2.0 * worldY / scale))) * 180.0 / Math.PI;
+			var northMeters = (0.5 - point.Y) * radiusMeters * 2;
+			var eastMeters = (point.X - 0.5) * radiusMeters * 2;
+			var selectedLatitude = lat + northMeters / 111320.0;
+			var selectedLongitude = lon + eastMeters / (111320.0 * Math.Max(0.15, Math.Cos(lat * Math.PI / 180.0)));
 			latitude.Text = selectedLatitude.ToString("0.######", CultureInfo.InvariantCulture);
 			longitude.Text = selectedLongitude.ToString("0.######", CultureInfo.InvariantCulture);
 			earthLinked = true;
 			source = "EARTH PIN MOVED  •  CLICK AGAIN TO REFINE";
 			SetStatus("Earth pin updated. Build, remix, or ask AI to adapt the mission.");
 			_ = RefreshEarthPreviewAsync();
-		}
-
-		static (int X, int Y, float2 Pin) WebMercatorTile(double latitude, double longitude)
-		{
-			var scale = 1 << EarthMapZoom;
-			var worldX = (longitude + 180.0) / 360.0 * scale;
-			var latitudeRadians = latitude * Math.PI / 180.0;
-			var worldY = (1.0 - Math.Asinh(Math.Tan(latitudeRadians)) / Math.PI) / 2.0 * scale;
-			var tileX = (int)Math.Floor(worldX);
-			var tileY = (int)Math.Floor(worldY);
-			return (tileX, tileY, new float2((float)(worldX - tileX), (float)(worldY - tileY)));
 		}
 
 		async System.Threading.Tasks.Task DraftMissionAsync()
@@ -345,7 +373,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			if (string.IsNullOrWhiteSpace(direction.Text))
 				direction.Text = ArchetypeDirections[archetype];
 
-			SetBusy(remix ? "Remixing Earth terrain and opening the new version..." : "Building Earth terrain and opening it in the editor...");
+			SetBusy(remix ? "Step 1/4  Capturing Earth terrain for a creative remix..." : "Step 1/4  Capturing the real terrain view and map geometry...");
 			try
 			{
 				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_WORLD_STUDIO_URL", "http://127.0.0.1:8788/");
@@ -359,10 +387,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					map_size = mapSize,
 					seed = seedValue,
 					story_seed = direction.Text.Trim(),
+					generation_mode = remix ? "creative-remix" : generationMode,
 					source = "openstreetmap"
 				};
 
-				using var document = await OpenRAAILocalClient.PostAsync(baseUri, "v1/missions/generate", payload, 120);
+				using var document = await OpenRAAILocalClient.PostAsync(baseUri, "v1/missions/generate", payload, 180);
 				var result = document.RootElement.Clone();
 				Game.RunAfterTick(() =>
 				{
@@ -375,8 +404,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					}
 
 					var filename = result.GetProperty("filename").GetString() ?? "generated Earth map";
-					SetStatus($"Opening {filename}...");
+					SetStatus($"Step 4/4  Opening validated map {filename}...");
 					DiscordService.UpdateStatus(DiscordState.InMapEditor);
+					OpenOnNextEditor = true;
 					Game.LoadEditor(uid);
 				});
 			}
@@ -427,6 +457,18 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			}
 
 			dropdown.ShowDropDown("LABEL_DROPDOWN_TEMPLATE", 255, MapSizeLabels.Keys, SetupItem);
+		}
+
+		void ShowGenerationModeDropdown(DropDownButtonWidget dropdown)
+		{
+			ScrollItemWidget SetupItem(string value, ScrollItemWidget template)
+			{
+				var item = ScrollItemWidget.Setup(template, () => generationMode == value, () => generationMode = value);
+				item.Get<LabelWidget>("LABEL").GetText = () => GenerationModeLabels[value];
+				return item;
+			}
+
+			dropdown.ShowDropDown("LABEL_DROPDOWN_TEMPLATE", 300, GenerationModeLabels.Keys, SetupItem);
 		}
 
 		void OpenAISettings()

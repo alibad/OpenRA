@@ -98,6 +98,22 @@ Container@AI_PANEL:
 					Width: PARENT_WIDTH - 24
 					Height: 50
 					Children:
+						LabelForInput@VISION_MODEL_LABEL:
+							X: 10
+							Width: PARENT_WIDTH - 20
+							Height: 20
+							Text: label-ai-vision-model
+							For: VISION_MODEL
+						TextField@VISION_MODEL:
+							X: 10
+							Y: 25
+							Width: PARENT_WIDTH - 20
+							Height: 25
+							MaxLength: 160
+				Container@ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 50
+					Children:
 						Container@TEXT_MODEL_CONTAINER:
 							X: 10
 							Width: PARENT_WIDTH / 2 - 20

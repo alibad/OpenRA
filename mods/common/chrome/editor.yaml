@@ -472,7 +472,7 @@ Container@EDITOR_WORLD_ROOT:
 						Container@EARTH_AI_WORKBENCH:
 							X: 5
 							Width: PARENT_WIDTH - 22
-							Height: 870
+							Height: 935
 							Children:
 								Label@WORKBENCH_TITLE:
 									Y: 4
@@ -606,35 +606,40 @@ Container@EDITOR_WORLD_ROOT:
 											Text: label-editor-earth-ai-build
 											Align: Center
 											Font: TinyBold
-								DropDownButton@EARTH_MAP_SIZE:
+								DropDownButton@GENERATION_MODE:
 									Y: 567
 									Width: PARENT_WIDTH
 									Height: 25
-								TextField@EARTH_RADIUS:
+									Font: Bold
+								DropDownButton@EARTH_MAP_SIZE:
 									Y: 597
+									Width: PARENT_WIDTH
+									Height: 25
+								TextField@EARTH_RADIUS:
+									Y: 627
 									Width: (PARENT_WIDTH - 6) / 2
 									Height: 23
 									MaxLength: 8
 								TextField@TERRAIN_SEED:
 									X: (PARENT_WIDTH + 6) / 2
-									Y: 597
+									Y: 627
 									Width: (PARENT_WIDTH - 6) / 2
 									Height: 23
 									MaxLength: 10
 								Button@BUILD_EARTH_MAP:
-									Y: 627
+									Y: 657
 									Width: PARENT_WIDTH
 									Height: 29
 									Text: button-editor-earth-ai-build
 									Font: Bold
 								Button@REMIX_EARTH_MAP:
-									Y: 661
+									Y: 691
 									Width: PARENT_WIDTH
 									Height: 27
 									Text: button-editor-earth-ai-remix
 									Font: Bold
 								Background@HEALTH_SECTION:
-									Y: 698
+									Y: 728
 									Width: PARENT_WIDTH
 									Height: 13
 									Background: separator
@@ -646,31 +651,31 @@ Container@EDITOR_WORLD_ROOT:
 											Align: Center
 											Font: TinyBold
 								Label@MAP_HEALTH:
-									Y: 719
+									Y: 749
 									Width: PARENT_WIDTH
-									Height: 48
+									Height: 78
 									Font: Tiny
 								Button@REFRESH_MAP_HEALTH:
-									Y: 769
+									Y: 829
 									Width: (PARENT_WIDTH - 6) / 2
 									Height: 25
 									Text: button-editor-earth-ai-analyze
 									Font: TinyBold
 								Button@PLAYTEST_MAP:
 									X: (PARENT_WIDTH + 6) / 2
-									Y: 769
+									Y: 829
 									Width: (PARENT_WIDTH - 6) / 2
 									Height: 25
 									Text: button-editor-earth-ai-playtest
 									Font: TinyBold
 								Button@AI_SETTINGS:
-									Y: 799
+									Y: 859
 									Width: PARENT_WIDTH
 									Height: 25
 									Text: button-editor-earth-ai-settings
 									Font: TinyBold
 								Label@WORKBENCH_STATUS:
-									Y: 829
+									Y: 889
 									Width: PARENT_WIDTH
 									Height: 34
 									Font: Tiny
