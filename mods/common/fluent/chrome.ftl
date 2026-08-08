@@ -743,21 +743,30 @@ button-ai-test = Test AI + Voice
 button-ai-refresh-costs = Refresh Costs
 
 ## earth-mission-studio.yaml
-label-earth-mission-title = Earth Mission Studio
-label-earth-location-section = Select Any Place on Earth
-label-earth-location-search = Place, landmark, or region:
+label-earth-workbench-title = Earth to Battlefield Workbench
+label-earth-workbench-subtitle = Select any place on Earth, inspect the source terrain, and create a playable OpenRA battlefield.
 button-earth-search = Find Place
+label-earth-real-map-title = REAL EARTH TERRAIN  |  CLICK TO RECENTER
+label-earth-game-preview-title = PLAYABLE OPENRA TRANSLATION
+label-earth-map-empty = Loading the real terrain view...
+label-earth-map-attribution = OpenTopoMap | OpenStreetMap contributors
 label-earth-latitude = Latitude:
 label-earth-longitude = Longitude:
-label-earth-mission-section = Shape the Battlefield
 label-earth-mission-name = Mission name:
 label-earth-map-size = Map size:
-label-earth-radius = Earth area radius (meters):
+label-earth-area-size = Earth area:
+label-earth-mission-archetype = Mission shape:
+label-earth-generation-mode = Translation style:
 label-earth-seed = Terrain seed:
 label-earth-story-seed = Story direction (optional):
-button-earth-generate = Generate + Install Map
-button-earth-play = Play Generated Map
-button-earth-edit = Edit Generated Map
+label-earth-terrain-intel = DETECTED TERRAIN DNA
+label-earth-generation-progress = LIVE GENERATION PIPELINE
+label-earth-advanced-options = Precise Earth Coordinates
+button-earth-advanced = Advanced
+button-earth-advanced-close = Close
+button-earth-create-battlefield = Create Battlefield
+button-earth-play-now = Play Now
+button-earth-continue-editor = Continue in Editor
 
 ## Native editor Earth + AI workbench
 button-map-editor-tab-container-earth-ai-tooltip = Earth + AI workbench

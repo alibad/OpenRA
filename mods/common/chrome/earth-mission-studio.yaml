@@ -2,210 +2,398 @@ Background@EARTH_MISSION_PANEL:
 	Logic: EarthMissionStudioLogic
 	X: (WINDOW_WIDTH - WIDTH) / 2
 	Y: (WINDOW_HEIGHT - HEIGHT) / 2
-	Width: 720
-	Height: 560
+	Width: 1300
+	Height: 740
 	Children:
 		Label@TITLE_LABEL:
-			Y: 18
+			Y: 10
 			Width: PARENT_WIDTH
-			Height: 25
-			Text: label-earth-mission-title
+			Height: 22
+			Text: label-earth-workbench-title
 			Align: Center
 			Font: Bold
-		Background@LOCATION_SECTION_HEADER:
-			X: 25
-			Y: 55
-			Width: PARENT_WIDTH - 50
-			Height: 13
-			Background: separator
-			Children:
-				Label@LABEL:
-					Width: PARENT_WIDTH
-					Height: PARENT_HEIGHT
-					Font: TinyBold
-					Align: Center
-					Text: label-earth-location-section
-		LabelForInput@LOCATION_LABEL:
-			X: 30
-			Y: 78
-			Width: 500
-			Height: 20
-			Text: label-earth-location-search
-			For: LOCATION
-		TextField@LOCATION:
-			X: 30
-			Y: 102
-			Width: 520
-			Height: 28
-			MaxLength: 160
-		Button@SEARCH:
-			X: 560
-			Y: 102
-			Width: 130
-			Height: 28
-			Text: button-earth-search
-			Font: Bold
-		Label@SELECTION:
-			X: 30
-			Y: 136
-			Width: PARENT_WIDTH - 60
-			Height: 20
+		Label@SUBTITLE_LABEL:
+			Y: 30
+			Width: PARENT_WIDTH
+			Height: 16
+			Text: label-earth-workbench-subtitle
+			Align: Center
 			Font: Tiny
-		Container@COORDINATES:
-			X: 30
-			Y: 160
-			Width: PARENT_WIDTH - 60
-			Height: 50
+		Container@SEARCH_ROW:
+			X: 20
+			Y: 52
+			Width: PARENT_WIDTH - 40
+			Height: 28
 			Children:
-				Container@LATITUDE_CONTAINER:
-					Width: PARENT_WIDTH / 2 - 10
-					Children:
-						LabelForInput@LATITUDE_LABEL:
-							Width: PARENT_WIDTH
-							Height: 20
-							Text: label-earth-latitude
-							For: LATITUDE
-						TextField@LATITUDE:
-							Y: 24
-							Width: PARENT_WIDTH
-							Height: 26
-							MaxLength: 20
-				Container@LONGITUDE_CONTAINER:
-					X: PARENT_WIDTH / 2 + 10
-					Width: PARENT_WIDTH / 2 - 10
-					Children:
-						LabelForInput@LONGITUDE_LABEL:
-							Width: PARENT_WIDTH
-							Height: 20
-							Text: label-earth-longitude
-							For: LONGITUDE
-						TextField@LONGITUDE:
-							Y: 24
-							Width: PARENT_WIDTH
-							Height: 26
-							MaxLength: 20
-		Background@MISSION_SECTION_HEADER:
-			X: 25
-			Y: 222
-			Width: PARENT_WIDTH - 50
-			Height: 13
-			Background: separator
-			Children:
-				Label@LABEL:
-					Width: PARENT_WIDTH
-					Height: PARENT_HEIGHT
+				TextField@LOCATION:
+					Width: PARENT_WIDTH - 350
+					Height: 28
+					MaxLength: 160
+				Button@SEARCH:
+					X: PARENT_WIDTH - 340
+					Width: 105
+					Height: 28
+					Text: button-earth-search
+					Font: Bold
+				Label@COORDINATE_STATUS:
+					X: PARENT_WIDTH - 225
+					Width: 225
+					Height: 28
+					Align: Right
 					Font: TinyBold
+		Background@EARTH_VIEW_CARD:
+			X: 20
+			Y: 88
+			Width: (PARENT_WIDTH - 50) / 2
+			Height: 300
+			Background: dialog3
+			Children:
+				Label@EARTH_VIEW_TITLE:
+					X: 8
+					Y: 5
+					Width: PARENT_WIDTH - 16
+					Height: 18
+					Text: label-earth-real-map-title
+					Font: TinyBold
+				EarthMapPreview@EARTH_PREVIEW:
+					X: 6
+					Y: 25
+					Width: PARENT_WIDTH - 12
+					Height: PARENT_HEIGHT - 48
+				Label@EARTH_EMPTY:
+					X: 20
+					Y: PARENT_HEIGHT / 2 - 22
+					Width: PARENT_WIDTH - 40
+					Height: 44
+					Text: label-earth-map-empty
 					Align: Center
-					Text: label-earth-mission-section
+					Font: Bold
+				Label@EARTH_ATTRIBUTION:
+					X: 8
+					Y: PARENT_HEIGHT - 21
+					Width: PARENT_WIDTH - 16
+					Height: 16
+					Text: label-earth-map-attribution
+					Align: Right
+					Font: Tiny
+					Contrast: true
+		Background@GAME_VIEW_CARD:
+			X: (PARENT_WIDTH + 10) / 2
+			Y: 88
+			Width: (PARENT_WIDTH - 50) / 2
+			Height: 300
+			Background: dialog3
+			Children:
+				Label@GAME_VIEW_TITLE:
+					X: 8
+					Y: 5
+					Width: PARENT_WIDTH - 16
+					Height: 18
+					Text: label-earth-game-preview-title
+					Font: TinyBold
+				GeneratedMapPreview@GENERATED_PREVIEW:
+					X: 6
+					Y: 25
+					Width: PARENT_WIDTH - 12
+					Height: PARENT_HEIGHT - 48
+					ShowSpawnPoints: true
+				Label@GAME_EMPTY:
+					X: 24
+					Y: PARENT_HEIGHT / 2 - 28
+					Width: PARENT_WIDTH - 48
+					Height: 56
+					Align: Center
+					Font: Bold
+				Label@PREVIEW_BADGE:
+					X: 8
+					Y: PARENT_HEIGHT - 21
+					Width: PARENT_WIDTH - 16
+					Height: 16
+					Align: Right
+					Font: TinyBold
+					Contrast: true
 		Container@MISSION_ROW:
-			X: 30
-			Y: 245
-			Width: PARENT_WIDTH - 60
+			X: 20
+			Y: 400
+			Width: PARENT_WIDTH - 40
 			Height: 50
 			Children:
 				Container@TITLE_CONTAINER:
-					Width: PARENT_WIDTH / 2 - 10
+					Width: PARENT_WIDTH * 28 / 100
 					Children:
 						LabelForInput@TITLE_INPUT_LABEL:
 							Width: PARENT_WIDTH
-							Height: 20
+							Height: 19
 							Text: label-earth-mission-name
 							For: TITLE
 						TextField@TITLE:
-							Y: 24
+							Y: 21
 							Width: PARENT_WIDTH
-							Height: 26
+							Height: 27
 							MaxLength: 64
+				Container@RADIUS_CONTAINER:
+					X: PARENT_WIDTH * 29 / 100
+					Width: PARENT_WIDTH * 16 / 100
+					Children:
+						Label@RADIUS_LABEL:
+							Width: PARENT_WIDTH
+							Height: 19
+							Text: label-earth-area-size
+						DropDownButton@RADIUS:
+							Y: 21
+							Width: PARENT_WIDTH
+							Height: 27
 				Container@SIZE_CONTAINER:
-					X: PARENT_WIDTH / 2 + 10
-					Width: PARENT_WIDTH / 2 - 10
+					X: PARENT_WIDTH * 46 / 100
+					Width: PARENT_WIDTH * 20 / 100
 					Children:
 						Label@SIZE_LABEL:
 							Width: PARENT_WIDTH
-							Height: 20
+							Height: 19
 							Text: label-earth-map-size
 						DropDownButton@MAP_SIZE:
-							Y: 24
+							Y: 21
 							Width: PARENT_WIDTH
-							Height: 26
-		Container@PARAMETERS_ROW:
-			X: 30
-			Y: 305
-			Width: PARENT_WIDTH - 60
+							Height: 27
+				Container@ARCHETYPE_CONTAINER:
+					X: PARENT_WIDTH * 67 / 100
+					Width: PARENT_WIDTH * 33 / 100
+					Children:
+						Label@ARCHETYPE_LABEL:
+							Width: PARENT_WIDTH
+							Height: 19
+							Text: label-earth-mission-archetype
+						DropDownButton@MISSION_ARCHETYPE:
+							Y: 21
+							Width: PARENT_WIDTH
+							Height: 27
+		Container@STORY_ROW:
+			X: 20
+			Y: 456
+			Width: PARENT_WIDTH - 40
 			Height: 50
 			Children:
-				Container@RADIUS_CONTAINER:
-					Width: PARENT_WIDTH / 2 - 10
+				Container@STORY_CONTAINER:
+					Width: PARENT_WIDTH * 58 / 100
 					Children:
-						LabelForInput@RADIUS_LABEL:
+						LabelForInput@STORY_LABEL:
 							Width: PARENT_WIDTH
-							Height: 20
-							Text: label-earth-radius
-							For: RADIUS
-						TextField@RADIUS:
-							Y: 24
+							Height: 19
+							Text: label-earth-story-seed
+							For: STORY
+						TextField@STORY:
+							Y: 21
 							Width: PARENT_WIDTH
-							Height: 26
-							MaxLength: 8
-				Container@SEED_CONTAINER:
-					X: PARENT_WIDTH / 2 + 10
-					Width: PARENT_WIDTH / 2 - 10
+							Height: 27
+							MaxLength: 240
+				Container@MODE_CONTAINER:
+					X: PARENT_WIDTH * 59 / 100
+					Width: PARENT_WIDTH * 27 / 100
 					Children:
-						LabelForInput@SEED_LABEL:
+						Label@MODE_LABEL:
 							Width: PARENT_WIDTH
-							Height: 20
-							Text: label-earth-seed
-							For: SEED
-						TextField@SEED:
-							Y: 24
+							Height: 19
+							Text: label-earth-generation-mode
+						DropDownButton@GENERATION_MODE:
+							Y: 21
 							Width: PARENT_WIDTH
-							Height: 26
-							MaxLength: 10
-		LabelForInput@STORY_LABEL:
-			X: 30
-			Y: 365
-			Width: PARENT_WIDTH - 60
-			Height: 20
-			Text: label-earth-story-seed
-			For: STORY
-		TextField@STORY:
-			X: 30
-			Y: 389
-			Width: PARENT_WIDTH - 60
-			Height: 28
-			MaxLength: 240
-		Button@GENERATE:
-			X: 30
-			Y: 430
-			Width: 210
-			Height: 30
-			Text: button-earth-generate
-			Font: Bold
-		Label@STATUS:
-			X: 255
-			Y: 426
-			Width: PARENT_WIDTH - 285
-			Height: 42
-			Font: Tiny
-		Button@PLAY:
-			X: 30
-			Y: PARENT_HEIGHT - 55
-			Width: 180
-			Height: 30
-			Text: button-earth-play
-			Font: Bold
-		Button@EDIT:
-			X: 220
-			Y: PARENT_HEIGHT - 55
-			Width: 180
-			Height: 30
-			Text: button-earth-edit
-			Font: Bold
+							Height: 27
+				Button@ADVANCED:
+					X: PARENT_WIDTH * 87 / 100
+					Y: 21
+					Width: PARENT_WIDTH * 13 / 100
+					Height: 27
+					Text: button-earth-advanced
+		Background@TERRAIN_INTEL_CARD:
+			X: 20
+			Y: 514
+			Width: (PARENT_WIDTH - 50) * 42 / 100
+			Height: 145
+			Background: dialog3
+			Children:
+				Label@TERRAIN_INTEL_TITLE:
+					X: 8
+					Y: 4
+					Width: PARENT_WIDTH - 16
+					Height: 17
+					Text: label-earth-terrain-intel
+					Font: TinyBold
+				Label@RELIEF:
+					X: 8
+					Y: PARENT_HEIGHT / 2 - 27
+					Width: PARENT_WIDTH / 5 - 8
+					Height: 54
+					Align: Center
+					Font: TinyBold
+				Label@WATER:
+					X: PARENT_WIDTH / 5
+					Y: PARENT_HEIGHT / 2 - 27
+					Width: PARENT_WIDTH / 5
+					Height: 54
+					Align: Center
+					Font: TinyBold
+				Label@URBAN:
+					X: PARENT_WIDTH * 2 / 5
+					Y: PARENT_HEIGHT / 2 - 27
+					Width: PARENT_WIDTH / 5
+					Height: 54
+					Align: Center
+					Font: TinyBold
+				Label@VEGETATION:
+					X: PARENT_WIDTH * 3 / 5
+					Y: PARENT_HEIGHT / 2 - 27
+					Width: PARENT_WIDTH / 5
+					Height: 54
+					Align: Center
+					Font: TinyBold
+				Label@LANDMARKS:
+					X: PARENT_WIDTH * 4 / 5
+					Y: PARENT_HEIGHT / 2 - 27
+					Width: PARENT_WIDTH / 5 - 8
+					Height: 54
+					Align: Center
+					Font: TinyBold
+		Background@PROGRESS_CARD:
+			X: 30 + (PARENT_WIDTH - 50) * 42 / 100
+			Y: 514
+			Width: (PARENT_WIDTH - 50) * 58 / 100 - 10
+			Height: 145
+			Background: dialog3
+			Children:
+				Label@PROGRESS_TITLE:
+					X: 8
+					Y: 4
+					Width: PARENT_WIDTH - 16
+					Height: 17
+					Text: label-earth-generation-progress
+					Font: TinyBold
+				Label@STAGE_1:
+					X: 8
+					Y: PARENT_HEIGHT * 24 / 100
+					Width: PARENT_WIDTH / 2 - 12
+					Height: 17
+					Font: Tiny
+				Label@STAGE_2:
+					X: 8
+					Y: PARENT_HEIGHT * 43 / 100
+					Width: PARENT_WIDTH / 2 - 12
+					Height: 17
+					Font: Tiny
+				Label@STAGE_3:
+					X: 8
+					Y: PARENT_HEIGHT * 62 / 100
+					Width: PARENT_WIDTH / 2 - 12
+					Height: 17
+					Font: Tiny
+				Label@STAGE_4:
+					X: PARENT_WIDTH / 2 + 2
+					Y: PARENT_HEIGHT * 24 / 100
+					Width: PARENT_WIDTH / 2 - 10
+					Height: 17
+					Font: Tiny
+				Label@STAGE_5:
+					X: PARENT_WIDTH / 2 + 2
+					Y: PARENT_HEIGHT * 43 / 100
+					Width: PARENT_WIDTH / 2 - 10
+					Height: 17
+					Font: Tiny
+				Label@STAGE_6:
+					X: PARENT_WIDTH / 2 + 2
+					Y: PARENT_HEIGHT * 62 / 100
+					Width: PARENT_WIDTH / 2 - 10
+					Height: 17
+					Font: Tiny
+				Label@STATUS:
+					X: 8
+					Y: PARENT_HEIGHT - 19
+					Width: PARENT_WIDTH - 16
+					Height: 14
+					Font: TinyBold
+		Background@ADVANCED_OPTIONS:
+			X: PARENT_WIDTH - 365
+			Y: 506
+			Width: 345
+			Height: 145
+			Background: dialog4
+			Children:
+				Label@ADVANCED_TITLE:
+					Y: 6
+					Width: PARENT_WIDTH
+					Height: 18
+					Text: label-earth-advanced-options
+					Align: Center
+					Font: Bold
+				LabelForInput@LATITUDE_LABEL:
+					X: 12
+					Y: 29
+					Width: 150
+					Height: 17
+					Text: label-earth-latitude
+					For: LATITUDE
+				TextField@LATITUDE:
+					X: 12
+					Y: 47
+					Width: 150
+					Height: 25
+					MaxLength: 20
+				LabelForInput@LONGITUDE_LABEL:
+					X: 174
+					Y: 29
+					Width: 159
+					Height: 17
+					Text: label-earth-longitude
+					For: LONGITUDE
+				TextField@LONGITUDE:
+					X: 174
+					Y: 47
+					Width: 159
+					Height: 25
+					MaxLength: 20
+				LabelForInput@SEED_LABEL:
+					X: 12
+					Y: 78
+					Width: 150
+					Height: 17
+					Text: label-earth-seed
+					For: SEED
+				TextField@SEED:
+					X: 12
+					Y: 96
+					Width: 150
+					Height: 25
+					MaxLength: 10
+				Button@ADVANCED_CLOSE:
+					X: 174
+					Y: 96
+					Width: 159
+					Height: 25
+					Text: button-earth-advanced-close
 		Button@BACK:
 			Key: escape
-			X: PARENT_WIDTH - 190
-			Y: PARENT_HEIGHT - 55
-			Width: 160
-			Height: 30
+			X: 20
+			Y: PARENT_HEIGHT - 54
+			Width: 140
+			Height: 31
 			Text: button-back
+			Font: Bold
+		Button@PLAY:
+			X: PARENT_WIDTH - 630
+			Y: PARENT_HEIGHT - 54
+			Width: 180
+			Height: 31
+			Text: button-earth-play-now
+			Font: Bold
+		Button@EDIT:
+			X: PARENT_WIDTH - 440
+			Y: PARENT_HEIGHT - 54
+			Width: 200
+			Height: 31
+			Text: button-earth-continue-editor
+			Font: Bold
+		Button@GENERATE:
+			X: PARENT_WIDTH - 230
+			Y: PARENT_HEIGHT - 54
+			Width: 210
+			Height: 31
+			Text: button-earth-create-battlefield
 			Font: Bold

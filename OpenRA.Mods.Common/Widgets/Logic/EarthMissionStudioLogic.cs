@@ -12,6 +12,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Text.Json;
+using OpenRA.FileFormats;
+using OpenRA.Primitives;
 using OpenRA.Widgets;
 
 namespace OpenRA.Mods.Common.Widgets.Logic
@@ -25,55 +29,146 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{ 128, "128 x 128  -  Large" }
 		};
 
+		static readonly Dictionary<int, string> RadiusLabels = new()
+		{
+			{ 2000, "2 km  -  Local" },
+			{ 3500, "3.5 km  -  District" },
+			{ 6000, "6 km  -  Regional" },
+			{ 10000, "10 km  -  Wide" }
+		};
+
+		static readonly Dictionary<string, string> ArchetypeLabels = new()
+		{
+			{ "Balanced Skirmish", "Balanced Skirmish" },
+			{ "River Crossing", "River Crossing" },
+			{ "Urban Siege", "Urban Siege" },
+			{ "Supply Raid", "Supply Raid" }
+		};
+
+		static readonly Dictionary<string, string> ArchetypeDirections = new()
+		{
+			{ "Balanced Skirmish", "Control the center, protect both supply lines, and keep the flanks tactically distinct." },
+			{ "River Crossing", "Secure the crossings while limited routes create ambushes, bridge pressure, and contested high ground." },
+			{ "Urban Siege", "Fight through dense approaches toward a fortified center with alternate routes for armor and infantry." },
+			{ "Supply Raid", "Disrupt the enemy economy while defending exposed resource fields and a vulnerable reinforcement route." }
+		};
+
+		static readonly Dictionary<string, string> GenerationModeLabels = new()
+		{
+			{ "reality-first", "Reality First" },
+			{ "playability-first", "Earth + Balance" },
+			{ "creative-remix", "Creative Remix" }
+		};
+
+		static readonly string[] PipelineLabels =
+		[
+			"1  Earth geometry",
+			"2  Terrain image",
+			"3  AI terrain vision",
+			"4  Gameplay translation",
+			"5  Map validation",
+			"6  Ready to play"
+		];
+
 		readonly ModData modData;
 		readonly Action onExit;
 		readonly TextFieldWidget location;
 		readonly TextFieldWidget latitude;
 		readonly TextFieldWidget longitude;
 		readonly TextFieldWidget title;
-		readonly TextFieldWidget radius;
 		readonly TextFieldWidget seed;
 		readonly TextFieldWidget story;
-		readonly LabelWidget selectionLabel;
 		readonly LabelWidget statusLabel;
+		readonly LabelWidget coordinateStatusLabel;
+		readonly LabelWidget previewBadgeLabel;
+		readonly EarthMapPreviewWidget earthPreview;
+		readonly GeneratedMapPreviewWidget generatedPreview;
+		readonly LabelWidget[] pipelineLabels;
+		readonly Widget advancedOptions;
+
 		bool busy;
+		bool advancedVisible;
+		bool earthPreviewLoaded;
+		bool generationFailed;
 		int mapSize = 96;
-		string status = "Search for a place to begin.";
-		string selection = "No Earth location selected.";
+		int radiusMeters = 3500;
+		int generationStage;
+		string archetype = "Balanced Skirmish";
+		string generationMode = "reality-first";
+		string status = "Select a location, inspect its terrain, then create the battlefield.";
+		string previewBadge = "PLAYABLE PREVIEW  |  WAITING";
 		string generatedMapUid;
+		string reliefIntel = "RELIEF\nPending";
+		string waterIntel = "WATER\nPending";
+		string urbanIntel = "URBAN\nPending";
+		string vegetationIntel = "VEGETATION\nPending";
+		string landmarkIntel = "LANDMARKS\nPending";
 
 		[ObjectCreator.UseCtor]
 		public EarthMissionStudioLogic(Widget widget, ModData modData, Action onExit, Action<string> onPlay, Action<string> onEdit)
 		{
 			this.modData = modData;
 			this.onExit = onExit;
+			var logicalWidth = (int)(Game.Renderer.Resolution.Width / Game.Renderer.WindowScale);
+			var logicalHeight = (int)(Game.Renderer.Resolution.Height / Game.Renderer.WindowScale);
+			widget.Bounds.X = Math.Max(10, (logicalWidth - widget.Bounds.Width) / 2);
+			widget.Bounds.Y = Math.Max(10, (logicalHeight - widget.Bounds.Height) / 2);
 			location = widget.Get<TextFieldWidget>("LOCATION");
 			latitude = widget.Get<TextFieldWidget>("LATITUDE");
 			longitude = widget.Get<TextFieldWidget>("LONGITUDE");
 			title = widget.Get<TextFieldWidget>("TITLE");
-			radius = widget.Get<TextFieldWidget>("RADIUS");
 			seed = widget.Get<TextFieldWidget>("SEED");
 			story = widget.Get<TextFieldWidget>("STORY");
 
 			location.Text = "Riyadh, Saudi Arabia";
+			latitude.Text = "24.638916";
+			longitude.Text = "46.71601";
 			title.Text = "Riyadh Crossing";
-			radius.Text = "3500";
 			seed.Text = "1";
 
-			selectionLabel = widget.Get<LabelWidget>("SELECTION");
-			selectionLabel.GetText = () => selection;
 			statusLabel = widget.Get<LabelWidget>("STATUS");
 			statusLabel.GetText = () => status;
+			coordinateStatusLabel = widget.Get<LabelWidget>("COORDINATE_STATUS");
+			coordinateStatusLabel.GetText = CoordinateStatus;
+			previewBadgeLabel = widget.Get<LabelWidget>("PREVIEW_BADGE");
+			previewBadgeLabel.GetText = () => previewBadge;
 
-			var size = widget.Get<DropDownButtonWidget>("MAP_SIZE");
-			size.GetText = () => MapSizeLabels[mapSize];
-			size.OnMouseDown = _ => ShowMapSizeDropdown(size);
+			earthPreview = widget.Get<EarthMapPreviewWidget>("EARTH_PREVIEW");
+			earthPreview.OnMapClick = MoveEarthPin;
+			generatedPreview = widget.Get<GeneratedMapPreviewWidget>("GENERATED_PREVIEW");
+			widget.Get("EARTH_EMPTY").IsVisible = () => !earthPreviewLoaded;
+			var gameEmpty = widget.Get<LabelWidget>("GAME_EMPTY");
+			gameEmpty.GetText = () => "Your generated battlefield will appear here.\nTerrain, resources, and spawn points update when ready.";
+			gameEmpty.IsVisible = () => generatedMapUid == null;
+
+			widget.Get<LabelWidget>("RELIEF").GetText = () => reliefIntel;
+			widget.Get<LabelWidget>("WATER").GetText = () => waterIntel;
+			widget.Get<LabelWidget>("URBAN").GetText = () => urbanIntel;
+			widget.Get<LabelWidget>("VEGETATION").GetText = () => vegetationIntel;
+			widget.Get<LabelWidget>("LANDMARKS").GetText = () => landmarkIntel;
+
+			pipelineLabels = new LabelWidget[PipelineLabels.Length];
+			for (var index = 0; index < PipelineLabels.Length; index++)
+			{
+				var stage = index + 1;
+				var label = widget.Get<LabelWidget>($"STAGE_{stage}");
+				label.GetText = () => PipelineLabels[stage - 1];
+				label.GetColor = () => PipelineColor(stage);
+				pipelineLabels[index] = label;
+			}
+
+			BindDropdown(widget.Get<DropDownButtonWidget>("MAP_SIZE"), MapSizeLabels, () => mapSize, value => mapSize = value, 260);
+			BindDropdown(widget.Get<DropDownButtonWidget>("RADIUS"), RadiusLabels, () => radiusMeters, SelectRadius, 220);
+			BindDropdown(widget.Get<DropDownButtonWidget>("MISSION_ARCHETYPE"), ArchetypeLabels, () => archetype, SelectArchetype, 260);
+			BindDropdown(widget.Get<DropDownButtonWidget>("GENERATION_MODE"), GenerationModeLabels,
+				() => generationMode, value => generationMode = value, 230);
 
 			var search = widget.Get<ButtonWidget>("SEARCH");
 			search.IsDisabled = () => busy || string.IsNullOrWhiteSpace(location.Text);
 			search.OnClick = () => _ = SearchAsync();
+
 			var generate = widget.Get<ButtonWidget>("GENERATE");
-			generate.IsDisabled = () => busy || string.IsNullOrWhiteSpace(latitude.Text) || string.IsNullOrWhiteSpace(longitude.Text);
+			generate.IsDisabled = () => busy || !HasValidCoordinates();
 			generate.OnClick = () => _ = GenerateAsync();
 
 			var play = widget.Get<ButtonWidget>("PLAY");
@@ -83,25 +178,67 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			edit.IsDisabled = () => busy || generatedMapUid == null;
 			edit.OnClick = () => Complete(onEdit);
 
+			advancedOptions = widget.Get("ADVANCED_OPTIONS");
+			advancedOptions.IsVisible = () => advancedVisible;
+			widget.Get<ButtonWidget>("ADVANCED").OnClick = () => advancedVisible = !advancedVisible;
+			widget.Get<ButtonWidget>("ADVANCED_CLOSE").OnClick = () => advancedVisible = false;
 			widget.Get<ButtonWidget>("BACK").OnClick = Close;
+
+			_ = RefreshEarthPreviewAsync(true);
 		}
 
-		void ShowMapSizeDropdown(DropDownButtonWidget dropdown)
+		void BindDropdown<T>(DropDownButtonWidget dropdown, Dictionary<T, string> options,
+			Func<T> getValue, Action<T> setValue, int width)
 		{
-			ScrollItemWidget SetupItem(int value, ScrollItemWidget template)
+			dropdown.GetText = () => options[getValue()];
+			dropdown.OnMouseDown = _ =>
 			{
-				var item = ScrollItemWidget.Setup(template, () => mapSize == value, () => mapSize = value);
-				item.Get<LabelWidget>("LABEL").GetText = () => MapSizeLabels[value];
-				return item;
-			}
+				ScrollItemWidget SetupItem(T value, ScrollItemWidget template)
+				{
+					var item = ScrollItemWidget.Setup(template, () => EqualityComparer<T>.Default.Equals(getValue(), value), () => setValue(value));
+					item.Get<LabelWidget>("LABEL").GetText = () => options[value];
+					return item;
+				}
 
-			dropdown.ShowDropDown("LABEL_DROPDOWN_TEMPLATE", 260, MapSizeLabels.Keys, SetupItem);
+				dropdown.ShowDropDown("LABEL_DROPDOWN_TEMPLATE", width, options.Keys, SetupItem);
+			};
+		}
+
+		void SelectRadius(int value)
+		{
+			radiusMeters = value;
+			_ = RefreshEarthPreviewAsync(false);
+		}
+
+		void SelectArchetype(string value)
+		{
+			archetype = value;
+			if (string.IsNullOrWhiteSpace(story.Text))
+				story.Text = ArchetypeDirections[value];
+		}
+
+		string CoordinateStatus()
+		{
+			if (!double.TryParse(latitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var lat) ||
+				!double.TryParse(longitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var lon))
+				return "SELECT A POINT ON EARTH";
+
+			return $"{Math.Abs(lat):0.000000}{(lat >= 0 ? "N" : "S")}  |  {Math.Abs(lon):0.000000}{(lon >= 0 ? "E" : "W")}";
+		}
+
+		Color PipelineColor(int stage)
+		{
+			if (generationFailed && stage == Math.Max(1, generationStage))
+				return Color.FromArgb(255, 112, 80);
+			if (generationStage >= stage)
+				return generationStage == stage && busy ? Color.FromArgb(244, 205, 67) : Color.FromArgb(112, 221, 126);
+			return Color.FromArgb(150, 150, 150);
 		}
 
 		async System.Threading.Tasks.Task SearchAsync()
 		{
 			var query = location.Text.Trim();
-			SetBusy("Finding that place on Earth...");
+			SetBusy("Finding that place and preparing its terrain view...");
 			try
 			{
 				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_WORLD_STUDIO_URL", "http://127.0.0.1:8788/");
@@ -115,9 +252,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					longitude.Text = result.GetProperty("longitude").GetDouble().ToString("0.######", CultureInfo.InvariantCulture);
 					location.Text = name;
 					title.Text = name.Split(',')[0].Trim() + " Crossing";
-					selection = WidgetUtils.TruncateText($"Selected: {name}", selectionLabel.Bounds.Width,
-						Game.Renderer.Fonts[selectionLabel.Font]);
-					SetIdle("Location ready. Add a story seed or generate the battlefield now.");
+					SetIdle("Location selected. Click the Earth view to refine the exact battlefield center.");
+					_ = RefreshEarthPreviewAsync(false);
 				});
 			}
 			catch (Exception e)
@@ -132,7 +268,6 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				return resultName;
 			if (UsesLatinScript(query))
 				return query;
-
 			return "Selected Earth location";
 		}
 
@@ -140,34 +275,76 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		{
 			if (string.IsNullOrWhiteSpace(value))
 				return false;
-
 			foreach (var character in value)
 			{
 				if (!char.IsLetter(character))
 					continue;
-
 				var codepoint = (int)character;
 				if (codepoint < 0x0041 || codepoint > 0x024F)
 					return false;
 			}
-
 			return true;
+		}
+
+		async System.Threading.Tasks.Task RefreshEarthPreviewAsync(bool initial)
+		{
+			if (!TryReadCoordinates(out var lat, out var lon))
+				return;
+
+			if (!busy && !initial)
+				SetStatus("Refreshing the exact terrain image used by generation and AI vision...");
+			try
+			{
+				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_WORLD_STUDIO_URL", "http://127.0.0.1:8788/");
+				var path = "v1/terrain-view?latitude=" + lat.ToString(CultureInfo.InvariantCulture) +
+					"&longitude=" + lon.ToString(CultureInfo.InvariantCulture) + "&radius_m=" + radiusMeters;
+				var bytes = await OpenRAAILocalClient.GetBytesAsync(baseUri, path, 45);
+				await using var stream = new MemoryStream(bytes);
+				var preview = new Png(stream);
+				Game.RunAfterTick(() =>
+				{
+					earthPreview.Update(preview, new float2(0.5f, 0.5f));
+					earthPreviewLoaded = true;
+					if (!busy)
+						SetStatus("Terrain view ready. This exact image will be sent through the AI layer during generation.");
+				});
+			}
+			catch (Exception e)
+			{
+				Game.RunAfterTick(() => SetStatus($"Earth view unavailable; generation can still use map geometry. {e.Message}"));
+			}
+		}
+
+		void MoveEarthPin(float2 point)
+		{
+			if (!TryReadCoordinates(out var lat, out var lon))
+				return;
+			var northMeters = (0.5 - point.Y) * radiusMeters * 2;
+			var eastMeters = (point.X - 0.5) * radiusMeters * 2;
+			var selectedLatitude = lat + northMeters / 111320.0;
+			var selectedLongitude = lon + eastMeters / (111320.0 * Math.Max(0.15, Math.Cos(lat * Math.PI / 180.0)));
+			latitude.Text = selectedLatitude.ToString("0.######", CultureInfo.InvariantCulture);
+			longitude.Text = selectedLongitude.ToString("0.######", CultureInfo.InvariantCulture);
+			SetStatus("Battlefield center moved. Refreshing the Earth terrain view...");
+			_ = RefreshEarthPreviewAsync(false);
 		}
 
 		async System.Threading.Tasks.Task GenerateAsync()
 		{
 			YieldTextFocus();
-			if (!double.TryParse(latitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var lat) || lat < -90 || lat > 90 ||
-				!double.TryParse(longitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var lon) || lon < -180 || lon > 180 ||
-				!int.TryParse(radius.Text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var radiusMeters) || radiusMeters < 500 || radiusMeters > 20000 ||
-				!int.TryParse(seed.Text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var seedValue) || seedValue < 0)
+			if (!TryReadGenerationValues(out var lat, out var lon, out var seedValue))
 			{
-				SetIdle("Check coordinates, radius (500-20000 m), and seed before generating.");
+				SetIdle("Check coordinates and terrain seed before creating the battlefield.");
 				return;
 			}
 
-			SetBusy("Reading terrain and building the OpenRA map...");
+			generationFailed = false;
+			generationStage = 0;
 			generatedMapUid = null;
+			generatedPreview.Clear();
+			previewBadge = "GENERATING  |  LIVE PIPELINE";
+			ResetIntel();
+			SetBusy("Starting the Earth-to-battlefield pipeline...");
 			try
 			{
 				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_WORLD_STUDIO_URL", "http://127.0.0.1:8788/");
@@ -180,34 +357,175 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					radius_m = radiusMeters,
 					map_size = mapSize,
 					seed = seedValue,
-					story_seed = story.Text.Trim(),
+					story_seed = string.IsNullOrWhiteSpace(story.Text) ? ArchetypeDirections[archetype] : story.Text.Trim(),
+					generation_mode = generationMode,
 					source = "openstreetmap"
 				};
 
-				using var document = await OpenRAAILocalClient.PostAsync(baseUri, "v1/missions/generate", payload, 120);
-				var result = document.RootElement.Clone();
-				Game.RunAfterTick(() =>
+				using var accepted = await OpenRAAILocalClient.PostAsync(baseUri, "v1/missions/generate-async", payload, 20);
+				var jobId = accepted.RootElement.GetProperty("job_id").GetString();
+				if (string.IsNullOrWhiteSpace(jobId))
+					throw new InvalidOperationException("World generation did not return a job identifier.");
+
+				JsonElement result = default;
+				while (true)
 				{
-					modData.MapCache.UpdateMaps();
-					generatedMapUid = modData.MapCache.PickLastModifiedMap(MapVisibility.Lobby);
-					var filename = result.GetProperty("filename").GetString() ?? "generated map";
-					var source = result.GetProperty("source_status").GetString() ?? "terrain source complete";
-					SetIdle(generatedMapUid == null
-						? $"Generated {filename}, but OpenRA has not indexed it yet. Try generating again."
-						: $"Ready: {filename}  |  {source}. Choose Play or Edit.");
-				});
+					await System.Threading.Tasks.Task.Delay(350);
+					using var jobDocument = await OpenRAAILocalClient.GetAsync(baseUri, "v1/jobs/" + jobId, 20);
+					var job = jobDocument.RootElement.Clone();
+					var state = job.GetProperty("state").GetString() ?? "running";
+					var stage = job.GetProperty("stage").GetInt32();
+					var message = job.GetProperty("message").GetString() ?? "Generating battlefield...";
+					Game.RunAfterTick(() => ApplyJobProgress(stage, message, state));
+					if (state == "succeeded")
+					{
+						result = job.GetProperty("result").Clone();
+						break;
+					}
+					if (state == "failed")
+						throw new InvalidOperationException(message);
+				}
+
+				Game.RunAfterTick(() => ApplyGeneratedResult(result));
 			}
 			catch (Exception e)
 			{
-				Game.RunAfterTick(() => SetIdle($"Mission generation failed: {e.Message}"));
+				Game.RunAfterTick(() =>
+				{
+					generationFailed = true;
+					previewBadge = "GENERATION FAILED  |  GAME UNAFFECTED";
+					SetIdle($"Battlefield generation failed: {e.Message}");
+				});
 			}
+		}
+
+		void ApplyJobProgress(int stage, string message, string state)
+		{
+			generationStage = Math.Max(generationStage, stage);
+			previewBadge = state == "succeeded" ? "PLAYABLE PREVIEW  |  READY" : $"GENERATING  |  STAGE {Math.Max(1, stage)} OF 6";
+			SetStatus(message);
+		}
+
+		void ApplyGeneratedResult(JsonElement result, int indexAttempt = 0)
+		{
+			var filename = result.GetProperty("filename").GetString() ?? "generated Earth map";
+			if (indexAttempt == 0)
+				ApplySynthesis(result);
+
+			modData.MapCache.UpdateMaps();
+			generatedMapUid = FindGeneratedMap(filename);
+			if (generatedMapUid == null)
+			{
+				if (indexAttempt < 20)
+				{
+					previewBadge = "PLAYABLE PREVIEW  |  INDEXING";
+					SetStatus("Battlefield validated. Indexing it in OpenRA for the playable preview...");
+					_ = RetryApplyGeneratedResult(result, indexAttempt + 1);
+					return;
+				}
+
+				generationFailed = true;
+				SetIdle("The battlefield was generated, but OpenRA could not index its installed package.");
+				return;
+			}
+
+			generatedPreview.Update(modData.MapCache[generatedMapUid]);
+			generationStage = 6;
+			previewBadge = "PLAYABLE PREVIEW  |  VALIDATED";
+			SetIdle($"Ready: {filename}. Play now or continue into the native map editor.");
+		}
+
+		async System.Threading.Tasks.Task RetryApplyGeneratedResult(JsonElement result, int indexAttempt)
+		{
+			await System.Threading.Tasks.Task.Delay(250);
+			Game.RunAfterTick(() => ApplyGeneratedResult(result, indexAttempt));
+		}
+
+		string FindGeneratedMap(string filename)
+		{
+			foreach (var map in modData.MapCache)
+				if (map.Status == MapStatus.Available && string.Equals(Path.GetFileName(map.Path), filename, StringComparison.OrdinalIgnoreCase))
+					return map.Uid;
+
+			return null;
+		}
+
+		void ApplySynthesis(JsonElement result)
+		{
+			if (!result.TryGetProperty("synthesis", out var synthesis))
+				return;
+			var analysis = synthesis.GetProperty("analysis");
+			var relief = ReadString(analysis, "relief", "Mapped");
+			var water = ReadRatio(analysis, "water_confidence");
+			var urban = ReadRatio(analysis, "urban_density");
+			var vegetation = ReadRatio(analysis, "vegetation_density");
+			var confidence = ReadRatio(analysis, "confidence");
+			var landmarks = 0;
+			if (synthesis.TryGetProperty("feature_counts", out var counts))
+				landmarks = ReadCount(counts, "building") + ReadCount(counts, "landmark") + ReadCount(counts, "rail");
+
+			reliefIntel = $"RELIEF\n{TitleCase(relief)}";
+			waterIntel = $"WATER\n{water:P0}";
+			urbanIntel = $"URBAN\n{urban:P0}";
+			vegetationIntel = $"VEGETATION\n{vegetation:P0}";
+			landmarkIntel = $"LANDMARKS\n{landmarks}";
+			var tileset = synthesis.TryGetProperty("tileset", out var value) ? value.GetString() ?? "OPENRA" : "OPENRA";
+			previewBadge = $"{tileset.ToUpperInvariant()}  |  EARTH MATCH {confidence:P0}";
+		}
+
+		static string ReadString(JsonElement element, string name, string fallback)
+		{
+			return element.TryGetProperty(name, out var value) ? value.GetString() ?? fallback : fallback;
+		}
+
+		static double ReadRatio(JsonElement element, string name)
+		{
+			return element.TryGetProperty(name, out var value) && value.TryGetDouble(out var number) ? number.Clamp(0, 1) : 0;
+		}
+
+		static int ReadCount(JsonElement element, string name)
+		{
+			return element.TryGetProperty(name, out var value) && value.TryGetInt32(out var number) ? number : 0;
+		}
+
+		static string TitleCase(string value)
+		{
+			return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(value.Replace('-', ' '));
+		}
+
+		void ResetIntel()
+		{
+			reliefIntel = "RELIEF\nReading";
+			waterIntel = "WATER\nReading";
+			urbanIntel = "URBAN\nReading";
+			vegetationIntel = "VEGETATION\nReading";
+			landmarkIntel = "LANDMARKS\nReading";
+		}
+
+		bool HasValidCoordinates()
+		{
+			return TryReadCoordinates(out _, out _);
+		}
+
+		bool TryReadCoordinates(out double lat, out double lon)
+		{
+			lat = 0;
+			lon = 0;
+			return double.TryParse(latitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out lat) && lat >= -90 && lat <= 90 &&
+				double.TryParse(longitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out lon) && lon >= -180 && lon <= 180;
+		}
+
+		bool TryReadGenerationValues(out double lat, out double lon, out int seedValue)
+		{
+			seedValue = 0;
+			return TryReadCoordinates(out lat, out lon) &&
+				int.TryParse(seed.Text, NumberStyles.Integer, CultureInfo.InvariantCulture, out seedValue) && seedValue >= 0;
 		}
 
 		void Complete(Action<string> action)
 		{
 			if (generatedMapUid == null)
 				return;
-
 			var uid = generatedMapUid;
 			Ui.CloseWindow();
 			action(uid);
@@ -233,7 +551,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		void SetStatus(string message)
 		{
-			status = WidgetUtils.WrapText(message, statusLabel.Bounds.Width, Game.Renderer.Fonts[statusLabel.Font]);
+			status = statusLabel == null ? message : WidgetUtils.TruncateText(message, statusLabel.Bounds.Width,
+				Game.Renderer.Fonts[statusLabel.Font]);
 		}
 
 		void YieldTextFocus()
@@ -242,7 +561,6 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			latitude.YieldKeyboardFocus();
 			longitude.YieldKeyboardFocus();
 			title.YieldKeyboardFocus();
-			radius.YieldKeyboardFocus();
 			seed.YieldKeyboardFocus();
 			story.YieldKeyboardFocus();
 		}

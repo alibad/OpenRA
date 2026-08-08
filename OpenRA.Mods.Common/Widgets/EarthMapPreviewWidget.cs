@@ -23,6 +23,10 @@ namespace OpenRA.Mods.Common.Widgets
 		Sheet mapSheet;
 		Sprite mapSprite;
 		float2 pin = new(0.5f, 0.5f);
+		float cropLeft;
+		float cropTop;
+		float cropWidth = 1f;
+		float cropHeight = 1f;
 
 		public Action<float2> OnMapClick = _ => { };
 
@@ -48,10 +52,30 @@ namespace OpenRA.Mods.Common.Widgets
 				mapSheet = new Sheet(SheetType.BGRA, new Size(preview.Width, preview.Height).NextPowerOf2());
 			}
 
-			var spriteRect = new Rectangle(0, 0, preview.Width, preview.Height);
-			mapSprite = new Sprite(mapSheet, spriteRect, TextureChannel.RGBA);
-			OpenRA.Graphics.Util.FastCopyIntoSprite(mapSprite, preview);
+			var fullRect = new Rectangle(0, 0, preview.Width, preview.Height);
+			var fullSprite = new Sprite(mapSheet, fullRect, TextureChannel.RGBA);
+			OpenRA.Graphics.Util.FastCopyIntoSprite(fullSprite, preview);
 			mapSheet.CommitBufferedData();
+
+			var targetAspect = RenderBounds.Width * 1f / Math.Max(1, RenderBounds.Height);
+			var sourceAspect = preview.Width * 1f / preview.Height;
+			var spriteRect = fullRect;
+			if (targetAspect > sourceAspect)
+			{
+				var height = Math.Max(1, (int)(preview.Width / targetAspect));
+				spriteRect = new Rectangle(0, (preview.Height - height) / 2, preview.Width, height);
+			}
+			else if (targetAspect < sourceAspect)
+			{
+				var width = Math.Max(1, (int)(preview.Height * targetAspect));
+				spriteRect = new Rectangle((preview.Width - width) / 2, 0, width, preview.Height);
+			}
+
+			mapSprite = new Sprite(mapSheet, spriteRect, TextureChannel.RGBA);
+			cropLeft = spriteRect.X * 1f / preview.Width;
+			cropTop = spriteRect.Y * 1f / preview.Height;
+			cropWidth = spriteRect.Width * 1f / preview.Width;
+			cropHeight = spriteRect.Height * 1f / preview.Height;
 			pin = new float2(pinPosition.X.Clamp(0f, 1f), pinPosition.Y.Clamp(0f, 1f));
 		}
 
@@ -62,8 +86,8 @@ namespace OpenRA.Mods.Common.Widgets
 
 			var point = mi.Location - RenderBounds.Location;
 			OnMapClick(new float2(
-				(point.X * 1f / RenderBounds.Width).Clamp(0f, 1f),
-				(point.Y * 1f / RenderBounds.Height).Clamp(0f, 1f)));
+				(cropLeft + point.X * 1f / RenderBounds.Width * cropWidth).Clamp(0f, 1f),
+				(cropTop + point.Y * 1f / RenderBounds.Height * cropHeight).Clamp(0f, 1f)));
 			return true;
 		}
 
@@ -74,8 +98,24 @@ namespace OpenRA.Mods.Common.Widgets
 
 			WidgetUtils.DrawSprite(mapSprite, RenderBounds.Location, RenderBounds.Size);
 			var pinPosition = RenderBounds.Location + new int2(
-				(int)(pin.X * RenderBounds.Width),
-				(int)(pin.Y * RenderBounds.Height));
+				(int)((pin.X - cropLeft) / cropWidth * RenderBounds.Width),
+				(int)((pin.Y - cropTop) / cropHeight * RenderBounds.Height));
+
+			var radius = Math.Min(RenderBounds.Width, RenderBounds.Height) * 0.42f;
+			var topLeft = new float3(pinPosition.X - radius, pinPosition.Y - radius, 0);
+			var bottomRight = new float3(pinPosition.X + radius, pinPosition.Y + radius, 0);
+			Game.Renderer.RgbaColorRenderer.FillEllipse(topLeft, bottomRight, Color.FromArgb(42, 244, 205, 67));
+			var circle = new float3[48];
+			for (var i = 0; i < circle.Length; i++)
+			{
+				var angle = i * Math.PI * 2 / circle.Length;
+				circle[i] = new float3(
+					pinPosition.X + (float)Math.Cos(angle) * radius,
+					pinPosition.Y + (float)Math.Sin(angle) * radius,
+					0);
+			}
+
+			Game.Renderer.RgbaColorRenderer.DrawPolygon(circle, 2, Color.FromArgb(220, 244, 205, 67));
 			WidgetUtils.DrawSprite(pinSprite, pinPosition - pinSprite.Size.XY.ToInt2() / 2);
 		}
 
