@@ -33,7 +33,7 @@ Container@MAINMENU:
 			X: 13 + (WINDOW_WIDTH - 522) / 4 - WIDTH / 2
 			Y: WINDOW_HEIGHT / 2 - HEIGHT / 2
 			Width: 200
-			Height: 320
+			Height: 390
 			Children:
 				Background@MAIN_MENU:
 					Width: PARENT_WIDTH
@@ -49,42 +49,56 @@ Container@MAINMENU:
 							Font: Bold
 						Button@SINGLEPLAYER_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 60
+							Y: 55
 							Width: 140
 							Height: 30
 							Text: label-singleplayer-title
 							Font: Bold
 						Button@MULTIPLAYER_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 100
+							Y: 95
 							Width: 140
 							Height: 30
 							Text: label-multiplayer-title
 							Font: Bold
+						Button@AI_COMPANION_BUTTON:
+							X: PARENT_WIDTH / 2 - WIDTH / 2
+							Y: 135
+							Width: 140
+							Height: 30
+							Text: button-main-menu-ai-companion
+							Font: Bold
+						Button@WORLD_TOOLS_BUTTON:
+							X: PARENT_WIDTH / 2 - WIDTH / 2
+							Y: 175
+							Width: 140
+							Height: 30
+							Text: button-main-menu-world-tools
+							Font: Bold
 						Button@SETTINGS_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 140
+							Y: 215
 							Width: 140
 							Height: 30
 							Text: button-settings-title
 							Font: Bold
 						Button@EXTRAS_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 180
+							Y: 255
 							Width: 140
 							Height: 30
 							Text: button-extras-title
 							Font: Bold
 						Button@CONTENT_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 220
+							Y: 295
 							Width: 140
 							Height: 30
 							Text: button-main-menu-content
 							Font: Bold
 						Button@QUIT_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 260
+							Y: 335
 							Width: 140
 							Height: 30
 							Text: button-quit
@@ -125,7 +139,7 @@ Container@MAINMENU:
 						Button@BACK_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
 							Key: escape
-							Y: 260
+							Y: 335
 							Width: 140
 							Height: 30
 							Text: button-back
@@ -180,7 +194,7 @@ Container@MAINMENU:
 						Button@BACK_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
 							Key: escape
-							Y: 260
+							Y: 335
 							Width: 140
 							Height: 30
 							Text: button-back
@@ -214,7 +228,40 @@ Container@MAINMENU:
 						Button@BACK_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
 							Key: escape
-							Y: 260
+							Y: 335
+							Width: 140
+							Height: 30
+							Text: button-back
+							Font: Bold
+				Background@WORLD_TOOLS_MENU:
+					Width: PARENT_WIDTH
+					Height: PARENT_HEIGHT
+					Children:
+						Label@WORLD_TOOLS_MENU_TITLE:
+							Y: 20
+							Width: PARENT_WIDTH
+							Height: 30
+							Text: button-main-menu-world-tools
+							Align: Center
+							Font: Bold
+						Button@EARTH_STUDIO_BUTTON:
+							X: PARENT_WIDTH / 2 - WIDTH / 2
+							Y: 70
+							Width: 150
+							Height: 30
+							Text: button-world-tools-earth-studio
+							Font: Bold
+						Button@NATIVE_EDITOR_BUTTON:
+							X: PARENT_WIDTH / 2 - WIDTH / 2
+							Y: 110
+							Width: 150
+							Height: 30
+							Text: button-world-tools-native-editor
+							Font: Bold
+						Button@BACK_BUTTON:
+							X: PARENT_WIDTH / 2 - WIDTH / 2
+							Key: escape
+							Y: 335
 							Width: 140
 							Height: 30
 							Text: button-back

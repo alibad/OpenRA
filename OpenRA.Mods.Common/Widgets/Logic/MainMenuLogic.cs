@@ -36,7 +36,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[FluentReference("author", "datetime")]
 		const string AuthorDateTime = "label-author-datetime";
 
-		protected enum MenuType { Main, Singleplayer, Extras, MapEditor, StartupPrompts, None }
+		protected enum MenuType { Main, Singleplayer, Extras, MapEditor, WorldTools, StartupPrompts, None }
 
 		protected enum MenuPanel { None, Missions, Skirmish, Multiplayer, MapEditor, Replays, GameSaves }
 
@@ -65,6 +65,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			Game.RunAfterTick(Ui.ResetTooltips);
 		}
 
+		static void OpenLocalTool(string environmentVariable, string fallbackUrl)
+		{
+			var configuredUrl = Environment.GetEnvironmentVariable(environmentVariable);
+			Game.Renderer.TryOpenUrl(string.IsNullOrWhiteSpace(configuredUrl) ? fallbackUrl : configuredUrl);
+		}
+
 		[ObjectCreator.UseCtor]
 		public MainMenuLogic(Widget widget, World world, ModData modData)
 		{
@@ -79,6 +85,15 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			mainMenu.Get<ButtonWidget>("SINGLEPLAYER_BUTTON").OnClick = () => SwitchMenu(MenuType.Singleplayer);
 
 			mainMenu.Get<ButtonWidget>("MULTIPLAYER_BUTTON").OnClick = OpenMultiplayerPanel;
+
+			var aiCompanionButton = mainMenu.GetOrNull<ButtonWidget>("AI_COMPANION_BUTTON");
+			if (aiCompanionButton != null)
+				aiCompanionButton.OnClick = () => OpenLocalTool(
+					"OPENRA_AI_CONSOLE_URL", "http://127.0.0.1:8787/");
+
+			var worldToolsButton = mainMenu.GetOrNull<ButtonWidget>("WORLD_TOOLS_BUTTON");
+			if (worldToolsButton != null)
+				worldToolsButton.OnClick = () => SwitchMenu(MenuType.WorldTools);
 
 			var contentButton = mainMenu.GetOrNull<ButtonWidget>("CONTENT_BUTTON");
 			if (contentButton != null)
@@ -215,6 +230,22 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			loadMapButton.Disabled = !hasMaps;
 
 			mapEditorMenu.Get<ButtonWidget>("BACK_BUTTON").OnClick = () => SwitchMenu(MenuType.Extras);
+
+			// OpenRA AI world tools: generate a map from Earth context, then refine it
+			// with the native editor without burying either workflow under Extras.
+			var worldToolsMenu = widget.GetOrNull("WORLD_TOOLS_MENU");
+			if (worldToolsMenu != null)
+			{
+				worldToolsMenu.IsVisible = () => menuType == MenuType.WorldTools;
+				worldToolsMenu.Get<ButtonWidget>("EARTH_STUDIO_BUTTON").OnClick = () => OpenLocalTool(
+					"OPENRA_AI_WORLD_STUDIO_URL", "http://127.0.0.1:8788/");
+				worldToolsMenu.Get<ButtonWidget>("NATIVE_EDITOR_BUTTON").OnClick = () =>
+				{
+					modData.MapCache.UpdateMaps();
+					SwitchMenu(MenuType.MapEditor);
+				};
+				worldToolsMenu.Get<ButtonWidget>("BACK_BUTTON").OnClick = () => SwitchMenu(MenuType.Main);
+			}
 
 			var newsBG = widget.GetOrNull("NEWS_BG");
 			if (newsBG != null)
