@@ -2,9 +2,8 @@ Background@EARTH_MISSION_PANEL:
 	Logic: EarthMissionStudioLogic
 	X: (WINDOW_WIDTH - WIDTH) / 2
 	Y: (WINDOW_HEIGHT - HEIGHT) / 2
-	# WINDOW_* is reported in physical pixels while widget coordinates use the
-	# UI-scaled resolution. The 2/3 conversion keeps this full-screen workbench
-	# inside the usable area at 150% Windows display scaling.
+	# Keep a stable base canvas for the nested PARENT_* expressions. The logic
+	# below reflows this canvas to the effective renderer size at runtime.
 	Width: WINDOW_WIDTH * 2 / 3 - 40
 	Height: WINDOW_HEIGHT * 2 / 3 - 30
 	Children:
@@ -98,6 +97,35 @@ Background@EARTH_MISSION_PANEL:
 					Y: 25
 					Width: PARENT_WIDTH - 12
 					Height: PARENT_HEIGHT - 48
+				Button@EARTH_ZOOM_CLOSER:
+					X: 12
+					Y: 31
+					Width: 64
+					Height: 24
+					Text: button-earth-zoom-closer
+					Font: TinyBold
+				Button@EARTH_ZOOM_WIDER:
+					X: 80
+					Y: 31
+					Width: 64
+					Height: 24
+					Text: button-earth-zoom-wider
+					Font: TinyBold
+				Button@EARTH_ZOOM_FIT:
+					X: 148
+					Y: 31
+					Width: 64
+					Height: 24
+					Text: button-earth-zoom-fit
+					Font: TinyBold
+				Label@EARTH_VIEW_SCALE:
+					X: 218
+					Y: 34
+					Width: PARENT_WIDTH - 230
+					Height: 18
+					Align: Right
+					Font: TinyBold
+					Contrast: true
 				Label@EARTH_EMPTY:
 					X: 20
 					Y: PARENT_HEIGHT / 2 - 22

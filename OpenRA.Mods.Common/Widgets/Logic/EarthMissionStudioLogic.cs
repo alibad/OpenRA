@@ -31,11 +31,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		static readonly Dictionary<int, string> RadiusLabels = new()
 		{
-			{ 2000, "2 km  -  Local" },
-			{ 3500, "3.5 km  -  District" },
-			{ 6000, "6 km  -  Regional" },
-			{ 10000, "10 km  -  Wide" }
+			{ 500, "1 km wide  -  Tactical" },
+			{ 750, "1.5 km wide  -  Neighborhood" },
+			{ 1000, "2 km wide  -  Local" },
+			{ 2000, "4 km wide  -  District (compressed)" }
 		};
+
+		static readonly int[] EarthViewRadii = [500, 750, 1000, 2000, 4000, 8000];
 
 		static readonly Dictionary<string, string> ArchetypeLabels = new()
 		{
@@ -56,7 +58,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		static readonly Dictionary<string, string> ImageryStyleLabels = new()
 		{
 			{ "satellite", "Satellite 2025" },
-			{ "terrain", "Terrain" }
+			{ "terrain", "Map + buildings" }
 		};
 
 		static readonly string[] PipelineLabels =
@@ -102,7 +104,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		bool earthPreviewLoaded;
 		bool generationFailed;
 		int mapSize = 96;
-		int radiusMeters = 3500;
+		int radiusMeters = 500;
+		int earthViewRadiusMeters = 500;
+		int earthPreviewRequestId;
 		int generationStage;
 		string archetype = "Balanced Skirmish";
 		string generationMode = "playability-first";
@@ -130,19 +134,19 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[ObjectCreator.UseCtor]
 		public EarthMissionStudioLogic(Widget widget, ModData modData, Action onExit, Action<string> onPlay, Action<string> onEdit)
 		{
-			// Chrome expressions are initialized against the physical render resolution,
-			// while widget placement is scaled by the effective window scale. Reflow the
-			// complete workbench into the usable UI resolution so it stays centered and
-			// keeps the same composition at every Windows display scale.
-			var logicalWidth = (int)(Game.Renderer.Resolution.Width / Game.Renderer.WindowScale);
-			var logicalHeight = (int)(Game.Renderer.Resolution.Height / Game.Renderer.WindowScale);
-			var targetWidth = logicalWidth * 94 / 100;
-			var targetHeight = logicalHeight * 92 / 100;
+			// WindowScale defines the usable design canvas, but widget positions still
+			// use the complete renderer coordinate space. The previous implementation
+			// centered against the smaller design canvas, which pinned the correctly
+			// scaled panel to the upper-left on high-DPI displays.
+			var renderWidth = Game.Renderer.Resolution.Width;
+			var renderHeight = Game.Renderer.Resolution.Height;
+			var targetWidth = (int)(renderWidth / Game.Renderer.WindowScale * 0.94f);
+			var targetHeight = (int)(renderHeight / Game.Renderer.WindowScale * 0.92f);
 			ScaleLayout(widget, targetWidth / (float)widget.Bounds.Width, targetHeight / (float)widget.Bounds.Height);
 			widget.Bounds.Width = targetWidth;
 			widget.Bounds.Height = targetHeight;
-			widget.Bounds.X = (logicalWidth - targetWidth) / 2;
-			widget.Bounds.Y = (logicalHeight - targetHeight) / 2;
+			widget.Bounds.X = (renderWidth - targetWidth) / 2;
+			widget.Bounds.Y = (renderHeight - targetHeight) / 2;
 
 			this.modData = modData;
 			this.onExit = onExit;
@@ -172,6 +176,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			earthPreview = widget.Get<EarthMapPreviewWidget>("EARTH_PREVIEW");
 			earthPreview.OnMapClick = MoveEarthPin;
+			earthPreview.OnZoom = ZoomEarthView;
+			var earthViewScale = widget.Get<LabelWidget>("EARTH_VIEW_SCALE");
+			earthViewScale.GetText = EarthViewScaleText;
+			var radiusLabel = widget.Get<LabelWidget>("RADIUS_LABEL");
+			radiusLabel.GetText = () => $"Battlefield footprint  |  {FormatDistance(radiusMeters * 2)} wide  |  {MetersPerCell():0.#} m/cell";
 			generatedPreview = widget.Get<GeneratedMapPreviewWidget>("GENERATED_PREVIEW");
 			widget.Get("EARTH_EMPTY").IsVisible = () => !earthPreviewLoaded;
 			var gameEmpty = widget.Get<LabelWidget>("GAME_EMPTY");
@@ -226,6 +235,20 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			BindDropdown(widget.Get<DropDownButtonWidget>("MISSION_ARCHETYPE"), ArchetypeLabels, () => archetype, SelectArchetype, 260);
 			BindDropdown(widget.Get<DropDownButtonWidget>("EARTH_LAYER"), ImageryStyleLabels,
 				() => imageryStyle, SelectImageryStyle, 190);
+
+			var zoomCloser = widget.Get<ButtonWidget>("EARTH_ZOOM_CLOSER");
+			zoomCloser.IsDisabled = () => earthViewRadiusMeters <= EarthViewRadii[0] || busy;
+			zoomCloser.OnClick = () => ZoomEarthView(-1);
+			var zoomWider = widget.Get<ButtonWidget>("EARTH_ZOOM_WIDER");
+			zoomWider.IsDisabled = () => earthViewRadiusMeters >= EarthViewRadii[^1] || busy;
+			zoomWider.OnClick = () => ZoomEarthView(1);
+			var zoomFit = widget.Get<ButtonWidget>("EARTH_ZOOM_FIT");
+			zoomFit.IsDisabled = () => earthViewRadiusMeters == radiusMeters || busy;
+			zoomFit.OnClick = () =>
+			{
+				earthViewRadiusMeters = radiusMeters;
+				_ = RefreshEarthPreviewAsync(false);
+			};
 
 			var balancedMode = widget.Get<ButtonWidget>("MODE_BALANCED");
 			balancedMode.IsHighlighted = () => generationMode == "playability-first";
@@ -285,7 +308,37 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		void SelectRadius(int value)
 		{
 			radiusMeters = value;
+			earthViewRadiusMeters = value;
 			_ = RefreshEarthPreviewAsync(false);
+		}
+
+		void ZoomEarthView(int direction)
+		{
+			var index = Array.IndexOf(EarthViewRadii, earthViewRadiusMeters);
+			if (index < 0)
+				index = 0;
+			var next = (index + direction).Clamp(0, EarthViewRadii.Length - 1);
+			if (next == index)
+				return;
+
+			earthViewRadiusMeters = EarthViewRadii[next];
+			_ = RefreshEarthPreviewAsync(false);
+		}
+
+		double MetersPerCell()
+		{
+			return radiusMeters * 2.0 / mapSize;
+		}
+
+		string EarthViewScaleText()
+		{
+			var sourceDetail = imageryStyle == "satellite" ? "~10 m source" : "street detail";
+			return $"VIEW {FormatDistance(earthViewRadiusMeters * 2).ToUpperInvariant()}  |  {sourceDetail.ToUpperInvariant()}";
+		}
+
+		static string FormatDistance(int meters)
+		{
+			return meters < 1000 ? $"{meters} m" : $"{meters / 1000.0:0.#} km";
 		}
 
 		void SelectArchetype(string value)
@@ -401,18 +454,21 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			if (!busy && !initial)
 				SetStatus("Refreshing the exact terrain image used by generation and AI vision...");
+			var requestId = ++earthPreviewRequestId;
 			try
 			{
 				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_WORLD_STUDIO_URL", "http://127.0.0.1:8788/");
 				var path = "v1/terrain-view?latitude=" + lat.ToString(CultureInfo.InvariantCulture) +
-					"&longitude=" + lon.ToString(CultureInfo.InvariantCulture) + "&radius_m=" + radiusMeters +
+					"&longitude=" + lon.ToString(CultureInfo.InvariantCulture) + "&radius_m=" + earthViewRadiusMeters +
 					"&style=" + Uri.EscapeDataString(imageryStyle);
 				var bytes = await OpenRAAILocalClient.GetBytesAsync(baseUri, path, 45);
 				await using var stream = new MemoryStream(bytes);
 				var preview = new Png(stream);
 				Game.RunAfterTick(() =>
 				{
-					earthPreview.Update(preview, new float2(0.5f, 0.5f));
+					if (requestId != earthPreviewRequestId)
+						return;
+					earthPreview.Update(preview, new float2(0.5f, 0.5f), radiusMeters / (float)earthViewRadiusMeters);
 					earthPreviewLoaded = true;
 					visionStatus = $"{ImageryStyleLabels[imageryStyle].ToUpperInvariant()} + MAP DATA | READY TO ANALYZE";
 					if (!busy)
@@ -429,8 +485,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		{
 			if (!TryReadCoordinates(out var lat, out var lon))
 				return;
-			var northMeters = (0.5 - point.Y) * radiusMeters * 2;
-			var eastMeters = (point.X - 0.5) * radiusMeters * 2;
+			var northMeters = (0.5 - point.Y) * earthViewRadiusMeters * 2;
+			var eastMeters = (point.X - 0.5) * earthViewRadiusMeters * 2;
 			var selectedLatitude = lat + northMeters / 111320.0;
 			var selectedLongitude = lon + eastMeters / (111320.0 * Math.Max(0.15, Math.Cos(lat * Math.PI / 180.0)));
 			latitude.Text = selectedLatitude.ToString("0.######", CultureInfo.InvariantCulture);

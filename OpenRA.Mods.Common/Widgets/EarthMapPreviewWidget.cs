@@ -27,8 +27,10 @@ namespace OpenRA.Mods.Common.Widgets
 		float cropTop;
 		float cropWidth = 1f;
 		float cropHeight = 1f;
+		float footprintScale = 1f;
 
 		public Action<float2> OnMapClick = _ => { };
+		public Action<int> OnZoom = _ => { };
 
 		public EarthMapPreviewWidget()
 		{
@@ -40,11 +42,12 @@ namespace OpenRA.Mods.Common.Widgets
 		{
 			pinSprite = ChromeProvider.GetImage("lobby-bits", "spawn-unclaimed");
 			OnMapClick = other.OnMapClick;
+			OnZoom = other.OnZoom;
 		}
 
 		public override EarthMapPreviewWidget Clone() { return new EarthMapPreviewWidget(this); }
 
-		public void Update(Png preview, float2 pinPosition)
+		public void Update(Png preview, float2 pinPosition, float selectedRadiusToViewRadius = 1f)
 		{
 			if (mapSheet == null || mapSheet.Size.Width < preview.Width || mapSheet.Size.Height < preview.Height)
 			{
@@ -77,10 +80,17 @@ namespace OpenRA.Mods.Common.Widgets
 			cropWidth = spriteRect.Width * 1f / preview.Width;
 			cropHeight = spriteRect.Height * 1f / preview.Height;
 			pin = new float2(pinPosition.X.Clamp(0f, 1f), pinPosition.Y.Clamp(0f, 1f));
+			footprintScale = Math.Max(0.01f, selectedRadiusToViewRadius);
 		}
 
 		public override bool HandleMouseInput(MouseInput mi)
 		{
+			if (mi.Event == MouseInputEvent.Scroll && mapSprite != null)
+			{
+				OnZoom(mi.Delta.Y > 0 ? -1 : 1);
+				return true;
+			}
+
 			if (mi.Event != MouseInputEvent.Down || mi.Button != MouseButton.Left || mapSprite == null)
 				return false;
 
@@ -96,12 +106,13 @@ namespace OpenRA.Mods.Common.Widgets
 			if (mapSprite == null)
 				return;
 
+			Game.Renderer.EnableScissor(RenderBounds);
 			WidgetUtils.DrawSprite(mapSprite, RenderBounds.Location, RenderBounds.Size);
 			var pinPosition = RenderBounds.Location + new int2(
 				(int)((pin.X - cropLeft) / cropWidth * RenderBounds.Width),
 				(int)((pin.Y - cropTop) / cropHeight * RenderBounds.Height));
 
-			var radius = Math.Min(RenderBounds.Width, RenderBounds.Height) * 0.42f;
+			var radius = Math.Min(RenderBounds.Width, RenderBounds.Height) * 0.42f * footprintScale;
 			var topLeft = new float3(pinPosition.X - radius, pinPosition.Y - radius, 0);
 			var bottomRight = new float3(pinPosition.X + radius, pinPosition.Y + radius, 0);
 			Game.Renderer.RgbaColorRenderer.FillEllipse(topLeft, bottomRight, Color.FromArgb(42, 244, 205, 67));
@@ -117,6 +128,7 @@ namespace OpenRA.Mods.Common.Widgets
 
 			Game.Renderer.RgbaColorRenderer.DrawPolygon(circle, 2, Color.FromArgb(220, 244, 205, 67));
 			WidgetUtils.DrawSprite(pinSprite, pinPosition - pinSprite.Size.XY.ToInt2() / 2);
+			Game.Renderer.DisableScissor();
 		}
 
 		public override void Removed()
