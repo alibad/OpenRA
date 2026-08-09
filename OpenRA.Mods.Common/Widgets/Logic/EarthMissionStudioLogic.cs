@@ -232,6 +232,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			generationBar = widget.Get<ProgressBarWidget>("GENERATION_BAR");
 			generationBar.GetPercentage = () => generationStage * 100 / PipelineLabels.Length;
 			generationBar.IsIndeterminate = () => busy && generationStage == 0;
+			generationBar.GetBarColor = GenerationBarColor;
 
 			BindDropdown(widget.Get<DropDownButtonWidget>("MAP_SIZE"), MapSizeLabels, () => mapSize, value => mapSize = value, 260);
 			BindDropdown(widget.Get<DropDownButtonWidget>("RADIUS"), RadiusLabels, () => radiusMeters, SelectRadius, 220);
@@ -401,6 +402,17 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			if (generationStage >= stage)
 				return generationStage == stage && busy ? Color.FromArgb(244, 205, 67) : Color.FromArgb(112, 221, 126);
 			return Color.FromArgb(150, 150, 150);
+		}
+
+		Color GenerationBarColor()
+		{
+			if (generationFailed)
+				return Color.FromArgb(255, 112, 80);
+			if (generatedMapUid != null || generationStage >= PipelineLabels.Length)
+				return Color.FromArgb(112, 221, 126);
+			if (busy)
+				return Color.FromArgb(244, 205, 67);
+			return Color.FromArgb(105, 105, 105);
 		}
 
 		Color WorkflowColor(int step)
