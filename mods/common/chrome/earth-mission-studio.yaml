@@ -22,9 +22,39 @@ Background@EARTH_MISSION_PANEL:
 			Text: label-earth-workbench-subtitle
 			Align: Center
 			Font: Tiny
+		Background@WORKFLOW_ROW:
+			X: 20
+			Y: 49
+			Width: PARENT_WIDTH - 40
+			Height: 24
+			Background: dialog4
+			Children:
+				Label@WORKFLOW_1:
+					Width: PARENT_WIDTH / 4
+					Height: 24
+					Align: Center
+					Font: TinyBold
+				Label@WORKFLOW_2:
+					X: PARENT_WIDTH / 4
+					Width: PARENT_WIDTH / 4
+					Height: 24
+					Align: Center
+					Font: TinyBold
+				Label@WORKFLOW_3:
+					X: PARENT_WIDTH / 2
+					Width: PARENT_WIDTH / 4
+					Height: 24
+					Align: Center
+					Font: TinyBold
+				Label@WORKFLOW_4:
+					X: PARENT_WIDTH * 3 / 4
+					Width: PARENT_WIDTH / 4
+					Height: 24
+					Align: Center
+					Font: TinyBold
 		Container@SEARCH_ROW:
 			X: 20
-			Y: 52
+			Y: 78
 			Width: PARENT_WIDTH - 40
 			Height: 28
 			Children:
@@ -46,9 +76,9 @@ Background@EARTH_MISSION_PANEL:
 					Font: TinyBold
 		Background@EARTH_VIEW_CARD:
 			X: 20
-			Y: 88
+			Y: 112
 			Width: (PARENT_WIDTH - 50) / 2
-			Height: PARENT_HEIGHT * 44 / 100
+			Height: PARENT_HEIGHT * 41 / 100
 			Background: dialog3
 			Children:
 				Label@EARTH_VIEW_TITLE:
@@ -87,9 +117,9 @@ Background@EARTH_MISSION_PANEL:
 					Contrast: true
 		Background@GAME_VIEW_CARD:
 			X: (PARENT_WIDTH + 10) / 2
-			Y: 88
+			Y: 112
 			Width: (PARENT_WIDTH - 50) / 2
-			Height: PARENT_HEIGHT * 44 / 100
+			Height: PARENT_HEIGHT * 41 / 100
 			Background: dialog3
 			Children:
 				Label@GAME_VIEW_TITLE:
@@ -122,7 +152,7 @@ Background@EARTH_MISSION_PANEL:
 					Contrast: true
 		Container@MISSION_ROW:
 			X: 20
-			Y: PARENT_HEIGHT * 44 / 100 + 100
+			Y: PARENT_HEIGHT * 41 / 100 + 124
 			Width: PARENT_WIDTH - 40
 			Height: 50
 			Children:
@@ -177,7 +207,7 @@ Background@EARTH_MISSION_PANEL:
 							Height: 27
 		Container@STORY_ROW:
 			X: 20
-			Y: PARENT_HEIGHT * 44 / 100 + 156
+			Y: PARENT_HEIGHT * 41 / 100 + 180
 			Width: PARENT_WIDTH - 40
 			Height: 50
 			Children:
@@ -202,10 +232,19 @@ Background@EARTH_MISSION_PANEL:
 							Width: PARENT_WIDTH
 							Height: 19
 							Text: label-earth-generation-mode
-						DropDownButton@GENERATION_MODE:
+						Button@MODE_BALANCED:
 							Y: 21
-							Width: PARENT_WIDTH
+							Width: PARENT_WIDTH / 2 - 2
 							Height: 27
+							Text: button-earth-mode-balanced
+							Font: TinyBold
+						Button@MODE_CREATIVE:
+							X: PARENT_WIDTH / 2 + 2
+							Y: 21
+							Width: PARENT_WIDTH / 2 - 2
+							Height: 27
+							Text: button-earth-mode-creative
+							Font: TinyBold
 				Button@ADVANCED:
 					X: PARENT_WIDTH * 87 / 100
 					Y: 21

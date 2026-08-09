@@ -53,13 +53,6 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{ "Supply Raid", "Disrupt the enemy economy while defending exposed resource fields and a vulnerable reinforcement route." }
 		};
 
-		static readonly Dictionary<string, string> GenerationModeLabels = new()
-		{
-			{ "reality-first", "Reality First" },
-			{ "playability-first", "Earth + Balance" },
-			{ "creative-remix", "Creative Remix" }
-		};
-
 		static readonly Dictionary<string, string> ImageryStyleLabels = new()
 		{
 			{ "satellite", "Satellite 2025" },
@@ -74,6 +67,14 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			"4  Gameplay translation",
 			"5  Map validation",
 			"6  Ready to play"
+		];
+
+		static readonly string[] WorkflowLabels =
+		[
+			"1  PIN EARTH",
+			"2  SHAPE MISSION",
+			"3  BUILD + VALIDATE",
+			"4  PLAY OR EDIT"
 		];
 
 		readonly ModData modData;
@@ -93,6 +94,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		readonly GeneratedMapPreviewWidget generatedPreview;
 		readonly ProgressBarWidget generationBar;
 		readonly LabelWidget[] pipelineLabels;
+		readonly LabelWidget[] workflowLabels;
 		readonly Widget advancedOptions;
 
 		bool busy;
@@ -108,17 +110,17 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		string status = "Select a location, inspect its terrain, then create the battlefield.";
 		string previewBadge = "PLAYABLE PREVIEW  |  WAITING";
 		string generatedMapUid;
-		string visionStatus = "SATELLITE + MAP DATA | AWAITING SCAN";
-		string reliefIntel = "Pending";
-		string waterIntel = "Pending";
-		string urbanIntel = "Pending";
-		string vegetationIntel = "Pending";
-		string landmarkIntel = "Pending";
-		string reliefDetail = "Not scanned";
-		string waterDetail = "Not scanned";
-		string urbanDetail = "Not scanned";
-		string vegetationDetail = "Not scanned";
-		string landmarkDetail = "Not scanned";
+		string visionStatus = "SATELLITE + MAP DATA | PREPARING SOURCE";
+		string reliefIntel = "Ready";
+		string waterIntel = "Ready";
+		string urbanIntel = "Ready";
+		string vegetationIntel = "Ready";
+		string landmarkIntel = "Ready";
+		string reliefDetail = "Scans on build";
+		string waterDetail = "Scans on build";
+		string urbanDetail = "Scans on build";
+		string vegetationDetail = "Scans on build";
+		string landmarkDetail = "Scans on build";
 		int reliefPercent;
 		int waterPercent;
 		int urbanPercent;
@@ -128,12 +130,22 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[ObjectCreator.UseCtor]
 		public EarthMissionStudioLogic(Widget widget, ModData modData, Action onExit, Action<string> onPlay, Action<string> onEdit)
 		{
-			this.modData = modData;
-			this.onExit = onExit;
+			// Chrome expressions are initialized against the physical render resolution,
+			// while widget placement is scaled by the effective window scale. Reflow the
+			// complete workbench into the usable UI resolution so it stays centered and
+			// keeps the same composition at every Windows display scale.
 			var logicalWidth = (int)(Game.Renderer.Resolution.Width / Game.Renderer.WindowScale);
 			var logicalHeight = (int)(Game.Renderer.Resolution.Height / Game.Renderer.WindowScale);
-			widget.Bounds.X = Math.Max(10, (logicalWidth - widget.Bounds.Width) / 2);
-			widget.Bounds.Y = Math.Max(10, (logicalHeight - widget.Bounds.Height) / 2);
+			var targetWidth = logicalWidth * 94 / 100;
+			var targetHeight = logicalHeight * 92 / 100;
+			ScaleLayout(widget, targetWidth / (float)widget.Bounds.Width, targetHeight / (float)widget.Bounds.Height);
+			widget.Bounds.Width = targetWidth;
+			widget.Bounds.Height = targetHeight;
+			widget.Bounds.X = (logicalWidth - targetWidth) / 2;
+			widget.Bounds.Y = (logicalHeight - targetHeight) / 2;
+
+			this.modData = modData;
+			this.onExit = onExit;
 			location = widget.Get<TextFieldWidget>("LOCATION");
 			latitude = widget.Get<TextFieldWidget>("LATITUDE");
 			longitude = widget.Get<TextFieldWidget>("LONGITUDE");
@@ -163,7 +175,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			generatedPreview = widget.Get<GeneratedMapPreviewWidget>("GENERATED_PREVIEW");
 			widget.Get("EARTH_EMPTY").IsVisible = () => !earthPreviewLoaded;
 			var gameEmpty = widget.Get<LabelWidget>("GAME_EMPTY");
-			gameEmpty.GetText = () => "Your generated battlefield will appear here.\nTerrain, resources, and spawn points update when ready.";
+			gameEmpty.GetText = () => "Step 3 builds the real battlefield here.\nOpenRA owns legal terrain, routes, resources, and spawn points.";
 			gameEmpty.IsVisible = () => generatedMapUid == null;
 
 			BindIntelCard(widget.Get("RELIEF_CARD"), () => reliefIntel, () => reliefDetail, () => reliefPercent);
@@ -182,6 +194,16 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				pipelineLabels[index] = label;
 			}
 
+			workflowLabels = new LabelWidget[WorkflowLabels.Length];
+			for (var index = 0; index < WorkflowLabels.Length; index++)
+			{
+				var step = index + 1;
+				var label = widget.Get<LabelWidget>($"WORKFLOW_{step}");
+				label.GetText = () => WorkflowLabels[step - 1];
+				label.GetColor = () => WorkflowColor(step);
+				workflowLabels[index] = label;
+			}
+
 			generationBar = widget.Get<ProgressBarWidget>("GENERATION_BAR");
 			generationBar.GetPercentage = () => generationStage * 100 / PipelineLabels.Length;
 			generationBar.IsIndeterminate = () => busy && generationStage == 0;
@@ -189,10 +211,15 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			BindDropdown(widget.Get<DropDownButtonWidget>("MAP_SIZE"), MapSizeLabels, () => mapSize, value => mapSize = value, 260);
 			BindDropdown(widget.Get<DropDownButtonWidget>("RADIUS"), RadiusLabels, () => radiusMeters, SelectRadius, 220);
 			BindDropdown(widget.Get<DropDownButtonWidget>("MISSION_ARCHETYPE"), ArchetypeLabels, () => archetype, SelectArchetype, 260);
-			BindDropdown(widget.Get<DropDownButtonWidget>("GENERATION_MODE"), GenerationModeLabels,
-				() => generationMode, value => generationMode = value, 230);
 			BindDropdown(widget.Get<DropDownButtonWidget>("EARTH_LAYER"), ImageryStyleLabels,
 				() => imageryStyle, SelectImageryStyle, 190);
+
+			var balancedMode = widget.Get<ButtonWidget>("MODE_BALANCED");
+			balancedMode.IsHighlighted = () => generationMode == "playability-first";
+			balancedMode.OnClick = () => generationMode = "playability-first";
+			var creativeMode = widget.Get<ButtonWidget>("MODE_CREATIVE");
+			creativeMode.IsHighlighted = () => generationMode == "creative-remix";
+			creativeMode.OnClick = () => generationMode = "creative-remix";
 
 			var search = widget.Get<ButtonWidget>("SEARCH");
 			search.IsDisabled = () => busy || string.IsNullOrWhiteSpace(location.Text);
@@ -290,6 +317,16 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			return Color.FromArgb(150, 150, 150);
 		}
 
+		Color WorkflowColor(int step)
+		{
+			var current = generatedMapUid != null ? 4 : busy ? 3 : earthPreviewLoaded ? 2 : 1;
+			if (step < current)
+				return Color.FromArgb(112, 221, 126);
+			if (step == current)
+				return busy ? Color.FromArgb(244, 205, 67) : Color.White;
+			return Color.FromArgb(150, 150, 150);
+		}
+
 		async System.Threading.Tasks.Task SearchAsync()
 		{
 			var query = location.Text.Trim();
@@ -362,6 +399,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				{
 					earthPreview.Update(preview, new float2(0.5f, 0.5f));
 					earthPreviewLoaded = true;
+					visionStatus = $"{ImageryStyleLabels[imageryStyle].ToUpperInvariant()} + MAP DATA | READY TO ANALYZE";
 					if (!busy)
 						SetStatus($"{ImageryStyleLabels[imageryStyle]} ready. This exact image will be sent through the AI layer during generation.");
 				});
@@ -545,6 +583,18 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				ImageryStyleLabels[imageryStyle].ToUpperInvariant();
 			var tileset = synthesis.TryGetProperty("tileset", out var value) ? value.GetString() ?? "OPENRA" : "OPENRA";
 			previewBadge = $"{tileset.ToUpperInvariant()}  |  EARTH MATCH {confidence:P0}";
+		}
+
+		static void ScaleLayout(Widget parent, float horizontalScale, float verticalScale)
+		{
+			foreach (var child in parent.Children)
+			{
+				child.Bounds.X = (int)Math.Round(child.Bounds.X * horizontalScale);
+				child.Bounds.Y = (int)Math.Round(child.Bounds.Y * verticalScale);
+				child.Bounds.Width = (int)Math.Round(child.Bounds.Width * horizontalScale);
+				child.Bounds.Height = (int)Math.Round(child.Bounds.Height * verticalScale);
+				ScaleLayout(child, horizontalScale, verticalScale);
+			}
 		}
 
 		static string DensityLabel(double value)
