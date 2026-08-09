@@ -57,7 +57,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		static readonly Dictionary<string, string> ImageryStyleLabels = new()
 		{
-			{ "satellite", "Satellite 2025" },
+			{ "auto", "Auto detail" },
+			{ "hybrid", "Hybrid detail" },
+			{ "satellite", "Satellite (regional)" },
 			{ "terrain", "Map + buildings" }
 		};
 
@@ -110,11 +112,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		int generationStage;
 		string archetype = "Balanced Skirmish";
 		string generationMode = "playability-first";
-		string imageryStyle = "satellite";
+		string imageryStyle = "auto";
+		string generatedImageryStyle = "terrain";
 		string status = "Select a location, inspect its terrain, then create the battlefield.";
 		string previewBadge = "PLAYABLE PREVIEW  |  WAITING";
 		string generatedMapUid;
-		string visionStatus = "SATELLITE + MAP DATA | PREPARING SOURCE";
+		string visionStatus = "AUTO DETAIL + MAP DATA | PREPARING SOURCE";
 		string reliefIntel = "Ready";
 		string waterIntel = "Ready";
 		string urbanIntel = "Ready";
@@ -332,8 +335,21 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		string EarthViewScaleText()
 		{
-			var sourceDetail = imageryStyle == "satellite" ? "~10 m source" : "street detail";
+			var sourceDetail = EffectiveImageryStyle(earthViewRadiusMeters) switch
+			{
+				"hybrid" => "satellite + buildings",
+				"satellite" => "~10 m regional source",
+				_ => "street + building detail"
+			};
 			return $"VIEW {FormatDistance(earthViewRadiusMeters * 2).ToUpperInvariant()}  |  {sourceDetail.ToUpperInvariant()}";
+		}
+
+		string EffectiveImageryStyle(int viewRadius)
+		{
+			if (imageryStyle != "auto")
+				return imageryStyle;
+
+			return viewRadius <= 1000 ? "terrain" : "satellite";
 		}
 
 		static string FormatDistance(int meters)
@@ -351,8 +367,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		void SelectImageryStyle(string value)
 		{
 			imageryStyle = value;
-			visionStatus = value == "satellite" ?
-				"SATELLITE + MAP DATA | AWAITING SCAN" : "TERRAIN + MAP DATA | AWAITING SCAN";
+			visionStatus = $"{ImageryStyleLabels[EffectiveImageryStyle(earthViewRadiusMeters)].ToUpperInvariant()} + MAP DATA | AWAITING SCAN";
 			earthPreviewLoaded = false;
 			SetStatus($"Switching Earth reconnaissance to {ImageryStyleLabels[value].ToLowerInvariant()}...");
 			_ = RefreshEarthPreviewAsync(false);
@@ -360,9 +375,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		string EarthAttribution()
 		{
-			return imageryStyle == "satellite" ?
-				"Sentinel-2 Cloudless 2025 | EOX | modified Copernicus data" :
-				"OpenTopoMap | OpenStreetMap contributors | SRTM";
+			return EffectiveImageryStyle(earthViewRadiusMeters) switch
+			{
+				"hybrid" => "Sentinel-2 + OpenTopoMap | EOX | OpenStreetMap contributors",
+				"satellite" => "Sentinel-2 Cloudless 2025 | EOX | modified Copernicus data",
+				_ => "OpenTopoMap | OpenStreetMap contributors | SRTM"
+			};
 		}
 
 		string CoordinateStatus()
@@ -458,9 +476,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			try
 			{
 				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_WORLD_STUDIO_URL", "http://127.0.0.1:8788/");
+				var resolvedStyle = EffectiveImageryStyle(earthViewRadiusMeters);
 				var path = "v1/terrain-view?latitude=" + lat.ToString(CultureInfo.InvariantCulture) +
 					"&longitude=" + lon.ToString(CultureInfo.InvariantCulture) + "&radius_m=" + earthViewRadiusMeters +
-					"&style=" + Uri.EscapeDataString(imageryStyle);
+					"&style=" + Uri.EscapeDataString(resolvedStyle);
 				var bytes = await OpenRAAILocalClient.GetBytesAsync(baseUri, path, 45);
 				await using var stream = new MemoryStream(bytes);
 				var preview = new Png(stream);
@@ -470,9 +489,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 						return;
 					earthPreview.Update(preview, new float2(0.5f, 0.5f), radiusMeters / (float)earthViewRadiusMeters);
 					earthPreviewLoaded = true;
-					visionStatus = $"{ImageryStyleLabels[imageryStyle].ToUpperInvariant()} + MAP DATA | READY TO ANALYZE";
+					visionStatus = $"{ImageryStyleLabels[resolvedStyle].ToUpperInvariant()} + MAP DATA | READY TO ANALYZE";
 					if (!busy)
-						SetStatus($"{ImageryStyleLabels[imageryStyle]} ready. This exact image will be sent through the AI layer during generation.");
+						SetStatus($"{ImageryStyleLabels[resolvedStyle]} ready. Generation will fit this source to the battlefield footprint.");
 				});
 			}
 			catch (Exception e)
@@ -504,6 +523,17 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				return;
 			}
 
+			// Generation always analyzes the battlefield footprint, not a wider
+			// reconnaissance zoom. Fit the visible source first so the screen and
+			// multimodal input describe the same physical area.
+			if (earthViewRadiusMeters != radiusMeters)
+			{
+				earthViewRadiusMeters = radiusMeters;
+				SetStatus("Fitting Earth detail to the battlefield footprint...");
+				await RefreshEarthPreviewAsync(false);
+			}
+			generatedImageryStyle = EffectiveImageryStyle(radiusMeters);
+
 			generationFailed = false;
 			generationStage = 0;
 			generatedMapUid = null;
@@ -525,7 +555,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					seed = seedValue,
 					story_seed = string.IsNullOrWhiteSpace(story.Text) ? ArchetypeDirections[archetype] : story.Text.Trim(),
 					generation_mode = generationMode,
-					imagery_style = imageryStyle,
+					imagery_style = generatedImageryStyle,
 					source = "openstreetmap"
 				};
 
@@ -651,7 +681,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			landmarkDetail = landmarks == 1 ? "Mapped feature" : "Mapped features";
 			var evidence = visionUsed ? "AI VISION" : "MAP FALLBACK";
 			visionStatus = $"{TitleCase(biome).ToUpperInvariant()} | {evidence} | " +
-				ImageryStyleLabels[imageryStyle].ToUpperInvariant();
+				ImageryStyleLabels[generatedImageryStyle].ToUpperInvariant();
 			var tileset = synthesis.TryGetProperty("tileset", out var value) ? value.GetString() ?? "OPENRA" : "OPENRA";
 			previewBadge = $"{tileset.ToUpperInvariant()}  |  EARTH MATCH {confidence:P0}";
 		}
@@ -706,7 +736,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			landmarkIntel = "Scanning";
 			reliefDetail = waterDetail = urbanDetail = vegetationDetail = landmarkDetail = "Reading Earth";
 			reliefPercent = waterPercent = urbanPercent = vegetationPercent = landmarkPercent = 0;
-			visionStatus = $"{ImageryStyleLabels[imageryStyle].ToUpperInvariant()} + MAP DATA | SCANNING";
+			generatedImageryStyle = EffectiveImageryStyle(radiusMeters);
+			visionStatus = $"{ImageryStyleLabels[generatedImageryStyle].ToUpperInvariant()} + MAP DATA | SCANNING";
 		}
 
 		bool HasValidCoordinates()
