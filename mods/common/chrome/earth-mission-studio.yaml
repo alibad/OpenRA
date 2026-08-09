@@ -77,8 +77,8 @@ Background@EARTH_MISSION_PANEL:
 		Background@EARTH_VIEW_CARD:
 			X: 20
 			Y: 112
-			Width: (PARENT_WIDTH - 50) / 2
-			Height: PARENT_HEIGHT * 41 / 100
+			Width: (PARENT_WIDTH - 60) * 35 / 100
+			Height: PARENT_HEIGHT * 49 / 100
 			Background: dialog3
 			Children:
 				Label@EARTH_VIEW_TITLE:
@@ -115,11 +115,173 @@ Background@EARTH_MISSION_PANEL:
 					Align: Right
 					Font: Tiny
 					Contrast: true
-		Background@GAME_VIEW_CARD:
-			X: (PARENT_WIDTH + 10) / 2
+		Background@BLUEPRINT_CARD:
+			X: 30 + (PARENT_WIDTH - 60) * 35 / 100
 			Y: 112
-			Width: (PARENT_WIDTH - 50) / 2
-			Height: PARENT_HEIGHT * 41 / 100
+			Width: (PARENT_WIDTH - 60) * 26 / 100
+			Height: PARENT_HEIGHT * 49 / 100
+			Background: dialog3
+			Children:
+				Label@BLUEPRINT_TITLE:
+					X: 8
+					Y: 5
+					Width: PARENT_WIDTH - 16
+					Height: 18
+					Text: label-earth-mission-blueprint
+					Font: TinyBold
+				Label@BLUEPRINT_HEADLINE:
+					X: 8
+					Y: 25
+					Width: PARENT_WIDTH - 16
+					Height: 22
+					Align: Center
+					Font: Bold
+				LabelForInput@TITLE_INPUT_LABEL:
+					X: 8
+					Y: 52
+					Width: PARENT_WIDTH - 16
+					Height: 18
+					Text: label-earth-mission-name
+					For: TITLE
+				TextField@TITLE:
+					X: 8
+					Y: 70
+					Width: PARENT_WIDTH - 16
+					Height: 26
+					MaxLength: 64
+				Label@RADIUS_LABEL:
+					X: 8
+					Y: 101
+					Width: PARENT_WIDTH - 16
+					Height: 18
+					Text: label-earth-area-size
+				DropDownButton@RADIUS:
+					X: 8
+					Y: 119
+					Width: PARENT_WIDTH - 16
+					Height: 26
+				Label@SIZE_LABEL:
+					X: 8
+					Y: 150
+					Width: PARENT_WIDTH - 16
+					Height: 18
+					Text: label-earth-map-size
+				DropDownButton@MAP_SIZE:
+					X: 8
+					Y: 168
+					Width: PARENT_WIDTH - 16
+					Height: 26
+				Label@ARCHETYPE_LABEL:
+					X: 8
+					Y: 199
+					Width: PARENT_WIDTH - 16
+					Height: 18
+					Text: label-earth-mission-archetype
+				DropDownButton@MISSION_ARCHETYPE:
+					X: 8
+					Y: 217
+					Width: PARENT_WIDTH - 16
+					Height: 26
+				LabelForInput@STORY_LABEL:
+					X: 8
+					Y: 248
+					Width: PARENT_WIDTH - 16
+					Height: 18
+					Text: label-earth-story-seed
+					For: STORY
+				TextField@STORY:
+					X: 8
+					Y: 266
+					Width: PARENT_WIDTH - 16
+					Height: 26
+					MaxLength: 240
+				Label@MODE_LABEL:
+					X: 8
+					Y: 297
+					Width: PARENT_WIDTH - 16
+					Height: 18
+					Text: label-earth-generation-mode
+				Button@MODE_BALANCED:
+					X: 8
+					Y: 315
+					Width: (PARENT_WIDTH - 20) / 2
+					Height: 26
+					Text: button-earth-mode-balanced
+					Font: TinyBold
+				Button@MODE_CREATIVE:
+					X: 12 + (PARENT_WIDTH - 20) / 2
+					Y: 315
+					Width: (PARENT_WIDTH - 20) / 2
+					Height: 26
+					Text: button-earth-mode-creative
+					Font: TinyBold
+				Button@ADVANCED:
+					X: 8
+					Y: 346
+					Width: PARENT_WIDTH - 16
+					Height: 25
+					Text: button-earth-advanced
+				Background@BLUEPRINT_CHECKS:
+					X: 8
+					Y: 376
+					Width: PARENT_WIDTH - 16
+					Height: PARENT_HEIGHT - 384
+					Background: dialog4
+					Children:
+						Label@BLUEPRINT_CHECKS_TITLE:
+							X: 6
+							Y: 3
+							Width: PARENT_WIDTH - 12
+							Height: 15
+							Text: label-earth-blueprint-checks
+							Font: TinyBold
+						Label@BLUEPRINT_EVIDENCE_LABEL:
+							X: 6
+							Y: 21
+							Width: PARENT_WIDTH / 2 - 6
+							Height: 16
+							Text: label-earth-blueprint-evidence
+							Font: Tiny
+						Label@BLUEPRINT_EVIDENCE_VALUE:
+							X: PARENT_WIDTH / 2
+							Y: 21
+							Width: PARENT_WIDTH / 2 - 6
+							Height: 16
+							Align: Right
+							Font: TinyBold
+						Label@BLUEPRINT_SAFETY_LABEL:
+							X: 6
+							Y: 38
+							Width: PARENT_WIDTH / 2 - 6
+							Height: 16
+							Text: label-earth-blueprint-safety
+							Font: Tiny
+						Label@BLUEPRINT_SAFETY_VALUE:
+							X: PARENT_WIDTH / 2
+							Y: 38
+							Width: PARENT_WIDTH / 2 - 6
+							Height: 16
+							Align: Right
+							Font: TinyBold
+						Label@BLUEPRINT_STYLE_LABEL:
+							X: 6
+							Y: 55
+							Width: PARENT_WIDTH / 2 - 6
+							Height: 16
+							Text: label-earth-blueprint-style
+							Font: Tiny
+						Label@BLUEPRINT_STYLE_VALUE:
+							X: PARENT_WIDTH / 2
+							Y: 55
+							Width: PARENT_WIDTH / 2 - 6
+							Height: 16
+							Align: Right
+							Font: TinyBold
+		Background@GAME_VIEW_CARD:
+			X: 40 + (PARENT_WIDTH - 60) * 61 / 100
+			Y: 112
+			Width: (PARENT_WIDTH - 60) * 39 / 100
+			Height: PARENT_HEIGHT * 49 / 100
 			Background: dialog3
 			Children:
 				Label@GAME_VIEW_TITLE:
@@ -150,112 +312,11 @@ Background@EARTH_MISSION_PANEL:
 					Align: Right
 					Font: TinyBold
 					Contrast: true
-		Container@MISSION_ROW:
-			X: 20
-			Y: PARENT_HEIGHT * 41 / 100 + 124
-			Width: PARENT_WIDTH - 40
-			Height: 50
-			Children:
-				Container@TITLE_CONTAINER:
-					Width: PARENT_WIDTH * 28 / 100
-					Children:
-						LabelForInput@TITLE_INPUT_LABEL:
-							Width: PARENT_WIDTH
-							Height: 19
-							Text: label-earth-mission-name
-							For: TITLE
-						TextField@TITLE:
-							Y: 21
-							Width: PARENT_WIDTH
-							Height: 27
-							MaxLength: 64
-				Container@RADIUS_CONTAINER:
-					X: PARENT_WIDTH * 29 / 100
-					Width: PARENT_WIDTH * 16 / 100
-					Children:
-						Label@RADIUS_LABEL:
-							Width: PARENT_WIDTH
-							Height: 19
-							Text: label-earth-area-size
-						DropDownButton@RADIUS:
-							Y: 21
-							Width: PARENT_WIDTH
-							Height: 27
-				Container@SIZE_CONTAINER:
-					X: PARENT_WIDTH * 46 / 100
-					Width: PARENT_WIDTH * 20 / 100
-					Children:
-						Label@SIZE_LABEL:
-							Width: PARENT_WIDTH
-							Height: 19
-							Text: label-earth-map-size
-						DropDownButton@MAP_SIZE:
-							Y: 21
-							Width: PARENT_WIDTH
-							Height: 27
-				Container@ARCHETYPE_CONTAINER:
-					X: PARENT_WIDTH * 67 / 100
-					Width: PARENT_WIDTH * 33 / 100
-					Children:
-						Label@ARCHETYPE_LABEL:
-							Width: PARENT_WIDTH
-							Height: 19
-							Text: label-earth-mission-archetype
-						DropDownButton@MISSION_ARCHETYPE:
-							Y: 21
-							Width: PARENT_WIDTH
-							Height: 27
-		Container@STORY_ROW:
-			X: 20
-			Y: PARENT_HEIGHT * 41 / 100 + 180
-			Width: PARENT_WIDTH - 40
-			Height: 50
-			Children:
-				Container@STORY_CONTAINER:
-					Width: PARENT_WIDTH * 58 / 100
-					Children:
-						LabelForInput@STORY_LABEL:
-							Width: PARENT_WIDTH
-							Height: 19
-							Text: label-earth-story-seed
-							For: STORY
-						TextField@STORY:
-							Y: 21
-							Width: PARENT_WIDTH
-							Height: 27
-							MaxLength: 240
-				Container@MODE_CONTAINER:
-					X: PARENT_WIDTH * 59 / 100
-					Width: PARENT_WIDTH * 27 / 100
-					Children:
-						Label@MODE_LABEL:
-							Width: PARENT_WIDTH
-							Height: 19
-							Text: label-earth-generation-mode
-						Button@MODE_BALANCED:
-							Y: 21
-							Width: PARENT_WIDTH / 2 - 2
-							Height: 27
-							Text: button-earth-mode-balanced
-							Font: TinyBold
-						Button@MODE_CREATIVE:
-							X: PARENT_WIDTH / 2 + 2
-							Y: 21
-							Width: PARENT_WIDTH / 2 - 2
-							Height: 27
-							Text: button-earth-mode-creative
-							Font: TinyBold
-				Button@ADVANCED:
-					X: PARENT_WIDTH * 87 / 100
-					Y: 21
-					Width: PARENT_WIDTH * 13 / 100
-					Height: 27
-					Text: button-earth-advanced
 		Background@TERRAIN_INTEL_CARD:
 			X: 20
-			Y: PARENT_HEIGHT * 70 / 100
+			Y: PARENT_HEIGHT * 61 / 100
 			Width: (PARENT_WIDTH - 50) * 42 / 100
-			Height: PARENT_HEIGHT * 22 / 100
+			Height: PARENT_HEIGHT * 31 / 100
 			Background: dialog3
 			Children:
 				Label@TERRAIN_INTEL_TITLE:
@@ -429,9 +490,9 @@ Background@EARTH_MISSION_PANEL:
 							Font: Tiny
 		Background@PROGRESS_CARD:
 			X: 30 + (PARENT_WIDTH - 50) * 42 / 100
-			Y: PARENT_HEIGHT * 70 / 100
+			Y: PARENT_HEIGHT * 61 / 100
 			Width: (PARENT_WIDTH - 50) * 58 / 100 - 10
-			Height: PARENT_HEIGHT * 22 / 100
+			Height: PARENT_HEIGHT * 31 / 100
 			Background: dialog3
 			Children:
 				Label@PROGRESS_TITLE:
@@ -441,56 +502,98 @@ Background@EARTH_MISSION_PANEL:
 					Height: 17
 					Text: label-earth-generation-progress
 					Font: TinyBold
-				Label@STAGE_1:
+				Background@STAGE_CARD_1:
 					X: 8
-					Y: PARENT_HEIGHT * 24 / 100
+					Y: 27
 					Width: PARENT_WIDTH / 2 - 12
-					Height: 17
-					Font: Tiny
-				Label@STAGE_2:
+					Height: 40
+					Background: dialog4
+					Children:
+						Label@STAGE_1:
+							X: 8
+							Width: PARENT_WIDTH - 16
+							Height: PARENT_HEIGHT
+							Font: TinyBold
+							Align: Center
+				Background@STAGE_CARD_2:
 					X: 8
-					Y: PARENT_HEIGHT * 43 / 100
+					Y: 72
 					Width: PARENT_WIDTH / 2 - 12
-					Height: 17
-					Font: Tiny
-				Label@STAGE_3:
+					Height: 40
+					Background: dialog4
+					Children:
+						Label@STAGE_2:
+							X: 8
+							Width: PARENT_WIDTH - 16
+							Height: PARENT_HEIGHT
+							Font: TinyBold
+							Align: Center
+				Background@STAGE_CARD_3:
 					X: 8
-					Y: PARENT_HEIGHT * 62 / 100
+					Y: 117
 					Width: PARENT_WIDTH / 2 - 12
-					Height: 17
-					Font: Tiny
-				Label@STAGE_4:
+					Height: 40
+					Background: dialog4
+					Children:
+						Label@STAGE_3:
+							X: 8
+							Width: PARENT_WIDTH - 16
+							Height: PARENT_HEIGHT
+							Font: TinyBold
+							Align: Center
+				Background@STAGE_CARD_4:
 					X: PARENT_WIDTH / 2 + 2
-					Y: PARENT_HEIGHT * 24 / 100
+					Y: 27
 					Width: PARENT_WIDTH / 2 - 10
-					Height: 17
-					Font: Tiny
-				Label@STAGE_5:
+					Height: 40
+					Background: dialog4
+					Children:
+						Label@STAGE_4:
+							X: 8
+							Width: PARENT_WIDTH - 16
+							Height: PARENT_HEIGHT
+							Font: TinyBold
+							Align: Center
+				Background@STAGE_CARD_5:
 					X: PARENT_WIDTH / 2 + 2
-					Y: PARENT_HEIGHT * 43 / 100
+					Y: 72
 					Width: PARENT_WIDTH / 2 - 10
-					Height: 17
-					Font: Tiny
-				Label@STAGE_6:
+					Height: 40
+					Background: dialog4
+					Children:
+						Label@STAGE_5:
+							X: 8
+							Width: PARENT_WIDTH - 16
+							Height: PARENT_HEIGHT
+							Font: TinyBold
+							Align: Center
+				Background@STAGE_CARD_6:
 					X: PARENT_WIDTH / 2 + 2
-					Y: PARENT_HEIGHT * 62 / 100
+					Y: 117
 					Width: PARENT_WIDTH / 2 - 10
-					Height: 17
-					Font: Tiny
+					Height: 40
+					Background: dialog4
+					Children:
+						Label@STAGE_6:
+							X: 8
+							Width: PARENT_WIDTH - 16
+							Height: PARENT_HEIGHT
+							Font: TinyBold
+							Align: Center
 				ProgressBar@GENERATION_BAR:
 					X: 8
-					Y: PARENT_HEIGHT - 38
+					Y: PARENT_HEIGHT - 45
 					Width: PARENT_WIDTH - 16
 					Height: 12
 				Label@STATUS:
 					X: 8
-					Y: PARENT_HEIGHT - 19
+					Y: PARENT_HEIGHT - 26
 					Width: PARENT_WIDTH - 16
 					Height: 14
 					Font: TinyBold
 		Background@ADVANCED_OPTIONS:
-			X: PARENT_WIDTH - 365
-			Y: PARENT_HEIGHT * 70 / 100 - 8
+			X: 30 + (PARENT_WIDTH - 60) * 35 / 100
+			Y: 470
 			Width: 345
 			Height: 145
 			Background: dialog4

@@ -116,11 +116,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		string urbanIntel = "Ready";
 		string vegetationIntel = "Ready";
 		string landmarkIntel = "Ready";
-		string reliefDetail = "Scans on build";
-		string waterDetail = "Scans on build";
-		string urbanDetail = "Scans on build";
-		string vegetationDetail = "Scans on build";
-		string landmarkDetail = "Scans on build";
+		string reliefDetail = "Shapes high ground";
+		string waterDetail = "Routes crossings";
+		string urbanDetail = "Defines choke points";
+		string vegetationDetail = "Controls sightlines";
+		string landmarkDetail = "Seeds objectives";
 		int reliefPercent;
 		int waterPercent;
 		int urbanPercent;
@@ -177,6 +177,19 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var gameEmpty = widget.Get<LabelWidget>("GAME_EMPTY");
 			gameEmpty.GetText = () => "Step 3 builds the real battlefield here.\nOpenRA owns legal terrain, routes, resources, and spawn points.";
 			gameEmpty.IsVisible = () => generatedMapUid == null;
+
+			var blueprintHeadline = widget.Get<LabelWidget>("BLUEPRINT_HEADLINE");
+			blueprintHeadline.GetText = () => $"{archetype.ToUpperInvariant()}  |  {mapSize} x {mapSize}";
+			var blueprintEvidence = widget.Get<LabelWidget>("BLUEPRINT_EVIDENCE_VALUE");
+			blueprintEvidence.GetText = () => earthPreviewLoaded ? "SOURCE LOCKED" : "AWAITING EARTH";
+			blueprintEvidence.GetColor = () => earthPreviewLoaded ? Color.FromArgb(112, 221, 126) : Color.FromArgb(150, 150, 150);
+			var blueprintSafety = widget.Get<LabelWidget>("BLUEPRINT_SAFETY_VALUE");
+			blueprintSafety.GetText = () => generatedMapUid != null ? "VALIDATED" : busy ? "VALIDATING" : "OPENRA GUARDED";
+			blueprintSafety.GetColor = () => generatedMapUid != null ? Color.FromArgb(112, 221, 126) :
+				busy ? Color.FromArgb(244, 205, 67) : Color.White;
+			var blueprintStyle = widget.Get<LabelWidget>("BLUEPRINT_STYLE_VALUE");
+			blueprintStyle.GetText = () => generationMode == "creative-remix" ? "CREATIVE REMIX" : "EARTH + BALANCE";
+			blueprintStyle.GetColor = () => Color.FromArgb(112, 221, 126);
 
 			BindIntelCard(widget.Get("RELIEF_CARD"), () => reliefIntel, () => reliefDetail, () => reliefPercent);
 			BindIntelCard(widget.Get("WATER_CARD"), () => waterIntel, () => waterDetail, () => waterPercent);
@@ -312,6 +325,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		{
 			if (generationFailed && stage == Math.Max(1, generationStage))
 				return Color.FromArgb(255, 112, 80);
+			if (generationStage == 0)
+				return stage == 1 ? Color.White : Color.FromArgb(150, 150, 150);
 			if (generationStage >= stage)
 				return generationStage == stage && busy ? Color.FromArgb(244, 205, 67) : Color.FromArgb(112, 221, 126);
 			return Color.FromArgb(150, 150, 150);
