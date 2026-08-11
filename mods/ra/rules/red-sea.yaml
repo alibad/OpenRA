@@ -227,10 +227,205 @@ YMLR:
 	RenderSprites:
 		Image: ymlr
 
+F15SA:
+	Inherits: ^Plane
+	Inherits@AUTOTARGET: ^AutoTargetAllAssaultMove
+	Voiced:
+		VoiceSet: SaudiAirVoice
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Plane
+		BuildPaletteOrder: 45
+		Prerequisites: ~hpad, atek, ~aircraft.saudi, ~techlevel.high
+		Description: actor-f15sa.description
+	Valued:
+		Cost: 2200
+	Tooltip:
+		Name: actor-f15sa.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 9000
+	RevealsShroud:
+		MinRange: 10c0
+		Range: 12c0
+		Type: GroundPosition
+		RevealGeneratedShroud: False
+	RevealsShroud@GAPGEN:
+		Range: 10c0
+		Type: GroundPosition
+	Armament@AAM:
+		Name: aam
+		Weapon: RedSeaF15AAM
+		LocalOffset: 0,-640,-64, 0,640,-64
+		LocalYaw: -32, 32
+		PauseOnCondition: !aam-ammo
+	Armament@CANNON:
+		Name: cannon
+		Weapon: RedSeaF15Cannon
+		LocalOffset: 384,128,-64
+		MuzzleSequence: air-muzzle
+		PauseOnCondition: !gun-ammo
+	AttackAircraft:
+		Armaments: aam, cannon
+		FacingTolerance: 72
+		PersistentTargeting: false
+		OpportunityFire: True
+	Aircraft:
+		CruiseAltitude: 2560
+		TurnSpeed: 18
+		Speed: 240
+		RepulsionSpeed: 42
+		MaximumPitch: 56
+	AutoTarget:
+		InitialStance: HoldFire
+		InitialStanceAI: AttackAnything
+	AmmoPool@AAM:
+		Name: aam
+		Armaments: aam
+		Ammo: 4
+		ReloadDelay: 28
+		AmmoCondition: aam-ammo
+	AmmoPool@GUN:
+		Name: gun
+		Armaments: cannon
+		Ammo: 12
+		ReloadDelay: 5
+		AmmoCondition: gun-ammo
+	WithMuzzleOverlay:
+	Contrail@LEFT:
+		Offset: -640,-420,0
+		StartColorAlpha: 128
+	Contrail@RIGHT:
+		Offset: -640,420,0
+		StartColorAlpha: 128
+	SpawnActorOnDeath:
+		Actor: F15SA.Husk
+	LeavesTrails:
+		Offsets: -768,0,128
+		MovingInterval: 2
+		Image: smokey
+		SpawnAtLastPosition: False
+		Type: CenterPosition
+		RequiresCondition: enable-smoke
+	Selectable:
+		Bounds: 1536, 1194
+		DecorationBounds: 1706, 1280
+	Rearmable:
+		RearmActors: hpad
+		AmmoPools: aam, gun
+	WithAmmoPipsDecoration:
+		Position: BottomLeft
+		Margin: 4, 3
+		RequiresSelection: true
+		PipCount: 8
+	GrantConditionOnDamageState@SmokeTrail:
+		Condition: enable-smoke
+	RenderSprites:
+		Image: f15sa
+
+AH64SA:
+	Inherits: ^Helicopter
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Voiced:
+		VoiceSet: SaudiAirVoice
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Helicopter
+		BuildPaletteOrder: 35
+		Prerequisites: ~hpad, atek, ~aircraft.saudi, ~techlevel.high
+		Description: actor-ah64sa.description
+	Valued:
+		Cost: 1850
+	Tooltip:
+		Name: actor-ah64sa.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 14500
+	RevealsShroud:
+		MinRange: 8c0
+		Range: 10c0
+		Type: GroundPosition
+		RevealGeneratedShroud: False
+	RevealsShroud@GAPGEN:
+		Range: 8c0
+		Type: GroundPosition
+	Armament@CANNON:
+		Name: cannon
+		Weapon: RedSeaApacheCannon
+		LocalOffset: 384,0,-128
+		MuzzleSequence: air-muzzle
+		PauseOnCondition: !cannon-ammo
+	Armament@ROCKETS:
+		Name: rockets
+		Weapon: RedSeaApacheRockets
+		LocalOffset: 0,-512,-64, 0,512,-64
+		PauseOnCondition: !rocket-ammo
+	AttackAircraft:
+		Armaments: cannon, rockets
+		FacingTolerance: 112
+		PersistentTargeting: false
+		AttackType: Hover
+		OpportunityFire: True
+	Aircraft:
+		TurnSpeed: 20
+		Speed: 132
+	AutoTarget:
+		InitialStance: Defend
+		InitialStanceAI: AttackAnything
+	WithIdleOverlay@ROTORAIR:
+		Offset: 0,0,192
+		Sequence: rotor
+		RequiresCondition: airborne
+	WithIdleOverlay@ROTORGROUND:
+		Offset: 0,0,192
+		Sequence: slow-rotor
+		RequiresCondition: !airborne
+	AmmoPool@CANNON:
+		Name: cannon
+		Armaments: cannon
+		Ammo: 24
+		ReloadDelay: 4
+		AmmoCondition: cannon-ammo
+	AmmoPool@ROCKETS:
+		Name: rockets
+		Armaments: rockets
+		Ammo: 6
+		ReloadDelay: 18
+		AmmoCondition: rocket-ammo
+	WithMuzzleOverlay:
+	SpawnActorOnDeath:
+		Actor: AH64SA.Husk
+	LeavesTrails:
+		Offsets: -427,0,0
+		Image: smokey
+		MovingInterval: 3
+		SpawnAtLastPosition: False
+		Type: CenterPosition
+		RequiresCondition: enable-smoke
+		TrailWhileStationary: True
+		StationaryInterval: 3
+	Selectable:
+		Bounds: 1536, 1280
+		DecorationBounds: 1706, 1365
+	Rearmable:
+		RearmActors: hpad
+		AmmoPools: cannon, rockets
+	WithAmmoPipsDecoration:
+		Position: BottomLeft
+		Margin: 4, 3
+		RequiresSelection: true
+		PipCount: 8
+	GrantConditionOnDamageState@SmokeTrail:
+		Condition: enable-smoke
+	RenderSprites:
+		Image: ah64sa
+
 SAMAD:
 	Inherits: YAK
 	Voiced:
-		VoiceSet: YemenVehicleVoice
+		VoiceSet: YemenDroneVoice
 	Buildable:
 		Queue: Aircraft
 		BuildAtProductionType: Plane
@@ -238,36 +433,44 @@ SAMAD:
 		Prerequisites: ~afld, ~aircraft.yemen, ~techlevel.medium
 		Description: actor-samad.description
 	Valued:
-		Cost: 650
+		Cost: 700
 	Tooltip:
 		Name: actor-samad.name
 	Health:
-		HP: 3600
-	Armament:
+		HP: 3200
+	-Armament:
+	Armament@PAYLOAD:
+		Name: primary
 		Weapon: RedSeaDroneStrike
-		LocalOffset: 128,0,-64
+		LocalOffset: 0,0,-64
 		PauseOnCondition: !ammo
 	AmmoPool:
+		Armaments: primary
 		Ammo: 1
 		AmmoCondition: ammo
-	AttackAircraft:
-		FacingTolerance: 512
-		PersistentTargeting: true
-		AttackType: Hover
+	-AttackAircraft:
+	AttackDive:
+		FacingTolerance: 96
+		CommitFacingTolerance: 56
+		DiveRange: 5c0
+		ImpactAltitude: 96
+		DivingCondition: diving
+		PersistentTargeting: false
 		OpportunityFire: False
 	GrantConditionOnAttack@PAYLOAD:
 		Condition: payload-released
 		ArmamentNames: primary
-		RevokeDelay: 5
+		RevokeDelay: 1
 	KillsSelf@PAYLOAD:
 		RequiresCondition: payload-released
 	Aircraft:
-		CruiseAltitude: 1152
-		TurnSpeed: 10
-		Speed: 116
+		CruiseAltitude: 1280
+		TurnSpeed: 12
+		Speed: 128
 		RepulsionSpeed: 20
-		MaximumPitch: 56
+		MaximumPitch: 128
 		MoveIntoShroud: true
+		CanForceLand: false
 	RevealsShroud:
 		MinRange: 4c0
 		Range: 7c0
@@ -281,14 +484,28 @@ SAMAD:
 		InitialStanceAI: AttackAnything
 	AmbientSound@PROPELLER:
 		SoundFiles: redsea-drone-loiter.wav
+		RequiresCondition: !diving
+	AmbientSound@DIVE:
+		SoundFiles: redsea-drone-strike.wav
+		RequiresCondition: diving
 	-Contrail:
 	-LeavesTrails:
 	-GrantConditionOnDamageState@SmokeTrail:
 	-SpawnActorOnDeath:
 	-EjectOnDeath:
+	-FireWarheadsOnDeath:
 	-Rearmable:
 	-WithAmmoPipsDecoration:
 	-WithMuzzleOverlay:
+	-WithFacingSpriteBody:
+	WithFacingSpriteBody@LOITER:
+		Name: loiter
+		Sequence: idle
+		RequiresCondition: !diving
+	WithFacingSpriteBody@DIVE:
+		Name: dive
+		Sequence: dive
+		RequiresCondition: diving
 	RenderSprites:
 		Image: samad
 
@@ -348,6 +565,47 @@ YMLR.Husk:
 	RenderSprites:
 		Image: ymlr.destroyed
 
+F15SA.Husk:
+	Inherits: ^PlaneHusk
+	Tooltip:
+		Name: actor-f15sa-husk-name
+	Aircraft:
+		TurnSpeed: 20
+		Speed: 190
+	Contrail@LEFT:
+		Offset: -640,-420,0
+	Contrail@RIGHT:
+		Offset: -640,420,0
+	LeavesTrails:
+		Offsets: -768,0,128
+		MovingInterval: 2
+		Image: smokey
+		SpawnAtLastPosition: False
+		Type: CenterPosition
+	RenderSprites:
+		Image: f15sa.destroyed
+
+AH64SA.Husk:
+	Inherits: ^HelicopterHusk
+	Tooltip:
+		Name: actor-ah64sa-husk-name
+	Aircraft:
+		TurnSpeed: 18
+		Speed: 112
+	WithIdleOverlay:
+		Offset: 0,0,192
+		Sequence: rotor
+	LeavesTrails:
+		Offsets: -427,0,0
+		Image: smokey
+		MovingInterval: 3
+		SpawnAtLastPosition: False
+		Type: CenterPosition
+		TrailWhileStationary: True
+		StationaryInterval: 3
+	RenderSprites:
+		Image: ah64sa.destroyed
+
 Player:
 	# Easy can express each faction's ground identity using the tech buildings it
 	# already knows how to construct. Medium and Rush receive air production so
@@ -388,12 +646,16 @@ Player:
 			tech: 45
 			ymlr: 35
 			samad: 25
+			f15sa: 30
+			ah64sa: 32
 		UnitLimits:
 			m1a2s: 6
 			sads: 4
 			tech: 8
 			ymlr: 4
 			samad: 4
+			f15sa: 4
+			ah64sa: 4
 	UnitBuilderBotModule@rush:
 		UnitsToBuild:
 			m1a2s: 40
@@ -401,12 +663,16 @@ Player:
 			tech: 70
 			ymlr: 55
 			samad: 35
+			f15sa: 34
+			ah64sa: 42
 		UnitLimits:
 			m1a2s: 6
 			sads: 3
 			tech: 10
 			ymlr: 6
 			samad: 6
+			f15sa: 5
+			ah64sa: 5
 	UnitBuilderBotModule@normal:
 		UnitsToBuild:
 			m1a2s: 50
@@ -414,12 +680,16 @@ Player:
 			tech: 50
 			ymlr: 45
 			samad: 40
+			f15sa: 40
+			ah64sa: 45
 		UnitLimits:
 			m1a2s: 8
 			sads: 6
 			tech: 10
 			ymlr: 6
 			samad: 8
+			f15sa: 6
+			ah64sa: 6
 	UnitBuilderBotModule@turtle:
 		UnitsToBuild:
 			m1a2s: 45
@@ -427,31 +697,39 @@ Player:
 			tech: 30
 			ymlr: 40
 			samad: 25
+			f15sa: 48
+			ah64sa: 32
 		UnitLimits:
 			m1a2s: 6
 			sads: 10
 			tech: 6
 			ymlr: 6
 			samad: 5
+			f15sa: 7
+			ah64sa: 4
 	UnitBuilderBotModule@naval:
 		UnitsToBuild:
 			sads: 45
 			tech: 35
 			ymlr: 45
 			samad: 55
+			f15sa: 35
+			ah64sa: 36
 		UnitLimits:
 			m1a2s: 4
 			sads: 6
 			tech: 5
 			ymlr: 5
 			samad: 10
+			f15sa: 5
+			ah64sa: 5
 	SquadManagerBotModule@medium:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad
+		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
 	SquadManagerBotModule@rush:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad
+		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
 	SquadManagerBotModule@normal:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad
+		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
 	SquadManagerBotModule@turtle:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad
+		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
 	SquadManagerBotModule@naval:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad
+		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa

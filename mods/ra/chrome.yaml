@@ -385,7 +385,12 @@ strategic:
 
 flags:
 	Inherits: ^Glyphs
+	Image: glyphs-redsea.png
+	Image2x: glyphs-redsea-2x.png
+	Image3x: glyphs-redsea-3x.png
 	Regions:
+		saudi: 226, 1, 30, 15
+		yemen: 226, 17, 30, 15
 		england: 226, 49, 30, 15
 		germany: 226, 65, 30, 15
 		france: 226, 81, 30, 15

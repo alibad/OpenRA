@@ -159,14 +159,17 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 				foreach (var kv in yaml)
 				{
-					var missionMapPaths = kv.Value.Nodes.Select(n => n.Key).ToList();
+					// Mission packages may be directory maps or .oramap archives. Treat both
+					// forms as the same map so packaged campaigns are grouped correctly.
+					var missionMapPaths = kv.Value.Nodes.Select(n => MapPackageId(n.Key)).ToList();
 
 					var previews = modData.MapCache
 						.Where(p => p.Class == MapClassification.System && p.Status == MapStatus.Available)
 						.Select(p => new
 						{
 							Preview = p,
-							Index = missionMapPaths.IndexOf(Path.GetFileName(p.Path))
+							Index = missionMapPaths.FindIndex(m => string.Equals(
+								m, MapPackageId(p.Path), StringComparison.OrdinalIgnoreCase))
 						})
 						.Where(x => x.Index != -1)
 						.OrderBy(x => x.Index)
@@ -185,7 +188,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var loosePreviews = modData.MapCache
 				.Where(p => p.Status == MapStatus.Available &&
 					p.Visibility.HasFlag(MapVisibility.MissionSelector) &&
-					!allPreviews.Any(a => a.Uid == p.Uid))
+					!allPreviews.Any(a => a.Uid == p.Uid || string.Equals(
+						MapPackageId(a.Path), MapPackageId(p.Path), StringComparison.OrdinalIgnoreCase)))
 				.ToList();
 
 			if (loosePreviews.Count != 0)
@@ -256,6 +260,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			}
 
 			base.Dispose(disposing);
+		}
+
+		static string MapPackageId(string path)
+		{
+			var filename = Path.GetFileName(path);
+			return string.Equals(Path.GetExtension(filename), ".oramap", StringComparison.OrdinalIgnoreCase) ?
+				Path.GetFileNameWithoutExtension(filename) : filename;
 		}
 
 		void CreateMissionGroup(string title, IEnumerable<MapPreview> previews, Action onExit)

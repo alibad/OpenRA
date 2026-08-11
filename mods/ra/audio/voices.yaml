@@ -37,10 +37,20 @@ SaudiVehicleVoice:
 		Select: rsa-select-1,rsa-select-2
 		Action: rsa-action-1,rsa-action-2
 
+SaudiAirVoice:
+	Voices:
+		Select: rsa-air-select-ar,rsa-air-select-en
+		Action: rsa-air-action-ar,rsa-air-action-en
+
 YemenVehicleVoice:
 	Voices:
 		Select: rye-select-1,rye-select-2
 		Action: rye-action-1,rye-action-2
+
+YemenDroneVoice:
+	Voices:
+		Select: rye-drone-select-ar,rye-drone-select-en
+		Action: rye-drone-action-ar,rye-drone-action-en
 
 EngineerVoice:
 	Voices:

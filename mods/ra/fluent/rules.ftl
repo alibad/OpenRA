@@ -129,7 +129,25 @@ actor-ymlr-husk-name = Destroyed Mobile Missile Launcher
 
 actor-samad =
     .name = Samad Drone
-    .description = Low-altitude one-way loitering munition. Closes to the target and is consumed on impact.
+    .description = One-way loitering munition with a committed terminal dive. Cannot return or rearm.
+
+actor-f15sa =
+    .name = F-15SA Eagle
+    .description =
+    High-speed air-superiority fighter with a limited cannon reserve.
+      Strong vs Aircraft
+      Weak vs Long-range Air Defense
+
+actor-f15sa-husk-name = Crashing F-15SA Eagle
+
+actor-ah64sa =
+    .name = AH-64E Apache
+    .description =
+    Close-support helicopter with a chain gun and anti-armor rockets.
+      Strong vs Infantry, Light Armor and Vehicles
+      Weak vs Fighters and Air Defense
+
+actor-ah64sa-husk-name = Crashing AH-64E Apache
 
 ## aircraft.yaml
 actor-badr-name = Badger
