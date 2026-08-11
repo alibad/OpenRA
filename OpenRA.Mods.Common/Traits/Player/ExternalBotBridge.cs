@@ -587,6 +587,18 @@ namespace OpenRA.Mods.Common.Traits
 		internal ChannelWriter<RLProto.AgentAction> ActionWriter => actionChannel.Writer;
 
 		/// <summary>
+		/// Serialize the current fog-respecting state for an idle multi-session world.
+		/// The caller must hold the session TickLock so this cannot race FastAdvance.
+		/// </summary>
+		internal RLProto.GameObservation GetCurrentObservation()
+		{
+			if (observationSerializer == null)
+				throw new InvalidOperationException("The RL observation serializer is not ready.");
+
+			return observationSerializer.Serialize(world.WorldTick);
+		}
+
+		/// <summary>
 		/// Snapshot all Mobile and Building actors into cached lists.
 		/// Called once at advance start and refreshed every FullRefreshEveryNChecks.
 		/// </summary>
@@ -736,7 +748,10 @@ namespace OpenRA.Mods.Common.Traits
 			{
 				foreach (var id in prevEnemyBuildingIds)
 				{
-					if (!curEnemyBuildingIds.Contains(id))
+					// A previously visible building may simply have moved back under fog.
+					// Only report destruction when the authoritative actor is actually gone.
+					var actor = world.GetActorById(id);
+					if (actor == null || actor.IsDead || !actor.IsInWorld)
 					{
 						UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
 							curEnemyBuildingIds, curOwnBuildingIds, exploredPct);

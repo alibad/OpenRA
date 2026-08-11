@@ -1,0 +1,246 @@
+# Red Sea vertical-slice prototype actors.
+#
+# These deliberately reuse proven Red Alert render sequences while the original
+# sprite sheets are produced. Their mechanics, costs, faction gating, AI usage,
+# and localized identity are live gameplay rather than design-only metadata.
+
+World:
+	StartingUnits@mcvonly:
+		Factions: allies, england, france, germany, saudi, soviet, russia, ukraine, yemen
+	StartingUnits@lightallies:
+		Factions: allies, england, france, germany, saudi
+	StartingUnits@lightsoviet:
+		Factions: soviet, russia, ukraine, yemen
+	StartingUnits@heavyallies:
+		Factions: allies, england, france, germany, saudi
+	StartingUnits@heavysoviet:
+		Factions: soviet, russia, ukraine, yemen
+
+FACT:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, saudi
+		Prerequisite: structures.allies
+	ProvidesPrerequisite@soviet:
+		Factions: soviet, russia, ukraine, yemen
+		Prerequisite: structures.soviet
+	ProvidesPrerequisite@saudi:
+		Factions: saudi
+		Prerequisite: structures.saudi
+	ProvidesPrerequisite@yemen:
+		Factions: yemen
+		Prerequisite: structures.yemen
+
+WEAP:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, saudi
+		Prerequisite: vehicles.allies
+	ProvidesPrerequisite@soviet:
+		Factions: soviet, russia, ukraine, yemen
+		Prerequisite: vehicles.soviet
+	ProvidesPrerequisite@saudi:
+		Factions: saudi
+		Prerequisite: vehicles.saudi
+	ProvidesPrerequisite@yemen:
+		Factions: yemen
+		Prerequisite: vehicles.yemen
+
+HPAD:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, saudi
+		Prerequisite: aircraft.allies
+	ProvidesPrerequisite@saudi:
+		Factions: saudi
+		Prerequisite: aircraft.saudi
+
+AFLD:
+	ProvidesPrerequisite@soviet:
+		Factions: soviet, russia, ukraine, yemen
+		Prerequisite: aircraft.soviet
+	ProvidesPrerequisite@yemen:
+		Factions: yemen
+		Prerequisite: aircraft.yemen
+
+TENT:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, saudi
+		Prerequisite: infantry.allies
+	ProvidesPrerequisite@saudi:
+		Factions: saudi
+		Prerequisite: infantry.saudi
+
+BARR:
+	ProvidesPrerequisite@soviet:
+		Factions: soviet, russia, ukraine, yemen
+		Prerequisite: infantry.soviet
+	ProvidesPrerequisite@yemen:
+		Factions: yemen
+		Prerequisite: infantry.yemen
+
+SYRD:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, saudi
+		Prerequisite: ships.allies
+	ProvidesPrerequisite@saudi:
+		Factions: saudi
+		Prerequisite: ships.saudi
+
+SPEN:
+	ProvidesPrerequisite@soviet:
+		Factions: soviet, russia, ukraine, yemen
+		Prerequisite: ships.soviet
+	ProvidesPrerequisite@yemen:
+		Factions: yemen
+		Prerequisite: ships.yemen
+
+M1A2S:
+	Inherits: 2TNK
+	Buildable:
+		Queue: Vehicle
+		BuildPaletteOrder: 125
+		Prerequisites: fix, ~vehicles.saudi, ~techlevel.medium
+		Description: actor-m1a2s.description
+	Valued:
+		Cost: 1250
+	Tooltip:
+		Name: actor-m1a2s.name
+	Health:
+		HP: 52000
+	Mobile:
+		Speed: 82
+	RenderSprites:
+		Image: 2tnk
+
+SADS:
+	Inherits: FTRK
+	Buildable:
+		Queue: Vehicle
+		BuildPaletteOrder: 135
+		Prerequisites: dome, ~vehicles.saudi, ~techlevel.medium
+		Description: actor-sads.description
+	Valued:
+		Cost: 1050
+	Tooltip:
+		Name: actor-sads.name
+	Health:
+		HP: 22000
+	RevealsShroud:
+		MinRange: 6c0
+		Range: 9c0
+	Armament@AA:
+		Weapon: RedSeaInterceptor
+		LocalOffset: 512,0,192
+	Armament@AG:
+		Weapon: RedSeaInterceptor
+		LocalOffset: 512,0,192
+	RenderSprites:
+		Image: ftrk
+
+TECH:
+	Inherits: JEEP
+	Buildable:
+		Queue: Vehicle
+		BuildPaletteOrder: 105
+		Prerequisites: ~vehicles.yemen, ~techlevel.low
+		Description: actor-tech.description
+	Valued:
+		Cost: 350
+	Tooltip:
+		Name: actor-tech.name
+	Health:
+		HP: 10500
+	Mobile:
+		Speed: 145
+	RenderSprites:
+		Image: jeep
+
+YMLR:
+	Inherits: V2RL
+	Buildable:
+		Queue: Vehicle
+		BuildPaletteOrder: 225
+		Prerequisites: dome, ~vehicles.yemen, ~techlevel.medium
+		Description: actor-ymlr.description
+	Valued:
+		Cost: 750
+	Tooltip:
+		Name: actor-ymlr.name
+	Health:
+		HP: 16000
+	Mobile:
+		Speed: 88
+	Armament:
+		Weapon: RedSeaMobileStrike
+		ReloadingCondition: reloading
+	RenderSprites:
+		Image: v2rl
+
+SAMAD:
+	Inherits: YAK
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Plane
+		BuildPaletteOrder: 25
+		Prerequisites: ~afld, ~aircraft.yemen, ~techlevel.medium
+		Description: actor-samad.description
+	Valued:
+		Cost: 650
+	Tooltip:
+		Name: actor-samad.name
+	Health:
+		HP: 3200
+	Armament:
+		Weapon: RedSeaDroneStrike
+		LocalOffset: 256,0,0
+		PauseOnCondition: !ammo
+	AmmoPool:
+		Ammo: 1
+		AmmoCondition: ammo
+	Aircraft:
+		CruiseAltitude: 1706
+		TurnSpeed: 12
+		Speed: 128
+		RepulsionSpeed: 24
+		MaximumPitch: 40
+	RenderSprites:
+		Image: yak
+
+Player:
+	UnitBuilderBotModule@medium:
+		UnitsToBuild:
+			m1a2s: 45
+			sads: 30
+			tech: 45
+			ymlr: 35
+	UnitBuilderBotModule@rush:
+		UnitsToBuild:
+			m1a2s: 40
+			sads: 20
+			tech: 70
+			ymlr: 55
+			samad: 35
+	UnitBuilderBotModule@normal:
+		UnitsToBuild:
+			m1a2s: 50
+			sads: 35
+			tech: 50
+			ymlr: 45
+			samad: 40
+	UnitBuilderBotModule@turtle:
+		UnitsToBuild:
+			m1a2s: 45
+			sads: 60
+			tech: 30
+			ymlr: 40
+			samad: 25
+	UnitBuilderBotModule@naval:
+		UnitsToBuild:
+			sads: 45
+			tech: 35
+			ymlr: 45
+			samad: 55
+	SquadManagerBotModule@normal:
+		AirUnitsTypes: mig, yak, heli, hind, mh60, samad
+	SquadManagerBotModule@turtle:
+		AirUnitsTypes: mig, yak, heli, hind, mh60, samad
+	SquadManagerBotModule@naval:
+		AirUnitsTypes: mig, yak, heli, hind, mh60, samad

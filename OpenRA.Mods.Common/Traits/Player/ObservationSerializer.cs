@@ -77,9 +77,37 @@ namespace OpenRA.Mods.Common.Traits
 			SerializeVisibleEnemies(obs);
 			SerializeRememberedEnemyBuildings(obs);
 			SerializeProduction(obs);
+			SerializeMissionContext(obs);
 			SerializeSpatialMap(obs);
 
 			return obs;
+		}
+
+		void SerializeMissionContext(RLProto.GameObservation obs)
+		{
+			var missionData = world.WorldActor.Info.TraitInfoOrDefault<MissionDataInfo>();
+			obs.MissionMode = missionData != null;
+			if (missionData != null && !string.IsNullOrEmpty(missionData.Briefing))
+				obs.MissionBriefing = FluentProvider.TryGetMessage(missionData.Briefing, out var briefing)
+					? briefing
+					: missionData.Briefing;
+
+			var missionObjectives = player.PlayerActor.TraitOrDefault<MissionObjectives>();
+			if (missionObjectives == null)
+				return;
+
+			for (var id = 0; id < missionObjectives.Objectives.Count; id++)
+			{
+				var objective = missionObjectives.Objectives[id];
+				obs.Objectives.Add(new RLProto.RlObjective
+				{
+					Id = id,
+					Description = objective.Description ?? "",
+					Type = objective.Type ?? "",
+					Required = objective.Required,
+					State = objective.State.ToString().ToLowerInvariant(),
+				});
+			}
 		}
 
 		void SerializeRememberedEnemyBuildings(RLProto.GameObservation obs)
@@ -397,7 +425,67 @@ namespace OpenRA.Mods.Common.Traits
 			// Building flag (for distinguishing in mixed lists)
 			unit.IsBuilding = actor.Info.HasTraitInfo<BuildingInfo>();
 
+			unit.IsDisguised = actor.EffectiveOwner?.Disguised == true;
+			unit.DisguiseOwner = unit.IsDisguised ? actor.EffectiveOwner.Owner?.InternalName ?? "" : "";
+			unit.DetectsDisguise = actor.Info.HasTraitInfo<IgnoresDisguiseInfo>();
+
+			if (actor.Owner == player)
+				SerializeSpecialOrders(actor, unit);
+
 			return unit;
+		}
+
+		void SerializeSpecialOrders(Actor actor, RLProto.RlUnitInfo unit)
+		{
+			var targeters = actor.TraitsImplementing<IIssueOrder>()
+				.SelectMany(issuer => issuer.Orders)
+				.Where(targeter => targeter.OrderID is "Disguise" or "Infiltrate" or "C4")
+				.ToArray();
+			unit.CanDisguise = targeters.Any(targeter => targeter.OrderID == "Disguise");
+			unit.CanInfiltrate = targeters.Any(targeter => targeter.OrderID == "Infiltrate");
+			unit.CanDemolish = targeters.Any(targeter => targeter.OrderID == "C4");
+			if (targeters.Length == 0)
+				return;
+
+			foreach (var target in world.Actors)
+			{
+				if (target == actor || target.IsDead || !target.IsInWorld || target == world.WorldActor)
+					continue;
+
+				WPos centerPosition;
+				try
+				{
+					centerPosition = target.CenterPosition;
+				}
+				catch (NullReferenceException)
+				{
+					continue;
+				}
+
+				if (target.Owner != player && !player.Shroud.IsVisible(centerPosition))
+					continue;
+
+				foreach (var targeter in targeters)
+				{
+					var modifiers = TargetModifiers.None;
+					var cursor = "";
+					if (!targeter.CanTarget(actor, Target.FromActor(target), ref modifiers, ref cursor))
+						continue;
+
+					switch (targeter.OrderID)
+					{
+						case "Disguise":
+							unit.ValidDisguiseTargets.Add(target.ActorID);
+							break;
+						case "Infiltrate":
+							unit.ValidInfiltrationTargets.Add(target.ActorID);
+							break;
+						case "C4":
+							unit.ValidDemolitionTargets.Add(target.ActorID);
+							break;
+					}
+				}
+			}
 		}
 
 		void SerializeProduction(RLProto.GameObservation obs)
@@ -434,11 +522,16 @@ namespace OpenRA.Mods.Common.Traits
 
 		RLProto.RlMapInfo SerializeMapInfo()
 		{
+			var bounds = world.Map.Bounds;
 			return new RLProto.RlMapInfo
 			{
 				Width = world.Map.MapSize.Width,
 				Height = world.Map.MapSize.Height,
 				MapName = world.Map.Title ?? "",
+				BoundsX = bounds.X,
+				BoundsY = bounds.Y,
+				BoundsWidth = bounds.Width,
+				BoundsHeight = bounds.Height,
 			};
 		}
 
@@ -512,6 +605,7 @@ namespace OpenRA.Mods.Common.Traits
 				var baseIdx = (y * width + x) * SpatialChannelCount;
 				var cellIdx = y * width + x;
 				totalCells++;
+				var explored = shroud.IsExplored(cell);
 
 				// Ch 0: Terrain type index
 				data[baseIdx + 0] = map.GetTerrainIndex(cell);
@@ -520,7 +614,7 @@ namespace OpenRA.Mods.Common.Traits
 				data[baseIdx + 1] = map.Height[cell];
 
 				// Ch 2: Resource density
-				if (resourceLayer != null)
+				if (resourceLayer != null && explored)
 				{
 					var resource = resourceLayer.GetResource(cell);
 					data[baseIdx + 2] = resource.Density;
@@ -534,7 +628,6 @@ namespace OpenRA.Mods.Common.Traits
 				}
 
 				// Ch 4: Fog of war (0=hidden, 0.5=explored, 1=visible)
-				var explored = shroud.IsExplored(cell);
 				if (explored)
 					exploredCells++;
 

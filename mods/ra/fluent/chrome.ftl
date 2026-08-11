@@ -10,7 +10,7 @@ button-ai-companion-voice-off = VOICE: OFF
 button-ai-companion-voice-pending = VOICE: ...
 button-ai-companion-voice-toggle =
     .tooltip = Toggle AI Voice
-    .tooltipdesc = Silence or restore the companion's spoken audio. Text insights remain visible. Shortcut: Ctrl+Shift+M.
+    .tooltipdesc = Silence or restore the companion's spoken audio. Text insights remain visible. Remap it under Settings > Hotkeys > AI Assistant.
 
 button-command-bar-force-move =
     .tooltip = Force Move

@@ -4,9 +4,11 @@ GenericVoice:
 		england: .v01,.v03
 		france: .v01,.v03
 		germany: .v01,.v03
+		saudi: .v01,.v03
 		soviet: .r01,.r03
 		russia: .r01,.r03
 		ukraine: .r01,.r03
+		yemen: .r01,.r03
 	Voices:
 		Select: await1,ready,report1,yessir1
 		Action: ackno,affirm1,noprob,overout,ritaway,roger,ugotit
@@ -21,9 +23,11 @@ VehicleVoice:
 		england: .v00,.v02
 		france: .v00,.v02
 		germany: .v00,.v02
+		saudi: .v00,.v02
 		soviet: .r00,.r02
 		russia: .r00,.r02
 		ukraine: .r00,.r02
+		yemen: .r00,.r02
 	Voices:
 		Select: vehic1,yessir1,report1,await1
 		Action: ackno,affirm1

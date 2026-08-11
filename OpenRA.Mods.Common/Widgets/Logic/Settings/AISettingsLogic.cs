@@ -35,6 +35,16 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{ "off", "Never for updates" }
 		};
 
+		static readonly Dictionary<string, string> StrategyLabels = new()
+		{
+			{ "adaptive", "Adaptive - assistant chooses" },
+			{ "normal", "Balanced - Normal native AI" },
+			{ "rush", "Aggressive - Rush native AI" },
+			{ "turtle", "Fortified - Turtle native AI" },
+			{ "naval", "Naval control - Naval native AI" },
+			{ "medium", "Measured - Medium native AI" }
+		};
+
 		static readonly Dictionary<string, string> DefaultProviderLabels = new()
 		{
 			{ "openai", "OpenAI" },
@@ -84,14 +94,16 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		bool voiceEnabled = true;
 		bool busy;
 		bool catalogueAvailable = true;
-		string provider = "openai";
+		string provider = "local";
 		string pace = "calm";
 		string voicePriority = "critical";
-		string textModel = "gpt-5.5";
-		string visionModel = "gpt-5.5";
+		string nativeStrategy = "adaptive";
+		string textModel = "local-small";
+		string visionModel = "gemini-flash";
 		string transcribeModel = "openai-transcribe";
 		string speechModel = "openai-tts";
 		string speechVoice = "alloy";
+		string selectedTab = "assistant";
 		string aiLayerUrl = DefaultAILayerUrl;
 		string status = "Connecting to the AI layer...";
 		string costTotal = "Session estimate: waiting for usage";
@@ -114,6 +126,21 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		Func<bool> InitPanel(Widget panel)
 		{
+			scrollPanel = panel.Get<ScrollPanelWidget>("SETTINGS_SCROLLPANEL");
+			BindTab(panel.Get<ButtonWidget>("ASSISTANT_TAB"), "assistant");
+			BindTab(panel.Get<ButtonWidget>("VOICE_TAB"), "voice");
+			BindTab(panel.Get<ButtonWidget>("MODELS_TAB"), "models");
+			BindTab(panel.Get<ButtonWidget>("USAGE_TAB"), "usage");
+
+			foreach (var id in new[] { "COMPANION_SECTION_HEADER", "COMPANION_ENABLED_ROW", "COMPANION_PACE_ROW", "STRATEGY_BRAIN_ROW", "SHORTCUTS_HINT_ROW" })
+				panel.Get(id).IsVisible = () => selectedTab == "assistant";
+			foreach (var id in new[] { "VOICE_SECTION_HEADER", "VOICE_ENABLED_ROW", "VOICE_PRIORITY_ROW", "VOICE_ROUTES_ROW" })
+				panel.Get(id).IsVisible = () => selectedTab == "voice";
+			foreach (var id in new[] { "MODEL_SECTION_HEADER", "MODEL_PICKER_ROW" })
+				panel.Get(id).IsVisible = () => selectedTab == "models";
+			foreach (var id in new[] { "COST_SECTION_HEADER", "COST_ROW" })
+				panel.Get(id).IsVisible = () => selectedTab == "usage";
+
 			var enabled = panel.Get<CheckboxWidget>("AI_ENABLED");
 			enabled.IsChecked = () => companionEnabled;
 			enabled.OnClick = () => companionEnabled = !companionEnabled;
@@ -124,6 +151,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			BindDropdown(panel.Get<DropDownButtonWidget>("PACE"), () => PaceLabels, () => pace, value => pace = value);
 			BindDropdown(panel.Get<DropDownButtonWidget>("VOICE_PRIORITY"), () => VoicePriorityLabels,
 				() => voicePriority, value => voicePriority = value);
+			BindDropdown(panel.Get<DropDownButtonWidget>("STRATEGY_BRAIN"), () => StrategyLabels,
+				() => nativeStrategy, value => nativeStrategy = value);
 
 			BindDropdown(panel.Get<DropDownButtonWidget>("PROVIDER"), () => providerLabels, () => provider, SelectProvider);
 			BindDropdown(panel.Get<DropDownButtonWidget>("TEXT_MODEL"),
@@ -136,14 +165,14 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				() => ModelLabels("audio_speech", null, speechModel), () => speechModel, value => speechModel = value);
 			BindDropdown(panel.Get<DropDownButtonWidget>("SPEECH_VOICE"), () => voiceLabels,
 				() => speechVoice, value => speechVoice = value);
-			panel.Get("TEXT_MODEL_CONTAINER").IsVisible = () => provider != "custom";
-			panel.Get("VISION_PICKER_ROW").IsVisible = () => provider != "custom";
+			panel.Get("TEXT_MODEL_CONTAINER").IsVisible = () => selectedTab == "models" && provider != "custom";
+			panel.Get("VISION_PICKER_ROW").IsVisible = () => selectedTab == "models" && provider != "custom";
 
 			customEndpoint = panel.Get<TextFieldWidget>("CUSTOM_ENDPOINT");
 			customTextModel = panel.Get<TextFieldWidget>("CUSTOM_TEXT_MODEL");
 			customVisionModel = panel.Get<TextFieldWidget>("CUSTOM_VISION_MODEL");
-			panel.Get("CUSTOM_ENDPOINT_ROW").IsVisible = () => provider == "custom";
-			panel.Get("CUSTOM_MODELS_ROW").IsVisible = () => provider == "custom";
+			panel.Get("CUSTOM_ENDPOINT_ROW").IsVisible = () => selectedTab == "models" && provider == "custom";
+			panel.Get("CUSTOM_MODELS_ROW").IsVisible = () => selectedTab == "models" && provider == "custom";
 
 			providerStatusLabel = panel.Get<LabelWidget>("PROVIDER_STATUS");
 			providerStatusLabel.GetText = ProviderStatus;
@@ -164,7 +193,6 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			refresh.IsDisabled = () => busy;
 			refresh.OnClick = () => _ = LoadAsync();
 
-			scrollPanel = panel.Get<ScrollPanelWidget>("SETTINGS_SCROLLPANEL");
 			SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
 			_ = LoadAsync();
 			return () =>
@@ -180,11 +208,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{
 				companionEnabled = true;
 				voiceEnabled = true;
-				provider = "openai";
+				selectedTab = "assistant";
+				provider = "local";
 				pace = "calm";
 				voicePriority = "critical";
-				textModel = "gpt-5.5";
-				visionModel = "gpt-5.5";
+				nativeStrategy = "adaptive";
+				textModel = "local-small";
+				visionModel = "gemini-flash";
 				transcribeModel = "openai-transcribe";
 				speechModel = "openai-tts";
 				speechVoice = "alloy";
@@ -194,6 +224,17 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				customVisionModel.Text = "model-name";
 				SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
 				_ = ApplyAsync();
+			};
+		}
+
+		void BindTab(ButtonWidget button, string tab)
+		{
+			button.IsHighlighted = () => selectedTab == tab;
+			button.OnClick = () =>
+			{
+				selectedTab = tab;
+				SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
+				scrollPanel.ScrollToTop();
 			};
 		}
 
@@ -349,6 +390,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				{ "voice_enabled", voiceEnabled },
 				{ "notification_pace", pace },
 				{ "voice_priority", voicePriority },
+				{ "native_strategy", nativeStrategy },
 				{ "model_provider", provider },
 				{ "router_url", custom ? customEndpoint.Text.Trim() : aiLayerUrl },
 				{ "text_model", custom ? customTextModel.Text.Trim() : textModel },
@@ -403,7 +445,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			voiceEnabled = config.GetProperty("voice_enabled").GetBoolean();
 			pace = config.GetProperty("notification_pace").GetString() ?? "calm";
 			voicePriority = config.GetProperty("voice_priority").GetString() ?? "critical";
-			textModel = config.GetProperty("text_model").GetString() ?? "gpt-5.5";
+			nativeStrategy = config.TryGetProperty("native_strategy", out var configuredStrategy)
+				? configuredStrategy.GetString() ?? "adaptive"
+				: "adaptive";
+			textModel = config.GetProperty("text_model").GetString() ?? "local-small";
 			visionModel = config.GetProperty("vision_model").GetString() ?? textModel;
 			transcribeModel = config.GetProperty("transcribe_model").GetString() ?? "openai-transcribe";
 			speechModel = config.GetProperty("speech_model").GetString() ?? "openai-tts";

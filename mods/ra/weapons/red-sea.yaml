@@ -1,0 +1,45 @@
+RedSeaInterceptor:
+	Inherits: Nike
+	ReloadDelay: 42
+	Range: 9c0
+	Report: redsea-interceptor.wav
+	Projectile: Missile
+		Speed: 426
+		HorizontalRateOfTurn: 120
+		RangeLimit: 12c0
+	Warhead@1Dam: SpreadDamage
+		Damage: 3600
+
+RedSeaMobileStrike:
+	Inherits: SCUD
+	ReloadDelay: 150
+	Range: 9c0
+	Report: redsea-mobile-launch.wav
+	Projectile: Bullet
+		Speed: 170
+		Blockable: false
+		LaunchAngle: 128
+		Inaccuracy: 1c0
+	Warhead@1Dam: SpreadDamage
+		Damage: 9000
+
+RedSeaDroneStrike:
+	Inherits: Maverick
+	ReloadDelay: 80
+	Range: 5c512
+	MinRange: 0c768
+	Report: redsea-drone-strike.wav
+	Burst: 1
+	Projectile: Missile
+		Speed: 192
+		Inaccuracy: 256
+		CruiseAltitude: 1c0
+		RangeLimit: 8c0
+	Warhead@1Dam: SpreadDamage
+		Damage: 5200
+		Versus:
+			None: 55
+			Wood: 80
+			Light: 100
+			Heavy: 65
+			Concrete: 45

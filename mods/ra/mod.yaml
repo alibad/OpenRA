@@ -79,6 +79,7 @@ Rules:
 	ra|rules/world.yaml
 	ra|rules/defaults.yaml
 	ra|rules/vehicles.yaml
+	ra|rules/red-sea.yaml
 	ra|rules/husks.yaml
 	ra|rules/structures.yaml
 	ra|rules/infantry.yaml
@@ -189,6 +190,7 @@ Weapons:
 	ra|weapons/other.yaml
 	ra|weapons/smallcaliber.yaml
 	ra|weapons/superweapons.yaml
+	ra|weapons/red-sea.yaml
 
 Voices:
 	ra|audio/voices.yaml

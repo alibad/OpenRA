@@ -6,18 +6,64 @@ Container@PLAYER_WIDGETS:
 			Logic: CompanionStatusLogic
 			X: (WINDOW_WIDTH - 250) / 2 - WIDTH / 2
 			Y: 8
-			Width: 320
+			Width: 430
 			Height: 30
 			Background: dialog4
 			ClickThrough: false
 			Children:
-				Label@STATUS:
+				Label@THREAT_LABEL:
+					X: 8
+					Y: 3
+					Width: 100
+					Height: 14
+					Align: Center
+					Font: TinyBold
+					Contrast: true
+				ColorBlock@THREAT_TRACK:
 					X: 12
-					Width: PARENT_WIDTH - 122
+					Y: 20
+					Width: 92
+					Height: 5
+				ColorBlock@THREAT_FILL:
+					X: 12
+					Y: 20
+					Width: 0
+					Height: 5
+				Button@STATUS:
+					X: 118
+					Width: PARENT_WIDTH - 228
 					Height: PARENT_HEIGHT
 					Align: Center
 					Font: TinyBold
 					Contrast: true
+					Background:
+					VisualHeight: 0
+				Button@FEED_TOGGLE:
+					X: PARENT_WIDTH - 136
+					Y: 4
+					Width: 34
+					Height: 22
+					Font: TinyBold
+					VisualHeight: 0
+				Button@ACTION_CONFIRM:
+					Y: 4
+					Width: 76
+					Height: 22
+					Font: TinyBold
+					VisualHeight: 0
+					Visible: false
+				Button@ACTION_CANCEL:
+					Y: 4
+					Width: 58
+					Height: 22
+					Font: TinyBold
+					VisualHeight: 0
+					Visible: false
+				Button@AUTO_TOGGLE:
+					Y: 4
+					Width: 72
+					Height: 22
+					Font: TinyBold
 				Button@VOICE_TOGGLE:
 					X: PARENT_WIDTH - WIDTH - 4
 					Y: 4
@@ -29,6 +75,139 @@ Container@PLAYER_WIDGETS:
 					TooltipDesc: button-ai-companion-voice-toggle.tooltipdesc
 					TooltipContainer: TOOLTIP_CONTAINER
 					TooltipTemplate: BUTTON_WITH_DESC_HIGHLIGHT_TOOLTIP
+				Background@FEED_PANEL:
+					Y: 36
+					Width: 430
+					Height: 296
+					Background: dialog4
+					ClickThrough: false
+					Visible: false
+					Children:
+						ColorBlock@FEED_ACCENT:
+							Width: PARENT_WIDTH
+							Height: 3
+						Label@FEED_TITLE:
+							X: 12
+							Y: 7
+							Width: 220
+							Height: 24
+							Font: TinyBold
+							Contrast: true
+						Label@FEED_COUNT:
+							X: PARENT_WIDTH - 162
+							Y: 7
+							Width: 122
+							Height: 24
+							Align: Right
+							Font: TinyBold
+							Contrast: true
+						Button@FILTER_ALL:
+							X: PARENT_WIDTH - 244
+							Y: 6
+							Width: 34
+							Height: 22
+							Font: TinyBold
+							VisualHeight: 0
+						Button@FILTER_YOU:
+							X: PARENT_WIDTH - 206
+							Y: 6
+							Width: 38
+							Height: 22
+							Font: TinyBold
+							VisualHeight: 0
+						Button@FEED_CLOSE:
+							X: PARENT_WIDTH - 32
+							Y: 5
+							Width: 24
+							Height: 24
+							Font: TinyBold
+							VisualHeight: 0
+						ColorBlock@FEED_HEADER_RULE:
+							X: 10
+							Y: 34
+							Width: PARENT_WIDTH - 20
+							Height: 1
+						Label@LATEST_KICKER:
+							X: 12
+							Y: 40
+							Width: PARENT_WIDTH - 24
+							Height: 15
+							Font: TinyBold
+							Contrast: true
+						Label@LATEST_META:
+							X: 12
+							Y: 55
+							Width: PARENT_WIDTH - 24
+							Height: 15
+							Font: TinyBold
+							Contrast: true
+						Label@LATEST_MESSAGE:
+							X: 12
+							Y: 72
+							Width: PARENT_WIDTH - 24
+							Height: 49
+							VAlign: Top
+							Font: Regular
+							Contrast: true
+						ColorBlock@FEED_HISTORY_RULE:
+							X: 10
+							Y: 126
+							Width: PARENT_WIDTH - 20
+							Height: 1
+						ScrollPanel@FEED_HISTORY:
+							X: 8
+							Y: 132
+							Width: PARENT_WIDTH - 16
+							Height: 135
+							CollapseHiddenChildren: true
+							TopBottomSpacing: 5
+							ItemSpacing: 4
+							Align: Bottom
+							Children:
+								Container@FEED_ITEM_TEMPLATE:
+									X: 4
+									Width: PARENT_WIDTH - 35
+									Height: 52
+									Visible: false
+									Children:
+										ColorBlock@CARD_BG:
+											Width: PARENT_WIDTH
+											Height: PARENT_HEIGHT
+										ColorBlock@CARD_ACCENT:
+											Width: 4
+											Height: PARENT_HEIGHT
+										Label@CARD_META:
+											X: 11
+											Y: 4
+											Width: PARENT_WIDTH - 16
+											Height: 15
+											Font: TinyBold
+											Contrast: true
+										Label@CARD_MESSAGE:
+											X: 11
+											Y: 20
+											Width: PARENT_WIDTH - 16
+											Height: 26
+											VAlign: Top
+											Font: Regular
+											WordWrap: true
+											Contrast: true
+						Label@FEED_EMPTY:
+							X: 24
+							Y: 177
+							Width: PARENT_WIDTH - 48
+							Height: 42
+							Align: Center
+							Font: TinyBold
+							Contrast: true
+						Label@FEED_FOOTER:
+							X: 12
+							Y: 271
+							Width: PARENT_WIDTH - 24
+							Height: 17
+							Align: Center
+							Font: TinyBold
+							Contrast: true
 		LogicKeyListener@PLAYER_KEYHANDLER:
 			Logic: RemoveFromControlGroupHotkeyLogic
 				RemoveFromControlGroupKey: RemoveFromControlGroup

@@ -168,6 +168,9 @@ namespace OpenRA.Mods.Common.Traits
 			RLProto.StateRequest request,
 			ServerCallContext context)
 		{
+			if (string.IsNullOrEmpty(request.SessionId) && CompanionBridge.TryGetState(out var companionState))
+				return Task.FromResult(companionState);
+
 			var bridge = ExternalBotBridge.LookupSession(request.SessionId);
 			if (bridge == null)
 			{
@@ -188,6 +191,24 @@ namespace OpenRA.Mods.Common.Traits
 			RLProto.StateRequest request,
 			ServerCallContext context)
 		{
+			if (!string.IsNullOrEmpty(request.SessionId))
+			{
+				var bridge = ExternalBotBridge.LookupSession(request.SessionId);
+				if (bridge == null || !RLSessionManager.SessionStates.TryGetValue(request.SessionId, out var state))
+					throw new RpcException(new Status(StatusCode.NotFound,
+						$"Session {request.SessionId} is not available."));
+
+				state.TickLock.Wait(context.CancellationToken);
+				try
+				{
+					return Task.FromResult(bridge.GetCurrentObservation());
+				}
+				finally
+				{
+					state.TickLock.Release();
+				}
+			}
+
 			if (CompanionBridge.TryGetObservation(out var observation))
 				return Task.FromResult(observation);
 
@@ -206,6 +227,47 @@ namespace OpenRA.Mods.Common.Traits
 			{
 				Accepted = CompanionBridge.UpdateStatus(request)
 			});
+		}
+
+		/// <summary>
+		/// Publish the latest fog-respecting threat assessment without refreshing HUD text.
+		/// </summary>
+		public override Task<RLProto.CompanionStatusAck> UpdateCompanionThreat(
+			RLProto.CompanionThreat request,
+			ServerCallContext context)
+		{
+			return Task.FromResult(new RLProto.CompanionStatusAck
+			{
+				Accepted = CompanionBridge.UpdateThreat(request)
+			});
+		}
+
+		/// <summary>
+		/// Capture the player's current rendered viewport for an on-demand vision request.
+		/// </summary>
+		public override async Task<RLProto.CompanionFrame> CaptureCompanionFrame(
+			RLProto.StateRequest request,
+			ServerCallContext context)
+		{
+			try
+			{
+				return await CompanionBridge.CaptureFrame(context.CancellationToken);
+			}
+			catch (InvalidOperationException e)
+			{
+				throw new RpcException(new Status(StatusCode.FailedPrecondition, e.Message));
+			}
+		}
+
+		/// <summary>
+		/// Queue an explicitly confirmed, allowlisted action for validation and
+		/// execution on the game thread.
+		/// </summary>
+		public override async Task<RLProto.CompanionActionReceipt> ExecuteCompanionActions(
+			RLProto.CompanionActionRequest request,
+			ServerCallContext context)
+		{
+			return await CompanionBridge.ExecuteActions(request).WaitAsync(context.CancellationToken);
 		}
 
 		/// <summary>

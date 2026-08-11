@@ -70,12 +70,29 @@ namespace OpenRA.Mods.Common.Traits
 			if (p.World.IsReplay)
 				return;
 
+			if (IsEnabled)
+				Deactivate();
+
 			IsEnabled = true;
 			player = p;
 			tickModules = p.PlayerActor.TraitsImplementing<IBotTick>().ToArray();
 			attackResponseModules = p.PlayerActor.TraitsImplementing<IBotRespondToAttack>().ToArray();
 			foreach (var ibe in p.PlayerActor.TraitsImplementing<IBotEnabled>())
 				ibe.BotEnabled(this);
+		}
+
+		/// <summary>
+		/// Stops this bot without changing player ownership. This is used by the
+		/// local companion to switch the human player's delegated strategy while
+		/// preserving ordinary manual control.
+		/// </summary>
+		public void Deactivate()
+		{
+			IsEnabled = false;
+			orders.Clear();
+			player = null;
+			tickModules = null;
+			attackResponseModules = null;
 		}
 
 		void IBot.QueueOrder(Order order)

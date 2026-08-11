@@ -59,6 +59,12 @@ faction-germany =
      Special Ability: Advanced Chronoshift
      Special Unit: Chrono Tank
 
+faction-saudi =
+    .name = Saudi Arabia
+    .description = Saudi Arabia: Networked Defense
+     Special Unit: M1A2S
+     Special Unit: Mobile Air Defense System
+
 faction-soviet =
     .name = Soviet
 
@@ -74,6 +80,13 @@ faction-ukraine =
      Special Ability: Parabombs
      Special Unit: Demolition Truck
 
+faction-yemen =
+    .name = Yemen
+    .description = Yemen: Dispersed Coastal Defense
+     Special Unit: Armed Technical
+     Special Unit: Samad Drone
+     Special Unit: Mobile Missile Launcher
+
 faction-random =
     .name = Any
     .description = Random Country
@@ -88,6 +101,27 @@ faction-randomsoviet =
     .name = Soviet
     .description = Random Soviet Country
      A random Soviet country is chosen when the game starts
+
+## Red Sea vertical slice
+actor-m1a2s =
+    .name = M1A2S
+    .description = Modern main battle tank with strong armor and accurate direct fire.
+
+actor-sads =
+    .name = Mobile Air Defense System
+    .description = Long-range radar-guided interceptor. Cannot attack ground targets.
+
+actor-tech =
+    .name = Armed Technical
+    .description = Fast, inexpensive raiding vehicle with minimal protection.
+
+actor-ymlr =
+    .name = Mobile Missile Launcher
+    .description = Mobile long-range strike system. Vulnerable while reloading.
+
+actor-samad =
+    .name = Samad Drone
+    .description = Low-cost one-pass strike aircraft with limited payload.
 
 ## aircraft.yaml
 actor-badr-name = Badger

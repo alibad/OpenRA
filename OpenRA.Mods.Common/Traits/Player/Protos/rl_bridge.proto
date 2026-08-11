@@ -22,6 +22,16 @@ service RLBridge {
   // Unary: publish companion lifecycle state for the non-modal in-game HUD.
   rpc UpdateCompanionStatus(CompanionStatus) returns (CompanionStatusAck);
 
+  // Unary: publish the independently refreshed, fog-respecting threat meter.
+  rpc UpdateCompanionThreat(CompanionThreat) returns (CompanionStatusAck);
+
+  // Unary: capture the player's rendered, fog-respecting viewport on demand.
+  rpc CaptureCompanionFrame(StateRequest) returns (CompanionFrame);
+
+  // Unary: queue a small, confirmed set of local-player orders. The engine
+  // validates the request again on the game thread before issuing any order.
+  rpc ExecuteCompanionActions(CompanionActionRequest) returns (CompanionActionReceipt);
+
   // Unary: advance N ticks with optional commands, return observation.
   // Bypasses streaming — works reliably on all platforms.
   rpc FastAdvance(FastAdvanceRequest) returns (GameObservation);
@@ -74,6 +84,20 @@ message GameObservation {
   // Enemy buildings that were previously observed but are currently under fog.
   // Contains only the player's last-known, frozen state and never live hidden state.
   repeated RlBuildingInfo remembered_enemy_buildings = 21;
+
+  // Scripted-mission context. This is the same localized briefing and live
+  // objective state available to the human player through the game UI.
+  repeated RlObjective objectives = 22;
+  string mission_briefing = 23;
+  bool mission_mode = 24;
+}
+
+message RlObjective {
+  int32 id = 1;
+  string description = 2;
+  string type = 3;
+  bool required = 4;
+  string state = 5;
 }
 
 message RlEconomy {
@@ -121,6 +145,15 @@ message RlUnitInfo {
   int32 attack_range = 17;     // Max attack range in WDist units
   int32 passenger_count = 18;  // Cargo count (0 if not transport, -1 if N/A)
   bool is_building = 19;       // false for units (helps distinguish in visible_enemies)
+  bool is_disguised = 20;
+  string disguise_owner = 21;
+  bool can_disguise = 22;
+  bool can_infiltrate = 23;
+  repeated uint32 valid_disguise_targets = 24;
+  repeated uint32 valid_infiltration_targets = 25;
+  bool detects_disguise = 26;
+  bool can_demolish = 27;
+  repeated uint32 valid_demolition_targets = 28;
 }
 
 message RlBuildingInfo {
@@ -159,6 +192,10 @@ message RlMapInfo {
   int32 width = 1;          // Map width in cells
   int32 height = 2;         // Map height in cells
   string map_name = 3;
+  int32 bounds_x = 4;       // Playable rectangle left edge
+  int32 bounds_y = 5;       // Playable rectangle top edge
+  int32 bounds_width = 6;
+  int32 bounds_height = 7;
 }
 
 // ─── Actions (Agent → Game) ──────────────────────────────────────────────────
@@ -201,6 +238,9 @@ enum ActionType {
   SET_PRIMARY = 19;     // Set primary production building (actor_id = building)
   SURRENDER = 20;       // Surrender / resign — ends the game as a loss
   FAST_ADVANCE = 21;    // Fast-forward N ticks at CPU speed (no real-time sleeping)
+  DISGUISE = 22;        // Copy the appearance of a currently visible actor
+  INFILTRATE = 23;      // Enter a currently visible valid infiltration target
+  DEMOLISH = 24;        // Plant C4 on a currently visible demolishable target
 }
 
 // ─── State Query ─────────────────────────────────────────────────────────────
@@ -228,6 +268,43 @@ message CompanionStatus {
 
 message CompanionStatusAck {
   bool accepted = 1;
+}
+
+message CompanionThreat {
+  int32 score = 1;    // 0..100
+  string level = 2;   // calm, guarded, high, critical
+  string reason = 3;  // Short diagnostic summary
+}
+
+message CompanionFrame {
+  int32 tick = 1;
+  bytes png = 2;
+  int32 width = 3;
+  int32 height = 4;
+  string scope = 5;
+}
+
+message CompanionActionRequest {
+  // Stable idempotency key generated when the player confirms the proposal.
+  string request_id = 1;
+  // Latest observation tick seen by the companion at confirmation time.
+  int32 expected_tick = 2;
+  repeated Command commands = 3;
+}
+
+message CompanionCommandResult {
+  int32 index = 1;
+  ActionType action = 2;
+  bool accepted = 3;
+  string detail = 4;
+}
+
+message CompanionActionReceipt {
+  string request_id = 1;
+  bool accepted = 2;
+  int32 game_tick = 3;
+  repeated CompanionCommandResult results = 4;
+  string detail = 5;
 }
 
 // ─── Fast Advance (Unary) ───────────────────────────────────────────────────

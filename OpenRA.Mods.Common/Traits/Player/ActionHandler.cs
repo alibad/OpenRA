@@ -10,6 +10,9 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using OpenRA.Mods.Common.Pathfinder;
 using OpenRA.Traits;
 using RLProto = OpenRA.Mods.Common.RL;
 
@@ -39,7 +42,11 @@ namespace OpenRA.Mods.Common.Traits
 			}
 		}
 
-		Order ConvertCommand(RLProto.Command cmd)
+		/// <summary>
+		/// Convert a validated command into the same synchronized order used by
+		/// bots and the normal player UI. Callers remain responsible for policy.
+		/// </summary>
+		public Order ConvertCommand(RLProto.Command cmd)
 		{
 			switch (cmd.Action)
 			{
@@ -91,6 +98,15 @@ namespace OpenRA.Mods.Common.Traits
 
 				case RLProto.ActionType.EnterTransport:
 					return CreateEnterTransportOrder(cmd);
+
+				case RLProto.ActionType.Disguise:
+					return CreateTargetedActorOrder(cmd, "Disguise");
+
+				case RLProto.ActionType.Infiltrate:
+					return CreateTargetedActorOrder(cmd, "Infiltrate");
+
+				case RLProto.ActionType.Demolish:
+					return CreateTargetedActorOrder(cmd, "C4");
 
 				case RLProto.ActionType.Unload:
 					return CreateUnloadOrder(cmd);
@@ -234,7 +250,10 @@ namespace OpenRA.Mods.Common.Traits
 			if (subject == null || subject.IsDead || !subject.IsInWorld)
 				return null;
 
-			return new Order("RepairBuilding", subject, false) { IsImmediate = true };
+			return new Order("RepairBuilding", player.PlayerActor, Target.FromActor(subject), false)
+			{
+				IsImmediate = true
+			};
 		}
 
 		Order CreatePlaceBuildingOrder(RLProto.Command cmd)
@@ -335,19 +354,130 @@ namespace OpenRA.Mods.Common.Traits
 
 		CPos? FindPlacementCell(ActorInfo actorInfo, BuildingInfo bi, CPos center)
 		{
-			// Search in expanding rings from center, up to 20 cells out
-			foreach (var cell in world.Map.FindTilesInAnnulus(center, 0, 20))
+			var resourceLayer = world.WorldActor.TraitOrDefault<IResourceLayer>();
+			var resources = resourceLayer == null ? [] : world.Map.AllCells
+				.Where(c => player.Shroud.IsExplored(c) && resourceLayer.GetResource(c).Type != null)
+				.ToArray();
+			var landLocomotors = world.WorldActor.TraitsImplementing<Locomotor>()
+				.Where(l => l.Info.Name is "foot" or "wheeled" or "heavywheeled" or "lighttracked" or "tracked" or "heavytracked")
+				.ToArray();
+			var buildingInfluence = world.WorldActor.TraitOrDefault<BuildingInfluence>();
+			var ownedBuildings = world.ActorsHavingTrait<Building>()
+				.Where(a => a.Owner == player && !a.IsDead && a.IsInWorld)
+				.ToArray();
+
+			return world.Map.FindTilesInAnnulus(center, 0, 20)
+				.Where(cell => world.CanPlaceBuilding(cell, actorInfo, bi, null)
+					&& bi.IsCloseEnoughToBase(world, player, actorInfo, cell))
+				.Select(cell => new
+				{
+					Cell = cell,
+					Score = PlacementScore(actorInfo, bi, cell, center, resources, landLocomotors, buildingInfluence, ownedBuildings)
+				})
+				.OrderBy(candidate => candidate.Score)
+				.ThenBy(candidate => (candidate.Cell - center).LengthSquared)
+				.ThenBy(candidate => candidate.Cell.Y)
+				.ThenBy(candidate => candidate.Cell.X)
+				.Select(candidate => (CPos?)candidate.Cell)
+				.FirstOrDefault();
+		}
+
+		long PlacementScore(
+			ActorInfo actorInfo,
+			BuildingInfo bi,
+			CPos cell,
+			CPos baseCenter,
+			CPos[] resources,
+			Locomotor[] landLocomotors,
+			BuildingInfluence buildingInfluence,
+			Actor[] ownedBuildings)
+		{
+			var score = (long)(cell - baseCenter).LengthSquared * 6;
+			var occupied = bi.Tiles(cell).ToHashSet();
+
+			// Keep a service lane around structures instead of packing every legal footprint together.
+			for (var y = -1; y <= bi.Dimensions.Y; y++)
 			{
-				if (!world.CanPlaceBuilding(cell, actorInfo, bi, null))
-					continue;
+				for (var x = -1; x <= bi.Dimensions.X; x++)
+				{
+					if (x >= 0 && x < bi.Dimensions.X && y >= 0 && y < bi.Dimensions.Y)
+						continue;
 
-				if (!bi.IsCloseEnoughToBase(world, player, actorInfo, cell))
-					continue;
-
-				return cell;
+					var border = cell + new CVec(x, y);
+					score += IsOpenGround(border, occupied, landLocomotors, buildingInfluence) ? -12 : 90;
+				}
 			}
 
-			return null;
+			// Avoid touching existing structures even when their decorative bibs make placement legal.
+			foreach (var building in ownedBuildings)
+			{
+				var distance = (building.Location - cell).LengthSquared;
+				if (distance <= 9)
+					score += (10 - distance) * 180;
+			}
+
+			var exits = actorInfo.TraitInfos<ExitInfo>().OrderByDescending(exit => exit.Priority).ToArray();
+			foreach (var exit in exits)
+			{
+				var exitCell = cell + exit.ExitCell;
+				var centerX2 = bi.Dimensions.X - 1;
+				var centerY2 = bi.Dimensions.Y - 1;
+				var offsetX2 = exit.ExitCell.X * 2 - centerX2;
+				var offsetY2 = exit.ExitCell.Y * 2 - centerY2;
+				var direction = Math.Abs(offsetY2) >= Math.Abs(offsetX2)
+					? new CVec(0, Math.Sign(offsetY2))
+					: new CVec(Math.Sign(offsetX2), 0);
+				if (direction == CVec.Zero)
+					direction = new CVec(0, 1);
+				var lateral = new CVec(-direction.Y, direction.X);
+
+				// Reserve a three-cell-wide, six-cell-long lane beyond each production door.
+				for (var distance = 1; distance <= 6; distance++)
+				{
+					for (var width = -1; width <= 1; width++)
+					{
+						var corridor = exitCell + distance * direction + width * lateral;
+						score += IsOpenGround(corridor, occupied, landLocomotors, buildingInfluence) ? -35 : 650;
+					}
+				}
+
+				// Prefer doors facing away from the Construction Yard so produced units leave the base cleanly.
+				var outward = cell - baseCenter;
+				var alignment = outward.X * direction.X + outward.Y * direction.Y;
+				score -= alignment * 90;
+			}
+
+			if (actorInfo.HasTraitInfo<RefineryInfo>() && resources.Length > 0)
+			{
+				// Score from the refinery dock (bottom-center), not its top-left placement cell.
+				var dock = cell + new CVec(bi.Dimensions.X / 2, bi.Dimensions.Y - 1);
+				var nearest = resources
+					.Select(resource => new { Cell = resource, Distance = (resource - dock).LengthSquared })
+					.OrderBy(resource => resource.Distance)
+					.First();
+				score += (long)nearest.Distance * 160;
+
+				// Reward dense nearby fields so harvesters spend more time carrying ore than commuting.
+				var nearbyDensity = resources
+					.Where(resource => (resource - dock).LengthSquared <= 144)
+					.Sum(resource => world.WorldActor.Trait<IResourceLayer>().GetResource(resource).Density);
+				score -= nearbyDensity * 18L;
+			}
+
+			return score;
+		}
+
+		bool IsOpenGround(CPos cell, HashSet<CPos> proposedFootprint, Locomotor[] locomotors, BuildingInfluence buildingInfluence)
+		{
+			if (!world.Map.Contains(cell) || proposedFootprint.Contains(cell))
+				return false;
+
+			if ((buildingInfluence != null && buildingInfluence.AnyBuildingAt(cell))
+				|| world.ActorMap.GetActorsAt(cell).Any(actor => !actor.IsDead && actor.IsInWorld))
+				return false;
+
+			return locomotors.Length == 0 || locomotors.All(
+				locomotor => locomotor.MovementCostForCell(cell) < PathGraph.MovementCostForUnreachableCell);
 		}
 
 		Order CreateCancelProductionOrder(RLProto.Command cmd)
@@ -425,6 +555,19 @@ namespace OpenRA.Mods.Common.Traits
 				return null;
 
 			return new Order("EnterTransport", subject, Target.FromActor(target), cmd.Queued);
+		}
+
+		Order CreateTargetedActorOrder(RLProto.Command cmd, string orderId)
+		{
+			var subject = world.GetActorById(cmd.ActorId);
+			if (subject == null || subject.IsDead || !subject.IsInWorld)
+				return null;
+
+			var target = world.GetActorById(cmd.TargetActorId);
+			if (target == null || target.IsDead || !target.IsInWorld)
+				return null;
+
+			return new Order(orderId, subject, Target.FromActor(target), cmd.Queued);
 		}
 
 		Order CreateUnloadOrder(RLProto.Command cmd)

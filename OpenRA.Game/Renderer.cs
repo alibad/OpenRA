@@ -540,6 +540,38 @@ namespace OpenRA
 			});
 		}
 
+		/// <summary>
+		/// Captures the rendered player viewport as a bounded PNG for the local AI companion.
+		/// The render buffer already contains the player's shroud/fog and visible UI.
+		/// Must be called on the render thread.
+		/// </summary>
+		public byte[] CaptureScreenshot(out int width, out int height, int maxWidth = 1280, int maxHeight = 720)
+		{
+			var src = screenBuffer.Texture.GetData();
+			var srcWidth = screenSprite.Sheet.Size.Width;
+			var viewWidth = screenSprite.Bounds.Width;
+			var viewHeight = -screenSprite.Bounds.Height;
+			if (viewWidth <= 0 || viewHeight <= 0 || src.Length < 4 * srcWidth * viewHeight)
+				throw new InvalidOperationException("The active renderer does not expose viewport pixels.");
+
+			var scale = Math.Min(1f, Math.Min((float)maxWidth / viewWidth, (float)maxHeight / viewHeight));
+			width = Math.Max(1, (int)(viewWidth * scale));
+			height = Math.Max(1, (int)(viewHeight * scale));
+			var dest = new byte[4 * width * height];
+			for (var y = 0; y < height; y++)
+			{
+				var srcY = y * viewHeight / height;
+				for (var x = 0; x < width; x++)
+				{
+					var srcX = x * viewWidth / width;
+					Array.Copy(src, 4 * (srcY * srcWidth + srcX), dest, 4 * (y * width + x), 4);
+				}
+			}
+
+			return new Png(dest, SpriteFrameType.Bgra32, width, height)
+				.Save(System.IO.Compression.CompressionLevel.Fastest);
+		}
+
 		public void Dispose()
 		{
 			worldBuffer?.Dispose();
