@@ -230,38 +230,31 @@ ChromeMetrics:
 
 Fonts:
 	Tiny:
-		Font: common|FreeSans.ttf
-		FallbackFonts: common|NotoSansArabic-Regular.ttf
+		Font: common|FreeSansArabic.ttf
 		Size: 10
 		Ascender: 8
 	TinyBold:
-		Font: common|FreeSansBold.ttf
-		FallbackFonts: common|NotoSansArabic-Bold.ttf
+		Font: common|FreeSansArabicBold.ttf
 		Size: 10
 		Ascender: 8
 	Small:
-		Font: common|FreeSans.ttf
-		FallbackFonts: common|NotoSansArabic-Regular.ttf
+		Font: common|FreeSansArabic.ttf
 		Size: 12
 		Ascender: 9
 	Regular:
-		Font: common|FreeSans.ttf
-		FallbackFonts: common|NotoSansArabic-Regular.ttf
+		Font: common|FreeSansArabic.ttf
 		Size: 14
 		Ascender: 11
 	Bold:
-		Font: common|FreeSansBold.ttf
-		FallbackFonts: common|NotoSansArabic-Bold.ttf
+		Font: common|FreeSansArabicBold.ttf
 		Size: 14
 		Ascender: 11
 	MediumBold:
-		Font: common|FreeSansBold.ttf
-		FallbackFonts: common|NotoSansArabic-Bold.ttf
+		Font: common|FreeSansArabicBold.ttf
 		Size: 18
 		Ascender: 14
 	BigBold:
-		Font: common|FreeSansBold.ttf
-		FallbackFonts: common|NotoSansArabic-Bold.ttf
+		Font: common|FreeSansArabicBold.ttf
 		Size: 24
 		Ascender: 18
 	Title:
