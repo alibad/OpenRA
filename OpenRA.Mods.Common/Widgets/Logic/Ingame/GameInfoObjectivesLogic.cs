@@ -83,7 +83,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				var checkbox = widget.Get<CheckboxWidget>("OBJECTIVE_STATUS");
 				checkbox.IsChecked = () => objective.State != ObjectiveState.Incomplete;
 				checkbox.GetCheckmark = () => objective.State == ObjectiveState.Completed ? "tick" : "cross";
-				checkbox.GetText = () => objective.Description;
+
+				var description = widget.Get<LabelWidget>("OBJECTIVE_DESCRIPTION");
+				description.GetText = () => objective.Description;
+				description.IncreaseHeightToFitCurrentText();
+				widget.Bounds.Height = System.Math.Max(
+					widget.Bounds.Height,
+					description.Bounds.Bottom + 2);
 
 				parent.AddChild(widget);
 			}

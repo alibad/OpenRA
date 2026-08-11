@@ -32,12 +32,21 @@ Container@MISSION_OBJECTIVES:
 							X: 10
 							Y: 1
 							Width: 70
-							Height: PARENT_HEIGHT
+							Height: 20
 							Align: Center
+							VAlign: Top
 						Checkbox@OBJECTIVE_STATUS:
 							X: 90
 							Y: 0
-							Width: PARENT_WIDTH - 100
-							Height: PARENT_HEIGHT
+							Width: 20
+							Height: 20
 							Disabled: True
 							TextColorDisabled: FFFFFF
+						Label@OBJECTIVE_DESCRIPTION:
+							X: 120
+							Y: 1
+							Width: PARENT_WIDTH - 130
+							Height: 20
+							Font: Regular
+							VAlign: Top
+							WordWrap: True
