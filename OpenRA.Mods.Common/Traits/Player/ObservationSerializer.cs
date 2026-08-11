@@ -457,9 +457,9 @@ namespace OpenRA.Mods.Common.Traits
 				unit.CurrentTargetActorId = attackFollow.RequestedTarget.Actor.ActorID;
 
 			// Ammo
-			var ammoPool = actor.TraitOrDefault<AmmoPool>();
-			if (ammoPool != null)
-				unit.Ammo = ammoPool.CurrentAmmoCount;
+			var ammoPools = actor.TraitsImplementing<AmmoPool>().ToArray();
+			if (ammoPools.Length > 0)
+				unit.Ammo = ammoPools.Sum(pool => pool.CurrentAmmoCount);
 
 			// Facing
 			var facing = actor.TraitOrDefault<IFacing>();

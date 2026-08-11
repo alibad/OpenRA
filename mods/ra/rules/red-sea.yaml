@@ -234,7 +234,7 @@ F15SA:
 		VoiceSet: SaudiAirVoice
 	Buildable:
 		Queue: Aircraft
-		BuildAtProductionType: Plane
+		BuildAtProductionType: Helicopter
 		BuildPaletteOrder: 45
 		Prerequisites: ~hpad, atek, ~aircraft.saudi, ~techlevel.high
 		Description: actor-f15sa.description
