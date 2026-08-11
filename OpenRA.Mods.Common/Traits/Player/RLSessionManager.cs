@@ -268,7 +268,18 @@ namespace OpenRA.Mods.Common.Traits
 
 				var didTick = orderManager.TryTick();
 				if (didTick)
+				{
 					world.Tick();
+
+					// MissionObjectives normally schedules World.EndGame through
+					// Game.RunAfterDelay. Multi-session worlds are advanced by this
+					// worker instead of Game.LogicTick, so that global delayed-action
+					// queue is never pumped for them. Finalize locally once every
+					// objective-bearing combatant has a resolved win state.
+					if (!world.IsGameOver && world.Players.All(p =>
+						p.NonCombatant || p.WinState != WinState.Undefined || !p.HasObjectives))
+						world.EndGame();
+				}
 
 				tickCount++;
 

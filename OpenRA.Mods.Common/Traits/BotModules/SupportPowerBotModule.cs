@@ -61,6 +61,10 @@ namespace OpenRA.Mods.Common.Traits
 
 		protected override void TraitEnabled(Actor self)
 		{
+			// Conditional bot profiles can be switched while a match is running.
+			// Rebuild the lookup so re-enabling this shared module does not retain
+			// the decisions registered by the previous profile activation.
+			powerDecisions.Clear();
 			foreach (var decision in Info.Decisions)
 				powerDecisions.Add(decision.OrderName, decision);
 		}

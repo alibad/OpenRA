@@ -114,6 +114,11 @@
 		InternalName: germany
 		Side: Allies
 		Description: faction-germany.description
+	Faction@saudi:
+		Name: faction-saudi.name
+		InternalName: saudi
+		Side: Allies
+		Description: faction-saudi.description
 	Faction@soviet:
 		Name: faction-soviet.name
 		InternalName: soviet
@@ -129,6 +134,11 @@
 		InternalName: ukraine
 		Side: Soviet
 		Description: faction-ukraine.description
+	Faction@yemen:
+		Name: faction-yemen.name
+		InternalName: yemen
+		Side: Soviet
+		Description: faction-yemen.description
 	Faction@random:
 		Name: faction-random.name
 		InternalName: Random
@@ -138,13 +148,13 @@
 	Faction@randomallies:
 		Name: faction-randomallies.name
 		InternalName: RandomAllies
-		RandomFactionMembers: england, france, germany
+		RandomFactionMembers: england, france, germany, saudi
 		Side: Random
 		Description: faction-randomallies.description
 	Faction@randomsoviet:
 		Name: faction-randomsoviet.name
 		InternalName: RandomSoviet
-		RandomFactionMembers: russia, ukraine
+		RandomFactionMembers: russia, ukraine, yemen
 		Side: Random
 		Description: faction-randomsoviet.description
 	ResourceRenderer:

@@ -19,6 +19,8 @@ Container@HOTKEYS_PANEL:
 				Types: Music
 			hotkey-group-chat-commands:
 				Types: Chat
+			hotkey-group-ai-assistant:
+				Types: AIAssistant
 			hotkey-group-control-groups:
 				Types: ControlGroups
 			hotkey-group-editor-commands:

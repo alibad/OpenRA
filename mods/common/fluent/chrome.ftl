@@ -687,6 +687,7 @@ hotkey-group-music-commands = Music Commands
 hotkey-group-chat-commands = Chat Commands
 hotkey-group-control-groups = Control Groups
 hotkey-group-editor-commands = Editor Commands
+hotkey-group-ai-assistant = AI Assistant
 label-hotkeys-panel-filter-input = Filter by name:
 label-hotkeys-panel-context-dropdown = Context:
 label-hotkey-empty-list-message = No hotkeys match the filter criteria.
@@ -717,6 +718,10 @@ button-panel-input = Input
 button-panel-display = Display
 button-panel-audio = Audio
 button-panel-ai = AI
+button-ai-tab-assistant = Assistant
+button-ai-tab-voice = Voice
+button-ai-tab-models = Models
+button-ai-tab-usage = Usage
 button-panel-hotkeys = Hotkeys
 button-panel-advanced = Advanced
 
@@ -726,6 +731,10 @@ checkbox-ai-enabled = Enable AI companion
 checkbox-ai-voice-enabled = Enable AI voice
 label-ai-notification-pace = Update pace:
 label-ai-voice-priority = Speak updates when:
+label-ai-strategy-brain = AUTO gameplay strategy brain:
+label-ai-strategy-brain-description = Chooses the complete OpenRA AI profile used by AUTO. Changes apply immediately.
+label-ai-shortcuts-title = AI shortcuts
+label-ai-shortcuts-hint = Remap Ask, Accept, Reject, AUTO, and Voice under Settings > Hotkeys > AI Assistant.
 label-ai-model-section = Choose Your AI
 label-ai-provider = AI provider:
 label-ai-text-model = Companion model:
@@ -741,6 +750,12 @@ label-ai-cost-section = Session Cost Estimate
 button-ai-apply = Apply Now
 button-ai-test = Test AI + Voice
 button-ai-refresh-costs = Refresh Costs
+
+hotkey-description-ai-ask = Hold to ask the AI
+hotkey-description-ai-accept = Accept the pending AI action
+hotkey-description-ai-reject = Reject the pending AI action
+hotkey-description-ai-toggle-auto = Toggle AI AUTO mode
+hotkey-description-ai-toggle-voice = Toggle AI voice
 
 ## earth-mission-studio.yaml
 label-earth-workbench-title = Earth to Battlefield Workbench
