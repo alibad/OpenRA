@@ -608,6 +608,9 @@ namespace OpenRA.Mods.Common.Traits
 	public interface IBotTick { void BotTick(IBot bot); }
 
 	[RequireExplicitImplementation]
+	public interface IBotOrderFilter { bool AllowOrder(Order order); }
+
+	[RequireExplicitImplementation]
 	public interface IBotRespondToAttack { void RespondToAttack(IBot bot, Actor self, AttackInfo e); }
 
 	[RequireExplicitImplementation]
