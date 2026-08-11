@@ -475,7 +475,7 @@ namespace OpenRA.Mods.Common.Projectiles
 			if (!tp.Trait.DeflectionStances.HasRelationship(tp.Actor.Owner.RelationshipWith(args.SourceActor.Owner)))
 				return false;
 
-			return tp.Actor.World.SharedRandom.Next(100) < tp.Trait.Chance;
+			return tp.Actor.World.SharedRandom.Next(100) < tp.Trait.Chance && tp.Trait.TryJam();
 		}
 
 		void ChangeSpeed(int sign = 1)

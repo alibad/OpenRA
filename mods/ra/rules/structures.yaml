@@ -230,7 +230,7 @@ SPEN:
 		Range: 10c0
 	RenderDetectionCircle:
 	ProvidesPrerequisite@soviet:
-		Factions: soviet, russia, ukraine
+		Factions: soviet, russia, ukraine, yemen
 		Prerequisite: ships.soviet
 	ProvidesPrerequisite@sovietvanilla:
 		Factions: soviet
@@ -241,6 +241,9 @@ SPEN:
 	ProvidesPrerequisite@ukraine:
 		Factions: ukraine
 		Prerequisite: ships.ukraine
+	ProvidesPrerequisite@yemen:
+		Factions: yemen
+		Prerequisite: ships.yemen
 	ProvidesPrerequisite@sovietstructure:
 		RequiresPrerequisites: structures.soviet
 		Prerequisite: ships.soviet
@@ -350,7 +353,7 @@ SYRD:
 		Range: 10c0
 	RenderDetectionCircle:
 	ProvidesPrerequisite@allies:
-		Factions: allies, england, france, germany
+		Factions: allies, england, france, germany, saudi
 		Prerequisite: ships.allies
 	ProvidesPrerequisite@alliesvanilla:
 		Factions: allies
@@ -364,6 +367,9 @@ SYRD:
 	ProvidesPrerequisite@germany:
 		Factions: germany
 		Prerequisite: ships.germany
+	ProvidesPrerequisite@saudi:
+		Factions: saudi
+		Prerequisite: ships.saudi
 	ProvidesPrerequisite@alliedstructure:
 		RequiresPrerequisites: structures.allies
 		Prerequisite: ships.allies
@@ -1078,7 +1084,7 @@ WEAP:
 	Production:
 		Produces: Vehicle
 	ProvidesPrerequisite@allies:
-		Factions: allies, england, france, germany
+		Factions: allies, england, france, germany, saudi
 		Prerequisite: vehicles.allies
 	ProvidesPrerequisite@alliesvanilla:
 		Factions: allies
@@ -1093,7 +1099,7 @@ WEAP:
 		Factions: germany
 		Prerequisite: vehicles.germany
 	ProvidesPrerequisite@soviet:
-		Factions: soviet, russia, ukraine
+		Factions: soviet, russia, ukraine, yemen
 		Prerequisite: vehicles.soviet
 	ProvidesPrerequisite@sovietvanilla:
 		Factions: soviet
@@ -1161,7 +1167,7 @@ FACT:
 		Prerequisites: ~disabled
 		Description: actor-fact.description
 	ProvidesPrerequisite@allies:
-		Factions: allies, england, france, germany
+		Factions: allies, england, france, germany, saudi
 		Prerequisite: structures.allies
 	ProvidesPrerequisite@alliesvanilla:
 		Factions: allies
@@ -1176,7 +1182,7 @@ FACT:
 		Factions: germany
 		Prerequisite: structures.germany
 	ProvidesPrerequisite@soviet:
-		Factions: soviet, russia, ukraine
+		Factions: soviet, russia, ukraine, yemen
 		Prerequisite: structures.soviet
 	ProvidesPrerequisite@sovietvanilla:
 		Factions: soviet
@@ -1448,7 +1454,7 @@ HPAD:
 	Power:
 		Amount: -10
 	ProvidesPrerequisite@allies:
-		Factions: allies, england, france, germany
+		Factions: allies, england, france, germany, saudi
 		Prerequisite: aircraft.allies
 	ProvidesPrerequisite@alliesvanilla:
 		Factions: allies
@@ -1529,7 +1535,7 @@ AFLD:
 		Produces: Aircraft, Plane
 	Reservable:
 	ProvidesPrerequisite@soviet:
-		Factions: soviet, russia, ukraine
+		Factions: soviet, russia, ukraine, yemen
 		Prerequisite: aircraft.soviet
 	ProvidesPrerequisite@sovietvanilla:
 		Factions: soviet
@@ -1818,7 +1824,7 @@ BARR:
 	ProvidesPrerequisite:
 		Prerequisite: barracks
 	ProvidesPrerequisite@soviet:
-		Factions: soviet, russia, ukraine
+		Factions: soviet, russia, ukraine, yemen
 		Prerequisite: infantry.soviet
 	ProvidesPrerequisite@sovietvanilla:
 		Factions: soviet
@@ -1986,7 +1992,7 @@ TENT:
 	ProvidesPrerequisite@barracks:
 		Prerequisite: barracks
 	ProvidesPrerequisite@allies:
-		Factions: allies, england, france, germany
+		Factions: allies, england, france, germany, saudi
 		Prerequisite: infantry.allies
 	ProvidesPrerequisite@alliesvanilla:
 		Factions: allies

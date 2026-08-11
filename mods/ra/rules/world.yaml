@@ -240,12 +240,12 @@ World:
 	StartingUnits@mcvonly:
 		Class: none
 		ClassName: options-starting-units.mcv-only
-		Factions: allies, england, france, germany, soviet, russia, ukraine
+		Factions: allies, england, france, germany, saudi, soviet, russia, ukraine, yemen
 		BaseActor: mcv
 	StartingUnits@lightallies:
 		Class: light
 		ClassName: options-starting-units.light-support
-		Factions: allies, england, france, germany
+		Factions: allies, england, france, germany, saudi
 		BaseActor: mcv
 		SupportActors: e1,e1,e1,e3,e3,jeep,1tnk
 		InnerSupportRadius: 3
@@ -253,7 +253,7 @@ World:
 	StartingUnits@lightsoviet:
 		Class: light
 		ClassName: options-starting-units.light-support
-		Factions: soviet, russia, ukraine
+		Factions: soviet, russia, ukraine, yemen
 		BaseActor: mcv
 		SupportActors: e1,e1,e1,e3,e3,apc,ftrk
 		InnerSupportRadius: 3
@@ -261,7 +261,7 @@ World:
 	StartingUnits@heavyallies:
 		Class: heavy
 		ClassName: options-starting-units.heavy-support
-		Factions: allies, england, france, germany
+		Factions: allies, england, france, germany, saudi
 		BaseActor: mcv
 		SupportActors: e1,e1,e1,e3,e3,jeep,1tnk,2tnk,2tnk,2tnk
 		InnerSupportRadius: 3
@@ -269,7 +269,7 @@ World:
 	StartingUnits@heavysoviet:
 		Class: heavy
 		ClassName: options-starting-units.heavy-support
-		Factions: soviet, russia, ukraine
+		Factions: soviet, russia, ukraine, yemen
 		BaseActor: mcv
 		SupportActors: e1,e1,e1,e3,e3,apc,ftrk,3tnk,3tnk
 		InnerSupportRadius: 3

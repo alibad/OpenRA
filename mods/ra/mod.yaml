@@ -87,10 +87,12 @@ Rules:
 	ra|rules/decoration.yaml
 	ra|rules/aircraft.yaml
 	ra|rules/ships.yaml
+	ra|rules/naval-systems.yaml
 	ra|rules/fakes.yaml
 	ra|rules/map-generators.yaml
 
 Sequences:
+	ra|sequences/naval-systems.yaml
 	ra|sequences/ships.yaml
 	ra|sequences/vehicles.yaml
 	ra|sequences/red-sea.yaml
@@ -185,6 +187,7 @@ FluentMessages:
 AllowUnusedFluentMessagesInExternalPackages: false
 
 Weapons:
+	ra|weapons/naval-systems.yaml
 	ra|weapons/explosions.yaml
 	ra|weapons/ballistics.yaml
 	ra|weapons/missiles.yaml

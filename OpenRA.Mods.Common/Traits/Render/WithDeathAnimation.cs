@@ -57,6 +57,9 @@ namespace OpenRA.Mods.Common.Traits.Render
 		[Desc("Delay the spawn of the death animation by this many ticks.")]
 		public readonly int Delay = 0;
 
+		[Desc("Select directional death-animation frames using the actor facing.")]
+		public readonly bool UseFacing = false;
+
 		public override object Create(ActorInitializer init) { return new WithDeathAnimation(init.Self, this); }
 	}
 
@@ -105,7 +108,8 @@ namespace OpenRA.Mods.Common.Traits.Render
 
 		public void SpawnDeathAnimation(Actor self, WPos pos, string image, string sequence, string palette, int delay)
 		{
-			self.World.AddFrameEndTask(w => w.Add(new SpriteEffect(pos, w, image, sequence, palette, delay: delay)));
+			var facing = Info.UseFacing ? self.TraitOrDefault<IFacing>()?.Facing ?? WAngle.Zero : WAngle.Zero;
+			self.World.AddFrameEndTask(w => w.Add(new SpriteEffect(pos, facing, w, image, sequence, palette, delay: delay)));
 		}
 
 		void INotifyCrushed.OnCrush(Actor self, Actor crusher, BitSet<CrushClass> crushClasses)

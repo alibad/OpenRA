@@ -1,0 +1,36 @@
+{
+  "facings": 32,
+  "canvas": [
+    96,
+    72
+  ],
+  "ordering": "linear yaw; facing-major animation frames",
+  "vessels": {
+    "sa_frgt": {
+      "body_frames": 352,
+      "unique_idle_facings": 32
+    },
+    "sa_intc": {
+      "body_frames": 352,
+      "unique_idle_facings": 32
+    },
+    "sa_fss": {
+      "body_frames": 352,
+      "unique_idle_facings": 32
+    },
+    "ye_mslc": {
+      "body_frames": 352,
+      "unique_idle_facings": 32
+    },
+    "ye_usv": {
+      "body_frames": 352,
+      "unique_idle_facings": 32
+    },
+    "ye_surve": {
+      "body_frames": 352,
+      "unique_idle_facings": 32
+    }
+  },
+  "fixed_canvas": true,
+  "runtime_rotation": false
+}

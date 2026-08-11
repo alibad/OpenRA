@@ -1187,3 +1187,33 @@ label-ra-map-generator-choice-civilian-density-very-high =
    .label = Very High
 label-ra-map-generator-choice-civilian-density-max =
    .label = Maximum
+actor-sa-frgt =
+    .name = Al Riyadh Multi-role Frigate
+    .description = Long-range active radar and a finite defensive-interceptor magazine. Active emissions extend detection and interception range but reveal the frigate.
+
+actor-sa-intc =
+    .name = Al Sadiq Fast Interceptor
+    .description = High acceleration and a rapid cannon optimized against small boats and uncrewed surface vessels.
+
+actor-sa-fss =
+    .name = Al Jubail Fleet Support Ship
+    .description = Repairs and rearms nearby fleet units, rescues survivors, salvages wreckage, and tows disabled civilian vessels.
+
+actor-ye-mslc =
+    .name = Hodeidah Missile Craft
+    .description = Long-range anti-ship missile craft. Firing reveals its position; coastal surveillance improves coordinated attacks.
+
+actor-ye-usv =
+    .name = Sahaab Uncrewed Surface Vessel
+    .description = Inexpensive remote strike craft. Requires a surveillance data link to move and scout, and is vulnerable to fast interceptors.
+
+actor-ye-surve =
+    .name = Mokha Coastal Surveillance Craft
+    .description = Active radar extends detection, remotely links uncrewed vessels, and coordinates missile attacks while revealing the craft.
+
+actor-naval-civilian =
+    .name = Disabled Civilian Vessel
+actor-naval-survivor =
+    .name = Survivors
+actor-naval-salvage =
+    .name = Recoverable Naval Salvage
