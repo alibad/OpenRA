@@ -1,5 +1,16 @@
 # OpenRA Developer Reference
 
+## Vercel cost safety (account-wide)
+
+- The Vercel team is `alibads-projects`. Keep the team default and every project build machine on `standard`; changing to `enhanced` or `turbo` requires explicit user approval after stating the price difference.
+- Do not run `vercel deploy`, `vercel --prod`, redeploy an existing build, or otherwise create a Vercel deployment unless the user explicitly asks for that deployment in the current conversation.
+- For a Git-connected project, pushing the commit is the deployment mechanism. Never also invoke the Vercel CLI for the same commit, because that creates a duplicate paid build.
+- Batch related changes into one deployment. Do not repeatedly redeploy the same SHA without first diagnosing the failure.
+- Before an explicitly requested production deployment, run `vercel usage --scope alibads-projects`, report whether on-demand charges are active, and verify that the target project uses the `standard` build machine.
+- For large Next.js route catalogs, pre-render only the high-demand subset and serve the long tail on demand unless full-corpus static generation is explicitly required.
+- Never enable Vercel Spend Management's automatic project pause without explicit approval: reaching the cap makes production return HTTP 503.
+
+
 Open-source C#/.NET RTS engine reimplementing Command & Conquer: Red Alert, Tiberian Dawn, and Dune 2000.
 
 ## Build & Run

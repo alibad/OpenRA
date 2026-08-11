@@ -107,21 +107,29 @@ actor-m1a2s =
     .name = M1A2S
     .description = Modern main battle tank with strong armor and accurate direct fire.
 
+actor-m1a2s-husk-name = Destroyed M1A2S
+
 actor-sads =
     .name = Mobile Air Defense System
     .description = Long-range radar-guided interceptor. Cannot attack ground targets.
+
+actor-sads-husk-name = Destroyed Mobile Air Defense System
 
 actor-tech =
     .name = Armed Technical
     .description = Fast, inexpensive raiding vehicle with minimal protection.
 
+actor-tech-husk-name = Destroyed Armed Technical
+
 actor-ymlr =
     .name = Mobile Missile Launcher
     .description = Mobile long-range strike system. Vulnerable while reloading.
 
+actor-ymlr-husk-name = Destroyed Mobile Missile Launcher
+
 actor-samad =
     .name = Samad Drone
-    .description = Low-cost one-pass strike aircraft with limited payload.
+    .description = Low-altitude one-way loitering munition. Closes to the target and is consumed on impact.
 
 ## aircraft.yaml
 actor-badr-name = Badger
@@ -991,6 +999,9 @@ bot-medium-ai =
 ## rl-bot.yaml
 bot-rl-agent =
     .name = RL Agent
+
+bot-dummy-passive =
+    .name = Dummy (Passive)
 
 ## map-generators.yaml
 label-random-map = Random Map

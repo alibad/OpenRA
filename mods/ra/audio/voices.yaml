@@ -32,6 +32,16 @@ VehicleVoice:
 		Select: vehic1,yessir1,report1,await1
 		Action: ackno,affirm1
 
+SaudiVehicleVoice:
+	Voices:
+		Select: rsa-select-1,rsa-select-2
+		Action: rsa-action-1,rsa-action-2
+
+YemenVehicleVoice:
+	Voices:
+		Select: rye-select-1,rye-select-2
+		Action: rye-action-1,rye-action-2
+
 EngineerVoice:
 	Voices:
 		Select: eengin1,eyessir1

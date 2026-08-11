@@ -20,14 +20,15 @@ namespace OpenRA.Graphics
 		public int TopOffset { get; }
 		readonly int size;
 		readonly SheetBuilder builder;
-		readonly IFont font;
+		readonly IFont[] fonts;
 		readonly Cache<char, GlyphInfo> glyphs;
 		readonly Cache<(char C, int Radius), Sprite> contrastGlyphs;
 		readonly Cache<int, float[]> dilationElements;
 
 		float deviceScale;
 
-		public SpriteFont(IPlatform platform, string name, byte[] data, int size, int ascender, float scale, SheetBuilder builder)
+		public SpriteFont(IPlatform platform, string name, byte[] data, byte[][] fallbackData,
+			int size, int ascender, float scale, SheetBuilder builder)
 		{
 			if (builder.Type != SheetType.BGRA)
 				throw new ArgumentException("The sheet builder must create BGRA sheets.", nameof(builder));
@@ -36,7 +37,10 @@ namespace OpenRA.Graphics
 			this.size = size;
 			this.builder = builder;
 
-			font = platform.CreateFont(data);
+			fonts = new IFont[1 + fallbackData.Length];
+			fonts[0] = platform.CreateFont(data);
+			for (var i = 0; i < fallbackData.Length; i++)
+				fonts[i + 1] = platform.CreateFont(fallbackData[i]);
 			glyphs = new Cache<char, GlyphInfo>(CreateGlyph);
 			contrastGlyphs = new Cache<(char, int), Sprite>(CreateContrastGlyph);
 			dilationElements = new Cache<int, float[]>(CreateCircularWeightMap);
@@ -60,6 +64,8 @@ namespace OpenRA.Graphics
 
 		void DrawTextContrast(string text, float2 location, Color contrastColor, int contrastOffset)
 		{
+			text = UnicodeText.PrepareForDisplay(text);
+
 			// Offset from the baseline position to the top-left of the glyph for rendering
 			location += new float2(0, size);
 
@@ -95,6 +101,8 @@ namespace OpenRA.Graphics
 
 		public void DrawText(string text, float2 location, Color c)
 		{
+			text = UnicodeText.PrepareForDisplay(text);
+
 			// Offset from the baseline position to the top-left of the glyph for rendering
 			location += new float2(0, size);
 
@@ -132,6 +140,8 @@ namespace OpenRA.Graphics
 
 		public void DrawText(string text, float2 location, Color c, float angle)
 		{
+			text = UnicodeText.PrepareForDisplay(text);
+
 			// Offset from the baseline position to the top-left of the glyph for rendering
 			// All positions are calculated in UI coordinates
 			var offset = new float2(0, size);
@@ -232,6 +242,8 @@ namespace OpenRA.Graphics
 			if (string.IsNullOrEmpty(text))
 				return new int2(0, size);
 
+			text = UnicodeText.PrepareForDisplay(text);
+
 			var lines = text.SplitLines('\n');
 
 			var maxWidth = 0f;
@@ -256,7 +268,17 @@ namespace OpenRA.Graphics
 
 		GlyphInfo CreateGlyph(char c)
 		{
-			var glyph = font.CreateGlyph(c, size, deviceScale);
+			var selectedFont = fonts[0];
+			foreach (var candidate in fonts)
+			{
+				if (candidate.HasGlyph(c))
+				{
+					selectedFont = candidate;
+					break;
+				}
+			}
+
+			var glyph = selectedFont.CreateGlyph(c, size, deviceScale);
 			if (glyph.Data == null)
 			{
 				return new GlyphInfo
@@ -423,7 +445,8 @@ namespace OpenRA.Graphics
 
 		public void Dispose()
 		{
-			font.Dispose();
+			foreach (var font in fonts)
+				font.Dispose();
 		}
 	}
 

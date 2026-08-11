@@ -1,0 +1,134 @@
+m1a2s:
+	Defaults:
+		Filename: m1a2s.shp
+	idle:
+		Facings: 32
+		UseClassicFacings: True
+	turret:
+		Start: 32
+		Facings: 32
+		UseClassicFacings: True
+	muzzle:
+		Filename: redsea-m1-muzzle.shp
+		Length: 6
+		Facings: 8
+	icon:
+		Filename: m1a2sicon.shp
+
+m1a2s.destroyed:
+	idle:
+		Filename: m1a2shusk.shp
+		Facings: 32
+		UseClassicFacings: True
+		ZOffset: -512
+	turret:
+		Filename: m1a2shusk.shp
+		Start: 32
+		Facings: 32
+		UseClassicFacings: True
+		ZOffset: -512
+
+redsea_m1_impact:
+	impact:
+		Filename: redsea-m1-impact.shp
+		Length: 9
+		Tick: 2
+		ZOffset: 2047
+
+redsea_drone_impact:
+	impact:
+		Filename: redsea-drone-impact.shp
+		Length: 11
+		Tick: 2
+		ZOffset: 2047
+
+sads:
+	Defaults:
+		Filename: sads.shp
+	idle:
+		Facings: 32
+		UseClassicFacings: True
+	turret:
+		Start: 32
+		Facings: 32
+		UseClassicFacings: True
+	muzzle:
+		Filename: gunfire2.shp
+		Length: 2
+	icon:
+		Filename: sadsicon.shp
+
+sads.destroyed:
+	idle:
+		Filename: sadshusk.shp
+		Facings: 32
+		UseClassicFacings: True
+		ZOffset: -512
+	turret:
+		Filename: sadshusk.shp
+		Start: 32
+		Facings: 32
+		UseClassicFacings: True
+		ZOffset: -512
+
+tech:
+	Defaults:
+		Filename: tech.shp
+	idle:
+		Facings: 32
+		UseClassicFacings: True
+	turret:
+		Start: 32
+		Facings: 32
+		UseClassicFacings: True
+	muzzle:
+		Filename: minigun.shp
+		Length: 6
+		Facings: 8
+	icon:
+		Filename: techicon.shp
+
+tech.destroyed:
+	idle:
+		Filename: techhusk.shp
+		Facings: 32
+		UseClassicFacings: True
+		ZOffset: -512
+	turret:
+		Filename: techhusk.shp
+		Start: 32
+		Facings: 32
+		UseClassicFacings: True
+		ZOffset: -512
+
+ymlr:
+	Defaults:
+		Filename: ymlr.shp
+	idle:
+		Facings: 32
+		UseClassicFacings: True
+	empty-idle:
+		Start: 32
+		Facings: 32
+		UseClassicFacings: True
+	icon:
+		Filename: ymlricon.shp
+
+ymlr.destroyed:
+	idle:
+		Filename: ymlrhusk.shp
+		Facings: 32
+		UseClassicFacings: True
+		ZOffset: -512
+
+samad:
+	Defaults:
+		Filename: samad.shp
+	idle:
+		Facings: 16
+		InterpolatedFacings: 64
+	muzzle:
+		Filename: gunfire2.shp
+		Length: 5
+	icon:
+		Filename: samadicon.shp

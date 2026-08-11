@@ -1,8 +1,7 @@
 # Red Sea vertical-slice prototype actors.
 #
-# These deliberately reuse proven Red Alert render sequences while the original
-# sprite sheets are produced. Their mechanics, costs, faction gating, AI usage,
-# and localized identity are live gameplay rather than design-only metadata.
+# Mechanics, costs, faction gating, AI usage, original directional art, and
+# localized identity are all live gameplay rather than design-only metadata.
 
 World:
 	StartingUnits@mcvonly:
@@ -26,9 +25,15 @@ FACT:
 	ProvidesPrerequisite@saudi:
 		Factions: saudi
 		Prerequisite: structures.saudi
+	ProvidesPrerequisite@saudialliedtree:
+		Factions: saudi
+		Prerequisite: structures.allies
 	ProvidesPrerequisite@yemen:
 		Factions: yemen
 		Prerequisite: structures.yemen
+	ProvidesPrerequisite@yemensoviettree:
+		Factions: yemen
+		Prerequisite: structures.soviet
 
 WEAP:
 	ProvidesPrerequisite@allies:
@@ -40,9 +45,15 @@ WEAP:
 	ProvidesPrerequisite@saudi:
 		Factions: saudi
 		Prerequisite: vehicles.saudi
+	ProvidesPrerequisite@saudialliedtree:
+		Factions: saudi
+		Prerequisite: vehicles.allies
 	ProvidesPrerequisite@yemen:
 		Factions: yemen
 		Prerequisite: vehicles.yemen
+	ProvidesPrerequisite@yemensoviettree:
+		Factions: yemen
+		Prerequisite: vehicles.soviet
 
 HPAD:
 	ProvidesPrerequisite@allies:
@@ -51,6 +62,9 @@ HPAD:
 	ProvidesPrerequisite@saudi:
 		Factions: saudi
 		Prerequisite: aircraft.saudi
+	ProvidesPrerequisite@saudialliedtree:
+		Factions: saudi
+		Prerequisite: aircraft.allies
 
 AFLD:
 	ProvidesPrerequisite@soviet:
@@ -59,6 +73,9 @@ AFLD:
 	ProvidesPrerequisite@yemen:
 		Factions: yemen
 		Prerequisite: aircraft.yemen
+	ProvidesPrerequisite@yemensoviettree:
+		Factions: yemen
+		Prerequisite: aircraft.soviet
 
 TENT:
 	ProvidesPrerequisite@allies:
@@ -67,6 +84,9 @@ TENT:
 	ProvidesPrerequisite@saudi:
 		Factions: saudi
 		Prerequisite: infantry.saudi
+	ProvidesPrerequisite@saudialliedtree:
+		Factions: saudi
+		Prerequisite: infantry.allies
 
 BARR:
 	ProvidesPrerequisite@soviet:
@@ -75,6 +95,9 @@ BARR:
 	ProvidesPrerequisite@yemen:
 		Factions: yemen
 		Prerequisite: infantry.yemen
+	ProvidesPrerequisite@yemensoviettree:
+		Factions: yemen
+		Prerequisite: infantry.soviet
 
 SYRD:
 	ProvidesPrerequisite@allies:
@@ -83,6 +106,9 @@ SYRD:
 	ProvidesPrerequisite@saudi:
 		Factions: saudi
 		Prerequisite: ships.saudi
+	ProvidesPrerequisite@saudialliedtree:
+		Factions: saudi
+		Prerequisite: ships.allies
 
 SPEN:
 	ProvidesPrerequisite@soviet:
@@ -91,9 +117,14 @@ SPEN:
 	ProvidesPrerequisite@yemen:
 		Factions: yemen
 		Prerequisite: ships.yemen
+	ProvidesPrerequisite@yemensoviettree:
+		Factions: yemen
+		Prerequisite: ships.soviet
 
 M1A2S:
 	Inherits: 2TNK
+	Voiced:
+		VoiceSet: SaudiVehicleVoice
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 125
@@ -107,11 +138,23 @@ M1A2S:
 		HP: 52000
 	Mobile:
 		Speed: 82
+	Turreted:
+		TurnSpeed: 24
+	Armament:
+		Weapon: RedSeaAbrams120mm
+		Recoil: 256
+		RecoilRecovery: 32
+		LocalOffset: 1024,0,128
+		MuzzleSequence: muzzle
+	SpawnActorOnDeath:
+		Actor: M1A2S.Husk
 	RenderSprites:
-		Image: 2tnk
+		Image: m1a2s
 
 SADS:
 	Inherits: FTRK
+	Voiced:
+		VoiceSet: SaudiVehicleVoice
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 135
@@ -132,11 +175,15 @@ SADS:
 	Armament@AG:
 		Weapon: RedSeaInterceptor
 		LocalOffset: 512,0,192
+	SpawnActorOnDeath:
+		Actor: SADS.Husk
 	RenderSprites:
-		Image: ftrk
+		Image: sads
 
 TECH:
 	Inherits: JEEP
+	Voiced:
+		VoiceSet: YemenVehicleVoice
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 105
@@ -150,11 +197,15 @@ TECH:
 		HP: 10500
 	Mobile:
 		Speed: 145
+	SpawnActorOnDeath:
+		Actor: TECH.Husk
 	RenderSprites:
-		Image: jeep
+		Image: tech
 
 YMLR:
 	Inherits: V2RL
+	Voiced:
+		VoiceSet: YemenVehicleVoice
 	Buildable:
 		Queue: Vehicle
 		BuildPaletteOrder: 225
@@ -171,11 +222,15 @@ YMLR:
 	Armament:
 		Weapon: RedSeaMobileStrike
 		ReloadingCondition: reloading
+	SpawnActorOnDeath:
+		Actor: YMLR.Husk
 	RenderSprites:
-		Image: v2rl
+		Image: ymlr
 
 SAMAD:
 	Inherits: YAK
+	Voiced:
+		VoiceSet: YemenVehicleVoice
 	Buildable:
 		Queue: Aircraft
 		BuildAtProductionType: Plane
@@ -187,30 +242,158 @@ SAMAD:
 	Tooltip:
 		Name: actor-samad.name
 	Health:
-		HP: 3200
+		HP: 3600
 	Armament:
 		Weapon: RedSeaDroneStrike
-		LocalOffset: 256,0,0
+		LocalOffset: 128,0,-64
 		PauseOnCondition: !ammo
 	AmmoPool:
 		Ammo: 1
 		AmmoCondition: ammo
+	AttackAircraft:
+		FacingTolerance: 512
+		PersistentTargeting: true
+		AttackType: Hover
+		OpportunityFire: False
+	GrantConditionOnAttack@PAYLOAD:
+		Condition: payload-released
+		ArmamentNames: primary
+		RevokeDelay: 5
+	KillsSelf@PAYLOAD:
+		RequiresCondition: payload-released
 	Aircraft:
-		CruiseAltitude: 1706
-		TurnSpeed: 12
-		Speed: 128
-		RepulsionSpeed: 24
-		MaximumPitch: 40
+		CruiseAltitude: 1152
+		TurnSpeed: 10
+		Speed: 116
+		RepulsionSpeed: 20
+		MaximumPitch: 56
+		MoveIntoShroud: true
+	RevealsShroud:
+		MinRange: 4c0
+		Range: 7c0
+		Type: GroundPosition
+		RevealGeneratedShroud: False
+	RevealsShroud@GAPGEN:
+		Range: 4c0
+		Type: GroundPosition
+	AutoTarget:
+		InitialStance: HoldFire
+		InitialStanceAI: AttackAnything
+	AmbientSound@PROPELLER:
+		SoundFiles: redsea-drone-loiter.wav
+	-Contrail:
+	-LeavesTrails:
+	-GrantConditionOnDamageState@SmokeTrail:
+	-SpawnActorOnDeath:
+	-EjectOnDeath:
+	-Rearmable:
+	-WithAmmoPipsDecoration:
+	-WithMuzzleOverlay:
 	RenderSprites:
-		Image: yak
+		Image: samad
+
+M1A2S.Husk:
+	Inherits: ^Husk
+	Tooltip:
+		Name: actor-m1a2s-husk-name
+	ThrowsParticle@turret:
+		Anim: turret
+	TransformOnCapture:
+		IntoActor: m1a2s
+	InfiltrateForTransform:
+		IntoActor: m1a2s
+	RenderSprites:
+		Image: m1a2s.destroyed
+
+SADS.Husk:
+	Inherits: ^Husk
+	Husk:
+		Locomotor: wheeled
+	Tooltip:
+		Name: actor-sads-husk-name
+	ThrowsParticle@turret:
+		Anim: turret
+	TransformOnCapture:
+		IntoActor: sads
+	InfiltrateForTransform:
+		IntoActor: sads
+	RenderSprites:
+		Image: sads.destroyed
+
+TECH.Husk:
+	Inherits: ^Husk
+	Husk:
+		Locomotor: wheeled
+	Tooltip:
+		Name: actor-tech-husk-name
+	ThrowsParticle@turret:
+		Anim: turret
+	TransformOnCapture:
+		IntoActor: tech
+	InfiltrateForTransform:
+		IntoActor: tech
+	RenderSprites:
+		Image: tech.destroyed
+
+YMLR.Husk:
+	Inherits: ^Husk
+	Husk:
+		Locomotor: wheeled
+	Tooltip:
+		Name: actor-ymlr-husk-name
+	TransformOnCapture:
+		IntoActor: ymlr
+	InfiltrateForTransform:
+		IntoActor: ymlr
+	RenderSprites:
+		Image: ymlr.destroyed
 
 Player:
+	# Easy can express each faction's ground identity using the tech buildings it
+	# already knows how to construct. Medium and Rush receive air production so
+	# Yemen's Samad weight is reachable instead of dead configuration.
+	BaseBuilderBotModule@medium:
+		TechTypes: dome, atek, stek, fix, afld, hpad
+		ProductionTypes: barr,tent,weap,afld,hpad
+		BuildingLimits:
+			hpad: 2
+			afld: 2
+		BuildingFractions:
+			hpad: 1
+			afld: 1
+	BaseBuilderBotModule@rush:
+		TechTypes: mslo, dome, atek, stek, fix, afld, hpad
+		ProductionTypes: barr,tent,weap,afld,hpad
+		BuildingLimits:
+			hpad: 3
+			afld: 3
+		BuildingFractions:
+			hpad: 1
+			afld: 1
+	UnitBuilderBotModule@easy:
+		UnitsToBuild:
+			m1a2s: 25
+			sads: 18
+			tech: 35
+			ymlr: 22
+		UnitLimits:
+			m1a2s: 3
+			sads: 2
+			tech: 5
+			ymlr: 2
 	UnitBuilderBotModule@medium:
 		UnitsToBuild:
 			m1a2s: 45
 			sads: 30
 			tech: 45
 			ymlr: 35
+			samad: 25
+		UnitLimits:
+			m1a2s: 6
+			sads: 4
+			tech: 8
+			ymlr: 4
+			samad: 4
 	UnitBuilderBotModule@rush:
 		UnitsToBuild:
 			m1a2s: 40
@@ -218,6 +401,12 @@ Player:
 			tech: 70
 			ymlr: 55
 			samad: 35
+		UnitLimits:
+			m1a2s: 6
+			sads: 3
+			tech: 10
+			ymlr: 6
+			samad: 6
 	UnitBuilderBotModule@normal:
 		UnitsToBuild:
 			m1a2s: 50
@@ -225,6 +414,12 @@ Player:
 			tech: 50
 			ymlr: 45
 			samad: 40
+		UnitLimits:
+			m1a2s: 8
+			sads: 6
+			tech: 10
+			ymlr: 6
+			samad: 8
 	UnitBuilderBotModule@turtle:
 		UnitsToBuild:
 			m1a2s: 45
@@ -232,12 +427,28 @@ Player:
 			tech: 30
 			ymlr: 40
 			samad: 25
+		UnitLimits:
+			m1a2s: 6
+			sads: 10
+			tech: 6
+			ymlr: 6
+			samad: 5
 	UnitBuilderBotModule@naval:
 		UnitsToBuild:
 			sads: 45
 			tech: 35
 			ymlr: 45
 			samad: 55
+		UnitLimits:
+			m1a2s: 4
+			sads: 6
+			tech: 5
+			ymlr: 5
+			samad: 10
+	SquadManagerBotModule@medium:
+		AirUnitsTypes: mig, yak, heli, hind, mh60, samad
+	SquadManagerBotModule@rush:
+		AirUnitsTypes: mig, yak, heli, hind, mh60, samad
 	SquadManagerBotModule@normal:
 		AirUnitsTypes: mig, yak, heli, hind, mh60, samad
 	SquadManagerBotModule@turtle:

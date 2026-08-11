@@ -93,6 +93,7 @@ Rules:
 Sequences:
 	ra|sequences/ships.yaml
 	ra|sequences/vehicles.yaml
+	ra|sequences/red-sea.yaml
 	ra|sequences/structures.yaml
 	ra|sequences/infantry.yaml
 	ra|sequences/aircraft.yaml
@@ -230,34 +231,42 @@ ChromeMetrics:
 Fonts:
 	Tiny:
 		Font: common|FreeSans.ttf
+		FallbackFonts: common|NotoSansArabic-Regular.ttf
 		Size: 10
 		Ascender: 8
 	TinyBold:
 		Font: common|FreeSansBold.ttf
+		FallbackFonts: common|NotoSansArabic-Bold.ttf
 		Size: 10
 		Ascender: 8
 	Small:
 		Font: common|FreeSans.ttf
+		FallbackFonts: common|NotoSansArabic-Regular.ttf
 		Size: 12
 		Ascender: 9
 	Regular:
 		Font: common|FreeSans.ttf
+		FallbackFonts: common|NotoSansArabic-Regular.ttf
 		Size: 14
 		Ascender: 11
 	Bold:
 		Font: common|FreeSansBold.ttf
+		FallbackFonts: common|NotoSansArabic-Bold.ttf
 		Size: 14
 		Ascender: 11
 	MediumBold:
 		Font: common|FreeSansBold.ttf
+		FallbackFonts: common|NotoSansArabic-Bold.ttf
 		Size: 18
 		Ascender: 14
 	BigBold:
 		Font: common|FreeSansBold.ttf
+		FallbackFonts: common|NotoSansArabic-Bold.ttf
 		Size: 24
 		Ascender: 18
 	Title:
 		Font: ra|ZoodRangmah.ttf
+		FallbackFonts: common|NotoSansArabic-Bold.ttf
 		Size: 48
 		Ascender: 26
 

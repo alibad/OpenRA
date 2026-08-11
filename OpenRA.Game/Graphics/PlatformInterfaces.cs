@@ -190,6 +190,7 @@ namespace OpenRA
 
 	public interface IFont : IDisposable
 	{
+		bool HasGlyph(char c);
 		FontGlyph CreateGlyph(char c, int size, float deviceScale);
 	}
 

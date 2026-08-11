@@ -11,12 +11,14 @@
 
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace OpenRA
 {
 	public class FontData
 	{
 		public readonly string Font;
+		public readonly ImmutableArray<string> FallbackFonts = [];
 		public readonly int Size;
 		public readonly int Ascender;
 	}

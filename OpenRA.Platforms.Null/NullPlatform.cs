@@ -166,6 +166,8 @@ namespace OpenRA.Platforms.Null
 
 	sealed class NullFont : IFont
 	{
+		public bool HasGlyph(char c) { return true; }
+
 		public FontGlyph CreateGlyph(char c, int size, float deviceScale)
 		{
 			return new FontGlyph

@@ -49,6 +49,9 @@ namespace OpenRA.Platforms.Default
 
 		[DllImport("freetype6", CallingConvention = CallingConvention.Cdecl)]
 		internal static extern uint FT_Load_Char(IntPtr face, uint char_code, int load_flags);
+
+		[DllImport("freetype6", CallingConvention = CallingConvention.Cdecl)]
+		internal static extern uint FT_Get_Char_Index(IntPtr face, uint charcode);
 	}
 
 	public sealed class FreeTypeFont : IFont
@@ -74,6 +77,11 @@ namespace OpenRA.Platforms.Default
 			faceHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			if (FreeType.FT_New_Memory_Face(library, faceHandle.AddrOfPinnedObject(), data.Length, 0, out face) != FreeType.OK)
 				throw new InvalidDataException("Failed to initialize font");
+		}
+
+		public bool HasGlyph(char c)
+		{
+			return FreeType.FT_Get_Char_Index(face, c) != 0;
 		}
 
 		public FontGlyph CreateGlyph(char c, int size, float deviceScale)
