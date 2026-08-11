@@ -81,7 +81,7 @@ namespace OpenRA
 				tracker.UpdateMaps(this);
 		}
 
-		public void LoadMaps(ModData modData)
+		public void LoadMaps(ModData modData, bool loadPreviews = true)
 		{
 			// Utility mod that does not support maps
 			if (manifest.MapFolders.Count == 0)
@@ -124,6 +124,9 @@ namespace OpenRA
 				mapDirectoryTrackers.Add(new MapDirectoryTracker(package, classification));
 			}
 
+			if (!loadPreviews)
+				return;
+
 			// PERF: Load the mod YAML once outside the loop, and reuse it when resolving each maps custom YAML.
 			var modDataRules = modData.GetRulesYaml();
 			foreach (var kv in MapLocations)
@@ -134,12 +137,12 @@ namespace OpenRA
 			LastModifiedMap = null;
 		}
 
-		public void LoadMap(string map, IReadOnlyPackage package, MapClassification classification, string oldMap)
+		public MapPreview LoadMap(string map, IReadOnlyPackage package, MapClassification classification, string oldMap)
 		{
-			LoadMapInternal(map, package, classification, oldMap);
+			return LoadMapInternal(map, package, classification, oldMap);
 		}
 
-		void LoadMapInternal(string map, IReadOnlyPackage package, MapClassification classification, string oldMap,
+		MapPreview LoadMapInternal(string map, IReadOnlyPackage package, MapClassification classification, string oldMap,
 			MapGridType? gridType = null, MiniYamlNode[][] modDataRules = null)
 		{
 			IReadOnlyPackage mapPackage = null;
@@ -151,7 +154,8 @@ namespace OpenRA
 					if (mapPackage != null)
 					{
 						var uid = Map.ComputeUID(mapPackage);
-						previews[uid].UpdateFromMapWithoutOwningPackage(mapPackage, package, classification, gridType, modDataRules);
+						var preview = previews[uid];
+						preview.UpdateFromMapWithoutOwningPackage(mapPackage, package, classification, gridType, modDataRules);
 						mapPackage.Dispose();
 
 						if (oldMap != uid)
@@ -160,6 +164,8 @@ namespace OpenRA
 							if (oldMap != null)
 								mapUpdates[oldMap] = uid;
 						}
+
+						return preview;
 					}
 				}
 			}
@@ -173,6 +179,8 @@ namespace OpenRA
 				Log.Write("debug", "Details:");
 				Log.Write("debug", e);
 			}
+
+			return null;
 		}
 
 		public IEnumerable<IReadWritePackage> EnumerateMapDirPackages(MapClassification classification = MapClassification.System)

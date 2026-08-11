@@ -114,8 +114,8 @@ namespace OpenRA.Mods.Common.Traits
 						continue;
 					}
 
-					var attackLocation = FindCoarseAttackLocationToSupportPower(sp);
-					if (attackLocation == null)
+					var coarseAttackLocations = FindCoarseAttackLocationsToSupportPower(sp);
+					if (coarseAttackLocations.Count == 0)
 					{
 						AIUtils.BotDebug($"{player.ResolvedPlayerName} can't find suitable coarse attack location for support power {sp.Info.OrderName}. Delaying rescan.");
 						waitingPowers[sp] += powerDecision.GetNextScanTime(world);
@@ -123,9 +123,16 @@ namespace OpenRA.Mods.Common.Traits
 						continue;
 					}
 
-					// Found a target location, check for precise target
+					// Check the strongest coarse regions in order until a safe precise target is found.
 					var protectedPositions = GetProtectedFriendlyPositions();
-					attackLocation = FindFineAttackLocationToSupportPower(sp, (CPos)attackLocation, protectedPositions);
+					CPos? attackLocation = null;
+					foreach (var coarseLocation in coarseAttackLocations)
+					{
+						attackLocation = FindFineAttackLocationToSupportPower(sp, coarseLocation, protectedPositions);
+						if (attackLocation != null)
+							break;
+					}
+
 					if (attackLocation == null)
 					{
 						AIUtils.BotDebug($"{player.ResolvedPlayerName} can't find suitable final attack location for support power {sp.Info.OrderName}. Delaying rescan.");
@@ -156,13 +163,13 @@ namespace OpenRA.Mods.Common.Traits
 		}
 
 		/// <summary>Scans the map in chunks, evaluating all actors in each.</summary>
-		CPos? FindCoarseAttackLocationToSupportPower(SupportPowerInstance readyPower)
+		List<CPos> FindCoarseAttackLocationsToSupportPower(SupportPowerInstance readyPower)
 		{
 			var powerDecision = powerDecisions[readyPower.Info.OrderName];
 			if (powerDecision == null)
 			{
 				AIUtils.BotDebug($"{player.ResolvedPlayerName} couldn't find powerDecision for {readyPower.Info.OrderName}");
-				return null;
+				return [];
 			}
 
 			var map = world.Map;
@@ -192,14 +199,14 @@ namespace OpenRA.Mods.Common.Traits
 			}
 
 			if (suitableLocations.Count == 0)
-				return null;
+				return [];
 
-			// Prefer the strongest coarse target instead of choosing randomly from all above-average regions.
-			var maximumAttractiveness = suitableLocations.Max(x => x.Attractiveness);
+			// Randomize equal scores, but always evaluate higher-value regions first.
 			return suitableLocations
-				.Where(x => x.Attractiveness == maximumAttractiveness)
-				.Random(world.LocalRandom)
-				.UV.ToCPos(map);
+				.Shuffle(world.LocalRandom)
+				.OrderByDescending(x => x.Attractiveness)
+				.Select(x => x.UV.ToCPos(map))
+				.ToList();
 		}
 
 		/// <summary>Detail scans an area, evaluating positions.</summary>

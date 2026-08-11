@@ -108,6 +108,9 @@ namespace OpenRA.Mods.Common.Traits
 				case RLProto.ActionType.Demolish:
 					return CreateTargetedActorOrder(cmd, "C4");
 
+				case RLProto.ActionType.Capture:
+					return CreateTargetedActorOrder(cmd, "CaptureActor");
+
 				case RLProto.ActionType.Unload:
 					return CreateUnloadOrder(cmd);
 
@@ -116,6 +119,9 @@ namespace OpenRA.Mods.Common.Traits
 
 				case RLProto.ActionType.SetPrimary:
 					return CreateSetPrimaryOrder(cmd);
+
+				case RLProto.ActionType.UseSupportPower:
+					return CreateSupportPowerOrder(cmd);
 
 				case RLProto.ActionType.Surrender:
 					return new Order("Surrender", player.PlayerActor, false);
@@ -595,6 +601,25 @@ namespace OpenRA.Mods.Common.Traits
 				return null;
 
 			return new Order("PrimaryProducer", subject, false);
+		}
+
+		Order CreateSupportPowerOrder(RLProto.Command cmd)
+		{
+			var manager = player.PlayerActor.TraitOrDefault<SupportPowerManager>();
+			if (manager == null)
+				return null;
+
+			var power = manager.Powers.FirstOrDefault(pair =>
+				pair.Key.Equals(cmd.ItemType, StringComparison.OrdinalIgnoreCase));
+			if (string.IsNullOrEmpty(power.Key) || !power.Value.Ready)
+				return null;
+
+			return new Order(power.Key, player.PlayerActor,
+				Target.FromCell(world, new CPos(cmd.TargetX, cmd.TargetY)), false)
+			{
+				SuppressVisualFeedback = true,
+				ExtraData = uint.MaxValue
+			};
 		}
 	}
 }

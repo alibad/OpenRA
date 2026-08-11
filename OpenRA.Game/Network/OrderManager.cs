@@ -104,7 +104,10 @@ namespace OpenRA.Network
 				return;
 
 			foreach (var client in LobbyInfo.Clients)
-				if (!client.IsBot)
+				// The multi-session bridge may represent the EchoConnection's local
+				// client as the externally controlled bot so campaign scripts get a
+				// valid local player. Its local packets still require an order queue.
+				if (!client.IsBot || client.Index == Connection.LocalClientId)
 					pendingOrders.Add(client.Index, new Queue<(int, OrderPacket)>());
 
 			// Generating sync reports is expensive, so only do it if we have

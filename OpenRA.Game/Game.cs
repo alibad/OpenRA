@@ -513,8 +513,12 @@ namespace OpenRA
 			ModData.InitializeLoaders(ModData.DefaultFileSystem);
 			Renderer.InitializeFonts(ModData);
 
+			// Multi-session evaluation resolves and loads each requested map lazily.
+			// Eagerly scanning the full user and system map library adds minutes to
+			// startup and lets an unrelated broken custom map block every session.
 			using (new PerfTimer("LoadMaps"))
-				ModData.MapCache.LoadMaps(ModData);
+				ModData.MapCache.LoadMaps(ModData,
+					loadPreviews: string.IsNullOrEmpty(args.GetValue("Launch.MultiSession", null)));
 
 			// Skip cursor loading in headless mode (no game art assets available)
 			if (!IsHeadless)

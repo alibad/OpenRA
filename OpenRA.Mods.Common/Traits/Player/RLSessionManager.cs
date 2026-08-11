@@ -288,6 +288,12 @@ namespace OpenRA.Mods.Common.Traits
 					break;
 			}
 
+			// EndGame may be called at the end of the final worker tick. Complete
+			// the pending unary call explicitly because the loop will not run a
+			// further ITick callback once World.IsGameOver becomes true.
+			if (world.IsGameOver)
+				bridge.CompleteGameOverAdvance();
+
 			if (tickCount >= maxTicks)
 				Log.Write("rl-bridge", $"TickSession: safety limit reached after {maxTicks} ticks!");
 		}
@@ -324,25 +330,15 @@ namespace OpenRA.Mods.Common.Traits
 						Log.Write("rl-bridge", $"Session {sessionId}: Map '{name}' not in cache, loading single map...");
 						foreach (var kv in modData.MapCache.MapLocations)
 						{
-							if (kv.Key.Contains(name))
-							{
-								modData.MapCache.LoadMap(name, kv.Key, kv.Value, null);
+							var entry = kv.Key.Contents.FirstOrDefault(path =>
+								string.Equals(path, name, StringComparison.OrdinalIgnoreCase) ||
+								string.Equals(Path.GetFileName(path), name, StringComparison.OrdinalIgnoreCase));
+							if (entry == null)
+								continue;
+
+							mp = modData.MapCache.LoadMap(entry, kv.Key, kv.Value, null);
+							if (mp?.Status == MapStatus.Available)
 								break;
-							}
-						}
-
-						mp = modData.MapCache
-							.FirstOrDefault(m => m.Status == MapStatus.Available &&
-								(Path.GetFileName(m.Path) == name || m.Uid == name));
-
-						// Fallback: if single-file load didn't work, do full rescan
-						if (mp == null)
-						{
-							Log.Write("rl-bridge", $"Session {sessionId}: Single-file load failed, full rescan...");
-							modData.MapCache.LoadMaps(modData);
-							mp = modData.MapCache
-								.FirstOrDefault(m => m.Status == MapStatus.Available &&
-									(Path.GetFileName(m.Path) == name || m.Uid == name));
 						}
 					}
 
@@ -499,28 +495,35 @@ namespace OpenRA.Mods.Common.Traits
 						continue;
 					}
 
-					var clientIndex = Interlocked.Increment(ref nextClientIndex);
-					var botClient = new Session.Client
-					{
-						Index = clientIndex,
-						Name = botInfo.Name,
-						Bot = botType,
-						Slot = slotName,
-						Faction = "Random",
-						SpawnPoint = 0,
-						Team = 0,
-						Handicap = 0,
-						State = Session.ClientState.NotReady,
-						BotControllerClientIndex = connection_LocalClientId(),
-						Color = Color.FromArgb(rng.Next(256), rng.Next(256), rng.Next(256)),
-						PreferredColor = Color.FromArgb(rng.Next(256), rng.Next(256), rng.Next(256)),
-					};
+					// Campaign scripts initialize objectives and co-op fallbacks from the
+					// local-player perspective. Reuse the EchoConnection host for the one
+					// external controller, while retaining normal bot clients for opponents.
+					var botClient = botType == "rl-agent" && string.IsNullOrEmpty(hostClient.Slot)
+						? hostClient
+						: new Session.Client
+						{
+							Index = Interlocked.Increment(ref nextClientIndex),
+							BotControllerClientIndex = connection_LocalClientId(),
+						};
+
+					botClient.Name = botInfo.Name;
+					botClient.Bot = botType;
+					botClient.Slot = slotName;
+					botClient.Faction = "Random";
+					botClient.SpawnPoint = 0;
+					botClient.Team = 0;
+					botClient.Handicap = 0;
+					botClient.State = Session.ClientState.NotReady;
+					botClient.BotControllerClientIndex = connection_LocalClientId();
+					botClient.Color = Color.FromArgb(rng.Next(256), rng.Next(256), rng.Next(256));
+					botClient.PreferredColor = Color.FromArgb(rng.Next(256), rng.Next(256), rng.Next(256));
 
 					var pr = mapPlayers.Players.GetValueOrDefault(slotName);
 					if (pr != null)
 						SyncClientToPlayerReference(botClient, pr);
 
-					lobbyInfo.Clients.Add(botClient);
+					if (botClient != hostClient)
+						lobbyInfo.Clients.Add(botClient);
 				}
 			}
 

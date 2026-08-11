@@ -24,7 +24,7 @@ namespace OpenRA.Mods.Common.RL {
     static RlBridgeReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cg9ybF9icmlkZ2UucHJvdG8SCW9wZW5yYS5ybCKaBgoPR2FtZU9ic2VydmF0",
+            "Cg9ybF9icmlkZ2UucHJvdG8SCW9wZW5yYS5ybCLRBgoPR2FtZU9ic2VydmF0",
             "aW9uEgwKBHRpY2sYASABKAUSEgoKZXBpc29kZV9pZBgCIAEoCRIlCgdlY29u",
             "b215GAMgASgLMhQub3BlbnJhLnJsLlJsRWNvbm9teRInCghtaWxpdGFyeRgE",
             "IAEoCzIVLm9wZW5yYS5ybC5SbE1pbGl0YXJ5EiQKBXVuaXRzGAUgAygLMhUu",
@@ -42,113 +42,134 @@ namespace OpenRA.Mods.Common.RL {
             "ZW1lbWJlcmVkX2VuZW15X2J1aWxkaW5ncxgVIAMoCzIZLm9wZW5yYS5ybC5S",
             "bEJ1aWxkaW5nSW5mbxIqCgpvYmplY3RpdmVzGBYgAygLMhYub3BlbnJhLnJs",
             "LlJsT2JqZWN0aXZlEhgKEG1pc3Npb25fYnJpZWZpbmcYFyABKAkSFAoMbWlz",
-            "c2lvbl9tb2RlGBggASgIIl0KC1JsT2JqZWN0aXZlEgoKAmlkGAEgASgFEhMK",
-            "C2Rlc2NyaXB0aW9uGAIgASgJEgwKBHR5cGUYAyABKAkSEAoIcmVxdWlyZWQY",
-            "BCABKAgSDQoFc3RhdGUYBSABKAkiiQEKCVJsRWNvbm9teRIMCgRjYXNoGAEg",
-            "ASgFEgsKA29yZRgCIAEoBRIWCg5wb3dlcl9wcm92aWRlZBgDIAEoBRIVCg1w",
-            "b3dlcl9kcmFpbmVkGAQgASgFEhkKEXJlc291cmNlX2NhcGFjaXR5GAUgASgF",
-            "EhcKD2hhcnZlc3Rlcl9jb3VudBgGIAEoBSL/AQoKUmxNaWxpdGFyeRIUCgx1",
-            "bml0c19raWxsZWQYASABKAUSEgoKdW5pdHNfbG9zdBgCIAEoBRIYChBidWls",
-            "ZGluZ3Nfa2lsbGVkGAMgASgFEhYKDmJ1aWxkaW5nc19sb3N0GAQgASgFEhIK",
-            "CmFybXlfdmFsdWUYBSABKAUSGQoRYWN0aXZlX3VuaXRfY291bnQYBiABKAUS",
-            "EgoKa2lsbHNfY29zdBgHIAEoBRITCgtkZWF0aHNfY29zdBgIIAEoBRIUCgxh",
-            "c3NldHNfdmFsdWUYCSABKAUSEgoKZXhwZXJpZW5jZRgKIAEoBRITCgtvcmRl",
-            "cl9jb3VudBgLIAEoBSLZBAoKUmxVbml0SW5mbxIQCghhY3Rvcl9pZBgBIAEo",
-            "DRIMCgR0eXBlGAIgASgJEg0KBXBvc194GAMgASgFEg0KBXBvc195GAQgASgF",
-            "Eg4KBmNlbGxfeBgFIAEoBRIOCgZjZWxsX3kYBiABKAUSEgoKaHBfcGVyY2Vu",
-            "dBgHIAEoAhIPCgdpc19pZGxlGAggASgIEhgKEGN1cnJlbnRfYWN0aXZpdHkY",
-            "CSABKAkSDQoFb3duZXIYCiABKAkSDAoEYW1tbxgLIAEoBRISCgpjYW5fYXR0",
-            "YWNrGAwgASgIEg4KBmZhY2luZxgNIAEoBRIYChBleHBlcmllbmNlX2xldmVs",
-            "GA4gASgFEg4KBnN0YW5jZRgPIAEoBRINCgVzcGVlZBgQIAEoBRIUCgxhdHRh",
-            "Y2tfcmFuZ2UYESABKAUSFwoPcGFzc2VuZ2VyX2NvdW50GBIgASgFEhMKC2lz",
-            "X2J1aWxkaW5nGBMgASgIEhQKDGlzX2Rpc2d1aXNlZBgUIAEoCBIWCg5kaXNn",
-            "dWlzZV9vd25lchgVIAEoCRIUCgxjYW5fZGlzZ3Vpc2UYFiABKAgSFgoOY2Fu",
-            "X2luZmlsdHJhdGUYFyABKAgSHgoWdmFsaWRfZGlzZ3Vpc2VfdGFyZ2V0cxgY",
-            "IAMoDRIiChp2YWxpZF9pbmZpbHRyYXRpb25fdGFyZ2V0cxgZIAMoDRIYChBk",
-            "ZXRlY3RzX2Rpc2d1aXNlGBogASgIEhQKDGNhbl9kZW1vbGlzaBgbIAEoCBIg",
-            "Chh2YWxpZF9kZW1vbGl0aW9uX3RhcmdldHMYHCADKA0i5wIKDlJsQnVpbGRp",
-            "bmdJbmZvEhAKCGFjdG9yX2lkGAEgASgNEgwKBHR5cGUYAiABKAkSDQoFcG9z",
-            "X3gYAyABKAUSDQoFcG9zX3kYBCABKAUSEgoKaHBfcGVyY2VudBgFIAEoAhIN",
-            "CgVvd25lchgGIAEoCRIUCgxpc19wcm9kdWNpbmcYByABKAgSGwoTcHJvZHVj",
-            "dGlvbl9wcm9ncmVzcxgIIAEoAhIWCg5wcm9kdWNpbmdfaXRlbRgJIAEoCRIS",
-            "Cgppc19wb3dlcmVkGAogASgIEhQKDGlzX3JlcGFpcmluZxgLIAEoCBISCgpz",
-            "ZWxsX3ZhbHVlGAwgASgFEg8KB3JhbGx5X3gYDSABKAUSDwoHcmFsbHlfeRgO",
-            "IAEoBRIUCgxwb3dlcl9hbW91bnQYDyABKAUSEwoLY2FuX3Byb2R1Y2UYECAD",
-            "KAkSDgoGY2VsbF94GBEgASgFEg4KBmNlbGxfeRgSIAEoBSKHAQoQUmxQcm9k",
-            "dWN0aW9uSW5mbxISCgpxdWV1ZV90eXBlGAEgASgJEgwKBGl0ZW0YAiABKAkS",
-            "EAoIcHJvZ3Jlc3MYAyABKAISFwoPcmVtYWluaW5nX3RpY2tzGAQgASgFEhYK",
-            "DnJlbWFpbmluZ19jb3N0GAUgASgFEg4KBnBhdXNlZBgGIAEoCCKNAQoJUmxN",
-            "YXBJbmZvEg0KBXdpZHRoGAEgASgFEg4KBmhlaWdodBgCIAEoBRIQCghtYXBf",
-            "bmFtZRgDIAEoCRIQCghib3VuZHNfeBgEIAEoBRIQCghib3VuZHNfeRgFIAEo",
-            "BRIUCgxib3VuZHNfd2lkdGgYBiABKAUSFQoNYm91bmRzX2hlaWdodBgHIAEo",
-            "BSIzCgtBZ2VudEFjdGlvbhIkCghjb21tYW5kcxgBIAMoCzISLm9wZW5yYS5y",
-            "bC5Db21tYW5kIrEBCgdDb21tYW5kEiUKBmFjdGlvbhgBIAEoDjIVLm9wZW5y",
-            "YS5ybC5BY3Rpb25UeXBlEhAKCGFjdG9yX2lkGAIgASgNEhcKD3RhcmdldF9h",
-            "Y3Rvcl9pZBgDIAEoDRIQCgh0YXJnZXRfeBgEIAEoBRIQCgh0YXJnZXRfeRgF",
-            "IAEoBRIRCglpdGVtX3R5cGUYBiABKAkSDgoGcXVldWVkGAcgASgIEg0KBXRp",
-            "Y2tzGAggASgFIpEBCglHYW1lU3RhdGUSEgoKZXBpc29kZV9pZBgBIAEoCRIM",
-            "CgR0aWNrGAIgASgFEg0KBXBoYXNlGAMgASgJEg4KBndpbm5lchgEIAEoCRIU",
-            "CgxwbGF5ZXJfY291bnQYBSABKAUSFgoOcGxheWVyX2ZhY3Rpb24YBiABKAkS",
-            "FQoNZW5lbXlfZmFjdGlvbhgHIAEoCSIiCgxTdGF0ZVJlcXVlc3QSEgoKc2Vz",
-            "c2lvbl9pZBgBIAEoCSJRCg9Db21wYW5pb25TdGF0dXMSDQoFc3RhdGUYASAB",
-            "KAkSDwoHbWVzc2FnZRgCIAEoCRIPCgdlbmFibGVkGAMgASgIEg0KBW11dGVk",
-            "GAQgASgIIiYKEkNvbXBhbmlvblN0YXR1c0FjaxIQCghhY2NlcHRlZBgBIAEo",
-            "CCI/Cg9Db21wYW5pb25UaHJlYXQSDQoFc2NvcmUYASABKAUSDQoFbGV2ZWwY",
-            "AiABKAkSDgoGcmVhc29uGAMgASgJIlkKDkNvbXBhbmlvbkZyYW1lEgwKBHRp",
-            "Y2sYASABKAUSCwoDcG5nGAIgASgMEg0KBXdpZHRoGAMgASgFEg4KBmhlaWdo",
-            "dBgEIAEoBRINCgVzY29wZRgFIAEoCSJpChZDb21wYW5pb25BY3Rpb25SZXF1",
-            "ZXN0EhIKCnJlcXVlc3RfaWQYASABKAkSFQoNZXhwZWN0ZWRfdGljaxgCIAEo",
-            "BRIkCghjb21tYW5kcxgDIAMoCzISLm9wZW5yYS5ybC5Db21tYW5kInAKFkNv",
-            "bXBhbmlvbkNvbW1hbmRSZXN1bHQSDQoFaW5kZXgYASABKAUSJQoGYWN0aW9u",
-            "GAIgASgOMhUub3BlbnJhLnJsLkFjdGlvblR5cGUSEAoIYWNjZXB0ZWQYAyAB",
-            "KAgSDgoGZGV0YWlsGAQgASgJIpUBChZDb21wYW5pb25BY3Rpb25SZWNlaXB0",
-            "EhIKCnJlcXVlc3RfaWQYASABKAkSEAoIYWNjZXB0ZWQYAiABKAgSEQoJZ2Ft",
-            "ZV90aWNrGAMgASgFEjIKB3Jlc3VsdHMYBCADKAsyIS5vcGVucmEucmwuQ29t",
-            "cGFuaW9uQ29tbWFuZFJlc3VsdBIOCgZkZXRhaWwYBSABKAkilQEKEkZhc3RB",
-            "ZHZhbmNlUmVxdWVzdBINCgV0aWNrcxgBIAEoBRIkCghjb21tYW5kcxgCIAMo",
-            "CzISLm9wZW5yYS5ybC5Db21tYW5kEhIKCnNlc3Npb25faWQYAyABKAkSGgoS",
-            "Y2hlY2tfZXZlbnRzX2V2ZXJ5GAQgASgFEhoKEmVuYWJsZWRfaW50ZXJydXB0",
-            "cxgFIAMoCSJEChRDcmVhdGVTZXNzaW9uUmVxdWVzdBIQCghtYXBfbmFtZRgB",
-            "IAEoCRIMCgRib3RzGAIgASgJEgwKBHNlZWQYAyABKAUiKwoVQ3JlYXRlU2Vz",
-            "c2lvblJlc3BvbnNlEhIKCnNlc3Npb25faWQYASABKAkiKwoVRGVzdHJveVNl",
-            "c3Npb25SZXF1ZXN0EhIKCnNlc3Npb25faWQYASABKAkiGAoWRGVzdHJveVNl",
-            "c3Npb25SZXNwb25zZSr3AgoKQWN0aW9uVHlwZRIJCgVOT19PUBAAEggKBE1P",
-            "VkUQARIPCgtBVFRBQ0tfTU9WRRACEgoKBkFUVEFDSxADEggKBFNUT1AQBBIL",
-            "CgdIQVJWRVNUEAUSCQoFQlVJTEQQBhIJCgVUUkFJThAHEgoKBkRFUExPWRAI",
-            "EggKBFNFTEwQCRIKCgZSRVBBSVIQChISCg5QTEFDRV9CVUlMRElORxALEhUK",
-            "EUNBTkNFTF9QUk9EVUNUSU9OEAwSEwoPU0VUX1JBTExZX1BPSU5UEA0SCQoF",
-            "R1VBUkQQDhIOCgpTRVRfU1RBTkNFEA8SEwoPRU5URVJfVFJBTlNQT1JUEBAS",
-            "CgoGVU5MT0FEEBESDgoKUE9XRVJfRE9XThASEg8KC1NFVF9QUklNQVJZEBMS",
-            "DQoJU1VSUkVOREVSEBQSEAoMRkFTVF9BRFZBTkNFEBUSDAoIRElTR1VJU0UQ",
-            "FhIOCgpJTkZJTFRSQVRFEBcSDAoIREVNT0xJU0gQGDKXBgoIUkxCcmlkZ2US",
-            "RQoLR2FtZVNlc3Npb24SFi5vcGVucmEucmwuQWdlbnRBY3Rpb24aGi5vcGVu",
-            "cmEucmwuR2FtZU9ic2VydmF0aW9uKAEwARI5CghHZXRTdGF0ZRIXLm9wZW5y",
-            "YS5ybC5TdGF0ZVJlcXVlc3QaFC5vcGVucmEucmwuR2FtZVN0YXRlEj4KB09i",
-            "c2VydmUSFy5vcGVucmEucmwuU3RhdGVSZXF1ZXN0Ghoub3BlbnJhLnJsLkdh",
-            "bWVPYnNlcnZhdGlvbhJSChVVcGRhdGVDb21wYW5pb25TdGF0dXMSGi5vcGVu",
-            "cmEucmwuQ29tcGFuaW9uU3RhdHVzGh0ub3BlbnJhLnJsLkNvbXBhbmlvblN0",
-            "YXR1c0FjaxJSChVVcGRhdGVDb21wYW5pb25UaHJlYXQSGi5vcGVucmEucmwu",
-            "Q29tcGFuaW9uVGhyZWF0Gh0ub3BlbnJhLnJsLkNvbXBhbmlvblN0YXR1c0Fj",
-            "axJLChVDYXB0dXJlQ29tcGFuaW9uRnJhbWUSFy5vcGVucmEucmwuU3RhdGVS",
-            "ZXF1ZXN0Ghkub3BlbnJhLnJsLkNvbXBhbmlvbkZyYW1lEl8KF0V4ZWN1dGVD",
-            "b21wYW5pb25BY3Rpb25zEiEub3BlbnJhLnJsLkNvbXBhbmlvbkFjdGlvblJl",
-            "cXVlc3QaIS5vcGVucmEucmwuQ29tcGFuaW9uQWN0aW9uUmVjZWlwdBJICgtG",
-            "YXN0QWR2YW5jZRIdLm9wZW5yYS5ybC5GYXN0QWR2YW5jZVJlcXVlc3QaGi5v",
-            "cGVucmEucmwuR2FtZU9ic2VydmF0aW9uElIKDUNyZWF0ZVNlc3Npb24SHy5v",
-            "cGVucmEucmwuQ3JlYXRlU2Vzc2lvblJlcXVlc3QaIC5vcGVucmEucmwuQ3Jl",
-            "YXRlU2Vzc2lvblJlc3BvbnNlElUKDkRlc3Ryb3lTZXNzaW9uEiAub3BlbnJh",
-            "LnJsLkRlc3Ryb3lTZXNzaW9uUmVxdWVzdBohLm9wZW5yYS5ybC5EZXN0cm95",
-            "U2Vzc2lvblJlc3BvbnNlQhiqAhVPcGVuUkEuTW9kcy5Db21tb24uUkxiBnBy",
-            "b3RvMw=="));
+            "c2lvbl9tb2RlGBggASgIEjUKDnN1cHBvcnRfcG93ZXJzGBkgAygLMh0ub3Bl",
+            "bnJhLnJsLlJsU3VwcG9ydFBvd2VySW5mbyJdCgtSbE9iamVjdGl2ZRIKCgJp",
+            "ZBgBIAEoBRITCgtkZXNjcmlwdGlvbhgCIAEoCRIMCgR0eXBlGAMgASgJEhAK",
+            "CHJlcXVpcmVkGAQgASgIEg0KBXN0YXRlGAUgASgJIpEBChJSbFN1cHBvcnRQ",
+            "b3dlckluZm8SCwoDa2V5GAEgASgJEgwKBG5hbWUYAiABKAkSEwoLZGVzY3Jp",
+            "cHRpb24YAyABKAkSDgoGYWN0aXZlGAQgASgIEg0KBXJlYWR5GAUgASgIEhcK",
+            "D3JlbWFpbmluZ190aWNrcxgGIAEoBRITCgt0b3RhbF90aWNrcxgHIAEoBSKJ",
+            "AQoJUmxFY29ub215EgwKBGNhc2gYASABKAUSCwoDb3JlGAIgASgFEhYKDnBv",
+            "d2VyX3Byb3ZpZGVkGAMgASgFEhUKDXBvd2VyX2RyYWluZWQYBCABKAUSGQoR",
+            "cmVzb3VyY2VfY2FwYWNpdHkYBSABKAUSFwoPaGFydmVzdGVyX2NvdW50GAYg",
+            "ASgFIv8BCgpSbE1pbGl0YXJ5EhQKDHVuaXRzX2tpbGxlZBgBIAEoBRISCgp1",
+            "bml0c19sb3N0GAIgASgFEhgKEGJ1aWxkaW5nc19raWxsZWQYAyABKAUSFgoO",
+            "YnVpbGRpbmdzX2xvc3QYBCABKAUSEgoKYXJteV92YWx1ZRgFIAEoBRIZChFh",
+            "Y3RpdmVfdW5pdF9jb3VudBgGIAEoBRISCgpraWxsc19jb3N0GAcgASgFEhMK",
+            "C2RlYXRoc19jb3N0GAggASgFEhQKDGFzc2V0c192YWx1ZRgJIAEoBRISCgpl",
+            "eHBlcmllbmNlGAogASgFEhMKC29yZGVyX2NvdW50GAsgASgFItgHCgpSbFVu",
+            "aXRJbmZvEhAKCGFjdG9yX2lkGAEgASgNEgwKBHR5cGUYAiABKAkSDQoFcG9z",
+            "X3gYAyABKAUSDQoFcG9zX3kYBCABKAUSDgoGY2VsbF94GAUgASgFEg4KBmNl",
+            "bGxfeRgGIAEoBRISCgpocF9wZXJjZW50GAcgASgCEg8KB2lzX2lkbGUYCCAB",
+            "KAgSGAoQY3VycmVudF9hY3Rpdml0eRgJIAEoCRINCgVvd25lchgKIAEoCRIM",
+            "CgRhbW1vGAsgASgFEhIKCmNhbl9hdHRhY2sYDCABKAgSDgoGZmFjaW5nGA0g",
+            "ASgFEhgKEGV4cGVyaWVuY2VfbGV2ZWwYDiABKAUSDgoGc3RhbmNlGA8gASgF",
+            "Eg0KBXNwZWVkGBAgASgFEhQKDGF0dGFja19yYW5nZRgRIAEoBRIXCg9wYXNz",
+            "ZW5nZXJfY291bnQYEiABKAUSEwoLaXNfYnVpbGRpbmcYEyABKAgSFAoMaXNf",
+            "ZGlzZ3Vpc2VkGBQgASgIEhYKDmRpc2d1aXNlX293bmVyGBUgASgJEhQKDGNh",
+            "bl9kaXNndWlzZRgWIAEoCBIWCg5jYW5faW5maWx0cmF0ZRgXIAEoCBIeChZ2",
+            "YWxpZF9kaXNndWlzZV90YXJnZXRzGBggAygNEiIKGnZhbGlkX2luZmlsdHJh",
+            "dGlvbl90YXJnZXRzGBkgAygNEhgKEGRldGVjdHNfZGlzZ3Vpc2UYGiABKAgS",
+            "FAoMY2FuX2RlbW9saXNoGBsgASgIEiAKGHZhbGlkX2RlbW9saXRpb25fdGFy",
+            "Z2V0cxgcIAMoDRITCgtjYW5fY2FwdHVyZRgdIAEoCBIdChV2YWxpZF9jYXB0",
+            "dXJlX3RhcmdldHMYHiADKA0SEgoKYXJtb3JfdHlwZRgfIAEoCRIUCgx0YXJn",
+            "ZXRfdHlwZXMYICADKAkSDAoEY29zdBghIAEoBRIcChRtaW5pbXVtX2F0dGFj",
+            "a19yYW5nZRgiIAEoBRIeChZyZWxvYWRfcmVtYWluaW5nX3RpY2tzGCMgASgF",
+            "EhoKEnJlbG9hZF90b3RhbF90aWNrcxgkIAEoBRIOCgZ3ZWFwb24YJSABKAkS",
+            "DQoFYnVyc3QYJiABKAUSHwoXY3VycmVudF90YXJnZXRfYWN0b3JfaWQYJyAB",
+            "KA0SFQoNbW92ZV90YXJnZXRfeBgoIAEoBRIVCg1tb3ZlX3RhcmdldF95GCkg",
+            "ASgFEhYKDmNhbl90YXJnZXRfYWlyGCogASgIEhkKEWNhbl90YXJnZXRfZ3Jv",
+            "dW5kGCsgASgIEhYKDmxhc3Rfc2Vlbl90aWNrGCwgASgFIpoFCg5SbEJ1aWxk",
+            "aW5nSW5mbxIQCghhY3Rvcl9pZBgBIAEoDRIMCgR0eXBlGAIgASgJEg0KBXBv",
+            "c194GAMgASgFEg0KBXBvc195GAQgASgFEhIKCmhwX3BlcmNlbnQYBSABKAIS",
+            "DQoFb3duZXIYBiABKAkSFAoMaXNfcHJvZHVjaW5nGAcgASgIEhsKE3Byb2R1",
+            "Y3Rpb25fcHJvZ3Jlc3MYCCABKAISFgoOcHJvZHVjaW5nX2l0ZW0YCSABKAkS",
+            "EgoKaXNfcG93ZXJlZBgKIAEoCBIUCgxpc19yZXBhaXJpbmcYCyABKAgSEgoK",
+            "c2VsbF92YWx1ZRgMIAEoBRIPCgdyYWxseV94GA0gASgFEg8KB3JhbGx5X3kY",
+            "DiABKAUSFAoMcG93ZXJfYW1vdW50GA8gASgFEhMKC2Nhbl9wcm9kdWNlGBAg",
+            "AygJEg4KBmNlbGxfeBgRIAEoBRIOCgZjZWxsX3kYEiABKAUSEgoKYXJtb3Jf",
+            "dHlwZRgTIAEoCRIUCgx0YXJnZXRfdHlwZXMYFCADKAkSDAoEY29zdBgVIAEo",
+            "BRIUCgxhdHRhY2tfcmFuZ2UYFiABKAUSHAoUbWluaW11bV9hdHRhY2tfcmFu",
+            "Z2UYFyABKAUSHgoWcmVsb2FkX3JlbWFpbmluZ190aWNrcxgYIAEoBRIaChJy",
+            "ZWxvYWRfdG90YWxfdGlja3MYGSABKAUSDgoGd2VhcG9uGBogASgJEg0KBWJ1",
+            "cnN0GBsgASgFEh8KF2N1cnJlbnRfdGFyZ2V0X2FjdG9yX2lkGBwgASgNEhYK",
+            "DmNhbl90YXJnZXRfYWlyGB0gASgIEhkKEWNhbl90YXJnZXRfZ3JvdW5kGB4g",
+            "ASgIEhYKDmxhc3Rfc2Vlbl90aWNrGB8gASgFIocBChBSbFByb2R1Y3Rpb25J",
+            "bmZvEhIKCnF1ZXVlX3R5cGUYASABKAkSDAoEaXRlbRgCIAEoCRIQCghwcm9n",
+            "cmVzcxgDIAEoAhIXCg9yZW1haW5pbmdfdGlja3MYBCABKAUSFgoOcmVtYWlu",
+            "aW5nX2Nvc3QYBSABKAUSDgoGcGF1c2VkGAYgASgIIo0BCglSbE1hcEluZm8S",
+            "DQoFd2lkdGgYASABKAUSDgoGaGVpZ2h0GAIgASgFEhAKCG1hcF9uYW1lGAMg",
+            "ASgJEhAKCGJvdW5kc194GAQgASgFEhAKCGJvdW5kc195GAUgASgFEhQKDGJv",
+            "dW5kc193aWR0aBgGIAEoBRIVCg1ib3VuZHNfaGVpZ2h0GAcgASgFIjMKC0Fn",
+            "ZW50QWN0aW9uEiQKCGNvbW1hbmRzGAEgAygLMhIub3BlbnJhLnJsLkNvbW1h",
+            "bmQisQEKB0NvbW1hbmQSJQoGYWN0aW9uGAEgASgOMhUub3BlbnJhLnJsLkFj",
+            "dGlvblR5cGUSEAoIYWN0b3JfaWQYAiABKA0SFwoPdGFyZ2V0X2FjdG9yX2lk",
+            "GAMgASgNEhAKCHRhcmdldF94GAQgASgFEhAKCHRhcmdldF95GAUgASgFEhEK",
+            "CWl0ZW1fdHlwZRgGIAEoCRIOCgZxdWV1ZWQYByABKAgSDQoFdGlja3MYCCAB",
+            "KAUikQEKCUdhbWVTdGF0ZRISCgplcGlzb2RlX2lkGAEgASgJEgwKBHRpY2sY",
+            "AiABKAUSDQoFcGhhc2UYAyABKAkSDgoGd2lubmVyGAQgASgJEhQKDHBsYXll",
+            "cl9jb3VudBgFIAEoBRIWCg5wbGF5ZXJfZmFjdGlvbhgGIAEoCRIVCg1lbmVt",
+            "eV9mYWN0aW9uGAcgASgJIiIKDFN0YXRlUmVxdWVzdBISCgpzZXNzaW9uX2lk",
+            "GAEgASgJIlEKD0NvbXBhbmlvblN0YXR1cxINCgVzdGF0ZRgBIAEoCRIPCgdt",
+            "ZXNzYWdlGAIgASgJEg8KB2VuYWJsZWQYAyABKAgSDQoFbXV0ZWQYBCABKAgi",
+            "JgoSQ29tcGFuaW9uU3RhdHVzQWNrEhAKCGFjY2VwdGVkGAEgASgIIj8KD0Nv",
+            "bXBhbmlvblRocmVhdBINCgVzY29yZRgBIAEoBRINCgVsZXZlbBgCIAEoCRIO",
+            "CgZyZWFzb24YAyABKAkiWQoOQ29tcGFuaW9uRnJhbWUSDAoEdGljaxgBIAEo",
+            "BRILCgNwbmcYAiABKAwSDQoFd2lkdGgYAyABKAUSDgoGaGVpZ2h0GAQgASgF",
+            "Eg0KBXNjb3BlGAUgASgJImkKFkNvbXBhbmlvbkFjdGlvblJlcXVlc3QSEgoK",
+            "cmVxdWVzdF9pZBgBIAEoCRIVCg1leHBlY3RlZF90aWNrGAIgASgFEiQKCGNv",
+            "bW1hbmRzGAMgAygLMhIub3BlbnJhLnJsLkNvbW1hbmQicAoWQ29tcGFuaW9u",
+            "Q29tbWFuZFJlc3VsdBINCgVpbmRleBgBIAEoBRIlCgZhY3Rpb24YAiABKA4y",
+            "FS5vcGVucmEucmwuQWN0aW9uVHlwZRIQCghhY2NlcHRlZBgDIAEoCBIOCgZk",
+            "ZXRhaWwYBCABKAkilQEKFkNvbXBhbmlvbkFjdGlvblJlY2VpcHQSEgoKcmVx",
+            "dWVzdF9pZBgBIAEoCRIQCghhY2NlcHRlZBgCIAEoCBIRCglnYW1lX3RpY2sY",
+            "AyABKAUSMgoHcmVzdWx0cxgEIAMoCzIhLm9wZW5yYS5ybC5Db21wYW5pb25D",
+            "b21tYW5kUmVzdWx0Eg4KBmRldGFpbBgFIAEoCSKVAQoSRmFzdEFkdmFuY2VS",
+            "ZXF1ZXN0Eg0KBXRpY2tzGAEgASgFEiQKCGNvbW1hbmRzGAIgAygLMhIub3Bl",
+            "bnJhLnJsLkNvbW1hbmQSEgoKc2Vzc2lvbl9pZBgDIAEoCRIaChJjaGVja19l",
+            "dmVudHNfZXZlcnkYBCABKAUSGgoSZW5hYmxlZF9pbnRlcnJ1cHRzGAUgAygJ",
+            "IkQKFENyZWF0ZVNlc3Npb25SZXF1ZXN0EhAKCG1hcF9uYW1lGAEgASgJEgwK",
+            "BGJvdHMYAiABKAkSDAoEc2VlZBgDIAEoBSIrChVDcmVhdGVTZXNzaW9uUmVz",
+            "cG9uc2USEgoKc2Vzc2lvbl9pZBgBIAEoCSIrChVEZXN0cm95U2Vzc2lvblJl",
+            "cXVlc3QSEgoKc2Vzc2lvbl9pZBgBIAEoCSIYChZEZXN0cm95U2Vzc2lvblJl",
+            "c3BvbnNlKpsDCgpBY3Rpb25UeXBlEgkKBU5PX09QEAASCAoETU9WRRABEg8K",
+            "C0FUVEFDS19NT1ZFEAISCgoGQVRUQUNLEAMSCAoEU1RPUBAEEgsKB0hBUlZF",
+            "U1QQBRIJCgVCVUlMRBAGEgkKBVRSQUlOEAcSCgoGREVQTE9ZEAgSCAoEU0VM",
+            "TBAJEgoKBlJFUEFJUhAKEhIKDlBMQUNFX0JVSUxESU5HEAsSFQoRQ0FOQ0VM",
+            "X1BST0RVQ1RJT04QDBITCg9TRVRfUkFMTFlfUE9JTlQQDRIJCgVHVUFSRBAO",
+            "Eg4KClNFVF9TVEFOQ0UQDxITCg9FTlRFUl9UUkFOU1BPUlQQEBIKCgZVTkxP",
+            "QUQQERIOCgpQT1dFUl9ET1dOEBISDwoLU0VUX1BSSU1BUlkQExINCglTVVJS",
+            "RU5ERVIQFBIQCgxGQVNUX0FEVkFOQ0UQFRIMCghESVNHVUlTRRAWEg4KCklO",
+            "RklMVFJBVEUQFxIMCghERU1PTElTSBAYEgsKB0NBUFRVUkUQGRIVChFVU0Vf",
+            "U1VQUE9SVF9QT1dFUhAaMpcGCghSTEJyaWRnZRJFCgtHYW1lU2Vzc2lvbhIW",
+            "Lm9wZW5yYS5ybC5BZ2VudEFjdGlvbhoaLm9wZW5yYS5ybC5HYW1lT2JzZXJ2",
+            "YXRpb24oATABEjkKCEdldFN0YXRlEhcub3BlbnJhLnJsLlN0YXRlUmVxdWVz",
+            "dBoULm9wZW5yYS5ybC5HYW1lU3RhdGUSPgoHT2JzZXJ2ZRIXLm9wZW5yYS5y",
+            "bC5TdGF0ZVJlcXVlc3QaGi5vcGVucmEucmwuR2FtZU9ic2VydmF0aW9uElIK",
+            "FVVwZGF0ZUNvbXBhbmlvblN0YXR1cxIaLm9wZW5yYS5ybC5Db21wYW5pb25T",
+            "dGF0dXMaHS5vcGVucmEucmwuQ29tcGFuaW9uU3RhdHVzQWNrElIKFVVwZGF0",
+            "ZUNvbXBhbmlvblRocmVhdBIaLm9wZW5yYS5ybC5Db21wYW5pb25UaHJlYXQa",
+            "HS5vcGVucmEucmwuQ29tcGFuaW9uU3RhdHVzQWNrEksKFUNhcHR1cmVDb21w",
+            "YW5pb25GcmFtZRIXLm9wZW5yYS5ybC5TdGF0ZVJlcXVlc3QaGS5vcGVucmEu",
+            "cmwuQ29tcGFuaW9uRnJhbWUSXwoXRXhlY3V0ZUNvbXBhbmlvbkFjdGlvbnMS",
+            "IS5vcGVucmEucmwuQ29tcGFuaW9uQWN0aW9uUmVxdWVzdBohLm9wZW5yYS5y",
+            "bC5Db21wYW5pb25BY3Rpb25SZWNlaXB0EkgKC0Zhc3RBZHZhbmNlEh0ub3Bl",
+            "bnJhLnJsLkZhc3RBZHZhbmNlUmVxdWVzdBoaLm9wZW5yYS5ybC5HYW1lT2Jz",
+            "ZXJ2YXRpb24SUgoNQ3JlYXRlU2Vzc2lvbhIfLm9wZW5yYS5ybC5DcmVhdGVT",
+            "ZXNzaW9uUmVxdWVzdBogLm9wZW5yYS5ybC5DcmVhdGVTZXNzaW9uUmVzcG9u",
+            "c2USVQoORGVzdHJveVNlc3Npb24SIC5vcGVucmEucmwuRGVzdHJveVNlc3Np",
+            "b25SZXF1ZXN0GiEub3BlbnJhLnJsLkRlc3Ryb3lTZXNzaW9uUmVzcG9uc2VC",
+            "GKoCFU9wZW5SQS5Nb2RzLkNvbW1vbi5STGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::OpenRA.Mods.Common.RL.ActionType), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.GameObservation), global::OpenRA.Mods.Common.RL.GameObservation.Parser, new[]{ "Tick", "EpisodeId", "Economy", "Military", "Units", "Buildings", "Production", "VisibleEnemies", "MapInfo", "SpatialMap", "SpatialChannels", "Done", "Reward", "Result", "AvailableProduction", "VisibleEnemyBuildings", "ExploredPercent", "Interrupted", "InterruptReason", "ActualTicksAdvanced", "RememberedEnemyBuildings", "Objectives", "MissionBriefing", "MissionMode" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.GameObservation), global::OpenRA.Mods.Common.RL.GameObservation.Parser, new[]{ "Tick", "EpisodeId", "Economy", "Military", "Units", "Buildings", "Production", "VisibleEnemies", "MapInfo", "SpatialMap", "SpatialChannels", "Done", "Reward", "Result", "AvailableProduction", "VisibleEnemyBuildings", "ExploredPercent", "Interrupted", "InterruptReason", "ActualTicksAdvanced", "RememberedEnemyBuildings", "Objectives", "MissionBriefing", "MissionMode", "SupportPowers" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlObjective), global::OpenRA.Mods.Common.RL.RlObjective.Parser, new[]{ "Id", "Description", "Type", "Required", "State" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlSupportPowerInfo), global::OpenRA.Mods.Common.RL.RlSupportPowerInfo.Parser, new[]{ "Key", "Name", "Description", "Active", "Ready", "RemainingTicks", "TotalTicks" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlEconomy), global::OpenRA.Mods.Common.RL.RlEconomy.Parser, new[]{ "Cash", "Ore", "PowerProvided", "PowerDrained", "ResourceCapacity", "HarvesterCount" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlMilitary), global::OpenRA.Mods.Common.RL.RlMilitary.Parser, new[]{ "UnitsKilled", "UnitsLost", "BuildingsKilled", "BuildingsLost", "ArmyValue", "ActiveUnitCount", "KillsCost", "DeathsCost", "AssetsValue", "Experience", "OrderCount" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlUnitInfo), global::OpenRA.Mods.Common.RL.RlUnitInfo.Parser, new[]{ "ActorId", "Type", "PosX", "PosY", "CellX", "CellY", "HpPercent", "IsIdle", "CurrentActivity", "Owner", "Ammo", "CanAttack", "Facing", "ExperienceLevel", "Stance", "Speed", "AttackRange", "PassengerCount", "IsBuilding", "IsDisguised", "DisguiseOwner", "CanDisguise", "CanInfiltrate", "ValidDisguiseTargets", "ValidInfiltrationTargets", "DetectsDisguise", "CanDemolish", "ValidDemolitionTargets" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlBuildingInfo), global::OpenRA.Mods.Common.RL.RlBuildingInfo.Parser, new[]{ "ActorId", "Type", "PosX", "PosY", "HpPercent", "Owner", "IsProducing", "ProductionProgress", "ProducingItem", "IsPowered", "IsRepairing", "SellValue", "RallyX", "RallyY", "PowerAmount", "CanProduce", "CellX", "CellY" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlUnitInfo), global::OpenRA.Mods.Common.RL.RlUnitInfo.Parser, new[]{ "ActorId", "Type", "PosX", "PosY", "CellX", "CellY", "HpPercent", "IsIdle", "CurrentActivity", "Owner", "Ammo", "CanAttack", "Facing", "ExperienceLevel", "Stance", "Speed", "AttackRange", "PassengerCount", "IsBuilding", "IsDisguised", "DisguiseOwner", "CanDisguise", "CanInfiltrate", "ValidDisguiseTargets", "ValidInfiltrationTargets", "DetectsDisguise", "CanDemolish", "ValidDemolitionTargets", "CanCapture", "ValidCaptureTargets", "ArmorType", "TargetTypes", "Cost", "MinimumAttackRange", "ReloadRemainingTicks", "ReloadTotalTicks", "Weapon", "Burst", "CurrentTargetActorId", "MoveTargetX", "MoveTargetY", "CanTargetAir", "CanTargetGround", "LastSeenTick" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlBuildingInfo), global::OpenRA.Mods.Common.RL.RlBuildingInfo.Parser, new[]{ "ActorId", "Type", "PosX", "PosY", "HpPercent", "Owner", "IsProducing", "ProductionProgress", "ProducingItem", "IsPowered", "IsRepairing", "SellValue", "RallyX", "RallyY", "PowerAmount", "CanProduce", "CellX", "CellY", "ArmorType", "TargetTypes", "Cost", "AttackRange", "MinimumAttackRange", "ReloadRemainingTicks", "ReloadTotalTicks", "Weapon", "Burst", "CurrentTargetActorId", "CanTargetAir", "CanTargetGround", "LastSeenTick" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlProductionInfo), global::OpenRA.Mods.Common.RL.RlProductionInfo.Parser, new[]{ "QueueType", "Item", "Progress", "RemainingTicks", "RemainingCost", "Paused" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.RlMapInfo), global::OpenRA.Mods.Common.RL.RlMapInfo.Parser, new[]{ "Width", "Height", "MapName", "BoundsX", "BoundsY", "BoundsWidth", "BoundsHeight" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::OpenRA.Mods.Common.RL.AgentAction), global::OpenRA.Mods.Common.RL.AgentAction.Parser, new[]{ "Commands" }, null, null, null, null),
@@ -250,6 +271,14 @@ namespace OpenRA.Mods.Common.RL {
     /// Plant C4 on a currently visible demolishable target
     /// </summary>
     [pbr::OriginalName("DEMOLISH")] Demolish = 24,
+    /// <summary>
+    /// Capture a currently visible legal actor with an engineer
+    /// </summary>
+    [pbr::OriginalName("CAPTURE")] Capture = 25,
+    /// <summary>
+    /// Activate a ready support power key at an explored cell
+    /// </summary>
+    [pbr::OriginalName("USE_SUPPORT_POWER")] UseSupportPower = 26,
   }
 
   #endregion
@@ -314,6 +343,7 @@ namespace OpenRA.Mods.Common.RL {
       objectives_ = other.objectives_.Clone();
       missionBriefing_ = other.missionBriefing_;
       missionMode_ = other.missionMode_;
+      supportPowers_ = other.supportPowers_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -643,6 +673,17 @@ namespace OpenRA.Mods.Common.RL {
       }
     }
 
+    /// <summary>Field number for the "support_powers" field.</summary>
+    public const int SupportPowersFieldNumber = 25;
+    private static readonly pb::FieldCodec<global::OpenRA.Mods.Common.RL.RlSupportPowerInfo> _repeated_supportPowers_codec
+        = pb::FieldCodec.ForMessage(202, global::OpenRA.Mods.Common.RL.RlSupportPowerInfo.Parser);
+    private readonly pbc::RepeatedField<global::OpenRA.Mods.Common.RL.RlSupportPowerInfo> supportPowers_ = new pbc::RepeatedField<global::OpenRA.Mods.Common.RL.RlSupportPowerInfo>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::OpenRA.Mods.Common.RL.RlSupportPowerInfo> SupportPowers {
+      get { return supportPowers_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -682,6 +723,7 @@ namespace OpenRA.Mods.Common.RL {
       if(!objectives_.Equals(other.objectives_)) return false;
       if (MissionBriefing != other.MissionBriefing) return false;
       if (MissionMode != other.MissionMode) return false;
+      if(!supportPowers_.Equals(other.supportPowers_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -713,6 +755,7 @@ namespace OpenRA.Mods.Common.RL {
       hash ^= objectives_.GetHashCode();
       if (MissionBriefing.Length != 0) hash ^= MissionBriefing.GetHashCode();
       if (MissionMode != false) hash ^= MissionMode.GetHashCode();
+      hash ^= supportPowers_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -803,6 +846,7 @@ namespace OpenRA.Mods.Common.RL {
         output.WriteRawTag(192, 1);
         output.WriteBool(MissionMode);
       }
+      supportPowers_.WriteTo(output, _repeated_supportPowers_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -885,6 +929,7 @@ namespace OpenRA.Mods.Common.RL {
         output.WriteRawTag(192, 1);
         output.WriteBool(MissionMode);
       }
+      supportPowers_.WriteTo(ref output, _repeated_supportPowers_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -951,6 +996,7 @@ namespace OpenRA.Mods.Common.RL {
       if (MissionMode != false) {
         size += 2 + 1;
       }
+      size += supportPowers_.CalculateSize(_repeated_supportPowers_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -1028,6 +1074,7 @@ namespace OpenRA.Mods.Common.RL {
       if (other.MissionMode != false) {
         MissionMode = other.MissionMode;
       }
+      supportPowers_.Add(other.supportPowers_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1152,6 +1199,10 @@ namespace OpenRA.Mods.Common.RL {
             MissionMode = input.ReadBool();
             break;
           }
+          case 202: {
+            supportPowers_.AddEntriesFrom(input, _repeated_supportPowers_codec);
+            break;
+          }
         }
       }
     #endif
@@ -1274,6 +1325,10 @@ namespace OpenRA.Mods.Common.RL {
           }
           case 192: {
             MissionMode = input.ReadBool();
+            break;
+          }
+          case 202: {
+            supportPowers_.AddEntriesFrom(ref input, _repeated_supportPowers_codec);
             break;
           }
         }
@@ -1630,6 +1685,426 @@ namespace OpenRA.Mods.Common.RL {
   }
 
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class RlSupportPowerInfo : pb::IMessage<RlSupportPowerInfo>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<RlSupportPowerInfo> _parser = new pb::MessageParser<RlSupportPowerInfo>(() => new RlSupportPowerInfo());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<RlSupportPowerInfo> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public RlSupportPowerInfo() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public RlSupportPowerInfo(RlSupportPowerInfo other) : this() {
+      key_ = other.key_;
+      name_ = other.name_;
+      description_ = other.description_;
+      active_ = other.active_;
+      ready_ = other.ready_;
+      remainingTicks_ = other.remainingTicks_;
+      totalTicks_ = other.totalTicks_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public RlSupportPowerInfo Clone() {
+      return new RlSupportPowerInfo(this);
+    }
+
+    /// <summary>Field number for the "key" field.</summary>
+    public const int KeyFieldNumber = 1;
+    private string key_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Key {
+      get { return key_; }
+      set {
+        key_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 2;
+    private string name_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "description" field.</summary>
+    public const int DescriptionFieldNumber = 3;
+    private string description_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Description {
+      get { return description_; }
+      set {
+        description_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "active" field.</summary>
+    public const int ActiveFieldNumber = 4;
+    private bool active_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Active {
+      get { return active_; }
+      set {
+        active_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "ready" field.</summary>
+    public const int ReadyFieldNumber = 5;
+    private bool ready_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Ready {
+      get { return ready_; }
+      set {
+        ready_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "remaining_ticks" field.</summary>
+    public const int RemainingTicksFieldNumber = 6;
+    private int remainingTicks_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int RemainingTicks {
+      get { return remainingTicks_; }
+      set {
+        remainingTicks_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "total_ticks" field.</summary>
+    public const int TotalTicksFieldNumber = 7;
+    private int totalTicks_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int TotalTicks {
+      get { return totalTicks_; }
+      set {
+        totalTicks_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as RlSupportPowerInfo);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(RlSupportPowerInfo other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Key != other.Key) return false;
+      if (Name != other.Name) return false;
+      if (Description != other.Description) return false;
+      if (Active != other.Active) return false;
+      if (Ready != other.Ready) return false;
+      if (RemainingTicks != other.RemainingTicks) return false;
+      if (TotalTicks != other.TotalTicks) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Key.Length != 0) hash ^= Key.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (Description.Length != 0) hash ^= Description.GetHashCode();
+      if (Active != false) hash ^= Active.GetHashCode();
+      if (Ready != false) hash ^= Ready.GetHashCode();
+      if (RemainingTicks != 0) hash ^= RemainingTicks.GetHashCode();
+      if (TotalTicks != 0) hash ^= TotalTicks.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Key.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Key);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Name);
+      }
+      if (Description.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Description);
+      }
+      if (Active != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(Active);
+      }
+      if (Ready != false) {
+        output.WriteRawTag(40);
+        output.WriteBool(Ready);
+      }
+      if (RemainingTicks != 0) {
+        output.WriteRawTag(48);
+        output.WriteInt32(RemainingTicks);
+      }
+      if (TotalTicks != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(TotalTicks);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Key.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Key);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Name);
+      }
+      if (Description.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Description);
+      }
+      if (Active != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(Active);
+      }
+      if (Ready != false) {
+        output.WriteRawTag(40);
+        output.WriteBool(Ready);
+      }
+      if (RemainingTicks != 0) {
+        output.WriteRawTag(48);
+        output.WriteInt32(RemainingTicks);
+      }
+      if (TotalTicks != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(TotalTicks);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Key.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Key);
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (Description.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Description);
+      }
+      if (Active != false) {
+        size += 1 + 1;
+      }
+      if (Ready != false) {
+        size += 1 + 1;
+      }
+      if (RemainingTicks != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(RemainingTicks);
+      }
+      if (TotalTicks != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(TotalTicks);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(RlSupportPowerInfo other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Key.Length != 0) {
+        Key = other.Key;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.Description.Length != 0) {
+        Description = other.Description;
+      }
+      if (other.Active != false) {
+        Active = other.Active;
+      }
+      if (other.Ready != false) {
+        Ready = other.Ready;
+      }
+      if (other.RemainingTicks != 0) {
+        RemainingTicks = other.RemainingTicks;
+      }
+      if (other.TotalTicks != 0) {
+        TotalTicks = other.TotalTicks;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            Key = input.ReadString();
+            break;
+          }
+          case 18: {
+            Name = input.ReadString();
+            break;
+          }
+          case 26: {
+            Description = input.ReadString();
+            break;
+          }
+          case 32: {
+            Active = input.ReadBool();
+            break;
+          }
+          case 40: {
+            Ready = input.ReadBool();
+            break;
+          }
+          case 48: {
+            RemainingTicks = input.ReadInt32();
+            break;
+          }
+          case 56: {
+            TotalTicks = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            Key = input.ReadString();
+            break;
+          }
+          case 18: {
+            Name = input.ReadString();
+            break;
+          }
+          case 26: {
+            Description = input.ReadString();
+            break;
+          }
+          case 32: {
+            Active = input.ReadBool();
+            break;
+          }
+          case 40: {
+            Ready = input.ReadBool();
+            break;
+          }
+          case 48: {
+            RemainingTicks = input.ReadInt32();
+            break;
+          }
+          case 56: {
+            TotalTicks = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RlEconomy : pb::IMessage<RlEconomy>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -1644,7 +2119,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[2]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2027,7 +2502,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[3]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2610,7 +3085,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[4]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2658,6 +3133,22 @@ namespace OpenRA.Mods.Common.RL {
       detectsDisguise_ = other.detectsDisguise_;
       canDemolish_ = other.canDemolish_;
       validDemolitionTargets_ = other.validDemolitionTargets_.Clone();
+      canCapture_ = other.canCapture_;
+      validCaptureTargets_ = other.validCaptureTargets_.Clone();
+      armorType_ = other.armorType_;
+      targetTypes_ = other.targetTypes_.Clone();
+      cost_ = other.cost_;
+      minimumAttackRange_ = other.minimumAttackRange_;
+      reloadRemainingTicks_ = other.reloadRemainingTicks_;
+      reloadTotalTicks_ = other.reloadTotalTicks_;
+      weapon_ = other.weapon_;
+      burst_ = other.burst_;
+      currentTargetActorId_ = other.currentTargetActorId_;
+      moveTargetX_ = other.moveTargetX_;
+      moveTargetY_ = other.moveTargetY_;
+      canTargetAir_ = other.canTargetAir_;
+      canTargetGround_ = other.canTargetGround_;
+      lastSeenTick_ = other.lastSeenTick_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -3045,6 +3536,196 @@ namespace OpenRA.Mods.Common.RL {
       get { return validDemolitionTargets_; }
     }
 
+    /// <summary>Field number for the "can_capture" field.</summary>
+    public const int CanCaptureFieldNumber = 29;
+    private bool canCapture_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CanCapture {
+      get { return canCapture_; }
+      set {
+        canCapture_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "valid_capture_targets" field.</summary>
+    public const int ValidCaptureTargetsFieldNumber = 30;
+    private static readonly pb::FieldCodec<uint> _repeated_validCaptureTargets_codec
+        = pb::FieldCodec.ForUInt32(242);
+    private readonly pbc::RepeatedField<uint> validCaptureTargets_ = new pbc::RepeatedField<uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<uint> ValidCaptureTargets {
+      get { return validCaptureTargets_; }
+    }
+
+    /// <summary>Field number for the "armor_type" field.</summary>
+    public const int ArmorTypeFieldNumber = 31;
+    private string armorType_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string ArmorType {
+      get { return armorType_; }
+      set {
+        armorType_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "target_types" field.</summary>
+    public const int TargetTypesFieldNumber = 32;
+    private static readonly pb::FieldCodec<string> _repeated_targetTypes_codec
+        = pb::FieldCodec.ForString(258);
+    private readonly pbc::RepeatedField<string> targetTypes_ = new pbc::RepeatedField<string>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<string> TargetTypes {
+      get { return targetTypes_; }
+    }
+
+    /// <summary>Field number for the "cost" field.</summary>
+    public const int CostFieldNumber = 33;
+    private int cost_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Cost {
+      get { return cost_; }
+      set {
+        cost_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "minimum_attack_range" field.</summary>
+    public const int MinimumAttackRangeFieldNumber = 34;
+    private int minimumAttackRange_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int MinimumAttackRange {
+      get { return minimumAttackRange_; }
+      set {
+        minimumAttackRange_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "reload_remaining_ticks" field.</summary>
+    public const int ReloadRemainingTicksFieldNumber = 35;
+    private int reloadRemainingTicks_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ReloadRemainingTicks {
+      get { return reloadRemainingTicks_; }
+      set {
+        reloadRemainingTicks_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "reload_total_ticks" field.</summary>
+    public const int ReloadTotalTicksFieldNumber = 36;
+    private int reloadTotalTicks_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ReloadTotalTicks {
+      get { return reloadTotalTicks_; }
+      set {
+        reloadTotalTicks_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "weapon" field.</summary>
+    public const int WeaponFieldNumber = 37;
+    private string weapon_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Weapon {
+      get { return weapon_; }
+      set {
+        weapon_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "burst" field.</summary>
+    public const int BurstFieldNumber = 38;
+    private int burst_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Burst {
+      get { return burst_; }
+      set {
+        burst_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "current_target_actor_id" field.</summary>
+    public const int CurrentTargetActorIdFieldNumber = 39;
+    private uint currentTargetActorId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint CurrentTargetActorId {
+      get { return currentTargetActorId_; }
+      set {
+        currentTargetActorId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "move_target_x" field.</summary>
+    public const int MoveTargetXFieldNumber = 40;
+    private int moveTargetX_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int MoveTargetX {
+      get { return moveTargetX_; }
+      set {
+        moveTargetX_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "move_target_y" field.</summary>
+    public const int MoveTargetYFieldNumber = 41;
+    private int moveTargetY_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int MoveTargetY {
+      get { return moveTargetY_; }
+      set {
+        moveTargetY_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "can_target_air" field.</summary>
+    public const int CanTargetAirFieldNumber = 42;
+    private bool canTargetAir_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CanTargetAir {
+      get { return canTargetAir_; }
+      set {
+        canTargetAir_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "can_target_ground" field.</summary>
+    public const int CanTargetGroundFieldNumber = 43;
+    private bool canTargetGround_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CanTargetGround {
+      get { return canTargetGround_; }
+      set {
+        canTargetGround_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "last_seen_tick" field.</summary>
+    public const int LastSeenTickFieldNumber = 44;
+    private int lastSeenTick_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int LastSeenTick {
+      get { return lastSeenTick_; }
+      set {
+        lastSeenTick_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -3088,6 +3769,22 @@ namespace OpenRA.Mods.Common.RL {
       if (DetectsDisguise != other.DetectsDisguise) return false;
       if (CanDemolish != other.CanDemolish) return false;
       if(!validDemolitionTargets_.Equals(other.validDemolitionTargets_)) return false;
+      if (CanCapture != other.CanCapture) return false;
+      if(!validCaptureTargets_.Equals(other.validCaptureTargets_)) return false;
+      if (ArmorType != other.ArmorType) return false;
+      if(!targetTypes_.Equals(other.targetTypes_)) return false;
+      if (Cost != other.Cost) return false;
+      if (MinimumAttackRange != other.MinimumAttackRange) return false;
+      if (ReloadRemainingTicks != other.ReloadRemainingTicks) return false;
+      if (ReloadTotalTicks != other.ReloadTotalTicks) return false;
+      if (Weapon != other.Weapon) return false;
+      if (Burst != other.Burst) return false;
+      if (CurrentTargetActorId != other.CurrentTargetActorId) return false;
+      if (MoveTargetX != other.MoveTargetX) return false;
+      if (MoveTargetY != other.MoveTargetY) return false;
+      if (CanTargetAir != other.CanTargetAir) return false;
+      if (CanTargetGround != other.CanTargetGround) return false;
+      if (LastSeenTick != other.LastSeenTick) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -3123,6 +3820,22 @@ namespace OpenRA.Mods.Common.RL {
       if (DetectsDisguise != false) hash ^= DetectsDisguise.GetHashCode();
       if (CanDemolish != false) hash ^= CanDemolish.GetHashCode();
       hash ^= validDemolitionTargets_.GetHashCode();
+      if (CanCapture != false) hash ^= CanCapture.GetHashCode();
+      hash ^= validCaptureTargets_.GetHashCode();
+      if (ArmorType.Length != 0) hash ^= ArmorType.GetHashCode();
+      hash ^= targetTypes_.GetHashCode();
+      if (Cost != 0) hash ^= Cost.GetHashCode();
+      if (MinimumAttackRange != 0) hash ^= MinimumAttackRange.GetHashCode();
+      if (ReloadRemainingTicks != 0) hash ^= ReloadRemainingTicks.GetHashCode();
+      if (ReloadTotalTicks != 0) hash ^= ReloadTotalTicks.GetHashCode();
+      if (Weapon.Length != 0) hash ^= Weapon.GetHashCode();
+      if (Burst != 0) hash ^= Burst.GetHashCode();
+      if (CurrentTargetActorId != 0) hash ^= CurrentTargetActorId.GetHashCode();
+      if (MoveTargetX != 0) hash ^= MoveTargetX.GetHashCode();
+      if (MoveTargetY != 0) hash ^= MoveTargetY.GetHashCode();
+      if (CanTargetAir != false) hash ^= CanTargetAir.GetHashCode();
+      if (CanTargetGround != false) hash ^= CanTargetGround.GetHashCode();
+      if (LastSeenTick != 0) hash ^= LastSeenTick.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -3244,6 +3957,64 @@ namespace OpenRA.Mods.Common.RL {
         output.WriteBool(CanDemolish);
       }
       validDemolitionTargets_.WriteTo(output, _repeated_validDemolitionTargets_codec);
+      if (CanCapture != false) {
+        output.WriteRawTag(232, 1);
+        output.WriteBool(CanCapture);
+      }
+      validCaptureTargets_.WriteTo(output, _repeated_validCaptureTargets_codec);
+      if (ArmorType.Length != 0) {
+        output.WriteRawTag(250, 1);
+        output.WriteString(ArmorType);
+      }
+      targetTypes_.WriteTo(output, _repeated_targetTypes_codec);
+      if (Cost != 0) {
+        output.WriteRawTag(136, 2);
+        output.WriteInt32(Cost);
+      }
+      if (MinimumAttackRange != 0) {
+        output.WriteRawTag(144, 2);
+        output.WriteInt32(MinimumAttackRange);
+      }
+      if (ReloadRemainingTicks != 0) {
+        output.WriteRawTag(152, 2);
+        output.WriteInt32(ReloadRemainingTicks);
+      }
+      if (ReloadTotalTicks != 0) {
+        output.WriteRawTag(160, 2);
+        output.WriteInt32(ReloadTotalTicks);
+      }
+      if (Weapon.Length != 0) {
+        output.WriteRawTag(170, 2);
+        output.WriteString(Weapon);
+      }
+      if (Burst != 0) {
+        output.WriteRawTag(176, 2);
+        output.WriteInt32(Burst);
+      }
+      if (CurrentTargetActorId != 0) {
+        output.WriteRawTag(184, 2);
+        output.WriteUInt32(CurrentTargetActorId);
+      }
+      if (MoveTargetX != 0) {
+        output.WriteRawTag(192, 2);
+        output.WriteInt32(MoveTargetX);
+      }
+      if (MoveTargetY != 0) {
+        output.WriteRawTag(200, 2);
+        output.WriteInt32(MoveTargetY);
+      }
+      if (CanTargetAir != false) {
+        output.WriteRawTag(208, 2);
+        output.WriteBool(CanTargetAir);
+      }
+      if (CanTargetGround != false) {
+        output.WriteRawTag(216, 2);
+        output.WriteBool(CanTargetGround);
+      }
+      if (LastSeenTick != 0) {
+        output.WriteRawTag(224, 2);
+        output.WriteInt32(LastSeenTick);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -3357,6 +4128,64 @@ namespace OpenRA.Mods.Common.RL {
         output.WriteBool(CanDemolish);
       }
       validDemolitionTargets_.WriteTo(ref output, _repeated_validDemolitionTargets_codec);
+      if (CanCapture != false) {
+        output.WriteRawTag(232, 1);
+        output.WriteBool(CanCapture);
+      }
+      validCaptureTargets_.WriteTo(ref output, _repeated_validCaptureTargets_codec);
+      if (ArmorType.Length != 0) {
+        output.WriteRawTag(250, 1);
+        output.WriteString(ArmorType);
+      }
+      targetTypes_.WriteTo(ref output, _repeated_targetTypes_codec);
+      if (Cost != 0) {
+        output.WriteRawTag(136, 2);
+        output.WriteInt32(Cost);
+      }
+      if (MinimumAttackRange != 0) {
+        output.WriteRawTag(144, 2);
+        output.WriteInt32(MinimumAttackRange);
+      }
+      if (ReloadRemainingTicks != 0) {
+        output.WriteRawTag(152, 2);
+        output.WriteInt32(ReloadRemainingTicks);
+      }
+      if (ReloadTotalTicks != 0) {
+        output.WriteRawTag(160, 2);
+        output.WriteInt32(ReloadTotalTicks);
+      }
+      if (Weapon.Length != 0) {
+        output.WriteRawTag(170, 2);
+        output.WriteString(Weapon);
+      }
+      if (Burst != 0) {
+        output.WriteRawTag(176, 2);
+        output.WriteInt32(Burst);
+      }
+      if (CurrentTargetActorId != 0) {
+        output.WriteRawTag(184, 2);
+        output.WriteUInt32(CurrentTargetActorId);
+      }
+      if (MoveTargetX != 0) {
+        output.WriteRawTag(192, 2);
+        output.WriteInt32(MoveTargetX);
+      }
+      if (MoveTargetY != 0) {
+        output.WriteRawTag(200, 2);
+        output.WriteInt32(MoveTargetY);
+      }
+      if (CanTargetAir != false) {
+        output.WriteRawTag(208, 2);
+        output.WriteBool(CanTargetAir);
+      }
+      if (CanTargetGround != false) {
+        output.WriteRawTag(216, 2);
+        output.WriteBool(CanTargetGround);
+      }
+      if (LastSeenTick != 0) {
+        output.WriteRawTag(224, 2);
+        output.WriteInt32(LastSeenTick);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -3445,6 +4274,50 @@ namespace OpenRA.Mods.Common.RL {
         size += 2 + 1;
       }
       size += validDemolitionTargets_.CalculateSize(_repeated_validDemolitionTargets_codec);
+      if (CanCapture != false) {
+        size += 2 + 1;
+      }
+      size += validCaptureTargets_.CalculateSize(_repeated_validCaptureTargets_codec);
+      if (ArmorType.Length != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeStringSize(ArmorType);
+      }
+      size += targetTypes_.CalculateSize(_repeated_targetTypes_codec);
+      if (Cost != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(Cost);
+      }
+      if (MinimumAttackRange != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(MinimumAttackRange);
+      }
+      if (ReloadRemainingTicks != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ReloadRemainingTicks);
+      }
+      if (ReloadTotalTicks != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ReloadTotalTicks);
+      }
+      if (Weapon.Length != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeStringSize(Weapon);
+      }
+      if (Burst != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(Burst);
+      }
+      if (CurrentTargetActorId != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(CurrentTargetActorId);
+      }
+      if (MoveTargetX != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(MoveTargetX);
+      }
+      if (MoveTargetY != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(MoveTargetY);
+      }
+      if (CanTargetAir != false) {
+        size += 2 + 1;
+      }
+      if (CanTargetGround != false) {
+        size += 2 + 1;
+      }
+      if (LastSeenTick != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(LastSeenTick);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -3535,6 +4408,50 @@ namespace OpenRA.Mods.Common.RL {
         CanDemolish = other.CanDemolish;
       }
       validDemolitionTargets_.Add(other.validDemolitionTargets_);
+      if (other.CanCapture != false) {
+        CanCapture = other.CanCapture;
+      }
+      validCaptureTargets_.Add(other.validCaptureTargets_);
+      if (other.ArmorType.Length != 0) {
+        ArmorType = other.ArmorType;
+      }
+      targetTypes_.Add(other.targetTypes_);
+      if (other.Cost != 0) {
+        Cost = other.Cost;
+      }
+      if (other.MinimumAttackRange != 0) {
+        MinimumAttackRange = other.MinimumAttackRange;
+      }
+      if (other.ReloadRemainingTicks != 0) {
+        ReloadRemainingTicks = other.ReloadRemainingTicks;
+      }
+      if (other.ReloadTotalTicks != 0) {
+        ReloadTotalTicks = other.ReloadTotalTicks;
+      }
+      if (other.Weapon.Length != 0) {
+        Weapon = other.Weapon;
+      }
+      if (other.Burst != 0) {
+        Burst = other.Burst;
+      }
+      if (other.CurrentTargetActorId != 0) {
+        CurrentTargetActorId = other.CurrentTargetActorId;
+      }
+      if (other.MoveTargetX != 0) {
+        MoveTargetX = other.MoveTargetX;
+      }
+      if (other.MoveTargetY != 0) {
+        MoveTargetY = other.MoveTargetY;
+      }
+      if (other.CanTargetAir != false) {
+        CanTargetAir = other.CanTargetAir;
+      }
+      if (other.CanTargetGround != false) {
+        CanTargetGround = other.CanTargetGround;
+      }
+      if (other.LastSeenTick != 0) {
+        LastSeenTick = other.LastSeenTick;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -3667,6 +4584,71 @@ namespace OpenRA.Mods.Common.RL {
           case 226:
           case 224: {
             validDemolitionTargets_.AddEntriesFrom(input, _repeated_validDemolitionTargets_codec);
+            break;
+          }
+          case 232: {
+            CanCapture = input.ReadBool();
+            break;
+          }
+          case 242:
+          case 240: {
+            validCaptureTargets_.AddEntriesFrom(input, _repeated_validCaptureTargets_codec);
+            break;
+          }
+          case 250: {
+            ArmorType = input.ReadString();
+            break;
+          }
+          case 258: {
+            targetTypes_.AddEntriesFrom(input, _repeated_targetTypes_codec);
+            break;
+          }
+          case 264: {
+            Cost = input.ReadInt32();
+            break;
+          }
+          case 272: {
+            MinimumAttackRange = input.ReadInt32();
+            break;
+          }
+          case 280: {
+            ReloadRemainingTicks = input.ReadInt32();
+            break;
+          }
+          case 288: {
+            ReloadTotalTicks = input.ReadInt32();
+            break;
+          }
+          case 298: {
+            Weapon = input.ReadString();
+            break;
+          }
+          case 304: {
+            Burst = input.ReadInt32();
+            break;
+          }
+          case 312: {
+            CurrentTargetActorId = input.ReadUInt32();
+            break;
+          }
+          case 320: {
+            MoveTargetX = input.ReadInt32();
+            break;
+          }
+          case 328: {
+            MoveTargetY = input.ReadInt32();
+            break;
+          }
+          case 336: {
+            CanTargetAir = input.ReadBool();
+            break;
+          }
+          case 344: {
+            CanTargetGround = input.ReadBool();
+            break;
+          }
+          case 352: {
+            LastSeenTick = input.ReadInt32();
             break;
           }
         }
@@ -3803,6 +4785,71 @@ namespace OpenRA.Mods.Common.RL {
             validDemolitionTargets_.AddEntriesFrom(ref input, _repeated_validDemolitionTargets_codec);
             break;
           }
+          case 232: {
+            CanCapture = input.ReadBool();
+            break;
+          }
+          case 242:
+          case 240: {
+            validCaptureTargets_.AddEntriesFrom(ref input, _repeated_validCaptureTargets_codec);
+            break;
+          }
+          case 250: {
+            ArmorType = input.ReadString();
+            break;
+          }
+          case 258: {
+            targetTypes_.AddEntriesFrom(ref input, _repeated_targetTypes_codec);
+            break;
+          }
+          case 264: {
+            Cost = input.ReadInt32();
+            break;
+          }
+          case 272: {
+            MinimumAttackRange = input.ReadInt32();
+            break;
+          }
+          case 280: {
+            ReloadRemainingTicks = input.ReadInt32();
+            break;
+          }
+          case 288: {
+            ReloadTotalTicks = input.ReadInt32();
+            break;
+          }
+          case 298: {
+            Weapon = input.ReadString();
+            break;
+          }
+          case 304: {
+            Burst = input.ReadInt32();
+            break;
+          }
+          case 312: {
+            CurrentTargetActorId = input.ReadUInt32();
+            break;
+          }
+          case 320: {
+            MoveTargetX = input.ReadInt32();
+            break;
+          }
+          case 328: {
+            MoveTargetY = input.ReadInt32();
+            break;
+          }
+          case 336: {
+            CanTargetAir = input.ReadBool();
+            break;
+          }
+          case 344: {
+            CanTargetGround = input.ReadBool();
+            break;
+          }
+          case 352: {
+            LastSeenTick = input.ReadInt32();
+            break;
+          }
         }
       }
     }
@@ -3825,7 +4872,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[5]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3863,6 +4910,19 @@ namespace OpenRA.Mods.Common.RL {
       canProduce_ = other.canProduce_.Clone();
       cellX_ = other.cellX_;
       cellY_ = other.cellY_;
+      armorType_ = other.armorType_;
+      targetTypes_ = other.targetTypes_.Clone();
+      cost_ = other.cost_;
+      attackRange_ = other.attackRange_;
+      minimumAttackRange_ = other.minimumAttackRange_;
+      reloadRemainingTicks_ = other.reloadRemainingTicks_;
+      reloadTotalTicks_ = other.reloadTotalTicks_;
+      weapon_ = other.weapon_;
+      burst_ = other.burst_;
+      currentTargetActorId_ = other.currentTargetActorId_;
+      canTargetAir_ = other.canTargetAir_;
+      canTargetGround_ = other.canTargetGround_;
+      lastSeenTick_ = other.lastSeenTick_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -4117,6 +5177,161 @@ namespace OpenRA.Mods.Common.RL {
       }
     }
 
+    /// <summary>Field number for the "armor_type" field.</summary>
+    public const int ArmorTypeFieldNumber = 19;
+    private string armorType_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string ArmorType {
+      get { return armorType_; }
+      set {
+        armorType_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "target_types" field.</summary>
+    public const int TargetTypesFieldNumber = 20;
+    private static readonly pb::FieldCodec<string> _repeated_targetTypes_codec
+        = pb::FieldCodec.ForString(162);
+    private readonly pbc::RepeatedField<string> targetTypes_ = new pbc::RepeatedField<string>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<string> TargetTypes {
+      get { return targetTypes_; }
+    }
+
+    /// <summary>Field number for the "cost" field.</summary>
+    public const int CostFieldNumber = 21;
+    private int cost_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Cost {
+      get { return cost_; }
+      set {
+        cost_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "attack_range" field.</summary>
+    public const int AttackRangeFieldNumber = 22;
+    private int attackRange_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int AttackRange {
+      get { return attackRange_; }
+      set {
+        attackRange_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "minimum_attack_range" field.</summary>
+    public const int MinimumAttackRangeFieldNumber = 23;
+    private int minimumAttackRange_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int MinimumAttackRange {
+      get { return minimumAttackRange_; }
+      set {
+        minimumAttackRange_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "reload_remaining_ticks" field.</summary>
+    public const int ReloadRemainingTicksFieldNumber = 24;
+    private int reloadRemainingTicks_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ReloadRemainingTicks {
+      get { return reloadRemainingTicks_; }
+      set {
+        reloadRemainingTicks_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "reload_total_ticks" field.</summary>
+    public const int ReloadTotalTicksFieldNumber = 25;
+    private int reloadTotalTicks_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ReloadTotalTicks {
+      get { return reloadTotalTicks_; }
+      set {
+        reloadTotalTicks_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "weapon" field.</summary>
+    public const int WeaponFieldNumber = 26;
+    private string weapon_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Weapon {
+      get { return weapon_; }
+      set {
+        weapon_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "burst" field.</summary>
+    public const int BurstFieldNumber = 27;
+    private int burst_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Burst {
+      get { return burst_; }
+      set {
+        burst_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "current_target_actor_id" field.</summary>
+    public const int CurrentTargetActorIdFieldNumber = 28;
+    private uint currentTargetActorId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint CurrentTargetActorId {
+      get { return currentTargetActorId_; }
+      set {
+        currentTargetActorId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "can_target_air" field.</summary>
+    public const int CanTargetAirFieldNumber = 29;
+    private bool canTargetAir_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CanTargetAir {
+      get { return canTargetAir_; }
+      set {
+        canTargetAir_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "can_target_ground" field.</summary>
+    public const int CanTargetGroundFieldNumber = 30;
+    private bool canTargetGround_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CanTargetGround {
+      get { return canTargetGround_; }
+      set {
+        canTargetGround_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "last_seen_tick" field.</summary>
+    public const int LastSeenTickFieldNumber = 31;
+    private int lastSeenTick_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int LastSeenTick {
+      get { return lastSeenTick_; }
+      set {
+        lastSeenTick_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -4150,6 +5365,19 @@ namespace OpenRA.Mods.Common.RL {
       if(!canProduce_.Equals(other.canProduce_)) return false;
       if (CellX != other.CellX) return false;
       if (CellY != other.CellY) return false;
+      if (ArmorType != other.ArmorType) return false;
+      if(!targetTypes_.Equals(other.targetTypes_)) return false;
+      if (Cost != other.Cost) return false;
+      if (AttackRange != other.AttackRange) return false;
+      if (MinimumAttackRange != other.MinimumAttackRange) return false;
+      if (ReloadRemainingTicks != other.ReloadRemainingTicks) return false;
+      if (ReloadTotalTicks != other.ReloadTotalTicks) return false;
+      if (Weapon != other.Weapon) return false;
+      if (Burst != other.Burst) return false;
+      if (CurrentTargetActorId != other.CurrentTargetActorId) return false;
+      if (CanTargetAir != other.CanTargetAir) return false;
+      if (CanTargetGround != other.CanTargetGround) return false;
+      if (LastSeenTick != other.LastSeenTick) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -4175,6 +5403,19 @@ namespace OpenRA.Mods.Common.RL {
       hash ^= canProduce_.GetHashCode();
       if (CellX != 0) hash ^= CellX.GetHashCode();
       if (CellY != 0) hash ^= CellY.GetHashCode();
+      if (ArmorType.Length != 0) hash ^= ArmorType.GetHashCode();
+      hash ^= targetTypes_.GetHashCode();
+      if (Cost != 0) hash ^= Cost.GetHashCode();
+      if (AttackRange != 0) hash ^= AttackRange.GetHashCode();
+      if (MinimumAttackRange != 0) hash ^= MinimumAttackRange.GetHashCode();
+      if (ReloadRemainingTicks != 0) hash ^= ReloadRemainingTicks.GetHashCode();
+      if (ReloadTotalTicks != 0) hash ^= ReloadTotalTicks.GetHashCode();
+      if (Weapon.Length != 0) hash ^= Weapon.GetHashCode();
+      if (Burst != 0) hash ^= Burst.GetHashCode();
+      if (CurrentTargetActorId != 0) hash ^= CurrentTargetActorId.GetHashCode();
+      if (CanTargetAir != false) hash ^= CanTargetAir.GetHashCode();
+      if (CanTargetGround != false) hash ^= CanTargetGround.GetHashCode();
+      if (LastSeenTick != 0) hash ^= LastSeenTick.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4262,6 +5503,55 @@ namespace OpenRA.Mods.Common.RL {
         output.WriteRawTag(144, 1);
         output.WriteInt32(CellY);
       }
+      if (ArmorType.Length != 0) {
+        output.WriteRawTag(154, 1);
+        output.WriteString(ArmorType);
+      }
+      targetTypes_.WriteTo(output, _repeated_targetTypes_codec);
+      if (Cost != 0) {
+        output.WriteRawTag(168, 1);
+        output.WriteInt32(Cost);
+      }
+      if (AttackRange != 0) {
+        output.WriteRawTag(176, 1);
+        output.WriteInt32(AttackRange);
+      }
+      if (MinimumAttackRange != 0) {
+        output.WriteRawTag(184, 1);
+        output.WriteInt32(MinimumAttackRange);
+      }
+      if (ReloadRemainingTicks != 0) {
+        output.WriteRawTag(192, 1);
+        output.WriteInt32(ReloadRemainingTicks);
+      }
+      if (ReloadTotalTicks != 0) {
+        output.WriteRawTag(200, 1);
+        output.WriteInt32(ReloadTotalTicks);
+      }
+      if (Weapon.Length != 0) {
+        output.WriteRawTag(210, 1);
+        output.WriteString(Weapon);
+      }
+      if (Burst != 0) {
+        output.WriteRawTag(216, 1);
+        output.WriteInt32(Burst);
+      }
+      if (CurrentTargetActorId != 0) {
+        output.WriteRawTag(224, 1);
+        output.WriteUInt32(CurrentTargetActorId);
+      }
+      if (CanTargetAir != false) {
+        output.WriteRawTag(232, 1);
+        output.WriteBool(CanTargetAir);
+      }
+      if (CanTargetGround != false) {
+        output.WriteRawTag(240, 1);
+        output.WriteBool(CanTargetGround);
+      }
+      if (LastSeenTick != 0) {
+        output.WriteRawTag(248, 1);
+        output.WriteInt32(LastSeenTick);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -4341,6 +5631,55 @@ namespace OpenRA.Mods.Common.RL {
         output.WriteRawTag(144, 1);
         output.WriteInt32(CellY);
       }
+      if (ArmorType.Length != 0) {
+        output.WriteRawTag(154, 1);
+        output.WriteString(ArmorType);
+      }
+      targetTypes_.WriteTo(ref output, _repeated_targetTypes_codec);
+      if (Cost != 0) {
+        output.WriteRawTag(168, 1);
+        output.WriteInt32(Cost);
+      }
+      if (AttackRange != 0) {
+        output.WriteRawTag(176, 1);
+        output.WriteInt32(AttackRange);
+      }
+      if (MinimumAttackRange != 0) {
+        output.WriteRawTag(184, 1);
+        output.WriteInt32(MinimumAttackRange);
+      }
+      if (ReloadRemainingTicks != 0) {
+        output.WriteRawTag(192, 1);
+        output.WriteInt32(ReloadRemainingTicks);
+      }
+      if (ReloadTotalTicks != 0) {
+        output.WriteRawTag(200, 1);
+        output.WriteInt32(ReloadTotalTicks);
+      }
+      if (Weapon.Length != 0) {
+        output.WriteRawTag(210, 1);
+        output.WriteString(Weapon);
+      }
+      if (Burst != 0) {
+        output.WriteRawTag(216, 1);
+        output.WriteInt32(Burst);
+      }
+      if (CurrentTargetActorId != 0) {
+        output.WriteRawTag(224, 1);
+        output.WriteUInt32(CurrentTargetActorId);
+      }
+      if (CanTargetAir != false) {
+        output.WriteRawTag(232, 1);
+        output.WriteBool(CanTargetAir);
+      }
+      if (CanTargetGround != false) {
+        output.WriteRawTag(240, 1);
+        output.WriteBool(CanTargetGround);
+      }
+      if (LastSeenTick != 0) {
+        output.WriteRawTag(248, 1);
+        output.WriteInt32(LastSeenTick);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -4402,6 +5741,43 @@ namespace OpenRA.Mods.Common.RL {
       }
       if (CellY != 0) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(CellY);
+      }
+      if (ArmorType.Length != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeStringSize(ArmorType);
+      }
+      size += targetTypes_.CalculateSize(_repeated_targetTypes_codec);
+      if (Cost != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(Cost);
+      }
+      if (AttackRange != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(AttackRange);
+      }
+      if (MinimumAttackRange != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(MinimumAttackRange);
+      }
+      if (ReloadRemainingTicks != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ReloadRemainingTicks);
+      }
+      if (ReloadTotalTicks != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ReloadTotalTicks);
+      }
+      if (Weapon.Length != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeStringSize(Weapon);
+      }
+      if (Burst != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(Burst);
+      }
+      if (CurrentTargetActorId != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(CurrentTargetActorId);
+      }
+      if (CanTargetAir != false) {
+        size += 2 + 1;
+      }
+      if (CanTargetGround != false) {
+        size += 2 + 1;
+      }
+      if (LastSeenTick != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(LastSeenTick);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -4466,6 +5842,43 @@ namespace OpenRA.Mods.Common.RL {
       }
       if (other.CellY != 0) {
         CellY = other.CellY;
+      }
+      if (other.ArmorType.Length != 0) {
+        ArmorType = other.ArmorType;
+      }
+      targetTypes_.Add(other.targetTypes_);
+      if (other.Cost != 0) {
+        Cost = other.Cost;
+      }
+      if (other.AttackRange != 0) {
+        AttackRange = other.AttackRange;
+      }
+      if (other.MinimumAttackRange != 0) {
+        MinimumAttackRange = other.MinimumAttackRange;
+      }
+      if (other.ReloadRemainingTicks != 0) {
+        ReloadRemainingTicks = other.ReloadRemainingTicks;
+      }
+      if (other.ReloadTotalTicks != 0) {
+        ReloadTotalTicks = other.ReloadTotalTicks;
+      }
+      if (other.Weapon.Length != 0) {
+        Weapon = other.Weapon;
+      }
+      if (other.Burst != 0) {
+        Burst = other.Burst;
+      }
+      if (other.CurrentTargetActorId != 0) {
+        CurrentTargetActorId = other.CurrentTargetActorId;
+      }
+      if (other.CanTargetAir != false) {
+        CanTargetAir = other.CanTargetAir;
+      }
+      if (other.CanTargetGround != false) {
+        CanTargetGround = other.CanTargetGround;
+      }
+      if (other.LastSeenTick != 0) {
+        LastSeenTick = other.LastSeenTick;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -4556,6 +5969,58 @@ namespace OpenRA.Mods.Common.RL {
           }
           case 144: {
             CellY = input.ReadInt32();
+            break;
+          }
+          case 154: {
+            ArmorType = input.ReadString();
+            break;
+          }
+          case 162: {
+            targetTypes_.AddEntriesFrom(input, _repeated_targetTypes_codec);
+            break;
+          }
+          case 168: {
+            Cost = input.ReadInt32();
+            break;
+          }
+          case 176: {
+            AttackRange = input.ReadInt32();
+            break;
+          }
+          case 184: {
+            MinimumAttackRange = input.ReadInt32();
+            break;
+          }
+          case 192: {
+            ReloadRemainingTicks = input.ReadInt32();
+            break;
+          }
+          case 200: {
+            ReloadTotalTicks = input.ReadInt32();
+            break;
+          }
+          case 210: {
+            Weapon = input.ReadString();
+            break;
+          }
+          case 216: {
+            Burst = input.ReadInt32();
+            break;
+          }
+          case 224: {
+            CurrentTargetActorId = input.ReadUInt32();
+            break;
+          }
+          case 232: {
+            CanTargetAir = input.ReadBool();
+            break;
+          }
+          case 240: {
+            CanTargetGround = input.ReadBool();
+            break;
+          }
+          case 248: {
+            LastSeenTick = input.ReadInt32();
             break;
           }
         }
@@ -4649,6 +6114,58 @@ namespace OpenRA.Mods.Common.RL {
             CellY = input.ReadInt32();
             break;
           }
+          case 154: {
+            ArmorType = input.ReadString();
+            break;
+          }
+          case 162: {
+            targetTypes_.AddEntriesFrom(ref input, _repeated_targetTypes_codec);
+            break;
+          }
+          case 168: {
+            Cost = input.ReadInt32();
+            break;
+          }
+          case 176: {
+            AttackRange = input.ReadInt32();
+            break;
+          }
+          case 184: {
+            MinimumAttackRange = input.ReadInt32();
+            break;
+          }
+          case 192: {
+            ReloadRemainingTicks = input.ReadInt32();
+            break;
+          }
+          case 200: {
+            ReloadTotalTicks = input.ReadInt32();
+            break;
+          }
+          case 210: {
+            Weapon = input.ReadString();
+            break;
+          }
+          case 216: {
+            Burst = input.ReadInt32();
+            break;
+          }
+          case 224: {
+            CurrentTargetActorId = input.ReadUInt32();
+            break;
+          }
+          case 232: {
+            CanTargetAir = input.ReadBool();
+            break;
+          }
+          case 240: {
+            CanTargetGround = input.ReadBool();
+            break;
+          }
+          case 248: {
+            LastSeenTick = input.ReadInt32();
+            break;
+          }
         }
       }
     }
@@ -4671,7 +6188,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[6]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5063,7 +6580,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[7]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5495,7 +7012,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[8]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5682,7 +7199,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[9]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6160,7 +7677,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[10]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6592,7 +8109,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[11]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6793,7 +8310,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[12]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7108,7 +8625,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[13]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7306,7 +8823,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[14]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7587,7 +9104,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[15]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7933,7 +9450,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[16]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -8200,7 +9717,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[17]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -8509,7 +10026,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[18]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -8844,7 +10361,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[19]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[20]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -9179,7 +10696,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[20]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[21]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -9460,7 +10977,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[21]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[22]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -9658,7 +11175,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[22]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[23]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -9856,7 +11373,7 @@ namespace OpenRA.Mods.Common.RL {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[23]; }
+      get { return global::OpenRA.Mods.Common.RL.RlBridgeReflection.Descriptor.MessageTypes[24]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

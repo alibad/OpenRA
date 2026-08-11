@@ -316,6 +316,51 @@ namespace OpenRA.Mods.Common.Traits
 
 		bool gameOverHandled;
 
+		internal void CompleteGameOverAdvance()
+		{
+			if (gameOverHandled || !world.IsGameOver)
+				return;
+
+			gameOverHandled = true;
+			Log.Write("rl-bridge", $"Game over detected at tick {world.WorldTick}, session {episodeId}");
+
+			var gameOverTcs = pendingAdvanceResult;
+			if (gameOverTcs != null)
+			{
+				try
+				{
+					var obs = observationSerializer.Serialize(world.WorldTick);
+					obs.Done = true;
+					obs.Result = player.WinState == WinState.Won ? "win" : "lose";
+					gameOverTcs.TrySetResult(obs);
+				}
+				catch (Exception e)
+				{
+					gameOverTcs.TrySetException(e);
+				}
+
+				pendingAdvanceResult = null;
+				pendingFastAdvanceTarget = 0;
+				world.SetTickScale(1.0f);
+			}
+
+			// Keep multi-session worlds queryable until DestroySession so the
+			// evaluator can persist authoritative terminal evidence.
+			if (!MultiSessionMode)
+			{
+				new Thread(() =>
+				{
+					Thread.Sleep(3000);
+					Log.Write("rl-bridge", "Exiting game process to finalize replay");
+					Game.Exit();
+				})
+				{
+					IsBackground = true,
+					Name = "RL-Bridge-GameOver"
+				}.Start();
+			}
+		}
+
 		void ITick.Tick(Actor self)
 		{
 			if (!IsEnabled || self.World.IsLoadingGameSave)
@@ -323,52 +368,7 @@ namespace OpenRA.Mods.Common.Traits
 
 			// Detect game over in Tick (IGameOver.GameOver doesn't fire on Player traits)
 			if (!gameOverHandled && world.IsGameOver)
-			{
-				gameOverHandled = true;
-				Log.Write("rl-bridge", $"Game over detected at tick {world.WorldTick}, session {episodeId}");
-
-				// Complete any pending FastAdvance so the gRPC call returns immediately
-				// instead of hanging until the 300s deadline.
-				var gameOverTcs = pendingAdvanceResult;
-				if (gameOverTcs != null)
-				{
-					try
-					{
-						var obs = observationSerializer.Serialize(world.WorldTick);
-						obs.Done = true;
-						obs.Result = player.WinState == WinState.Won ? "win" : "lose";
-						gameOverTcs.TrySetResult(obs);
-					}
-					catch (Exception e)
-					{
-						gameOverTcs.TrySetException(e);
-					}
-
-					pendingAdvanceResult = null;
-					pendingFastAdvanceTarget = 0;
-					world.SetTickScale(1.0f);
-				}
-
-				if (MultiSessionMode)
-				{
-					// In multi-session mode, just deactivate — don't exit the process
-					Deactivate();
-				}
-				else
-				{
-					// Legacy single-session mode: exit the whole process
-					new Thread(() =>
-					{
-						Thread.Sleep(3000);
-						Log.Write("rl-bridge", "Exiting game process to finalize replay");
-						Game.Exit();
-					})
-					{
-						IsBackground = true,
-						Name = "RL-Bridge-GameOver"
-					}.Start();
-				}
-			}
+				CompleteGameOverAdvance();
 
 			// Detect internal connection loss (TCP between client and embedded server)
 			if (!connectionLostHandled && !world.IsConnectionAlive)
@@ -859,6 +859,14 @@ namespace OpenRA.Mods.Common.Traits
 			int ticks, IEnumerable<RLProto.Command> commands, CancellationToken ct,
 			int checkEventsEvery = 0, IEnumerable<string> enabledInterruptNames = null)
 		{
+			if (world.IsGameOver)
+			{
+				var terminal = observationSerializer.Serialize(world.WorldTick);
+				terminal.Done = true;
+				terminal.Result = player.WinState == WinState.Won ? "win" : "lose";
+				return terminal;
+			}
+
 			// Fail fast if session is already dead
 			if (SessionDone.IsSet)
 				throw new RpcException(new Status(StatusCode.Aborted,

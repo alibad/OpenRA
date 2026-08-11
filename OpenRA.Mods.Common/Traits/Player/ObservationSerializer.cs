@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using OpenRA.Mods.Common.Pathfinder;
 using OpenRA.Traits;
@@ -22,7 +23,7 @@ namespace OpenRA.Mods.Common.Traits
 	/// </summary>
 	public sealed class ObservationSerializer
 	{
-		const int SpatialChannelCount = 9;
+		const int SpatialChannelCount = 12;
 
 		readonly World world;
 		readonly Player player;
@@ -33,6 +34,7 @@ namespace OpenRA.Mods.Common.Traits
 		BuildingInfluence buildingInfluence;
 		Locomotor locomotor;
 		bool traitsCached;
+		readonly Dictionary<uint, int> enemyLastSeenTicks = [];
 
 		public ObservationSerializer(World world, Player player, string episodeId)
 		{
@@ -78,9 +80,31 @@ namespace OpenRA.Mods.Common.Traits
 			SerializeRememberedEnemyBuildings(obs);
 			SerializeProduction(obs);
 			SerializeMissionContext(obs);
+			SerializeSupportPowers(obs);
 			SerializeSpatialMap(obs);
 
 			return obs;
+		}
+
+		void SerializeSupportPowers(RLProto.GameObservation obs)
+		{
+			var manager = player.PlayerActor.TraitOrDefault<SupportPowerManager>();
+			if (manager == null)
+				return;
+
+			foreach (var power in manager.Powers.Values.OrderBy(power => power.Key))
+			{
+				obs.SupportPowers.Add(new RLProto.RlSupportPowerInfo
+				{
+					Key = power.Key,
+					Name = power.Name ?? "",
+					Description = power.Description ?? "",
+					Active = power.Active,
+					Ready = power.Ready,
+					RemainingTicks = power.RemainingTicks,
+					TotalTicks = power.TotalTicks,
+				});
+			}
 		}
 
 		void SerializeMissionContext(RLProto.GameObservation obs)
@@ -118,7 +142,7 @@ namespace OpenRA.Mods.Common.Traits
 
 			foreach (var frozen in frozenLayer.FrozenActorsInRegion(world.Map.AllCells))
 			{
-				if (frozen.Owner == player || frozen.Owner.NonCombatant ||
+				if (player.RelationshipWith(frozen.Owner) != PlayerRelationship.Enemy ||
 					!frozen.Info.HasTraitInfo<BuildingInfo>())
 					continue;
 
@@ -138,6 +162,7 @@ namespace OpenRA.Mods.Common.Traits
 					CellY = cell.Y,
 					HpPercent = hpPercent,
 					Owner = frozen.Owner.InternalName,
+					LastSeenTick = enemyLastSeenTicks.TryGetValue(frozen.ID, out var lastSeenTick) ? lastSeenTick : 0,
 				});
 			}
 		}
@@ -255,8 +280,8 @@ namespace OpenRA.Mods.Common.Traits
 			var buildingCount = 0;
 			foreach (var actor in world.Actors)
 			{
-				if (actor.Owner == player || actor.Owner.NonCombatant
-					|| actor.IsDead || !actor.IsInWorld)
+				if (actor.IsDead || !actor.IsInWorld ||
+					player.RelationshipWith(actor.Owner) != PlayerRelationship.Enemy)
 					continue;
 
 				if (actor == world.WorldActor)
@@ -270,6 +295,7 @@ namespace OpenRA.Mods.Common.Traits
 					// Check if visible through shroud/fog
 					if (player.Shroud.IsVisible(actor.CenterPosition))
 					{
+						enemyLastSeenTicks[actor.ActorID] = obs.Tick;
 						var health = actor.TraitOrDefault<Health>();
 						var hpPercent = health != null ? (float)health.HP / health.MaxHP : 1f;
 
@@ -304,7 +330,17 @@ namespace OpenRA.Mods.Common.Traits
 				PosY = actor.CenterPosition.Y,
 				HpPercent = hpPercent,
 				Owner = owner,
+				LastSeenTick = world.WorldTick,
 			};
+
+			var armor = actor.Info.TraitInfos<ArmorInfo>().FirstOrDefault();
+			if (armor != null)
+				bldg.ArmorType = armor.Type ?? "";
+			bldg.TargetTypes.Add(actor.GetEnabledTargetTypes());
+			var actorValue = actor.Info.TraitInfoOrDefault<ValuedInfo>();
+			if (actorValue != null)
+				bldg.Cost = actorValue.Cost;
+			SerializeBuildingWeapon(actor, bldg);
 
 			// Cell position
 			var bldgCell = world.Map.CellContaining(actor.CenterPosition);
@@ -374,7 +410,18 @@ namespace OpenRA.Mods.Common.Traits
 				Owner = owner,
 				Ammo = -1,
 				PassengerCount = -1,
+				MoveTargetX = -1,
+				MoveTargetY = -1,
+				LastSeenTick = world.WorldTick,
 			};
+
+			var armor = actor.Info.TraitInfos<ArmorInfo>().FirstOrDefault();
+			if (armor != null)
+				unit.ArmorType = armor.Type ?? "";
+			unit.TargetTypes.Add(actor.GetEnabledTargetTypes());
+			var actorValue = actor.Info.TraitInfoOrDefault<ValuedInfo>();
+			if (actorValue != null)
+				unit.Cost = actorValue.Cost;
 
 			// Cell position
 			var cell = world.Map.CellContaining(actor.CenterPosition);
@@ -390,7 +437,24 @@ namespace OpenRA.Mods.Common.Traits
 			unit.CanAttack = actor.Info.HasTraitInfo<AttackBaseInfo>();
 			var attack = actor.TraitOrDefault<AttackBase>();
 			if (attack != null)
+			{
 				unit.AttackRange = attack.GetMaximumRange().Length;
+				unit.MinimumAttackRange = attack.GetMinimumRange().Length;
+			}
+			var armament = actor.TraitsImplementing<Armament>().FirstOrDefault(value => !value.IsTraitDisabled);
+			if (armament != null)
+			{
+				unit.ReloadRemainingTicks = armament.FireDelay;
+				unit.ReloadTotalTicks = armament.Weapon.ReloadDelay;
+				unit.Weapon = armament.Info.Weapon ?? "";
+				unit.Burst = armament.Weapon.Burst;
+				unit.CanTargetAir = armament.Weapon.ValidTargets.Contains("Air");
+				unit.CanTargetGround = armament.Weapon.ValidTargets.Contains("Ground");
+			}
+
+			var attackFollow = actor.TraitOrDefault<AttackFollow>();
+			if (attackFollow != null && attackFollow.RequestedTarget.Type == TargetType.Actor)
+				unit.CurrentTargetActorId = attackFollow.RequestedTarget.Actor.ActorID;
 
 			// Ammo
 			var ammoPool = actor.TraitOrDefault<AmmoPool>();
@@ -416,6 +480,12 @@ namespace OpenRA.Mods.Common.Traits
 			var mobileInfo = actor.Info.TraitInfoOrDefault<MobileInfo>();
 			if (mobileInfo != null)
 				unit.Speed = mobileInfo.Speed;
+			var mobile = actor.TraitOrDefault<Mobile>();
+			if (mobile != null)
+			{
+				unit.MoveTargetX = mobile.ToCell.X;
+				unit.MoveTargetY = mobile.ToCell.Y;
+			}
 
 			// Cargo
 			var cargo = actor.TraitOrDefault<Cargo>();
@@ -435,15 +505,39 @@ namespace OpenRA.Mods.Common.Traits
 			return unit;
 		}
 
+		static void SerializeBuildingWeapon(Actor actor, RLProto.RlBuildingInfo building)
+		{
+			var attack = actor.TraitOrDefault<AttackBase>();
+			if (attack != null)
+			{
+				building.AttackRange = attack.GetMaximumRange().Length;
+				building.MinimumAttackRange = attack.GetMinimumRange().Length;
+			}
+
+			var armament = actor.TraitsImplementing<Armament>().FirstOrDefault(value => !value.IsTraitDisabled);
+			if (armament == null)
+				return;
+			building.ReloadRemainingTicks = armament.FireDelay;
+			building.ReloadTotalTicks = armament.Weapon.ReloadDelay;
+			building.Weapon = armament.Info.Weapon ?? "";
+			building.Burst = armament.Weapon.Burst;
+			building.CanTargetAir = armament.Weapon.ValidTargets.Contains("Air");
+			building.CanTargetGround = armament.Weapon.ValidTargets.Contains("Ground");
+			var attackFollow = actor.TraitOrDefault<AttackFollow>();
+			if (attackFollow != null && attackFollow.RequestedTarget.Type == TargetType.Actor)
+				building.CurrentTargetActorId = attackFollow.RequestedTarget.Actor.ActorID;
+		}
+
 		void SerializeSpecialOrders(Actor actor, RLProto.RlUnitInfo unit)
 		{
 			var targeters = actor.TraitsImplementing<IIssueOrder>()
 				.SelectMany(issuer => issuer.Orders)
-				.Where(targeter => targeter.OrderID is "Disguise" or "Infiltrate" or "C4")
+				.Where(targeter => targeter.OrderID is "Disguise" or "Infiltrate" or "C4" or "CaptureActor")
 				.ToArray();
 			unit.CanDisguise = targeters.Any(targeter => targeter.OrderID == "Disguise");
 			unit.CanInfiltrate = targeters.Any(targeter => targeter.OrderID == "Infiltrate");
 			unit.CanDemolish = targeters.Any(targeter => targeter.OrderID == "C4");
+			unit.CanCapture = targeters.Any(targeter => targeter.OrderID == "CaptureActor");
 			if (targeters.Length == 0)
 				return;
 
@@ -482,6 +576,9 @@ namespace OpenRA.Mods.Common.Traits
 							break;
 						case "C4":
 							unit.ValidDemolitionTargets.Add(target.ActorID);
+							break;
+						case "CaptureActor":
+							unit.ValidCaptureTargets.Add(target.ActorID);
 							break;
 					}
 				}
@@ -552,6 +649,8 @@ namespace OpenRA.Mods.Common.Traits
 			var ownUnitDensity = new int[height * width];
 			var enemyBuildingCells = new bool[height * width];
 			var enemyUnitDensity = new int[height * width];
+			var enemyThreat = new float[height * width];
+			var friendlyCoverage = new float[height * width];
 			var exploredCells = 0;
 			var totalCells = 0;
 
@@ -585,12 +684,29 @@ namespace OpenRA.Mods.Common.Traits
 					else if (actor != player.PlayerActor)
 						ownUnitDensity[idx]++;
 				}
-				else if (shroud.IsVisible(actor.CenterPosition))
+				else if (player.RelationshipWith(actor.Owner) == PlayerRelationship.Enemy && shroud.IsVisible(actor.CenterPosition))
 				{
 					if (actor.Info.HasTraitInfo<BuildingInfo>())
 						enemyBuildingCells[idx] = true;
 					else
 						enemyUnitDensity[idx]++;
+				}
+
+				var attack = actor.TraitOrDefault<AttackBase>();
+				if (attack == null || (actor.Owner != player &&
+					(player.RelationshipWith(actor.Owner) != PlayerRelationship.Enemy || !shroud.IsVisible(actor.CenterPosition))))
+					continue;
+				var range = Math.Max(0, (attack.GetMaximumRange().Length + 1023) / 1024);
+				var coverage = actor.Owner == player ? friendlyCoverage : enemyThreat;
+				for (var cy = Math.Max(0, actorCell.Y - range); cy <= Math.Min(height - 1, actorCell.Y + range); cy++)
+				{
+					for (var cx = Math.Max(0, actorCell.X - range); cx <= Math.Min(width - 1, actorCell.X + range); cx++)
+					{
+						var dx = cx - actorCell.X;
+						var dy = cy - actorCell.Y;
+						if (dx * dx + dy * dy <= range * range)
+							coverage[cy * width + cx] += 1f;
+					}
 				}
 			}
 
@@ -625,6 +741,7 @@ namespace OpenRA.Mods.Common.Traits
 				{
 					var cost = locomotor.MovementCostForCell(cell);
 					data[baseIdx + 3] = cost >= PathGraph.MovementCostForUnreachableCell ? 0f : 1f;
+					data[baseIdx + 11] = cost >= PathGraph.MovementCostForUnreachableCell ? 1f : Math.Min(1f, cost / 10000f);
 				}
 
 				// Ch 4: Fog of war (0=hidden, 0.5=explored, 1=visible)
@@ -641,6 +758,8 @@ namespace OpenRA.Mods.Common.Traits
 				data[baseIdx + 6] = ownUnitDensity[cellIdx];
 				data[baseIdx + 7] = enemyBuildingCells[cellIdx] ? 1f : 0f;
 				data[baseIdx + 8] = enemyUnitDensity[cellIdx];
+				data[baseIdx + 9] = enemyThreat[cellIdx];
+				data[baseIdx + 10] = friendlyCoverage[cellIdx];
 			}
 
 			// Convert float[] to byte[] for protobuf

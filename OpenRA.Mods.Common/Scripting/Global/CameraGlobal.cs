@@ -22,8 +22,15 @@ namespace OpenRA.Mods.Common.Scripting
 		[Desc("The center of the visible viewport.")]
 		public WPos Position
 		{
-			get => Context.WorldRenderer.Viewport.CenterPosition;
-			set => Context.WorldRenderer.Viewport.Center(value);
+			get => Game.IsHeadless ? WPos.Zero : Context.WorldRenderer.Viewport.CenterPosition;
+			set
+			{
+				// Camera instructions are presentation-only. Headless mission
+				// evaluation has no viewport, but visible games must never silently
+				// ignore a recenter request and open outside the playable map.
+				if (!Game.IsHeadless)
+					Context.WorldRenderer.Viewport.Center(value);
+			}
 		}
 	}
 }

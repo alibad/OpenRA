@@ -26,6 +26,12 @@ namespace OpenRA.Mods.Common.Scripting.Global
 		[Desc("Displays a text message at the top center of the screen.")]
 		public void SetMissionText(string text, Color? color = null)
 		{
+			// Mission scripts also run in the null-platform evaluation harness,
+			// where no viewport or mission-text widget exists. This call is
+			// presentation-only and must not abort the synchronized mission logic.
+			if (Context.WorldRenderer == null)
+				return;
+
 			var luaLabel = Ui.Root.Get("INGAME_ROOT").Get<LabelWidget>("MISSION_TEXT");
 			luaLabel.GetText = () => text;
 

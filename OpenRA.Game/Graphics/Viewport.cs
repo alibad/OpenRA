@@ -175,6 +175,12 @@ namespace OpenRA.Graphics
 				CenterLocation = (tl + br) / 2;
 			}
 
+			// A newly created viewport may not receive a mouse-move event before
+			// its first focused draw. Do not interpret the static default (0, 0)
+			// as an intentional edge-scroll command and drag mission cameras away
+			// from their scripted opening position.
+			LastMousePos = new int2(Game.Renderer.Resolution.Width / 2, Game.Renderer.Resolution.Height / 2);
+
 			UpdateViewportZooms();
 		}
 

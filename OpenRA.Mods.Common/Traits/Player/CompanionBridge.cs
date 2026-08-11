@@ -59,9 +59,11 @@ namespace OpenRA.Mods.Common.Traits
 			RLProto.ActionType.Disguise,
 			RLProto.ActionType.Infiltrate,
 			RLProto.ActionType.Demolish,
+			RLProto.ActionType.Capture,
 			RLProto.ActionType.Unload,
 			RLProto.ActionType.PowerDown,
-			RLProto.ActionType.SetPrimary
+			RLProto.ActionType.SetPrimary,
+			RLProto.ActionType.UseSupportPower
 		];
 		const int MaxCommandsPerRequest = 12;
 		const int MaxPendingRequests = 8;
@@ -423,7 +425,7 @@ namespace OpenRA.Mods.Common.Traits
 				or RLProto.ActionType.Deploy or RLProto.ActionType.Sell or RLProto.ActionType.Repair
 				or RLProto.ActionType.SetRallyPoint or RLProto.ActionType.Guard or RLProto.ActionType.SetStance
 				or RLProto.ActionType.EnterTransport or RLProto.ActionType.Disguise
-				or RLProto.ActionType.Infiltrate or RLProto.ActionType.Demolish or RLProto.ActionType.Unload
+				or RLProto.ActionType.Infiltrate or RLProto.ActionType.Demolish or RLProto.ActionType.Capture or RLProto.ActionType.Unload
 				or RLProto.ActionType.PowerDown or RLProto.ActionType.SetPrimary;
 			Actor subject = null;
 			if (requiresActor)
@@ -541,14 +543,16 @@ namespace OpenRA.Mods.Common.Traits
 				}
 			}
 
-			if (command.Action is RLProto.ActionType.Disguise or RLProto.ActionType.Infiltrate or RLProto.ActionType.Demolish)
+			if (command.Action is RLProto.ActionType.Disguise or RLProto.ActionType.Infiltrate
+				or RLProto.ActionType.Demolish or RLProto.ActionType.Capture)
 			{
 				var target = world.GetActorById(command.TargetActorId);
 				var orderId = command.Action switch
 				{
 					RLProto.ActionType.Disguise => "Disguise",
 					RLProto.ActionType.Infiltrate => "Infiltrate",
-					_ => "C4"
+					RLProto.ActionType.Demolish => "C4",
+					_ => "CaptureActor"
 				};
 				if (target == null || target.IsDead || !target.IsInWorld
 					|| (target.Owner != world.LocalPlayer && !world.LocalPlayer.Shroud.IsVisible(target.CenterPosition))
@@ -594,8 +598,44 @@ namespace OpenRA.Mods.Common.Traits
 				}
 			}
 
+			if (command.Action == RLProto.ActionType.UseSupportPower)
+			{
+				var cell = new CPos(command.TargetX, command.TargetY);
+				var manager = world.LocalPlayer.PlayerActor.TraitOrDefault<SupportPowerManager>();
+				var power = manager?.Powers.FirstOrDefault(pair =>
+					pair.Key.Equals(command.ItemType, StringComparison.OrdinalIgnoreCase));
+				if (!world.Map.Contains(cell) || !world.LocalPlayer.Shroud.IsExplored(cell)
+					|| power == null || string.IsNullOrEmpty(power.Value.Key) || !power.Value.Value.Ready)
+				{
+					detail = "the requested support power is not ready or its target cell is unexplored.";
+					return false;
+				}
+
+				var descriptor = $"{power.Value.Key} {power.Value.Value.Name} {power.Value.Value.Description}";
+				var destructive = descriptor.Contains("nuke", StringComparison.OrdinalIgnoreCase)
+					|| descriptor.Contains("atomic", StringComparison.OrdinalIgnoreCase)
+					|| descriptor.Contains("parabomb", StringComparison.OrdinalIgnoreCase);
+				if (destructive)
+				{
+					var friendlyTooClose = world.Actors.Any(actor => actor.IsInWorld && !actor.IsDead && actor.Owner != null
+						&& world.LocalPlayer.RelationshipWith(actor.Owner) == PlayerRelationship.Ally
+						&& actor.Info.HasTraitInfo<ValuedInfo>()
+						&& (actor.Location - cell).LengthSquared <= 15 * 15);
+					var visibleEnemyCluster = world.Actors.Any(actor => actor.IsInWorld && !actor.IsDead && actor.Owner != null
+						&& world.LocalPlayer.RelationshipWith(actor.Owner) == PlayerRelationship.Enemy
+						&& world.LocalPlayer.Shroud.IsVisible(actor.CenterPosition)
+						&& (actor.Location - cell).LengthSquared <= 6 * 6);
+					if (friendlyTooClose || !visibleEnemyCluster)
+					{
+						detail = "destructive support powers require a visible enemy cluster and a 15-cell friendly-fire exclusion zone.";
+						return false;
+					}
+				}
+			}
+
 			if (command.Action is RLProto.ActionType.Build or RLProto.ActionType.Train
-				or RLProto.ActionType.PlaceBuilding or RLProto.ActionType.CancelProduction)
+				or RLProto.ActionType.PlaceBuilding or RLProto.ActionType.CancelProduction
+				or RLProto.ActionType.UseSupportPower)
 			{
 				if (string.IsNullOrWhiteSpace(command.ItemType) || command.ItemType.Length > 64)
 				{

@@ -5,5 +5,5 @@ Player:
 		Port: 9999
 		ObservationInterval: 9999
 	ModularBot@DummyAI:
-		Name: Dummy (Passive)
+		Name: bot-dummy-passive.name
 		Type: dummy

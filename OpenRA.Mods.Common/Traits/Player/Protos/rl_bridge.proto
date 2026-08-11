@@ -90,6 +90,7 @@ message GameObservation {
   repeated RlObjective objectives = 22;
   string mission_briefing = 23;
   bool mission_mode = 24;
+  repeated RlSupportPowerInfo support_powers = 25;
 }
 
 message RlObjective {
@@ -98,6 +99,16 @@ message RlObjective {
   string type = 3;
   bool required = 4;
   string state = 5;
+}
+
+message RlSupportPowerInfo {
+  string key = 1;
+  string name = 2;
+  string description = 3;
+  bool active = 4;
+  bool ready = 5;
+  int32 remaining_ticks = 6;
+  int32 total_ticks = 7;
 }
 
 message RlEconomy {
@@ -154,6 +165,22 @@ message RlUnitInfo {
   bool detects_disguise = 26;
   bool can_demolish = 27;
   repeated uint32 valid_demolition_targets = 28;
+  bool can_capture = 29;
+  repeated uint32 valid_capture_targets = 30;
+  string armor_type = 31;
+  repeated string target_types = 32;
+  int32 cost = 33;
+  int32 minimum_attack_range = 34;
+  int32 reload_remaining_ticks = 35;
+  int32 reload_total_ticks = 36;
+  string weapon = 37;
+  int32 burst = 38;
+  uint32 current_target_actor_id = 39;
+  int32 move_target_x = 40;
+  int32 move_target_y = 41;
+  bool can_target_air = 42;
+  bool can_target_ground = 43;
+  int32 last_seen_tick = 44;
 }
 
 message RlBuildingInfo {
@@ -177,6 +204,19 @@ message RlBuildingInfo {
   repeated string can_produce = 16; // Items this building can produce
   int32 cell_x = 17;              // Cell position X
   int32 cell_y = 18;              // Cell position Y
+  string armor_type = 19;
+  repeated string target_types = 20;
+  int32 cost = 21;
+  int32 attack_range = 22;
+  int32 minimum_attack_range = 23;
+  int32 reload_remaining_ticks = 24;
+  int32 reload_total_ticks = 25;
+  string weapon = 26;
+  int32 burst = 27;
+  uint32 current_target_actor_id = 28;
+  bool can_target_air = 29;
+  bool can_target_ground = 30;
+  int32 last_seen_tick = 31;
 }
 
 message RlProductionInfo {
@@ -241,6 +281,8 @@ enum ActionType {
   DISGUISE = 22;        // Copy the appearance of a currently visible actor
   INFILTRATE = 23;      // Enter a currently visible valid infiltration target
   DEMOLISH = 24;        // Plant C4 on a currently visible demolishable target
+  CAPTURE = 25;         // Capture a currently visible legal actor with an engineer
+  USE_SUPPORT_POWER = 26; // Activate a ready support power key at an explored cell
 }
 
 // ─── State Query ─────────────────────────────────────────────────────────────
