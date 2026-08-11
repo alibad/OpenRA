@@ -9,6 +9,7 @@
  */
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -38,13 +39,31 @@ namespace OpenRA.Mods.Common.Traits
 		public override object Create(ActorInitializer init) { return new SupportPowerBotModule(init.Self, this); }
 	}
 
-	public class SupportPowerBotModule : ConditionalTrait<SupportPowerBotModuleInfo>, IBotTick, IGameSaveTraitData
+	public class SupportPowerBotModule : ConditionalTrait<SupportPowerBotModuleInfo>, IBotTick, IBotOrderFilter, IGameSaveTraitData
 	{
+		sealed class ReservedBlastZone
+		{
+			public readonly CPos Center;
+			public readonly int Radius;
+			public readonly int EvacuationPadding;
+			public readonly int ExpiresAt;
+
+			public ReservedBlastZone(CPos center, int radius, int evacuationPadding, int expiresAt)
+			{
+				Center = center;
+				Radius = radius;
+				EvacuationPadding = evacuationPadding;
+				ExpiresAt = expiresAt;
+			}
+		}
+
 		readonly World world;
 		readonly Player player;
 		readonly Dictionary<SupportPowerInstance, int> waitingPowers = [];
 		readonly Dictionary<string, SupportPowerDecision> powerDecisions = [];
 		readonly List<SupportPowerInstance> stalePowers = [];
+		readonly List<ReservedBlastZone> reservedBlastZones = [];
+		readonly Dictionary<Actor, int> evacuationCooldowns = [];
 		SupportPowerManager supportPowerManager;
 
 		public SupportPowerBotModule(Actor self, SupportPowerBotModuleInfo info)
@@ -71,6 +90,9 @@ namespace OpenRA.Mods.Common.Traits
 
 		void IBotTick.BotTick(IBot bot)
 		{
+			PruneExpiredBlastZones();
+			EvacuateReservedBlastZones(bot);
+
 			foreach (var sp in supportPowerManager.Powers.Values)
 			{
 				if (sp.Disabled)
@@ -102,7 +124,8 @@ namespace OpenRA.Mods.Common.Traits
 					}
 
 					// Found a target location, check for precise target
-					attackLocation = FindFineAttackLocationToSupportPower(sp, (CPos)attackLocation);
+					var protectedPositions = GetProtectedFriendlyPositions();
+					attackLocation = FindFineAttackLocationToSupportPower(sp, (CPos)attackLocation, protectedPositions);
 					if (attackLocation == null)
 					{
 						AIUtils.BotDebug($"{player.ResolvedPlayerName} can't find suitable final attack location for support power {sp.Info.OrderName}. Delaying rescan.");
@@ -119,6 +142,8 @@ namespace OpenRA.Mods.Common.Traits
 					bot.QueueOrder(
 						new Order(sp.Key, supportPowerManager.Self, Target.FromCell(world, attackLocation.Value), false)
 						{ SuppressVisualFeedback = true, ExtraData = uint.MaxValue });
+
+					ReserveBlastZone(attackLocation.Value, powerDecision);
 				}
 			}
 
@@ -143,7 +168,6 @@ namespace OpenRA.Mods.Common.Traits
 			var map = world.Map;
 			var checkRadius = powerDecision.CoarseScanRadius;
 			var suitableLocations = new List<(MPos UV, int Attractiveness)>();
-			var totalAttractiveness = 0;
 
 			for (var i = 0; i < map.MapSize.Width; i += checkRadius)
 			{
@@ -164,22 +188,23 @@ namespace OpenRA.Mods.Common.Traits
 						continue;
 
 					suitableLocations.Add((tl, consideredAttractiveness));
-					totalAttractiveness += consideredAttractiveness;
 				}
 			}
 
 			if (suitableLocations.Count == 0)
 				return null;
 
-			// Pick a random location with above average attractiveness.
-			var averageAttractiveness = totalAttractiveness / suitableLocations.Count;
-			return suitableLocations.Shuffle(world.LocalRandom)
-				.First(x => x.Attractiveness >= averageAttractiveness)
+			// Prefer the strongest coarse target instead of choosing randomly from all above-average regions.
+			var maximumAttractiveness = suitableLocations.Max(x => x.Attractiveness);
+			return suitableLocations
+				.Where(x => x.Attractiveness == maximumAttractiveness)
+				.Random(world.LocalRandom)
 				.UV.ToCPos(map);
 		}
 
 		/// <summary>Detail scans an area, evaluating positions.</summary>
-		CPos? FindFineAttackLocationToSupportPower(SupportPowerInstance readyPower, CPos checkPos, int extendedRange = 1)
+		CPos? FindFineAttackLocationToSupportPower(
+			SupportPowerInstance readyPower, CPos checkPos, IReadOnlyCollection<WPos> protectedPositions, int extendedRange = 1)
 		{
 			CPos? bestLocation = null;
 			var bestAttractiveness = 0;
@@ -199,7 +224,11 @@ namespace OpenRA.Mods.Common.Traits
 				for (var j = 0 - extendedRange; j <= checkRadius + extendedRange; j += fineCheck)
 				{
 					var y = checkPos.Y + j;
-					var pos = world.Map.CenterOfCell(new CPos(x, y));
+					var candidate = new CPos(x, y);
+					if (!world.Map.Contains(candidate) || !IsFriendlyFireSafe(candidate, powerDecision, protectedPositions))
+						continue;
+
+					var pos = world.Map.CenterOfCell(candidate);
 					var consideredAttractiveness = 0;
 					consideredAttractiveness += powerDecision.GetAttractiveness(pos, player);
 
@@ -207,11 +236,124 @@ namespace OpenRA.Mods.Common.Traits
 						continue;
 
 					bestAttractiveness = consideredAttractiveness;
-					bestLocation = new CPos(x, y);
+					bestLocation = candidate;
 				}
 			}
 
 			return bestLocation;
+		}
+
+		WPos[] GetProtectedFriendlyPositions()
+		{
+			var positions = new HashSet<WPos>();
+			foreach (var actor in world.Actors)
+			{
+				if (!IsProtectedFriendly(actor))
+					continue;
+
+				positions.Add(actor.CenterPosition);
+				if (actor.CurrentActivity == null)
+					continue;
+
+				foreach (var target in actor.CurrentActivity.GetTargets(actor))
+					if (target.Type != TargetType.Invalid)
+						positions.Add(target.CenterPosition);
+			}
+
+			return positions.ToArray();
+		}
+
+		bool IsProtectedFriendly(Actor actor)
+		{
+			return actor != null && actor.IsInWorld && !actor.IsDead && actor.Owner != null &&
+				player.RelationshipWith(actor.Owner) == PlayerRelationship.Ally &&
+				actor.Info.TraitInfoOrDefault<ValuedInfo>() != null;
+		}
+
+		bool IsFriendlyFireSafe(CPos target, SupportPowerDecision decision, IEnumerable<WPos> protectedPositions)
+		{
+			var radius = decision.FriendlyFireSafetyRadius.Length;
+			if (radius <= 0)
+				return true;
+
+			var targetPosition = world.Map.CenterOfCell(target);
+			var radiusSquared = (long)radius * radius;
+			return protectedPositions.All(p => (p - targetPosition).HorizontalLengthSquared > radiusSquared);
+		}
+
+		void ReserveBlastZone(CPos center, SupportPowerDecision decision)
+		{
+			if (decision.FriendlyFireSafetyRadius.Length <= 0 || decision.BlastZoneReservationTicks <= 0)
+				return;
+
+			var radius = (decision.FriendlyFireSafetyRadius.Length + 1023) / 1024;
+			reservedBlastZones.Add(new ReservedBlastZone(
+				center, radius, Math.Max(1, decision.EvacuationPadding), world.WorldTick + decision.BlastZoneReservationTicks));
+		}
+
+		void PruneExpiredBlastZones()
+		{
+			reservedBlastZones.RemoveAll(z => z.ExpiresAt <= world.WorldTick);
+			if (reservedBlastZones.Count == 0)
+				evacuationCooldowns.Clear();
+		}
+
+		void EvacuateReservedBlastZones(IBot bot)
+		{
+			if (reservedBlastZones.Count == 0)
+				return;
+
+			foreach (var actor in world.Actors)
+			{
+				if (actor.Owner != player || !IsProtectedFriendly(actor))
+					continue;
+
+				var zone = reservedBlastZones.FirstOrDefault(z => IsInsideBlastZone(actor.Location, z));
+				if (zone == null || evacuationCooldowns.TryGetValue(actor, out var cooldown) && cooldown > world.WorldTick)
+					continue;
+
+				var positionable = actor.TraitOrDefault<IPositionable>();
+				if (positionable == null)
+					continue;
+
+				var mobile = actor.TraitOrDefault<Mobile>();
+				var minRange = zone.Radius + zone.EvacuationPadding;
+				var escape = world.Map.FindTilesInAnnulus(zone.Center, minRange, minRange + 6)
+					.Where(c => !IsInsideReservedBlastZone(c) &&
+						positionable.CanEnterCell(c, actor, BlockedByActor.Immovable) &&
+						(mobile == null || mobile.CanStayInCell(c)))
+					.OrderBy(c => (c - actor.Location).LengthSquared)
+					.Select(c => (CPos?)c)
+					.FirstOrDefault();
+
+				if (escape == null)
+					continue;
+
+				bot.QueueOrder(new Order("Move", actor, Target.FromCell(world, escape.Value), false));
+				evacuationCooldowns[actor] = world.WorldTick + 50;
+			}
+		}
+
+		bool IsInsideReservedBlastZone(CPos cell)
+		{
+			return reservedBlastZones.Any(z => z.ExpiresAt > world.WorldTick && IsInsideBlastZone(cell, z));
+		}
+
+		static bool IsInsideBlastZone(CPos cell, ReservedBlastZone zone)
+		{
+			return (cell - zone.Center).LengthSquared <= zone.Radius * zone.Radius;
+		}
+
+		bool IBotOrderFilter.AllowOrder(Order order)
+		{
+			if (reservedBlastZones.Count == 0 || order.Target.Type == TargetType.Invalid)
+				return true;
+
+			// Support-power orders must be able to create or overlap a reserved zone.
+			if (supportPowerManager.Powers.Values.Any(p => p.Key == order.OrderString))
+				return true;
+
+			return !IsInsideReservedBlastZone(world.Map.CellContaining(order.Target.CenterPosition));
 		}
 
 		List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
@@ -223,9 +365,20 @@ namespace OpenRA.Mods.Common.Traits
 				.Select(kv => new MiniYamlNode(kv.Key.Key, FieldSaver.FormatValue(kv.Value)))
 				.ToList();
 
+			var reservedBlastZoneNodes = reservedBlastZones
+				.Where(z => z.ExpiresAt > world.WorldTick)
+				.Select(z => new MiniYamlNode("BlastZone", "",
+				[
+					new("Center", FieldSaver.FormatValue(z.Center)),
+					new("Radius", FieldSaver.FormatValue(z.Radius)),
+					new("EvacuationPadding", FieldSaver.FormatValue(z.EvacuationPadding)),
+					new("RemainingTicks", FieldSaver.FormatValue(z.ExpiresAt - world.WorldTick))
+				])).ToList();
+
 			return
 			[
-				new("WaitingPowers", "", waitingPowersNodes)
+				new("WaitingPowers", "", waitingPowersNodes),
+				new("ReservedBlastZones", "", reservedBlastZoneNodes)
 			];
 		}
 
@@ -241,6 +394,31 @@ namespace OpenRA.Mods.Common.Traits
 				{
 					if (supportPowerManager.Powers.TryGetValue(n.Key, out var instance))
 						waitingPowers[instance] = FieldLoader.GetValue<int>("WaitingPowers", n.Value.Value);
+				}
+			}
+
+			reservedBlastZones.Clear();
+			var reservedBlastZonesNode = data.NodeWithKeyOrDefault("ReservedBlastZones");
+			if (reservedBlastZonesNode != null)
+			{
+				foreach (var n in reservedBlastZonesNode.Value.Nodes)
+				{
+					var fields = n.Value.ToDictionary();
+					if (!fields.TryGetValue("Center", out var centerNode) ||
+						!fields.TryGetValue("Radius", out var radiusNode) ||
+						!fields.TryGetValue("EvacuationPadding", out var paddingNode) ||
+						!fields.TryGetValue("RemainingTicks", out var remainingNode))
+						continue;
+
+					var remaining = FieldLoader.GetValue<int>("RemainingTicks", remainingNode.Value);
+					if (remaining <= 0)
+						continue;
+
+					reservedBlastZones.Add(new ReservedBlastZone(
+						FieldLoader.GetValue<CPos>("Center", centerNode.Value),
+						FieldLoader.GetValue<int>("Radius", radiusNode.Value),
+						FieldLoader.GetValue<int>("EvacuationPadding", paddingNode.Value),
+						world.WorldTick + remaining));
 				}
 			}
 		}

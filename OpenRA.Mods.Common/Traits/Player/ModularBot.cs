@@ -51,6 +51,7 @@ namespace OpenRA.Mods.Common.Traits
 		Player player;
 
 		IBotTick[] tickModules;
+		IBotOrderFilter[] orderFilters;
 		IBotRespondToAttack[] attackResponseModules;
 
 		IBotInfo IBot.Info => info;
@@ -76,6 +77,7 @@ namespace OpenRA.Mods.Common.Traits
 			IsEnabled = true;
 			player = p;
 			tickModules = p.PlayerActor.TraitsImplementing<IBotTick>().ToArray();
+			orderFilters = p.PlayerActor.TraitsImplementing<IBotOrderFilter>().ToArray();
 			attackResponseModules = p.PlayerActor.TraitsImplementing<IBotRespondToAttack>().ToArray();
 			foreach (var ibe in p.PlayerActor.TraitsImplementing<IBotEnabled>())
 				ibe.BotEnabled(this);
@@ -92,11 +94,15 @@ namespace OpenRA.Mods.Common.Traits
 			orders.Clear();
 			player = null;
 			tickModules = null;
+			orderFilters = null;
 			attackResponseModules = null;
 		}
 
 		void IBot.QueueOrder(Order order)
 		{
+			if (order == null || orderFilters.Any(f => !f.AllowOrder(order)))
+				return;
+
 			orders.Enqueue(order);
 		}
 

@@ -47,6 +47,19 @@ namespace OpenRA.Mods.Common.Traits
 		[Desc("Maximum ticks to wait until next Decision scan attempt.")]
 		public readonly int MaximumScanTimeInterval = 262;
 
+		[Desc(
+			"Hard safety radius around the target. The bot will not fire if an allied actor or its planned path is inside it.",
+			"Set to zero to disable friendly-fire safety for this decision.")]
+		public readonly WDist FriendlyFireSafetyRadius = WDist.Zero;
+
+		[Desc(
+			"Ticks to reserve the safety radius after firing. Use the support power's impact delay plus a small margin.",
+			"While reserved, bot orders into the area are rejected and owned mobile actors are evacuated.")]
+		public readonly int BlastZoneReservationTicks = 0;
+
+		[Desc("Extra cells beyond the safety radius used as evacuation destinations.")]
+		public readonly int EvacuationPadding = 2;
+
 		public SupportPowerDecision(MiniYaml yaml)
 		{
 			FieldLoader.Load(this, yaml);

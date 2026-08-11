@@ -53,6 +53,9 @@ Player:
 			NukePower:
 				OrderName: NukePowerInfoOrder
 				MinimumAttractiveness: 3500
+				FriendlyFireSafetyRadius: 15c0
+				BlastZoneReservationTicks: 425
+				EvacuationPadding: 2
 				Consideration@1:
 					Against: Enemy
 					Types: Structure, Defense
