@@ -227,10 +227,10 @@ Player:
 		PowerTypes: powr,apwr
 		ExpansionTolerate: 0, 1, 2
 		ForceExpansionTolerate: 2, 3
-		TechTypes: dome, atek, stek, fix
+		TechTypes: dome, atek, stek, fix, afld, hpad, safld
 		InititalMinimumRefineryCount: 0
 		AdditionalMinimumRefineryCount: 2
-		ProductionTypes: barr,tent,weap
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		NewProductionCashThreshold: 9000
 		SiloTypes: silo
 		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam
@@ -243,6 +243,9 @@ Player:
 			atek: 1
 			stek: 1
 			fix: 1
+			hpad: 2
+			afld: 2
+			safld: 2
 		BuildingFractions:
 			powr: 1
 			proc: 1
@@ -260,6 +263,9 @@ Player:
 			atek: 1
 			stek: 1
 			mslo: 1
+			hpad: 1
+			afld: 1
+			safld: 1
 		BuildingDelays:
 			dome: 7000
 			fix: 4000
@@ -280,10 +286,10 @@ Player:
 		PowerTypes: powr,apwr
 		ExpansionTolerate: 0
 		ForceExpansionTolerate: 0
-		TechTypes: mslo, dome, atek, stek, fix
+		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
 		InititalMinimumRefineryCount: 0
 		AdditionalMinimumRefineryCount: 2
-		ProductionTypes: barr,tent,weap
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		NewProductionCashThreshold: 7000
 		SiloTypes: silo
 		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam
@@ -296,6 +302,9 @@ Player:
 			atek: 1
 			stek: 1
 			fix: 1
+			hpad: 3
+			afld: 3
+			safld: 3
 		BuildingFractions:
 			powr: 1
 			proc: 1
@@ -315,6 +324,9 @@ Player:
 			fix: 1
 			dome: 10
 			mslo: 1
+			hpad: 1
+			afld: 1
+			safld: 1
 		BuildingDelays:
 			dome: 7000
 			fix: 3000
@@ -337,8 +349,8 @@ Player:
 		AdditionalMinimumRefineryCount: 2
 		ExpansionTolerate: 1,2
 		PowerTypes: powr,apwr
-		TechTypes: dome, atek, stek, fix, afld, hpad
-		ProductionTypes: barr,tent,weap
+		TechTypes: dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		NewProductionCashThreshold: 8000
 		NavalProductionTypes: spen, syrd
 		SiloTypes: silo
@@ -353,6 +365,7 @@ Player:
 			hpad: 4
 			afld: 4
 			afld.ukraine: 4
+			safld: 4
 			atek: 1
 			stek: 1
 			fix: 1
@@ -369,6 +382,7 @@ Player:
 			syrd: 1
 			afld: 1
 			afld.ukraine: 1
+			safld: 1
 			pbox: 9
 			gun: 9
 			ftur: 10
@@ -402,8 +416,8 @@ Player:
 		RefineryTypes: proc
 		PowerTypes: powr,apwr
 		ForceExpansionTolerate: 6, 7, 8
-		TechTypes: dome, atek, stek, fix, afld, hpad
-		ProductionTypes: barr,tent,weap
+		TechTypes: dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		NavalProductionTypes: spen, syrd
 		SiloTypes: silo
 		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam
@@ -418,6 +432,7 @@ Player:
 			hpad: 4
 			afld: 4
 			afld.ukraine: 4
+			safld: 4
 			atek: 1
 			stek: 1
 			fix: 1
@@ -431,6 +446,7 @@ Player:
 			hpad: 2
 			afld: 2
 			afld.ukraine: 2
+			safld: 1
 			spen: 1
 			syrd: 1
 			pbox: 13
@@ -461,8 +477,8 @@ Player:
 		PowerTypes: powr,apwr
 		ExpansionTolerate: 99
 		ForceExpansionTolerate: 999
-		TechTypes: mslo, dome, atek, stek, fix
-		ProductionTypes: barr,tent,weap,afld,hpad
+		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		NavalProductionTypes: spen, syrd
 		SiloTypes: silo
 		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam
@@ -476,6 +492,7 @@ Player:
 			hpad: 8
 			afld: 8
 			afld.ukraine: 8
+			safld: 8
 			weap: 1
 			atek: 1
 			stek: 1
@@ -488,6 +505,7 @@ Player:
 			hpad: 15
 			afld: 15
 			afld.ukraine: 15
+			safld: 15
 			atek: 1
 			stek: 1
 			spen: 1
