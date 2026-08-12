@@ -238,7 +238,16 @@ namespace OpenRA.Mods.Common.Traits
 			if (subject == null || subject.IsDead || !subject.IsInWorld)
 				return null;
 
-			return new Order("DeployTransform", subject, false);
+			// Deploy is a shared UI command, not a single engine order.  Aircraft
+			// resolve it to ReturnToBase, transports to Unload, and transforming
+			// units to DeployTransform.  Ask the actor's native traits for the same
+			// order that the command bar would issue so companion actions preserve
+			// those stock contracts.
+			foreach (var deploy in subject.TraitsImplementing<IIssueDeployOrder>())
+				if (deploy.CanIssueDeployOrder(subject, cmd.Queued))
+					return deploy.IssueDeployOrder(subject, cmd.Queued);
+
+			return null;
 		}
 
 		Order CreateSellOrder(RLProto.Command cmd)

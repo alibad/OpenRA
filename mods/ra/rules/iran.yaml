@@ -47,6 +47,23 @@ AFLD:
 		Factions: iran
 		Prerequisite: aircraft.soviet
 
+IRHPAD:
+	Inherits: HPAD
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 125
+		Prerequisites: dome, ~structures.iran, ~techlevel.medium
+		Description: actor-irhpad.description
+	Valued:
+		Cost: 650
+	Tooltip:
+		Name: actor-irhpad.name
+	ProvidesPrerequisite@iran:
+		Factions: iran
+		Prerequisite: aircraft.iran
+	RenderSprites:
+		Image: hpad
+
 BARR:
 	ProvidesPrerequisite@soviet:
 		Factions: soviet, russia, ukraine, yemen, iran
@@ -417,9 +434,9 @@ IRTOUFAN:
 	Inherits: AH64SA
 	Buildable:
 		Queue: Aircraft
-		BuildAtProductionType: Plane
+		BuildAtProductionType: Helicopter
 		BuildPaletteOrder: 48
-		Prerequisites: ~afld, stek, ~aircraft.iran, ~techlevel.high
+		Prerequisites: ~irhpad, stek, ~aircraft.iran, ~techlevel.high
 		Description: actor-irtoufan.description
 	Valued:
 		Cost: 1700
@@ -432,12 +449,16 @@ IRTOUFAN:
 	Armament@ROCKETS:
 		Weapon: IranToufanRockets
 	Aircraft:
-		TurnSpeed: 19
-		Speed: 125
+		TurnSpeed: 18
+		Speed: 132
+		CanSlide: False
+		TurnToLand: True
+	AttackAircraft:
+		FacingTolerance: 48
 	SpawnActorOnDeath:
 		Actor: IRTOUFAN.Husk
 	Rearmable:
-		RearmActors: afld, afld.ukraine
+		RearmActors: irhpad, hpad, afld, afld.ukraine
 		AmmoPools: cannon, rockets
 	Voiced:
 		VoiceSet: IranAirVoice
@@ -747,95 +768,109 @@ Player:
 	# Every standard personality can construct Iran's land, air and naval
 	# production chain.  Invalid naval placement is naturally rejected inland.
 	BaseBuilderBotModule@beginner:
-		TechTypes: dome, stek, fix
-		ProductionTypes: barr,weap,afld,spen
+		TechTypes: dome, stek, fix, irhpad
+		ProductionTypes: barr,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 1
 			afld: 1
+			irhpad: 1
 			spen: 1
 		BuildingFractions:
 			barr: 3
 			weap: 3
 			afld: 1
+			irhpad: 1
 			spen: 3
 	BaseBuilderBotModule@easy:
-		TechTypes: dome, stek, fix
-		ProductionTypes: barr,weap,afld,spen
+		TechTypes: dome, stek, fix, irhpad
+		ProductionTypes: barr,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 1
 			afld: 1
+			irhpad: 1
 			spen: 1
 		BuildingFractions:
 			barr: 3
 			weap: 3
 			afld: 1
+			irhpad: 1
 			spen: 3
 	BaseBuilderBotModule@medium:
-		TechTypes: dome, atek, stek, fix
-		ProductionTypes: barr,tent,weap,afld,spen
+		TechTypes: dome, atek, stek, fix, irhpad
+		ProductionTypes: barr,tent,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 1
 			afld: 2
+			irhpad: 2
 			spen: 2
 		BuildingFractions:
 			barr: 3
 			weap: 3
 			afld: 1
+			irhpad: 1
 			spen: 3
 	BaseBuilderBotModule@rush:
-		TechTypes: mslo, dome, atek, stek, fix
-		ProductionTypes: barr,tent,weap,afld,spen
+		TechTypes: mslo, dome, atek, stek, fix, irhpad
+		ProductionTypes: barr,tent,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 1
 			afld: 2
+			irhpad: 2
 			spen: 2
 		BuildingFractions:
 			barr: 3
 			weap: 4
 			afld: 2
+			irhpad: 2
 			spen: 4
 	BaseBuilderBotModule@normal:
-		TechTypes: mslo, dome, atek, stek, fix
-		ProductionTypes: barr,tent,weap,afld,spen
+		TechTypes: mslo, dome, atek, stek, fix, irhpad
+		ProductionTypes: barr,tent,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 2
 			afld: 3
+			irhpad: 3
 			spen: 2
 		BuildingFractions:
 			barr: 3
 			weap: 4
 			afld: 2
+			irhpad: 2
 			spen: 4
 	BaseBuilderBotModule@turtle:
-		TechTypes: mslo, dome, atek, stek, fix
-		ProductionTypes: barr,tent,weap,afld,spen
+		TechTypes: mslo, dome, atek, stek, fix, irhpad
+		ProductionTypes: barr,tent,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 2
 			afld: 2
+			irhpad: 2
 			spen: 3
 		BuildingFractions:
 			barr: 3
 			weap: 4
 			afld: 1
+			irhpad: 1
 			spen: 6
 	BaseBuilderBotModule@naval:
-		TechTypes: mslo, dome, atek, stek, fix
-		ProductionTypes: barr,weap,afld,spen
+		TechTypes: mslo, dome, atek, stek, fix, irhpad
+		ProductionTypes: barr,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 2
 			afld: 2
+			irhpad: 2
 			spen: 5
 		BuildingFractions:
 			barr: 3
 			weap: 4
 			afld: 1
+			irhpad: 1
 			spen: 10
 	UnitBuilderBotModule@beginner:
 		UnitsToBuild:

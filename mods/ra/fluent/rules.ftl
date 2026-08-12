@@ -1504,9 +1504,13 @@ actor-irazar =
     .name = Azar Interceptor
     .description = Fast finite-ammunition air-superiority fighter.
 
+actor-irhpad =
+    .name = Forward Aviation Pad
+    .description = Produces, repairs, and rearms Iranian helicopters.
+
 actor-irtoufan =
     .name = Toufan Gunship
-    .description = Hovering gunship with cannon and anti-armor rockets.
+    .description = Hovering gunship with cannon and anti-armor rockets. Returns to a Forward Aviation Pad or Airfield to reload.
 
 actor-irmohajer =
     .name = Mohajer Recon Drone

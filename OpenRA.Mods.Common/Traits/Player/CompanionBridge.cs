@@ -475,7 +475,9 @@ namespace OpenRA.Mods.Common.Traits
 				return false;
 			}
 
-			if (command.Action == RLProto.ActionType.Deploy && !subject.Info.HasTraitInfo<TransformsInfo>())
+			if (command.Action == RLProto.ActionType.Deploy
+				&& !subject.TraitsImplementing<IIssueDeployOrder>()
+					.Any(deploy => deploy.CanIssueDeployOrder(subject, command.Queued)))
 			{
 				detail = "the subject cannot deploy.";
 				return false;
