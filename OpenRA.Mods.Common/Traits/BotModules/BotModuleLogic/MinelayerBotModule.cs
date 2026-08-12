@@ -94,6 +94,9 @@ namespace OpenRA.Mods.Common.Traits
 		readonly HashSet<Actor> stuckMinelayers = [];
 		readonly CPos?[] conflictPositionQueue;
 		readonly CPos?[] favoritePositions;
+		readonly int scanTick;
+		readonly int mineFieldRadius;
+		readonly bool stuckRecovery;
 
 		int minAssignRoleDelayTicks;
 		int quickScanTimes;
@@ -116,12 +119,19 @@ namespace OpenRA.Mods.Common.Traits
 			unitCannotBeOrderedOrIsBusy = a => unitCannotBeOrdered(a) || !a.IsIdle || stuckMinelayers.Contains(a);
 			conflictPositionQueue = new CPos?[MaxPositionCacheLength];
 			favoritePositions = new CPos?[MaxPositionCacheLength];
+			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
+			scanTick = experience?.GetIntegerParameter(
+				"mission-aware-minelayer-ai", "scan-interval", Info.ScanTick) ?? Info.ScanTick;
+			mineFieldRadius = experience?.GetIntegerParameter(
+				"mission-aware-minelayer-ai", "minefield-radius", Info.MineFieldRadius) ?? Info.MineFieldRadius;
+			stuckRecovery = experience?.GetBooleanParameter(
+				"mission-aware-minelayer-ai", "stuck-recovery", true) ?? true;
 		}
 
 		protected override void TraitEnabled(Actor self)
 		{
 			// Avoid all AIs reevaluating assignments on the same tick, randomize their initial evaluation delay.
-			minAssignRoleDelayTicks = world.LocalRandom.Next(0, Info.ScanTick);
+			minAssignRoleDelayTicks = world.LocalRandom.Next(0, scanTick);
 			alertedTicks = 0;
 			conflictPositionLength = 0;
 			favoritePositionsLength = 0;
@@ -158,9 +168,9 @@ namespace OpenRA.Mods.Common.Traits
 			if (--minAssignRoleDelayTicks <= 0)
 			{
 				minAssignRoleDelayTicks = EnhancedBehaviorEnabled && quickScanTimes-- > 0 ?
-					Info.QuickScanTickAfterInitializing : Info.ScanTick;
+					Info.QuickScanTickAfterInitializing : scanTick;
 				stuckMinelayers.Clear();
-				foreach (var pair in EnhancedBehaviorEnabled ? activeMinelayers.ToArray() : [])
+				foreach (var pair in EnhancedBehaviorEnabled && stuckRecovery ? activeMinelayers.ToArray() : [])
 				{
 					var actor = pair.Key;
 					if (unitCannotBeOrdered(actor) || actor.IsIdle)
@@ -299,7 +309,7 @@ namespace OpenRA.Mods.Common.Traits
 						AIUtils.BotDebug($"{player}: Use in time conflict position {minelayingPosition}");
 					}
 
-					var vec = new CVec(Info.MineFieldRadius, Info.MineFieldRadius);
+					var vec = new CVec(mineFieldRadius, mineFieldRadius);
 					bot.QueueOrder(
 						new Order(
 							"PlaceMinefield",

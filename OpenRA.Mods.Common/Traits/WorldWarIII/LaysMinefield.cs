@@ -13,6 +13,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using OpenRA.Mods.Common.Experience;
 using OpenRA.Primitives;
 using OpenRA.Traits;
 
@@ -61,6 +62,8 @@ namespace OpenRA.Mods.Common.Traits
 		INotifyKilled, INotifyOwnerChanged, INotifyActorDisposing, ITick, ISync
 	{
 		readonly Dictionary<CVec, Actor> mines = [];
+		readonly int recreationInterval;
+		readonly int slotCount;
 
 		[VerifySync]
 		int ticks;
@@ -68,6 +71,11 @@ namespace OpenRA.Mods.Common.Traits
 		public LaysMinefield(LaysMinefieldInfo info)
 			: base(info)
 		{
+			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
+			recreationInterval = experience?.GetIntegerParameter(
+				"minefield-generator", "recreation-interval", Info.RecreationInterval) ?? Info.RecreationInterval;
+			slotCount = experience?.GetIntegerParameter(
+				"minefield-generator", "slot-count", Info.Locations.Length) ?? Info.Locations.Length;
 			ticks = Info.InitialDelay;
 		}
 
@@ -79,7 +87,7 @@ namespace OpenRA.Mods.Common.Traits
 			if (--ticks >= 0)
 				return;
 
-			ticks = Info.RecreationInterval;
+			ticks = recreationInterval;
 			FillEmptySlots(self);
 		}
 
@@ -89,7 +97,7 @@ namespace OpenRA.Mods.Common.Traits
 			if (Info.SelectionMode == MineSelectionMode.Shuffled)
 				mineTypes = Info.Mines.Shuffle(self.World.SharedRandom).ToList();
 
-			for (var index = 0; index < Info.Locations.Length; index++)
+			for (var index = 0; index < Math.Min(slotCount, Info.Locations.Length); index++)
 			{
 				var offset = Info.Locations[index];
 				if (mines.TryGetValue(offset, out var existing) && !existing.IsDead && existing.IsInWorld)

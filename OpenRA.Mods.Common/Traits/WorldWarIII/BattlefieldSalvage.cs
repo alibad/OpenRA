@@ -15,6 +15,7 @@ using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Linq;
 using OpenRA.Mods.Common.Effects;
+using OpenRA.Mods.Common.Experience;
 using OpenRA.Primitives;
 using OpenRA.Traits;
 
@@ -47,7 +48,9 @@ namespace OpenRA.Mods.Common.Traits
 		public SalvageValue(ActorInitializer init, SalvageValueInfo info)
 		{
 			var value = init.GetOrDefault<SalvageValueInit>(info);
-			Bounty = value != null ? value.Value * info.Percentage / 100 :
+			var percentage = Game.ModData.GetOrNull<ExperienceCatalog>()?.GetIntegerParameter(
+				"battlefield-salvage", "value-percentage", info.Percentage) ?? info.Percentage;
+			Bounty = value != null ? value.Value * percentage / 100 :
 				init.Self.World.SharedRandom.Next(info.MinimumFallbackAmount, info.MaximumFallbackAmount);
 		}
 	}
@@ -131,8 +134,17 @@ namespace OpenRA.Mods.Common.Traits
 
 		void INotifyKilled.Killed(Actor self, AttackInfo e)
 		{
-			if (IsTraitDisabled || !self.IsInWorld || Info.Probability <= 0 ||
-				self.World.SharedRandom.Next(100) >= Info.Probability ||
+			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
+			var probability = experience?.GetIntegerParameter(
+				"battlefield-salvage", "spawn-probability", Info.Probability) ?? Info.Probability;
+			var eligibleOwners = experience?.GetChoiceParameter(
+				"battlefield-salvage", "eligible-owners", "All") ?? "All";
+			var ownerEligible = eligibleOwners.Equals("All", System.StringComparison.OrdinalIgnoreCase) ||
+				(eligibleOwners.Equals("AI", System.StringComparison.OrdinalIgnoreCase) && self.Owner.IsBot) ||
+				(eligibleOwners.Equals("Human", System.StringComparison.OrdinalIgnoreCase) && !self.Owner.IsBot);
+
+			if (IsTraitDisabled || !self.IsInWorld || !ownerEligible || probability <= 0 ||
+				self.World.SharedRandom.Next(100) >= probability ||
 				(!Info.DeathTypes.IsEmpty && !e.Damage.DamageTypes.Overlaps(Info.DeathTypes)))
 				return;
 

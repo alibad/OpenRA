@@ -77,9 +77,6 @@ namespace OpenRA.Mods.Common.Experience
 			RejectReparsePoints(RootPath, AssetsPath);
 
 			var replaces = ParseList(yaml, "Replaces").Select(NormalizeVirtualPath).ToImmutableArray();
-			if (replaces.Length == 0)
-				throw new InvalidDataException("Presentation pack must declare every overridden file in Replaces.");
-
 			if (replaces.Distinct(StringComparer.OrdinalIgnoreCase).Count() != replaces.Length)
 				throw new InvalidDataException("Presentation pack Replaces contains duplicate paths.");
 
@@ -125,6 +122,10 @@ namespace OpenRA.Mods.Common.Experience
 			if (missingTarget != null)
 				throw new InvalidDataException($"Presentation pack targets unknown asset `{missingTarget}`.");
 		}
+
+		public static bool IsSupportedAsset(string filename) => AllowedExtensions.Contains(Path.GetExtension(filename));
+
+		public static string NormalizeReplacementPath(string path) => NormalizeVirtualPath(path);
 
 		string HashPack(IEnumerable<string> files)
 		{
@@ -207,6 +208,7 @@ namespace OpenRA.Mods.Common.Experience
 	public static class PresentationPackRegistry
 	{
 		public const string MountName = "experience-presentation";
+		const long MaximumReplacementBytes = 256 * 1024 * 1024;
 
 		public static string PackDirectory(string modId)
 		{
@@ -246,6 +248,198 @@ namespace OpenRA.Mods.Common.Experience
 		{
 			var packs = Discover(modId);
 			return id != null && packs.TryGetValue(id, out var pack) ? pack : PresentationPackDefinition.Default;
+		}
+
+		public static PresentationPackDefinition Create(string modId, string title)
+		{
+			if (string.IsNullOrWhiteSpace(title))
+				throw new InvalidDataException("Presentation pack title is required.");
+
+			var id = UniqueId(modId, Slug(title));
+			var root = SafePackPath(modId, id);
+			Directory.CreateDirectory(Path.Combine(root, "assets"));
+			WriteManifest(root, id, title.Trim(), "1", "Local creator",
+				"Private local use; verify redistribution rights before sharing.",
+				"A locally composed presentation pack.", []);
+			return PresentationPackDefinition.Load(root);
+		}
+
+		public static PresentationPackDefinition Duplicate(string modId, string sourceId, string title)
+		{
+			var source = FindEditable(modId, sourceId);
+			var id = UniqueId(modId, Slug(title));
+			var destination = SafePackPath(modId, id);
+			CopyDirectory(source.RootPath, destination);
+			WriteManifest(destination, id, title.Trim(), source.Version, source.Author, source.License,
+				source.Description, source.Replaces);
+			return PresentationPackDefinition.Load(destination);
+		}
+
+		public static PresentationPackDefinition Rename(string modId, string sourceId, string title)
+		{
+			var source = FindEditable(modId, sourceId);
+			var id = Slug(title);
+			if (!id.Equals(source.Id, StringComparison.OrdinalIgnoreCase))
+				id = UniqueId(modId, id);
+
+			var destination = SafePackPath(modId, id);
+			if (!source.RootPath.Equals(destination, StringComparison.OrdinalIgnoreCase))
+				Directory.Move(source.RootPath, destination);
+
+			WriteManifest(destination, id, title.Trim(), source.Version, source.Author, source.License,
+				source.Description, source.Replaces);
+			return PresentationPackDefinition.Load(destination);
+		}
+
+		public static void Delete(string modId, string id)
+		{
+			var pack = FindEditable(modId, id);
+			var expected = SafePackPath(modId, pack.Id);
+			if (!pack.RootPath.Equals(expected, StringComparison.OrdinalIgnoreCase))
+				throw new InvalidDataException("Presentation pack path is outside the managed pack directory.");
+
+			Directory.Delete(pack.RootPath, true);
+		}
+
+		public static PresentationPackDefinition AddOrUpdateReplacement(
+			string modId, string id, string target, string sourceName, Stream source)
+		{
+			var pack = FindEditable(modId, id);
+			target = PresentationPackDefinition.NormalizeReplacementPath(target);
+			if (!PresentationPackDefinition.IsSupportedAsset(target))
+				throw new InvalidDataException($"Replacement target `{target}` uses an unsupported format.");
+
+			if (!Path.GetExtension(sourceName).Equals(Path.GetExtension(target), StringComparison.OrdinalIgnoreCase))
+				throw new InvalidDataException("Replacement source and target must use the same file format.");
+
+			using var buffer = new MemoryStream();
+			source.CopyTo(buffer);
+			if (buffer.Length > MaximumReplacementBytes)
+				throw new InvalidDataException("Replacement files may not exceed 256 MB.");
+
+			var destination = Path.GetFullPath(Path.Combine(pack.AssetsPath,
+				target.Replace('/', Path.DirectorySeparatorChar)));
+			if (!destination.StartsWith(pack.AssetsPath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+				throw new InvalidDataException("Replacement target resolves outside the pack assets folder.");
+
+			Directory.CreateDirectory(Path.GetDirectoryName(destination));
+			File.WriteAllBytes(destination, buffer.ToArray());
+			var replacements = pack.Replaces.Append(target).Distinct(StringComparer.OrdinalIgnoreCase).Order().ToArray();
+			WriteManifest(pack.RootPath, pack.Id, pack.Title, pack.Version, pack.Author, pack.License,
+				pack.Description, replacements);
+			return PresentationPackDefinition.Load(pack.RootPath);
+		}
+
+		public static PresentationPackDefinition AddOrUpdateReplacementFromFile(
+			string modId, string id, string target, string sourcePath)
+		{
+			if (string.IsNullOrWhiteSpace(sourcePath) || !File.Exists(sourcePath))
+				throw new FileNotFoundException("Replacement source file was not found.", sourcePath);
+
+			using var stream = File.OpenRead(sourcePath);
+			return AddOrUpdateReplacement(modId, id, target, sourcePath, stream);
+		}
+
+		public static PresentationPackDefinition RemoveReplacement(string modId, string id, string target)
+		{
+			var pack = FindEditable(modId, id);
+			target = PresentationPackDefinition.NormalizeReplacementPath(target);
+			var destination = Path.GetFullPath(Path.Combine(pack.AssetsPath,
+				target.Replace('/', Path.DirectorySeparatorChar)));
+			if (!destination.StartsWith(pack.AssetsPath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+				throw new InvalidDataException("Replacement target resolves outside the pack assets folder.");
+
+			if (File.Exists(destination))
+				File.Delete(destination);
+
+			var replacements = pack.Replaces.Where(r => !r.Equals(target, StringComparison.OrdinalIgnoreCase)).ToArray();
+			WriteManifest(pack.RootPath, pack.Id, pack.Title, pack.Version, pack.Author, pack.License,
+				pack.Description, replacements);
+			return PresentationPackDefinition.Load(pack.RootPath);
+		}
+
+		static PresentationPackDefinition FindEditable(string modId, string id)
+		{
+			var pack = Find(modId, id);
+			if (pack.Id == PresentationPackDefinition.Default.Id || string.IsNullOrEmpty(pack.RootPath))
+				throw new InvalidOperationException("The original presentation is read-only. Create or duplicate a pack first.");
+
+			return pack;
+		}
+
+		static string SafePackPath(string modId, string id)
+		{
+			var root = Path.GetFullPath(PackDirectory(modId));
+			var path = Path.GetFullPath(Path.Combine(root, id));
+			if (!path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+				throw new InvalidDataException("Presentation pack path resolves outside the managed pack directory.");
+
+			return path;
+		}
+
+		static string Slug(string title)
+		{
+			if (string.IsNullOrWhiteSpace(title))
+				throw new InvalidDataException("Presentation pack title is required.");
+
+			var builder = new StringBuilder();
+			var pendingSeparator = false;
+			foreach (var c in title.Trim().ToLowerInvariant())
+			{
+				if (char.IsLetterOrDigit(c) || c == '_')
+				{
+					if (pendingSeparator && builder.Length > 0)
+						builder.Append('-');
+
+					builder.Append(c);
+					pendingSeparator = false;
+				}
+				else
+					pendingSeparator = true;
+			}
+
+			return builder.Length > 0 ? builder.ToString() : "custom-pack";
+		}
+
+		static string UniqueId(string modId, string requested)
+		{
+			var existing = Discover(modId);
+			if (!existing.ContainsKey(requested) && !Directory.Exists(SafePackPath(modId, requested)))
+				return requested;
+
+			var suffix = 2;
+			while (existing.ContainsKey($"{requested}-{suffix}") || Directory.Exists(SafePackPath(modId, $"{requested}-{suffix}")))
+				suffix++;
+
+			return $"{requested}-{suffix}";
+		}
+
+		static void CopyDirectory(string source, string destination)
+		{
+			Directory.CreateDirectory(destination);
+			foreach (var directory in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
+				Directory.CreateDirectory(Path.Combine(destination, Path.GetRelativePath(source, directory)));
+
+			foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
+				File.Copy(file, Path.Combine(destination, Path.GetRelativePath(source, file)));
+		}
+
+		static void WriteManifest(string root, string id, string title, string version, string author,
+			string license, string description, IEnumerable<string> replacements)
+		{
+			var fields = new[]
+			{
+				new MiniYamlNode("Id", id),
+				new MiniYamlNode("Title", title),
+				new MiniYamlNode("Version", version),
+				new MiniYamlNode("Author", author),
+				new MiniYamlNode("License", license),
+				new MiniYamlNode("Description", description),
+				new MiniYamlNode("Assets", "assets"),
+				new MiniYamlNode("Replaces", replacements.Order().JoinWith(", "))
+			};
+			new[] { new MiniYamlNode("PresentationPack", "", fields) }
+				.WriteToFile(Path.Combine(root, "pack.yaml"));
 		}
 	}
 }

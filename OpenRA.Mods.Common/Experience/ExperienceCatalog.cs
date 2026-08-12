@@ -16,9 +16,100 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using OpenRA.Primitives;
 
 namespace OpenRA.Mods.Common.Experience
 {
+	public enum ExperienceParameterType { Boolean, Integer, Choice }
+
+	public sealed class ExperienceParameter
+	{
+		public readonly string Id;
+		public readonly string Title;
+		public readonly string Description;
+		public readonly string Group;
+		public readonly ExperienceParameterType Type;
+		public readonly string Default;
+		public readonly int Minimum;
+		public readonly int Maximum;
+		public readonly int Step;
+		public readonly string Unit;
+		public readonly ImmutableArray<string> Options;
+
+		public ExperienceParameter(string id, MiniYaml yaml)
+		{
+			Id = id;
+			Title = Required(yaml, "Title", id);
+			Description = Required(yaml, "Description", id);
+			Group = ExperienceComponent.Value(yaml, "Group", "Balance").Trim();
+			Type = FieldLoader.GetValue<ExperienceParameterType>("Type", Required(yaml, "Type", id));
+			Unit = ExperienceComponent.Value(yaml, "Unit", "").Trim();
+			Options = ExperienceComponent.ParseList(yaml, "Options");
+			Minimum = ParseInteger(yaml, "Minimum", 0, id);
+			Maximum = ParseInteger(yaml, "Maximum", 100, id);
+			Step = Math.Max(1, ParseInteger(yaml, "Step", 1, id));
+
+			if (Type == ExperienceParameterType.Integer && Maximum < Minimum)
+				throw new InvalidDataException($"Experience parameter `{id}` Maximum must be greater than or equal to Minimum.");
+
+			if (Type == ExperienceParameterType.Choice && Options.Length < 2)
+				throw new InvalidDataException($"Experience choice parameter `{id}` requires at least two Options.");
+
+			Default = Normalize(Required(yaml, "Default", id));
+		}
+
+		public string Normalize(string value)
+		{
+			value = value?.Trim() ?? "";
+			switch (Type)
+			{
+				case ExperienceParameterType.Boolean:
+					if (bool.TryParse(value, out var boolean))
+						return boolean.ToStringInvariant();
+
+					break;
+				case ExperienceParameterType.Integer:
+					if (int.TryParse(value, out var integer))
+					{
+						integer = Math.Clamp(integer, Minimum, Maximum);
+						integer = Minimum + (int)Math.Round((integer - Minimum) / (double)Step) * Step;
+						return Math.Clamp(integer, Minimum, Maximum).ToStringInvariant();
+					}
+
+					break;
+				case ExperienceParameterType.Choice:
+					var option = Options.FirstOrDefault(o => o.Equals(value, StringComparison.OrdinalIgnoreCase));
+					if (option != null)
+						return option;
+
+					break;
+			}
+
+			throw new InvalidDataException($"Invalid value `{value}` for experience parameter `{Id}`.");
+		}
+
+		static string Required(MiniYaml yaml, string key, string id)
+		{
+			var value = ExperienceComponent.Value(yaml, key, null);
+			if (string.IsNullOrWhiteSpace(value))
+				throw new InvalidDataException($"Experience parameter `{id}` requires `{key}`.");
+
+			return value.Trim();
+		}
+
+		static int ParseInteger(MiniYaml yaml, string key, int fallback, string id)
+		{
+			var value = ExperienceComponent.Value(yaml, key, null);
+			if (value == null)
+				return fallback;
+
+			if (!int.TryParse(value, out var result))
+				throw new InvalidDataException($"Experience parameter `{id}` field `{key}` must be an integer.");
+
+			return result;
+		}
+	}
+
 	public sealed class ExperienceComponent
 	{
 		public readonly string Id;
@@ -38,6 +129,7 @@ namespace OpenRA.Mods.Common.Experience
 		public readonly ImmutableArray<string> Voices;
 		public readonly ImmutableArray<string> Notifications;
 		public readonly ImmutableArray<string> Music;
+		public readonly IReadOnlyDictionary<string, ExperienceParameter> Parameters;
 
 		public ExperienceComponent(string id, MiniYaml yaml)
 		{
@@ -58,6 +150,7 @@ namespace OpenRA.Mods.Common.Experience
 			Voices = ParseFiles(yaml, "Voices");
 			Notifications = ParseFiles(yaml, "Notifications");
 			Music = ParseFiles(yaml, "Music");
+			Parameters = ParseParameters(yaml.NodeWithKeyOrDefault("Parameters")?.Value);
 		}
 
 		static string Required(MiniYaml yaml, string key, string id)
@@ -93,6 +186,13 @@ namespace OpenRA.Mods.Common.Experience
 
 			return files;
 		}
+
+		static IReadOnlyDictionary<string, ExperienceParameter> ParseParameters(MiniYaml yaml)
+		{
+			return yaml == null ? new Dictionary<string, ExperienceParameter>() : yaml.Nodes
+				.Select(n => new ExperienceParameter(n.Key, n.Value))
+				.ToDictionary(p => p.Id, StringComparer.OrdinalIgnoreCase);
+		}
 	}
 
 	public sealed class ExperienceProfile
@@ -122,6 +222,7 @@ namespace OpenRA.Mods.Common.Experience
 		public readonly ExperienceProfile ActiveProfile;
 		public readonly ImmutableArray<string> ActiveComponentIds;
 		public readonly PresentationPackDefinition ActivePresentationPack;
+		public readonly IReadOnlyDictionary<string, string> ActiveParameterValues;
 
 		readonly ImmutableArray<string> managedRules;
 		readonly ImmutableArray<string> activeRules;
@@ -158,6 +259,7 @@ namespace OpenRA.Mods.Common.Experience
 			ActiveProfile = Profiles.TryGetValue(settings.Profile, out var selectedProfile) ? selectedProfile : defaultProfile;
 			var requested = settings.UseCustomComponents ? ParseSettingsList(settings.EnabledComponents) : ActiveProfile.Components;
 			ActiveComponentIds = Resolve(requested, strictConflicts: false).Order().ToImmutableArray();
+			ActiveParameterValues = ParseParameterSettings(settings.ParameterValues);
 			ActivePresentationPack = PresentationPackRegistry.Find(Mod, settings.PresentationPack);
 
 			var activeComponents = ActiveComponentIds.Select(id => Components[id]).ToArray();
@@ -178,7 +280,7 @@ namespace OpenRA.Mods.Common.Experience
 			managedMusic = AllFiles(c => c.Music);
 			activeMusic = ActiveFiles(activeComponents, c => c.Music);
 
-			GameplayFingerprint = ComputeGameplayFingerprint(ActiveComponentIds);
+			GameplayFingerprint = ComputeGameplayFingerprint(ActiveComponentIds, ActiveParameterValues);
 			PresentationFingerprint = ActivePresentationPack.Fingerprint;
 		}
 
@@ -236,13 +338,79 @@ namespace OpenRA.Mods.Common.Experience
 			return selected.Order().ToImmutableArray();
 		}
 
-		public string ComputeGameplayFingerprint(IEnumerable<string> componentIds)
+		public IReadOnlyDictionary<string, string> DefaultParameterValues()
 		{
-			var builder = new StringBuilder("experience-v1\n");
+			return Components.Values.SelectMany(component => component.Parameters.Values.Select(parameter =>
+				KeyValuePair.Create(ParameterKey(component.Id, parameter.Id), parameter.Default)))
+				.ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.OrdinalIgnoreCase);
+		}
+
+		public IReadOnlyDictionary<string, string> ParseParameterSettings(string value)
+		{
+			var result = DefaultParameterValues().ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.OrdinalIgnoreCase);
+			if (string.IsNullOrWhiteSpace(value))
+				return result;
+
+			foreach (var entry in value.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+			{
+				var separator = entry.IndexOf('=');
+				if (separator <= 0)
+					continue;
+
+				var key = entry[..separator].Trim();
+				var rawValue = entry[(separator + 1)..].Trim();
+				if (TryGetParameter(key, out var parameter))
+				{
+					try { result[key] = parameter.Normalize(rawValue); }
+					catch (InvalidDataException) { }
+				}
+			}
+
+			return result;
+		}
+
+		public string SerializeParameterSettings(IReadOnlyDictionary<string, string> values)
+		{
+			var defaults = DefaultParameterValues();
+			return values.Where(kv => defaults.TryGetValue(kv.Key, out var defaultValue) && kv.Value != defaultValue)
+				.OrderBy(kv => kv.Key)
+				.Select(kv => $"{kv.Key}={kv.Value}")
+				.JoinWith(";");
+		}
+
+		public int GetIntegerParameter(string componentId, string parameterId, int fallback)
+		{
+			return ActiveParameterValues.TryGetValue(ParameterKey(componentId, parameterId), out var value) &&
+				int.TryParse(value, out var integer) ? integer : fallback;
+		}
+
+		public bool GetBooleanParameter(string componentId, string parameterId, bool fallback)
+		{
+			return ActiveParameterValues.TryGetValue(ParameterKey(componentId, parameterId), out var value) &&
+				bool.TryParse(value, out var boolean) ? boolean : fallback;
+		}
+
+		public string GetChoiceParameter(string componentId, string parameterId, string fallback)
+		{
+			return ActiveParameterValues.TryGetValue(ParameterKey(componentId, parameterId), out var value) ? value : fallback;
+		}
+
+		public string ComputeGameplayFingerprint(IEnumerable<string> componentIds,
+			IReadOnlyDictionary<string, string> parameterValues = null)
+		{
+			parameterValues ??= DefaultParameterValues();
+			var builder = new StringBuilder("experience-v2\n");
 			foreach (var id in componentIds.Distinct().Order())
 			{
 				var component = Components[id];
 				builder.Append(component.Id).Append(':').Append(component.Version).Append('\n');
+				foreach (var parameter in component.Parameters.Values.OrderBy(p => p.Id))
+				{
+					var key = ParameterKey(component.Id, parameter.Id);
+					var value = parameterValues.TryGetValue(key, out var configured) ? parameter.Normalize(configured) : parameter.Default;
+					builder.Append("parameter:").Append(key).Append('=').Append(value).Append('\n');
+				}
+
 				AppendFiles(builder, "rules", component.Rules);
 				AppendFiles(builder, "weapons", component.Weapons);
 				AppendFiles(builder, "sequences", component.Sequences);
@@ -252,6 +420,19 @@ namespace OpenRA.Mods.Common.Experience
 			}
 
 			return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(builder.ToString()))).ToLowerInvariant();
+		}
+
+		public static string ParameterKey(string componentId, string parameterId) => $"{componentId}.{parameterId}";
+
+		bool TryGetParameter(string key, out ExperienceParameter parameter)
+		{
+			var separator = key.IndexOf('.');
+			if (separator > 0 && Components.TryGetValue(key[..separator], out var component) &&
+				component.Parameters.TryGetValue(key[(separator + 1)..], out parameter))
+				return true;
+
+			parameter = null;
+			return false;
 		}
 
 		ImmutableArray<string> Resolve(IEnumerable<string> requested, bool strictConflicts)

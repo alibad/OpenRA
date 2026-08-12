@@ -17,6 +17,7 @@ namespace OpenRA.Mods.Common.Experience
 		public string Profile = "world-war-iii";
 		public bool UseCustomComponents = false;
 		public string EnabledComponents = "";
+		public string ParameterValues = "";
 		public string PresentationPack = "default";
 	}
 }

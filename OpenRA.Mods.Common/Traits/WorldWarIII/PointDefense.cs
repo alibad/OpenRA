@@ -13,6 +13,7 @@
 
 using System.Linq;
 using OpenRA.GameRules;
+using OpenRA.Mods.Common.Experience;
 using OpenRA.Mods.Common.Warheads;
 using OpenRA.Primitives;
 using OpenRA.Traits;
@@ -40,6 +41,8 @@ namespace OpenRA.Mods.Common.Traits
 	{
 		readonly Actor self;
 		readonly Armament armament;
+		readonly int rangePercent;
+		readonly bool interceptEffects;
 		INotifyPointDefenseHit[] notifyHit;
 		bool hasFiredThisTick;
 
@@ -48,6 +51,11 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			this.self = self;
 			armament = self.TraitsImplementing<Armament>().First(a => a.Info.Name == info.Armament);
+			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
+			rangePercent = experience?.GetIntegerParameter(
+				"point-defense-interception", "range-percent", 100) ?? 100;
+			interceptEffects = experience?.GetBooleanParameter(
+				"point-defense-interception", "intercept-effects", true) ?? true;
 		}
 
 		protected override void Created(Actor self)
@@ -65,10 +73,11 @@ namespace OpenRA.Mods.Common.Traits
 
 			if (!Info.ValidRelationships.HasRelationship(self.Owner.RelationshipWith(projectileOwner)) ||
 				!Info.PointDefenseTypes.Contains(type) ||
-				(self.CenterPosition - position).HorizontalLengthSquared > armament.MaxRange().LengthSquared)
+				(self.CenterPosition - position).HorizontalLengthSquared >
+					armament.MaxRange().LengthSquared * rangePercent * rangePercent / 10000)
 				return false;
 
-			if (!armament.CheckFire(self, null, Target.FromPos(position)))
+			if (interceptEffects && !armament.CheckFire(self, null, Target.FromPos(position)))
 				return false;
 
 			hasFiredThisTick = true;
