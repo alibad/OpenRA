@@ -24,6 +24,9 @@
 		<PackageReference Include="OpenRA-SDL2-CS" Version="1.0.42" />
 	</ItemGroup>
 	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+	<ItemGroup>
 		<ProjectReference Include="..\OpenRA.Game\OpenRA.Game.csproj" />
 	</ItemGroup>
 </Project>
