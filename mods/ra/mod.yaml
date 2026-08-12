@@ -80,6 +80,7 @@ Rules:
 	ra|rules/defaults.yaml
 	ra|rules/vehicles.yaml
 	ra|rules/red-sea.yaml
+	ra|rules/turkey.yaml
 	ra|rules/husks.yaml
 	ra|rules/structures.yaml
 	ra|rules/infantry.yaml
@@ -96,6 +97,7 @@ Sequences:
 	ra|sequences/ships.yaml
 	ra|sequences/vehicles.yaml
 	ra|sequences/red-sea.yaml
+	ra|sequences/turkey.yaml
 	ra|sequences/structures.yaml
 	ra|sequences/infantry.yaml
 	ra|sequences/aircraft.yaml
@@ -195,6 +197,7 @@ Weapons:
 	ra|weapons/smallcaliber.yaml
 	ra|weapons/superweapons.yaml
 	ra|weapons/red-sea.yaml
+	ra|weapons/turkey.yaml
 
 Voices:
 	ra|audio/voices.yaml

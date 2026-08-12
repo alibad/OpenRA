@@ -1011,6 +1011,101 @@ bot-beginner-ai =
 bot-easy-ai =
     .name = Easy AI
 
+## Turkey faction
+
+faction-turkey =
+    .name = Turkey
+    .description = Turkey: Mobile Combined Arms
+      Flexible wheeled formations, tactical drones, electronic warfare,
+      layered air defense, amphibious mobility, and sea-control warships.
+      Mechanized Riflemen fight better near Turkish transports, while drone
+      operators designate targets for the entire force.
+
+actor-trrifle =
+    .name = Mechanized Rifleman
+    .description = General-purpose infantry.
+      Stronger, faster, and tougher near Aras-8 or Deniz Kaplan transports.
+      Weak against vehicles and massed anti-infantry fire.
+
+actor-trat =
+    .name = Portable AT Specialist
+    .description = Concealed anti-armor ambusher.
+      Devastating against heavy vehicles while stationary.
+      Revealed by movement, attacks, damage, and detector units.
+
+actor-trdroneop =
+    .name = Forward Drone Operator
+    .description = Reconnaissance and fire-support spotter.
+      Reveals a large area and designates targets to take extra damage.
+      Unarmed against aircraft and vulnerable if caught alone.
+
+actor-greywolf =
+    .name = Grey Wolf
+    .description = Fictional build-limit-one command commando.
+      Conceals while stationary and improves nearby Turkish infantry tempo.
+      No demolition ability; detectors, movement, and focus fire counter him.
+
+actor-bozkir =
+    .name = Bozkir Main Battle Tank
+    .description = Mobile heavy tank with a stabilized 120 mm cannon.
+      Strong against armor; vulnerable to aircraft and concentrated AT teams.
+actor-aras8 =
+    .name = Aras-8 Wheeled IFV
+    .description = Fast infantry fighting vehicle and six-seat transport.
+      Enables the Mechanized Rifleman combined-arms bonus nearby.
+actor-yildirim =
+    .name = Yildirim Self-Propelled Howitzer
+    .description = Long-range wheeled artillery.
+      Excellent against static defenses; inaccurate and vulnerable up close.
+actor-gokkalkan =
+    .name = Gokkalkan Air-Defense Vehicle
+    .description = Layered gun-and-missile air defense with local detection.
+      Effective against aircraft and light ground targets.
+actor-sancak =
+    .name = Sancak Electronic-Warfare Carrier
+    .description = Mobile jammer and missile-deflection screen.
+      Expensive, lightly armed, and most valuable behind a combined formation.
+actor-denizkaplan =
+    .name = Deniz Kaplan Amphibious IFV
+    .description = Amphibious six-seat transport with remote cannon.
+      Crosses land, beaches, and open water and enables mechanized infantry.
+
+actor-kuzgunm =
+    .name = Kuzgun-M Tactical Drone
+    .description = Long-endurance reconnaissance and designation drone.
+      Carries two precision missiles and must rearm at a helipad.
+actor-turnaah =
+    .name = Turna-AH Attack Helicopter
+    .description = Agile rotorcraft with cannon and guided missiles.
+      Effective in combined-arms strikes; limited ammunition requires rearming.
+actor-sahinx =
+    .name = Sahin-X Multirole Fighter
+    .description = Fast air-superiority and interdiction fighter.
+      Potent but costly, fragile under layered air defense, and ammo-limited.
+
+actor-marmara =
+    .name = Marmara Frigate
+    .description = Long-range sea-control frigate with gun, SAMs, and sonar.
+      Strong escort centerpiece; slow and expensive.
+actor-ege =
+    .name = Ege Corvette
+    .description = Fast surface-combatant with guided anti-ship missiles.
+      Balanced patrol ship vulnerable to massed aircraft and heavy guns.
+actor-poyraz =
+    .name = Poyraz Unmanned Surface Vessel
+    .description = Fast reconnaissance USV with autocannon and sonar.
+      Cheap and expendable, but very lightly protected.
+
+actor-bozkir-husk-name = Destroyed Bozkir
+actor-aras8-husk-name = Destroyed Aras-8
+actor-yildirim-husk-name = Destroyed Yildirim
+actor-gokkalkan-husk-name = Destroyed Gokkalkan
+actor-sancak-husk-name = Destroyed Sancak
+actor-denizkaplan-husk-name = Destroyed Deniz Kaplan
+actor-kuzgunm-husk-name = Destroyed Kuzgun-M
+actor-turnaah-husk-name = Destroyed Turna-AH
+actor-sahinx-husk-name = Destroyed Sahin-X
+
 bot-medium-ai =
     .name = Medium AI
 

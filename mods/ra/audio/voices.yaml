@@ -5,6 +5,7 @@ GenericVoice:
 		france: .v01,.v03
 		germany: .v01,.v03
 		saudi: .v01,.v03
+		turkey: .v01,.v03
 		soviet: .r01,.r03
 		russia: .r01,.r03
 		ukraine: .r01,.r03
@@ -24,6 +25,7 @@ VehicleVoice:
 		france: .v00,.v02
 		germany: .v00,.v02
 		saudi: .v00,.v02
+		turkey: .v00,.v02
 		soviet: .r00,.r02
 		russia: .r00,.r02
 		ukraine: .r00,.r02
@@ -41,6 +43,41 @@ SaudiAirVoice:
 	Voices:
 		Select: rsa-air-select-ar,rsa-air-select-en
 		Action: rsa-air-action-ar,rsa-air-action-en
+
+TurkeyInfantryVoice:
+	Voices:
+		Select: tr-infantry-select-tr,tr-infantry-select-en
+		Move: tr-infantry-move-tr,tr-infantry-move-en
+		Attack: tr-infantry-attack-tr,tr-infantry-attack-en
+		Action: tr-infantry-attack-tr,tr-infantry-attack-en
+		Die: dedman1,dedman3,dedman5
+		Burned: dedman10
+		Zapped: dedman6
+
+TurkeyVehicleVoice:
+	Voices:
+		Select: tr-vehicle-select-tr,tr-vehicle-select-en
+		Action: tr-vehicle-action-tr,tr-vehicle-action-en
+
+TurkeyAirVoice:
+	Voices:
+		Select: tr-air-select-tr,tr-air-select-en
+		Action: tr-air-action-tr,tr-air-action-en
+
+TurkeyNavalVoice:
+	Voices:
+		Select: tr-naval-select-tr,tr-naval-select-en
+		Action: tr-naval-action-tr,tr-naval-action-en
+
+GreyWolfVoice:
+	Voices:
+		Select: tr-greywolf-select-tr,tr-greywolf-select-en
+		Move: tr-greywolf-move-tr,tr-greywolf-move-en
+		Attack: tr-greywolf-attack-tr,tr-greywolf-attack-en
+		Action: tr-greywolf-attack-tr,tr-greywolf-attack-en
+		Die: dedman2,dedman7
+		Burned: dedman10
+		Zapped: dedman6
 
 YemenVehicleVoice:
 	Voices:
