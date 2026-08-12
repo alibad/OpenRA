@@ -64,7 +64,7 @@ Container@MAINMENU:
 						Button@WORLD_TOOLS_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
 							Y: 135
-							Width: 140
+							Width: 160
 							Height: 30
 							Text: button-main-menu-workshop
 							Font: Bold
