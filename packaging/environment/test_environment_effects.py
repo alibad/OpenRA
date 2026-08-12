@@ -53,6 +53,13 @@ def main() -> None:
     require(rules.count("AmbientSound@") == 5, "expected one looping ambience per event")
     require("FlashPostProcessEffect@ENVIRONMENTLIGHTNING" in rules, "squall lightning is missing")
     require("ENV.OILFIRE:" in rules and "ENV.MIRAGE-CONTACT:" in rules, "event decoration actors are missing")
+    require("EnvironmentDirectorInfo : TraitInfo, ILobbyOptions" in code, "environment lobby option is missing")
+    require('CheckboxEnabled = false' in code, "dynamic environment must default to disabled")
+    require('new LobbyBooleanOption(map, "dynamicenvironment"' in code, "dynamic environment checkbox is missing")
+    require(
+        'OptionOrDefault("dynamicenvironment", info.CheckboxEnabled)' in code,
+        "environment runtime is not gated by the lobby option",
+    )
 
     for event, condition in EVENTS.items():
         require(event in code, f"event enum/mapping missing: {event}")
@@ -86,7 +93,10 @@ def main() -> None:
                 seam = abs(samples[0] - samples[-1]) / 32767
                 require(seam < 0.02, f"{filename} has an audible loop seam: {seam:.3f}")
 
-    print("Environment regression checks passed: 5 events, 5 actor domains, 6 original sound assets.")
+    print(
+        "Environment regression checks passed: opt-in lobby gate, "
+        "5 events, 5 actor domains, 6 original sound assets."
+    )
 
 
 if __name__ == "__main__":

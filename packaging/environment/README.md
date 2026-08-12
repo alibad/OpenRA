@@ -1,6 +1,6 @@
 # Dynamic environment system
 
-The RA mod cycles through all five events without repeats until the shuffled event bag is exhausted. A warning card appears ten seconds before activation. The first warning starts after thirty seconds; events last 45–60 seconds and are separated by 40–60 second clear-weather windows.
+Dynamic Environment is off by default. A player can opt in from the lobby's map options before starting a match. When enabled, the RA mod cycles through all five events without repeats until the shuffled event bag is exhausted. A warning card appears ten seconds before activation. The first warning starts after thirty seconds; events last 45–60 seconds and are separated by 40–60 second clear-weather windows.
 
 | Event | Main gameplay pressure | Modern-faction adaptation | Classic-faction adaptation |
 | --- | --- | --- | --- |
@@ -10,6 +10,6 @@ The RA mod cycles through all five events without repeats until the shuffled eve
 | Heat Mirage | Rangefinding, accuracy, false radar contacts | Yemen 60%, Saudi 45% | Ukraine 35% |
 | Night Blackout | Vision, stealth detection, targeting | Iran 65%, Turkey 60% | Germany 45% |
 
-Adaptation closes the listed percentage of the gap between each event penalty and normal performance. It never gives a value better than clear-weather performance. Effects activate only when Saudi Arabia, Yemen, Turkey, or Iran participates, so the stock RA experience is unchanged unless a modern faction is in the match.
+Adaptation closes the listed percentage of the gap between each event penalty and normal performance. It never gives a value better than clear-weather performance. Even when the lobby option is enabled, effects activate only when Saudi Arabia, Yemen, Turkey, or Iran participates.
 
 Run `python packaging/environment/generate_environment_assets.py` to deterministically rebuild the original audio loops, and `python packaging/environment/test_environment_effects.py` for fast structural checks. OpenRA's own YAML and content validators remain the authoritative integration tests.

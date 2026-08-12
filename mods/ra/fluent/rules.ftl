@@ -27,6 +27,10 @@ notification-ally-under-attack = Our ally is under attack.
 notification-silos-needed = Silos needed.
 
 ## world.yaml
+checkbox-dynamic-environment =
+    .label = Dynamic Environment
+    .description = Enables global weather, lighting, visibility, and handling events
+
 options-starting-units =
     .mcv-only = MCV Only
     .light-support = Light Support

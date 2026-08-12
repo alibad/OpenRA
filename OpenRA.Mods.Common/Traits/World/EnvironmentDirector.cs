@@ -190,8 +190,28 @@ namespace OpenRA.Mods.Common.Traits
 
 	[TraitLocation(SystemActors.World)]
 	[Desc("Schedules synchronized environment events for the modern-war factions. Attach this to the World actor.")]
-	public class EnvironmentDirectorInfo : TraitInfo, ILobbyCustomRulesIgnore
+	public class EnvironmentDirectorInfo : TraitInfo, ILobbyOptions, ILobbyCustomRulesIgnore
 	{
+		[FluentReference]
+		[Desc("Descriptive label for the dynamic environment checkbox in the lobby.")]
+		public readonly string CheckboxLabel = "checkbox-dynamic-environment.label";
+
+		[FluentReference]
+		[Desc("Tooltip description for the dynamic environment checkbox in the lobby.")]
+		public readonly string CheckboxDescription = "checkbox-dynamic-environment.description";
+
+		[Desc("Default value of the dynamic environment checkbox in the lobby.")]
+		public readonly bool CheckboxEnabled = false;
+
+		[Desc("Prevent the dynamic environment state from being changed in the lobby.")]
+		public readonly bool CheckboxLocked = false;
+
+		[Desc("Whether to display the dynamic environment checkbox in the lobby.")]
+		public readonly bool CheckboxVisible = true;
+
+		[Desc("Display order for the dynamic environment checkbox in the lobby.")]
+		public readonly int CheckboxDisplayOrder = 7;
+
 		[Desc("The event system is enabled when at least one combatant uses one of these factions.")]
 		public readonly FrozenSet<string> ActiveFactions = new HashSet<string> { "saudi", "yemen", "turkey", "iran" }.ToFrozenSet();
 
@@ -231,6 +251,12 @@ namespace OpenRA.Mods.Common.Traits
 
 		[GrantedConditionReference]
 		public readonly string BlackoutCondition = "environment-blackout";
+
+		IEnumerable<LobbyOption> ILobbyOptions.LobbyOptions(MapPreview map)
+		{
+			yield return new LobbyBooleanOption(map, "dynamicenvironment",
+				CheckboxLabel, CheckboxDescription, CheckboxVisible, CheckboxDisplayOrder, CheckboxEnabled, CheckboxLocked);
+		}
 
 		public override object Create(ActorInitializer init) { return new EnvironmentDirector(init.Self, this); }
 	}
@@ -282,7 +308,8 @@ namespace OpenRA.Mods.Common.Traits
 			if (!initialized)
 			{
 				initialized = true;
-				enabled = actor.World.Players.Any(p => !p.NonCombatant && info.ActiveFactions.Contains(p.Faction.InternalName));
+				enabled = actor.World.LobbyInfo.GlobalSettings.OptionOrDefault("dynamicenvironment", info.CheckboxEnabled)
+					&& actor.World.Players.Any(p => !p.NonCombatant && info.ActiveFactions.Contains(p.Faction.InternalName));
 			}
 
 			if (!enabled || actor.World.IsLoadingGameSave)
