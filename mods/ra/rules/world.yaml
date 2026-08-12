@@ -144,6 +144,11 @@
 		InternalName: yemen
 		Side: Soviet
 		Description: faction-yemen.description
+	Faction@iran:
+		Name: faction-iran.name
+		InternalName: iran
+		Side: Soviet
+		Description: faction-iran.description
 	Faction@random:
 		Name: faction-random.name
 		InternalName: Random
@@ -159,7 +164,7 @@
 	Faction@randomsoviet:
 		Name: faction-randomsoviet.name
 		InternalName: RandomSoviet
-		RandomFactionMembers: russia, ukraine, yemen
+		RandomFactionMembers: russia, ukraine, yemen, iran
 		Side: Random
 		Description: faction-randomsoviet.description
 	ResourceRenderer:

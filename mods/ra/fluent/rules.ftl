@@ -87,6 +87,13 @@ faction-yemen =
      Special Unit: Samad Drone
      Special Unit: Mobile Missile Launcher
 
+faction-iran =
+    .name = Iran
+    .description = Iran: Distributed Reconnaissance and Layered Denial
+     Special Infantry: Basij Rifle Section, ATGM Team, Drone Controller
+     Hero Commando: Shadow One
+     Special Units: Karrar Tank, Simorgh Loitering Munition, Ghadir Submarine
+
 faction-random =
     .name = Any
     .description = Random Country
@@ -1312,3 +1319,75 @@ actor-naval-survivor =
     .name = Survivors
 actor-naval-salvage =
     .name = Recoverable Naval Salvage
+
+## Iran faction
+
+actor-irbas =
+    .name = Basij Rifle Section
+    .description = Inexpensive mass infantry.
+     Strong in groups; vulnerable to armor and area damage.
+
+actor-iratgm =
+    .name = ATGM Team
+    .description = Long-range anti-armor specialist.
+     Cannot move while setting up and reloading.
+
+actor-irdc =
+    .name = Drone Controller
+    .description = Long-range reconnaissance and cloak detection.
+     A living controller unlocks Simorgh loitering munitions.
+
+actor-shadowone =
+    .name = Shadow One
+    .description = Fictional stealth and sabotage commando.
+     Build limit: 1. Revealed by movement, attacks, nearby infantry, and detectors.
+
+actor-irkarr =
+    .name = Karrar Main Battle Tank
+    .description = Durable high-technology battle tank.
+
+actor-irraad =
+    .name = Raad Mobile Air Defense
+    .description = Fast long-range anti-air missile carrier.
+
+actor-irfajr =
+    .name = Fajr Rocket Carrier
+    .description = Long-range area bombardment with a long reload.
+
+actor-ircoast =
+    .name = Coastal Missile Battery
+    .description = Mobile long-range anti-ship denial system.
+     Cannot engage land or air targets.
+
+actor-irazar =
+    .name = Azar Interceptor
+    .description = Fast finite-ammunition air-superiority fighter.
+
+actor-irtoufan =
+    .name = Toufan Gunship
+    .description = Hovering gunship with cannon and anti-armor rockets.
+
+actor-irmohajer =
+    .name = Mohajer Recon Drone
+    .description = Reusable reconnaissance and precision-strike drone.
+
+actor-irloiter =
+    .name = Simorgh Loitering Munition
+    .description = Single-use precision strike drone.
+     Requires a living Drone Controller.
+
+actor-irpey =
+    .name = Peykaap Missile Boat
+    .description = Fast missile craft for coastal ambushes.
+
+actor-irghadir =
+    .name = Ghadir Midget Submarine
+    .description = Compact stealth submarine with short reload windows.
+
+actor-irkarr-husk-name = Destroyed Karrar
+actor-irraad-husk-name = Destroyed Raad Air Defense
+actor-irfajr-husk-name = Destroyed Fajr Carrier
+actor-ircoast-husk-name = Destroyed Coastal Battery
+actor-irazar-husk-name = Destroyed Azar Interceptor
+actor-irtoufan-husk-name = Destroyed Toufan Gunship
+actor-irmohajer-husk-name = Destroyed Mohajer Drone

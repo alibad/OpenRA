@@ -10,6 +10,7 @@ GenericVoice:
 		russia: .r01,.r03
 		ukraine: .r01,.r03
 		yemen: .r01,.r03
+		iran: .r01,.r03
 	Voices:
 		Select: await1,ready,report1,yessir1
 		Action: ackno,affirm1,noprob,overout,ritaway,roger,ugotit
@@ -30,6 +31,7 @@ VehicleVoice:
 		russia: .r00,.r02
 		ukraine: .r00,.r02
 		yemen: .r00,.r02
+		iran: .r00,.r02
 	Voices:
 		Select: vehic1,yessir1,report1,await1
 		Action: ackno,affirm1
@@ -88,6 +90,60 @@ YemenDroneVoice:
 	Voices:
 		Select: rye-drone-select-ar,rye-drone-select-en
 		Action: rye-drone-action-ar,rye-drone-action-en
+
+IranInfantryVoice:
+	Voices:
+		Select: iran-inf-select-fa,iran-inf-select-en
+		Move: iran-inf-move-fa,iran-inf-move-en
+		Action: iran-inf-action-fa,iran-inf-action-en
+		Attack: iran-inf-attack-fa,iran-inf-attack-en
+		Die: dedman1,dedman2,dedman3,dedman4,dedman5,dedman7,dedman8
+		Burned: dedman10
+		Zapped: dedman6
+
+IranVehicleVoice:
+	Voices:
+		Select: iran-veh-select-fa,iran-veh-select-en
+		Move: iran-veh-move-fa,iran-veh-move-en
+		Action: iran-veh-action-fa,iran-veh-action-en
+		Attack: iran-veh-attack-fa,iran-veh-attack-en
+
+IranAirVoice:
+	Voices:
+		Select: iran-air-select-fa,iran-air-select-en
+		Move: iran-air-move-fa,iran-air-move-en
+		Action: iran-air-action-fa,iran-air-action-en
+		Attack: iran-air-attack-fa,iran-air-attack-en
+
+IranDroneVoice:
+	Voices:
+		Select: iran-drone-select-fa,iran-drone-select-en
+		Move: iran-drone-move-fa,iran-drone-move-en
+		Action: iran-drone-action-fa,iran-drone-action-en
+		Attack: iran-drone-attack-fa,iran-drone-attack-en
+		Die: dedman1,dedman2,dedman3,dedman4,dedman5,dedman7,dedman8
+		Burned: dedman10
+		Zapped: dedman6
+
+IranNavalVoice:
+	Voices:
+		Select: iran-naval-select-fa,iran-naval-select-en
+		Move: iran-naval-move-fa,iran-naval-move-en
+		Action: iran-naval-action-fa,iran-naval-action-en
+		Attack: iran-naval-attack-fa,iran-naval-attack-en
+
+ShadowOneVoice:
+	Voices:
+		Select: shadow-select-fa,shadow-select-en
+		Move: shadow-move-fa,shadow-move-en
+		Action: shadow-action-fa,shadow-action-en
+		Attack: shadow-attack-fa,shadow-attack-en
+		Demolish: shadow-demolish-fa,shadow-demolish-en
+		Build: shadow-build-fa,shadow-build-en
+		Kill: shadow-action-fa,shadow-action-en
+		Die: dedman1,dedman3,dedman5
+		Burned: dedman10
+		Zapped: dedman6
 
 EngineerVoice:
 	Voices:

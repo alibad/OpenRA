@@ -44,6 +44,7 @@ update.log
 # NUnit
 /TestResult.xml
 /lib/
+/.venv/
 
 # Support directory
 /Support
