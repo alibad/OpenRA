@@ -65,7 +65,7 @@ namespace OpenRA.Mods.Common.Experience
 			{
 				case ExperienceParameterType.Boolean:
 					if (bool.TryParse(value, out var boolean))
-						return boolean.ToStringInvariant();
+						return boolean ? "true" : "false";
 
 					break;
 				case ExperienceParameterType.Integer:
