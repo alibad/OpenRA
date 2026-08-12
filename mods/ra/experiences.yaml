@@ -121,13 +121,13 @@ ExperienceCatalog:
 					Maximum: 50
 					Step: 5
 					Unit: percent
-				eligible-owners:
-					Title: Eligible factions
-					Description: Restricts salvage drops to units owned by human players, AI factions, or both.
+				eligible-faction:
+					Title: Eligible faction
+					Description: Restricts salvage drops to one faction, or allows every faction.
 					Group: Factions
 					Type: Choice
 					Default: All
-					Options: All, Human, AI
+					Options: All, allies, england, france, germany, saudi, turkey, china, soviet, russia, ukraine, yemen, iran
 	Profiles:
 		world-war-iii:
 			Title: World War III

@@ -137,11 +137,10 @@ namespace OpenRA.Mods.Common.Traits
 			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
 			var probability = experience?.GetIntegerParameter(
 				"battlefield-salvage", "spawn-probability", Info.Probability) ?? Info.Probability;
-			var eligibleOwners = experience?.GetChoiceParameter(
-				"battlefield-salvage", "eligible-owners", "All") ?? "All";
-			var ownerEligible = eligibleOwners.Equals("All", System.StringComparison.OrdinalIgnoreCase) ||
-				(eligibleOwners.Equals("AI", System.StringComparison.OrdinalIgnoreCase) && self.Owner.IsBot) ||
-				(eligibleOwners.Equals("Human", System.StringComparison.OrdinalIgnoreCase) && !self.Owner.IsBot);
+			var eligibleFaction = experience?.GetChoiceParameter(
+				"battlefield-salvage", "eligible-faction", "All") ?? "All";
+			var ownerEligible = eligibleFaction.Equals("All", System.StringComparison.OrdinalIgnoreCase) ||
+				eligibleFaction.Equals(self.Owner.Faction.InternalName, System.StringComparison.OrdinalIgnoreCase);
 
 			if (IsTraitDisabled || !self.IsInWorld || !ownerEligible || probability <= 0 ||
 				self.World.SharedRandom.Next(100) >= probability ||
