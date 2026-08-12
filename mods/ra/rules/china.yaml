@@ -1208,88 +1208,132 @@ CNJIAOLONG.Sinking:
 
 Player:
 	BaseBuilderBotModule@beginner:
-		TechTypes: dome, atek, stek, fix, afld, hpad
-		ProductionTypes: barr,tent,weap,afld,hpad,spen
+		TechTypes: dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		NavalProductionTypes: spen,syrd
 		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
+		BuildingFractions:
+			hpad: 1
+			afld: 1
+			safld: 1
+		BuildingLimits:
+			hpad: 1
+			afld: 1
+			safld: 1
 	BaseBuilderBotModule@easy:
-		TechTypes: dome, atek, stek, fix, afld, hpad
-		ProductionTypes: barr,tent,weap,afld,hpad,spen
+		TechTypes: dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		NavalProductionTypes: spen,syrd
 		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
 		BuildingFractions:
 			cnbastion: 4
 			cnskyshield: 3
 			cnspectrum: 1
+			hpad: 1
+			afld: 1
+			safld: 1
 		BuildingLimits:
 			cnbastion: 4
 			cnskyshield: 3
 			cnspectrum: 1
+			hpad: 1
+			afld: 1
+			safld: 1
 	BaseBuilderBotModule@medium:
-		TechTypes: dome, atek, stek, fix, afld, hpad
-		ProductionTypes: barr,tent,weap,afld,hpad,spen
+		TechTypes: dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		NavalProductionTypes: spen,syrd
 		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
 		BuildingFractions:
 			cnbastion: 6
 			cnskyshield: 5
 			cnspectrum: 2
+			hpad: 1
+			afld: 1
+			safld: 1
 		BuildingLimits:
 			cnbastion: 6
 			cnskyshield: 5
 			cnspectrum: 2
+			hpad: 2
+			afld: 2
+			safld: 2
 	BaseBuilderBotModule@rush:
-		TechTypes: mslo, dome, atek, stek, fix, afld, hpad
-		ProductionTypes: barr,tent,weap,afld,hpad,spen
+		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		NavalProductionTypes: spen,syrd
 		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
 		BuildingFractions:
 			cnbastion: 7
 			cnskyshield: 6
 			cnspectrum: 2
+			hpad: 1
+			afld: 1
+			safld: 1
 		BuildingLimits:
 			cnbastion: 7
 			cnskyshield: 6
 			cnspectrum: 2
+			hpad: 3
+			afld: 3
+			safld: 3
 	BaseBuilderBotModule@normal:
-		TechTypes: mslo, dome, atek, stek, fix, afld, hpad
-		ProductionTypes: barr,tent,weap,afld,hpad,spen
+		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		NavalProductionTypes: spen,syrd
 		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
 		BuildingFractions:
 			cnbastion: 8
 			cnskyshield: 6
 			cnspectrum: 3
+			hpad: 1
+			afld: 1
+			safld: 1
 		BuildingLimits:
 			cnbastion: 8
 			cnskyshield: 6
 			cnspectrum: 3
+			hpad: 4
+			afld: 4
+			safld: 4
 	BaseBuilderBotModule@turtle:
-		TechTypes: mslo, dome, atek, stek, fix, afld, hpad
-		ProductionTypes: barr,tent,weap,afld,hpad,spen
+		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		NavalProductionTypes: spen,syrd
 		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
 		BuildingFractions:
 			cnbastion: 12
 			cnskyshield: 10
 			cnspectrum: 6
+			hpad: 2
+			afld: 2
+			safld: 1
 		BuildingLimits:
 			cnbastion: 12
 			cnskyshield: 10
 			cnspectrum: 6
+			hpad: 4
+			afld: 4
+			safld: 4
 	BaseBuilderBotModule@naval:
-		TechTypes: mslo, dome, atek, stek, fix, afld, hpad
-		ProductionTypes: barr,tent,weap,afld,hpad,spen
+		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		NavalProductionTypes: spen,syrd
 		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
 		BuildingFractions:
 			cnbastion: 6
 			cnskyshield: 8
 			cnspectrum: 3
+			hpad: 15
+			afld: 15
+			safld: 15
 		BuildingLimits:
 			cnbastion: 6
 			cnskyshield: 8
 			cnspectrum: 3
+			hpad: 8
+			afld: 8
+			safld: 8
 	UnitBuilderBotModule@easy:
 		UnitsToBuild:
 			cnrifle: 50
