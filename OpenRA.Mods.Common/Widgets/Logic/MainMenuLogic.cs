@@ -88,6 +88,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var worldToolsButton = mainMenu.GetOrNull<ButtonWidget>("WORLD_TOOLS_BUTTON");
 			if (worldToolsButton != null)
 				worldToolsButton.OnClick = () => SwitchMenu(MenuType.Workshop);
+			var mapEditorReturnMenu = widget.GetOrNull("WORLD_TOOLS_MENU") != null ? MenuType.Workshop : MenuType.Extras;
 
 			var contentButton = mainMenu.GetOrNull<ButtonWidget>("CONTENT_BUTTON");
 			if (contentButton != null)
@@ -147,6 +148,21 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				});
 			};
 
+			var extrasMapEditorButton = extrasMenu.GetOrNull<ButtonWidget>("MAP_EDITOR_BUTTON");
+			if (extrasMapEditorButton != null)
+				extrasMapEditorButton.OnClick = () => SwitchMenu(MenuType.MapEditor);
+
+			var extrasAssetBrowserButton = extrasMenu.GetOrNull<ButtonWidget>("ASSETBROWSER_BUTTON");
+			if (extrasAssetBrowserButton != null)
+				extrasAssetBrowserButton.OnClick = () =>
+				{
+					SwitchMenu(MenuType.None);
+					Game.OpenWindow("ASSETBROWSER_PANEL", new WidgetArgs
+					{
+						{ "onExit", () => SwitchMenu(MenuType.Extras) },
+					});
+				};
+
 			extrasMenu.Get<ButtonWidget>("CREDITS_BUTTON").OnClick = () =>
 			{
 				SwitchMenu(MenuType.None);
@@ -168,7 +184,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var onSelect = new Action<string>(uid =>
 			{
 				if (modData.MapCache[uid].Status != MapStatus.Available)
-					SwitchMenu(MenuType.Workshop);
+					SwitchMenu(mapEditorReturnMenu);
 				else
 					LoadMapIntoEditor(modData.MapCache[uid].Uid);
 			});
@@ -203,7 +219,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			loadMapButton.Disabled = !hasMaps;
 
-			mapEditorMenu.Get<ButtonWidget>("BACK_BUTTON").OnClick = () => SwitchMenu(MenuType.Workshop);
+			mapEditorMenu.Get<ButtonWidget>("BACK_BUTTON").OnClick = () => SwitchMenu(mapEditorReturnMenu);
 
 			// OpenRA AI world tools: generate a map from Earth context, then refine it
 			// with the native editor without burying either workflow under Extras.
@@ -259,6 +275,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					Game.RunAfterTick(experienceButton.OnClick);
 				else if (Environment.GetEnvironmentVariable("OPENRA_AI_START_ASSET_LIBRARY") == "1")
 					Game.RunAfterTick(worldToolsMenu.Get<ButtonWidget>("ASSET_LIBRARY_BUTTON").OnClick);
+				else if (Environment.GetEnvironmentVariable("OPENRA_AI_START_WORKSHOP") == "1")
+					Game.RunAfterTick(() => SwitchMenu(MenuType.Workshop));
 			}
 
 			var newsBG = widget.GetOrNull("NEWS_BG");

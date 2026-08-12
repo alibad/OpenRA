@@ -41,6 +41,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[FluentReference]
 		const string AllPackages = "label-all-packages";
 
+		[FluentReference]
+		const string NothingSelected = "label-asset-library-nothing-selected";
+
+		[FluentReference]
+		const string SelectHint = "label-asset-library-select-hint";
+
 		readonly string[] allowedExtensions;
 		readonly string[] allowedSpriteExtensions;
 		readonly string[] allowedModelExtensions;
@@ -75,6 +81,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		VideoPlayerWidget player = null;
 		bool isVideoLoaded = false;
 		bool isLoadError = false;
+		bool paletteManuallySelected = false;
 		int currentFrame;
 		WRot modelOrientation;
 		float spriteScale;
@@ -413,6 +420,32 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			template = panel.Get<ScrollItemWidget>("ASSET_TEMPLATE");
 			PopulateAssetList();
 
+			var selectedAsset = panel.GetOrNull<LabelWidget>("SELECTED_ASSET");
+			if (selectedAsset != null)
+				selectedAsset.GetText = () => currentFilename ?? FluentProvider.GetMessage(NothingSelected);
+
+			var selectedAssetMeta = panel.GetOrNull<LabelWidget>("SELECTED_ASSET_META");
+			if (selectedAssetMeta != null)
+				selectedAssetMeta.GetText = () => currentFilename == null ?
+					FluentProvider.GetMessage(SelectHint) :
+					$"{AssetTypeName(currentFilename)} · {GetSourceDisplayName(currentPackage)}";
+
+			var emptyState = panel.GetOrNull<Widget>("EMPTY_STATE");
+			if (emptyState != null)
+				emptyState.IsVisible = () => currentFilename == null;
+
+			var copyAssetButton = panel.GetOrNull<ButtonWidget>("COPY_ASSET_BUTTON");
+			if (copyAssetButton != null)
+			{
+				copyAssetButton.IsDisabled = () => currentFilename == null;
+				copyAssetButton.OnClick = () => Game.SetClipboardText(currentFilename);
+			}
+
+			var initialAsset = Environment.GetEnvironmentVariable("OPENRA_AI_ASSET_LIBRARY_SELECT");
+			if (!string.IsNullOrEmpty(initialAsset) &&
+				modData.DefaultFileSystem.TryGetPackageContaining(initialAsset, out var initialPackage, out var initialFilename))
+				LoadAsset(initialPackage, initialFilename);
+
 			var closeButton = panel.GetOrNull<ButtonWidget>("CLOSE_BUTTON");
 			if (closeButton != null)
 				closeButton.OnClick = () =>
@@ -421,6 +454,21 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					Ui.CloseWindow();
 					onExit();
 				};
+		}
+
+		string AssetTypeName(string filename)
+		{
+			var extension = Path.GetExtension(filename).ToLowerInvariant();
+			if (allowedSpriteExtensions.Contains(extension))
+				return "Sprite or image";
+			if (allowedModelExtensions.Contains(extension))
+				return "3D model";
+			if (allowedAudioExtensions.Contains(extension))
+				return "Audio";
+			if (allowedVideoExtensions.Contains(extension))
+				return "Video";
+
+			return "Asset";
 		}
 
 		void SelectNextFrame()
@@ -530,6 +578,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				{
 					currentSprites = spriteCache[prefix + filename];
 					currentFrame = 0;
+					if (!paletteManuallySelected)
+					{
+						var prefersChrome = filename.Contains("icon", StringComparison.OrdinalIgnoreCase) ||
+							package.Name?.Contains("hires", StringComparison.OrdinalIgnoreCase) == true;
+						var preferredPalette = prefersChrome ? "chrome" : "temperat";
+						currentPalette = palettes.FirstOrDefault(p => p.Equals(preferredPalette, StringComparison.OrdinalIgnoreCase)) ?? currentPalette;
+					}
 
 					if (frameSlider != null && currentSprites?.Length > 0)
 					{
@@ -664,7 +719,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{
 				var item = ScrollItemWidget.Setup(itemTemplate,
 					() => currentPalette == name,
-					() => currentPalette = name);
+					() =>
+					{
+						currentPalette = name;
+						paletteManuallySelected = true;
+					});
 
 				item.Get<LabelWidget>("LABEL").GetText = () => name;
 				return item;

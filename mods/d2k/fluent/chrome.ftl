@@ -63,3 +63,4 @@ button-production-types-tanks-tooltip = Heavy Vehicles
 button-production-types-aircraft-tooltip = Aircraft
 button-production-types-starport-tooltip = Starport
 button-production-types-upgrade-tooltip = Upgrades
+button-extras-menu-assetbrowser = Asset Browser

@@ -38,7 +38,7 @@ ExperienceCatalog:
 	Profiles:
 		world-war-iii:
 			Title: World War III
-			Description: The curated default with every stable reusable capability enabled.
+			Description: The curated default with all currently integrated gameplay modules enabled.
 			Components: minefield-generator, mission-aware-minelayer-ai, point-defense-interception, battlefield-salvage
 		core-operations:
 			Title: Core Operations
