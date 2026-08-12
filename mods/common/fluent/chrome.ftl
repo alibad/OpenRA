@@ -753,6 +753,7 @@ button-experience-pack-folder-copied = Folder Path Copied
 label-experience-compatibility-title = Multiplayer Compatibility
 label-experience-restart-hint = Gameplay and presentation changes are applied safely after restarting the mod.
 button-experience-reset = Restore Default
+button-experience-disable-all = Disable All Modules
 button-experience-apply = Apply & Restart
 label-experience-parameters-title = Module Parameters
 label-experience-parameters-empty = This module has no configurable parameters.

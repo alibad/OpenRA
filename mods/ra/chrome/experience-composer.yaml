@@ -381,11 +381,18 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 			Align: Center
 			Font: Tiny
 		Button@RESET_BUTTON:
-			X: 25
+			X: 205
 			Y: PARENT_HEIGHT - 40
 			Width: 170
 			Height: 28
 			Text: button-experience-reset
+			Font: Bold
+		Button@DISABLE_ALL_BUTTON:
+			X: 25
+			Y: PARENT_HEIGHT - 40
+			Width: 170
+			Height: 28
+			Text: button-experience-disable-all
 			Font: Bold
 		Button@CANCEL_BUTTON:
 			Key: escape

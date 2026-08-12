@@ -233,6 +233,23 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				RefreshSummary();
 			};
 
+			var disableAllButton = widget.Get<ButtonWidget>("DISABLE_ALL_BUTTON");
+			disableAllButton.IsDisabled = () => workingComponents.Length == 0 &&
+				workingPresentationPackId == PresentationPackDefinition.Default.Id;
+			disableAllButton.OnClick = () =>
+			{
+				workingProfileId = catalog.DefaultProfileId;
+				workingComponents = [];
+				workingCustomComponents = catalog.ComponentsForProfile(workingProfileId).Length != 0;
+				workingParameterValues = catalog.DefaultParameterValues()
+					.ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.OrdinalIgnoreCase);
+				workingPresentationPackId = PresentationPackDefinition.Default.Id;
+				selectedReplacement = null;
+				PopulateComponents();
+				PopulateReplacements();
+				RefreshSummary();
+			};
+
 			applyButton = widget.Get<ButtonWidget>("APPLY_BUTTON");
 			applyButton.IsDisabled = () => !HasChanges();
 			applyButton.OnClick = ApplyAndRestart;

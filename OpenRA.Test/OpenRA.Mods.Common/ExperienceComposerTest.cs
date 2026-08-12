@@ -20,6 +20,16 @@ namespace OpenRA.Test
 	[TestFixture]
 	sealed class ExperienceComposerTest
 	{
+		[TestCase(TestName = "The default experience keeps optional modules disabled")]
+		public void DefaultExperienceIsAssistantOnly()
+		{
+			var settings = new ExperienceSettings();
+			Assert.That(settings.Profile, Is.EqualTo("ai-assistant-only"));
+			Assert.That(settings.UseCustomComponents, Is.False);
+			Assert.That(settings.EnabledComponents, Is.Empty);
+			Assert.That(settings.PresentationPack, Is.EqualTo(PresentationPackDefinition.Default.Id));
+		}
+
 		[TestCase(TestName = "Experience parameters validate and normalize typed values")]
 		public void NormalizeExperienceParameters()
 		{
