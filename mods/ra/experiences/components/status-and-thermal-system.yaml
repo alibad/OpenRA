@@ -1,0 +1,31 @@
+World:
+	ReusableCapability@STATUSTHERMAL:
+		Id: status-and-thermal-system
+		Domain: effects-and-sensors
+		Provides: status.heat, status.suppression, status.jamming, status.weapon-lock, status.visibility
+		Requires: condition-feedback, ai-status-awareness
+		Strategies: suppress-target, jam-sensors, manage-heat
+
+^ReusableStatusReceiver:
+	ReusableCapability:
+		Id: status-receiver
+		Domain: effects-and-sensors
+		Provides: status.receiver
+		Requires: ExternalCondition
+		Strategies: react-to-status
+	ExternalCondition@HEAT:
+		Condition: status-heat
+	ExternalCondition@SUPPRESSION:
+		Condition: status-suppressed
+	ExternalCondition@SENSORJAM:
+		Condition: status-sensor-jammed
+	ExternalCondition@WEAPONLOCK:
+		Condition: status-weapon-locked
+
+^ReusableStatusEmitter:
+	ReusableCapability:
+		Id: status-emitter
+		Domain: effects-and-sensors
+		Provides: status.source
+		Requires: condition-warhead-or-aura
+		Strategies: prioritize-status-target

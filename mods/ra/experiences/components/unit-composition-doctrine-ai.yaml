@@ -1,0 +1,15 @@
+Player:
+	ReusableCapability@COMPOSITIONAI:
+		Id: unit-composition-doctrine-ai
+		Domain: strategy-ai
+		Provides: composition.template, role-demand, counter-response
+		Requires: strategic-role, faction.doctrine
+		Strategies: combined-arms, layered-defense, asymmetric-raiding
+
+^ReusableCompositionMember:
+	ReusableCapability:
+		Id: composition-member
+		Domain: strategy-ai
+		Provides: formation.role
+		Requires: strategic-role
+		Strategies: assemble-formation, replace-losses

@@ -49,7 +49,7 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			var value = init.GetOrDefault<SalvageValueInit>(info);
 			var percentage = Game.ModData.GetOrNull<ExperienceCatalog>()?.GetIntegerParameter(
-				"battlefield-salvage", "value-percentage", info.Percentage) ?? info.Percentage;
+				"salvage-and-scrap-economy", "value-percentage", info.Percentage) ?? info.Percentage;
 			Bounty = value != null ? value.Value * percentage / 100 :
 				init.Self.World.SharedRandom.Next(info.MinimumFallbackAmount, info.MaximumFallbackAmount);
 		}
@@ -136,9 +136,9 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
 			var probability = experience?.GetIntegerParameter(
-				"battlefield-salvage", "spawn-probability", Info.Probability) ?? Info.Probability;
+				"salvage-and-scrap-economy", "spawn-probability", Info.Probability) ?? Info.Probability;
 			var eligibleFaction = experience?.GetChoiceParameter(
-				"battlefield-salvage", "eligible-faction", "All") ?? "All";
+				"salvage-and-scrap-economy", "eligible-faction", "All") ?? "All";
 			var ownerEligible = eligibleFaction.Equals("All", System.StringComparison.OrdinalIgnoreCase) ||
 				eligibleFaction.Equals(self.Owner.Faction.InternalName, System.StringComparison.OrdinalIgnoreCase);
 

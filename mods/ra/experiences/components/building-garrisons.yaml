@@ -1,0 +1,28 @@
+World:
+	ReusableCapability@BUILDINGGARRISONS:
+		Id: building-garrisons
+		Domain: buildings-and-infantry
+		Provides: garrison.enter, garrison.fire, garrison.evacuate
+		Requires: cargo, passenger, attack-garrisoned
+		Strategies: occupy-strongpoint, clear-garrison, evacuate-garrison
+
+^ReusableGarrisonableBuilding:
+	ReusableCapability:
+		Id: garrisonable-building
+		Domain: buildings-and-infantry
+		Provides: garrison.host, passenger.fire-port
+		Requires: Cargo, AttackGarrisoned, building-damage-feedback
+		Strategies: occupy-strongpoint, urban-defense
+	StrategicRole:
+		Roles: garrison, urban-strongpoint, infantry-cover
+		Counters: infantry, light-vehicle
+		Domain: building
+		AIWeight: 100
+
+^ReusableGarrisonInfantry:
+	ReusableCapability:
+		Id: garrison-infantry
+		Domain: infantry
+		Provides: garrison.passenger, garrison.armament
+		Requires: Passenger, Armament
+		Strategies: occupy-strongpoint, evacuate-garrison

@@ -1,0 +1,15 @@
+World:
+	ReusableCapability@TARGETEDABILITIES:
+		Id: targeted-unit-abilities
+		Domain: units-and-effects
+		Provides: ability.target-actor, ability.target-cell, ability.cooldown, ability.telemetry
+		Requires: synchronized-orders, cursor-feedback
+		Strategies: use-targeted-ability, preserve-cooldown
+
+^ReusableTargetedAbilityHost:
+	ReusableCapability:
+		Id: targeted-ability-host
+		Domain: units-and-effects
+		Provides: ability.command-source
+		Requires: target-validation, cooldown
+		Strategies: use-targeted-ability

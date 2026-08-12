@@ -1,0 +1,39 @@
+World:
+	ReusableCapability@SUPPLYLOGISTICS:
+		Id: supply-logistics-economy
+		Domain: economy
+		Provides: supply.node, supply.route, supply.resupply, convoy.objective
+		Requires: logistics.actor, transport.route
+		Strategies: protect-supply, interdict-supply, resupply-frontline
+
+^ReusableSupplyNode:
+	ReusableCapability:
+		Id: supply-node
+		Domain: economy
+		Provides: supply.source, resupply.radius
+		Requires: position, ownership
+		Strategies: defend-logistics, raid-logistics
+
+^ReusableSupplyConsumer:
+	ReusableCapability:
+		Id: supply-consumer
+		Domain: logistics
+		Provides: supply.demand
+		Requires: supply.source
+		Strategies: return-to-supply, convoy-escort
+	StrategicRole:
+		Roles: logistics-consumer
+		Domain: logistics
+
+^ReusableSupplyTransport:
+	ReusableCapability:
+		Id: supply-transport
+		Domain: logistics
+		Provides: supply.delivery, convoy.member
+		Requires: supply.source, supply.destination
+		Strategies: convoy-escort, route-resupply
+	StrategicRole:
+		Roles: supply-transport, convoy, logistics
+		Domain: logistics
+		AIWeight: 85
+		TransportWeight: 4

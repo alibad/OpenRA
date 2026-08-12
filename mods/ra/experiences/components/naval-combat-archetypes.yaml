@@ -1,0 +1,34 @@
+World:
+	ReusableCapability@NAVALARCHETYPES:
+		Id: naval-combat-archetypes
+		Domain: navy
+		Provides: naval.patrol, naval.corvette, naval.destroyer, naval.submarine, naval.landing-ship, naval.carrier
+		Requires: naval-pathing, sonar-detection, strategic-role
+		Strategies: fleet-screen, sea-denial, amphibious-assault
+
+^ReusableMissileCorvette:
+	Inherits: ^RolePatrolCraft
+	ReusableCapability:
+		Id: naval-archetype-missile-corvette
+		Domain: navy
+		Provides: naval.screen, naval.missile-platform
+		Requires: point-defense-interception, guided-projectile
+		Strategies: fleet-screen, saturation-attack
+
+^ReusableLandingShip:
+	Inherits: ^RoleTransport
+	ReusableCapability:
+		Id: naval-archetype-landing-ship
+		Domain: navy
+		Provides: naval.transport, amphibious-unload
+		Requires: Cargo, naval-pathing
+		Strategies: amphibious-assault, evacuation
+
+^ReusableCarrierShip:
+	Inherits: ^RoleDestroyer
+	ReusableCapability:
+		Id: naval-archetype-carrier
+		Domain: navy
+		Provides: naval.carrier, wing.parent
+		Requires: carrier-and-drone-wing
+		Strategies: standoff-strike, fleet-screen

@@ -2,6 +2,14 @@ ExperienceCatalog:
 	Mod: ra
 	DefaultProfile: world-war-iii
 	Components:
+		faction-and-subfaction-contract:
+			Title: Faction and doctrine contract
+			Description: Stable country, side, doctrine, and unit-role identifiers for rosters, AI, missions, promotions, and captured technology.
+			Category: Factions and strategies
+			Version: 1
+			Source: RA Plus, Combined Arms, Cameo, and Generals Alpha patterns synthesized for OpenRA AI
+			License: GPL-3.0-or-later code; no upstream presentation assets
+			Rules: ra|experiences/components/faction-doctrine-contract.yaml
 		minefield-generator:
 			Title: Replenishing minefields
 			Description: Structures and mission proxies can maintain configurable defensive mine perimeters.
@@ -92,7 +100,7 @@ ExperienceCatalog:
 					Group: Effects
 					Type: Boolean
 					Default: true
-		battlefield-salvage:
+		salvage-and-scrap-economy:
 			Title: Battlefield salvage
 			Description: Destroyed vehicles can leave recoverable value for scavenger forces and mission objectives.
 			Category: Economy and missions
@@ -128,16 +136,276 @@ ExperienceCatalog:
 					Type: Choice
 					Default: All
 					Options: All, allies, england, france, germany, saudi, turkey, china, soviet, russia, ukraine, yemen, iran
+		asset-import-audit-pipeline:
+			Title: Asset acceptance contract
+			Description: Records provenance, fixed canvases, native facing order, contact sheets, and live turning as mandatory authoring gates.
+			Category: Authoring and compatibility
+			Version: 1
+			Source: OpenRA Mod SDK and OpenHV pipeline patterns
+			License: GPL-3.0-or-later tooling; per-file presentation licenses remain mandatory
+			Rules: ra|experiences/components/asset-import-audit-pipeline.yaml
+		supply-logistics-economy:
+			Title: Supply and logistics
+			Description: Reusable supply nodes, consumers, transports, convoy routes, resupply, protection, and interdiction contracts.
+			Category: Economy and logistics
+			Version: 1
+			Source: Generals Alpha mechanics synthesized into native OpenRA contracts
+			License: GPL-3.0-or-later code; original presentation required
+			Dependencies: faction-and-subfaction-contract
+			Rules: ra|experiences/components/supply-logistics-economy.yaml
+			Parameters:
+				resupply-radius:
+					Title: Resupply radius
+					Description: Preferred service radius for concrete supply nodes.
+					Group: Economy
+					Type: Integer
+					Default: 4
+					Minimum: 1
+					Maximum: 12
+					Step: 1
+					Unit: cells
+		building-garrisons:
+			Title: Building garrisons
+			Description: Enterable strongpoints, passenger firing, evacuation, and AI occupancy using native Cargo and AttackGarrisoned primitives.
+			Category: Buildings and infantry
+			Version: 1
+			Source: Romanov's Vengeance, Shattered Paradise, Cameo, and Generals Alpha patterns
+			License: GPL-3.0-or-later code; original damage overlays required
+			Dependencies: faction-and-subfaction-contract
+			Rules: ra|experiences/components/building-garrisons.yaml
+			Parameters:
+				capacity:
+					Title: Default garrison capacity
+					Description: Preferred passenger capacity for concrete garrison buildings.
+					Group: Units
+					Type: Integer
+					Default: 4
+					Minimum: 1
+					Maximum: 8
+					Step: 1
+					Unit: infantry
+		carrier-and-drone-wing:
+			Title: Carrier and drone wings
+			Description: Normalized parent, child, sortie, recall, command-link, and replenishment contracts for carriers and unmanned systems.
+			Category: Navy and air
+			Version: 1
+			Source: Combined Arms, OpenRA RA2, OpenHV, and RA+ patterns
+			License: GPL-3.0-or-later code; original units required
+			Dependencies: faction-and-subfaction-contract, air-attack-profiles
+			Rules: ra|experiences/components/carrier-and-drone-wing.yaml
+			Parameters:
+				wing-size:
+					Title: Preferred wing size
+					Description: Default child count for concrete carrier implementations.
+					Group: Units
+					Type: Integer
+					Default: 4
+					Minimum: 1
+					Maximum: 12
+					Step: 1
+					Unit: aircraft
+		commander-promotions:
+			Title: Commander promotions
+			Description: Match-scoped points, mutually exclusive doctrine choices, veterancy targets, and synchronized upgrade contracts.
+			Category: Factions and strategies
+			Version: 1
+			Source: Cameo, Generals Alpha, and Combined Arms patterns
+			License: GPL-3.0-or-later code; original icons required
+			Dependencies: faction-and-subfaction-contract
+			Rules: ra|experiences/components/commander-promotions.yaml
+			Parameters:
+				point-rate:
+					Title: Promotion point rate
+					Description: Relative rate used by concrete commander-point award implementations.
+					Group: Balance
+					Type: Integer
+					Default: 100
+					Minimum: 25
+					Maximum: 200
+					Step: 5
+					Unit: percent
+		unit-composition-doctrine-ai:
+			Title: Composition and doctrine AI
+			Description: Role-driven combined-arms formations, faction doctrine templates, loss replacement, and counter-response contracts.
+			Category: AI strategies
+			Version: 1
+			Source: Combined Arms and Cameo patterns adapted into native role metadata
+			License: GPL-3.0-or-later
+			Dependencies: faction-and-subfaction-contract
+			Rules: ra|experiences/components/unit-composition-doctrine-ai.yaml
+			Parameters:
+				formation-size:
+					Title: Preferred formation size
+					Description: Target size used by concrete doctrine formation builders.
+					Group: AI
+					Type: Integer
+					Default: 8
+					Minimum: 3
+					Maximum: 20
+					Step: 1
+					Unit: units
+		targeted-unit-abilities:
+			Title: Targeted unit abilities
+			Description: Shared actor and cell targeting, validation, cooldown, cursor feedback, telemetry, and bot-use contracts.
+			Category: Units and effects
+			Version: 1
+			Source: Combined Arms and Cameo patterns
+			License: GPL-3.0-or-later code; original cursors and effects required
+			Rules: ra|experiences/components/targeted-unit-abilities.yaml
+			Parameters:
+				cooldown-rate:
+					Title: Ability cooldown rate
+					Description: Global rate applied by concrete targeted ability implementations.
+					Group: Balance
+					Type: Integer
+					Default: 100
+					Minimum: 25
+					Maximum: 200
+					Step: 5
+					Unit: percent
+		campaign-objective-toolkit:
+			Title: Campaign objective toolkit
+			Description: Original Lua helpers for objectives, reinforcement schedules, escalation, extraction, waves, and difficulty scaling.
+			Category: Missions and story
+			Version: 1
+			Source: Patterns extracted from Combined Arms, OpenHV, Shattered Paradise, Romanov's Vengeance, and Cameo
+			License: Original GPL-3.0-or-later module; no upstream story text or media
+			Rules: ra|experiences/components/campaign-objective-toolkit.yaml
+		convoy-and-evacuation-mission-pattern:
+			Title: Convoy and evacuation missions
+			Description: Composable escort, interdiction, embarkation, unloading, extraction, regroup, and failure-state contracts.
+			Category: Missions and story
+			Version: 1
+			Source: Original module synthesized from Combined Arms, Generals Alpha, and OpenHV mission patterns
+			License: Original GPL-3.0-or-later module
+			Dependencies: campaign-objective-toolkit, supply-logistics-economy
+			Rules: ra|experiences/components/convoy-and-evacuation-mission-pattern.yaml
+		status-and-thermal-system:
+			Title: Status and thermal system
+			Description: Shared heat, suppression, sensor-jam, weapon-lock, visibility, emitter, and receiver contracts.
+			Category: Effects and sensors
+			Version: 1
+			Source: Combined Arms and Cameo condition patterns
+			License: GPL-3.0-or-later code; original overlays required
+			Rules: ra|experiences/components/status-and-thermal-system.yaml
+		weather-and-battlefield-lighting:
+			Title: Weather and battlefield lighting
+			Description: Mission-triggered deterministic sandstorm overlay plus rain, night-lighting, and visibility extension contracts.
+			Category: Effects and missions
+			Version: 1
+			Source: OpenRA RA2, RA+, Cameo, and Shattered Paradise patterns using native WeatherOverlay
+			License: GPL-3.0-or-later code; original particles and audio only
+			Rules: ra|experiences/components/weather-and-battlefield-lighting.yaml
+			Parameters:
+				intensity:
+					Title: Weather intensity
+					Description: Preferred density for mission-triggered weather profiles.
+					Group: Effects
+					Type: Integer
+					Default: 100
+					Minimum: 25
+					Maximum: 200
+					Step: 5
+					Unit: percent
+		teleport-network:
+			Title: Transit network
+			Description: Generalized entrance, exit, routing, placement validation, and AI contracts for tunnels or rapid transit.
+			Category: Buildings and support powers
+			Version: 1
+			Source: Combined Arms and OpenHV teleport-network patterns generalized for modern transit
+			License: GPL-3.0-or-later code; original effects required
+			Dependencies: targeted-unit-abilities
+			Rules: ra|experiences/components/teleport-network.yaml
+		advanced-projectile-library:
+			Title: Advanced projectile library
+			Description: Guided, ballistic, beam, trail, husk, and interception contracts built around native Missile and Bullet projectiles.
+			Category: Weapons and effects
+			Version: 1
+			Source: Combined Arms, Cameo, Shattered Paradise, and OpenHV patterns
+			License: GPL-3.0-or-later code; original effects and audio required
+			Dependencies: point-defense-interception
+			Rules: ra|experiences/components/advanced-projectile-library.yaml
+		air-attack-profiles:
+			Title: Air attack profiles
+			Description: Interceptor, strike, airlift, bomber-run, gunship, and return-to-base role contracts for current and future aircraft.
+			Category: Air warfare
+			Version: 1
+			Source: Combined Arms, RA+, Cameo, and Generals Alpha patterns merged with current air warfare
+			License: GPL-3.0-or-later code; no upstream aircraft binaries
+			Dependencies: faction-and-subfaction-contract, asset-import-audit-pipeline
+			Rules: ra|experiences/components/air-attack-profiles.yaml
+		naval-combat-archetypes:
+			Title: Naval combat archetypes
+			Description: Patrol, missile-corvette, destroyer, submarine, landing-ship, and carrier contracts with explicit counter roles.
+			Category: Navy and air
+			Version: 1
+			Source: Role patterns from Combined Arms, RA+, Romanov's Vengeance, OpenHV, and Cameo
+			License: Original data contracts; original ships and effects required
+			Dependencies: faction-and-subfaction-contract, carrier-and-drone-wing, advanced-projectile-library
+			Rules: ra|experiences/components/naval-combat-archetypes.yaml
+		ground-force-archetypes:
+			Title: Ground force archetypes
+			Description: Rifle, AT, engineer, scout, APC, MBT, artillery, air-defense, tank-destroyer, and recovery role contracts.
+			Category: Soldiers and tanks
+			Version: 1
+			Source: Role and balance patterns synthesized across all cataloged gameplay mods
+			License: Original data contracts; original sprites required
+			Dependencies: faction-and-subfaction-contract, asset-import-audit-pipeline
+			Rules: ra|experiences/components/ground-force-archetypes.yaml
+		base-and-defense-archetypes:
+			Title: Base and defense archetypes
+			Description: Command, power, production, radar, tech, repair, gun, SAM, artillery, garrison, point-defense, and mine contracts.
+			Category: Buildings and defenses
+			Version: 1
+			Source: Base grammar synthesized across all cataloged gameplay mods
+			License: Original data contracts; original sprites required
+			Dependencies: faction-and-subfaction-contract
+			Rules: ra|experiences/components/base-and-defense-archetypes.yaml
+		capture-technology:
+			Title: Capture technology
+			Description: Controlled captured-faction prerequisites, hybrid rosters, capturable structures, and mission reward contracts.
+			Category: Factions and missions
+			Version: 1
+			Source: Combined Arms and Cameo patterns
+			License: GPL-3.0-or-later
+			Dependencies: faction-and-subfaction-contract
+			Rules: ra|experiences/components/capture-technology.yaml
+		mind-control-and-disguise:
+			Title: Mind control and disguise
+			Description: Disguise, detection, effective ownership, control capacity, release policy, and counterplay contracts.
+			Category: Special units
+			Version: 1
+			Source: Combined Arms, OpenRA RA2, Romanov's Vengeance, and Cameo patterns
+			License: GPL-3.0-or-later code; no upstream content
+			Dependencies: targeted-unit-abilities
+			Rules: ra|experiences/components/mind-control-and-disguise.yaml
+		terrain-and-random-map-systems:
+			Title: Terrain and random map systems
+			Description: Earth terrain enrichment, auto-tiling, forests, liquids, resources, deterministic seeds, and native random map integration.
+			Category: Maps and world generation
+			Version: 1
+			Source: OpenHV patterns compared with the existing OpenRA AI world generator
+			License: GPL-3.0-or-later code; every terrain folder remains separately license-gated
+			Dependencies: asset-import-audit-pipeline
+			Rules: ra|experiences/components/terrain-and-random-map-systems.yaml
 	Profiles:
 		world-war-iii:
 			Title: World War III
-			Description: The curated default with all currently integrated gameplay modules enabled.
-			Components: minefield-generator, mission-aware-minelayer-ai, point-defense-interception, battlefield-salvage
+			Description: The curated default with the complete reusable capability portfolio and safe original presentation enabled.
+			Components: asset-import-audit-pipeline, faction-and-subfaction-contract, minefield-generator, mission-aware-minelayer-ai, supply-logistics-economy, point-defense-interception, building-garrisons, carrier-and-drone-wing, commander-promotions, unit-composition-doctrine-ai, targeted-unit-abilities, salvage-and-scrap-economy, campaign-objective-toolkit, convoy-and-evacuation-mission-pattern, status-and-thermal-system, weather-and-battlefield-lighting, teleport-network, advanced-projectile-library, air-attack-profiles, naval-combat-archetypes, ground-force-archetypes, base-and-defense-archetypes, capture-technology, mind-control-and-disguise, terrain-and-random-map-systems
 		core-operations:
 			Title: Core Operations
 			Description: The core game without optional reusable capability modules.
 			Components:
 		layered-defense:
 			Title: Layered Defense
-			Description: Mine warfare, defensive AI, and missile interception without battlefield salvage.
-			Components: minefield-generator, mission-aware-minelayer-ai, point-defense-interception
+			Description: Mine warfare, defensive AI, projectile interception, garrisons, status effects, and reusable base defenses.
+			Components: faction-and-subfaction-contract, minefield-generator, mission-aware-minelayer-ai, point-defense-interception, building-garrisons, status-and-thermal-system, advanced-projectile-library, base-and-defense-archetypes
+		campaign-authoring:
+			Title: Campaign Authoring
+			Description: Mission objectives, logistics, convoys, evacuation, capture rewards, weather, and terrain-generation contracts.
+			Components: campaign-objective-toolkit, convoy-and-evacuation-mission-pattern, capture-technology, weather-and-battlefield-lighting, terrain-and-random-map-systems
+		combined-arms-laboratory:
+			Title: Combined Arms Laboratory
+			Description: Role archetypes, doctrine AI, abilities, air profiles, naval wings, logistics, promotions, transit, and special-unit experiments.
+			Components: ground-force-archetypes, air-attack-profiles, naval-combat-archetypes, unit-composition-doctrine-ai, supply-logistics-economy, commander-promotions, targeted-unit-abilities, teleport-network, mind-control-and-disguise

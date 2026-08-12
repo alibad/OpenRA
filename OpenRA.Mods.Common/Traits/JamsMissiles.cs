@@ -41,7 +41,7 @@ namespace OpenRA.Mods.Common.Traits
 		public override object Create(ActorInitializer init) { return new JamsMissiles(init.Self, this); }
 	}
 
-	public class JamsMissiles : ConditionalTrait<JamsMissilesInfo>, INotifyCreated, ITick, ISync
+	public class JamsMissiles : ConditionalTrait<JamsMissilesInfo>, ITick, ISync
 	{
 		readonly Actor self;
 		AmmoPool ammoPool;
@@ -59,8 +59,10 @@ namespace OpenRA.Mods.Common.Traits
 			this.self = self;
 		}
 
-		void INotifyCreated.Created(Actor self)
+		protected override void Created(Actor self)
 		{
+			base.Created(self);
+
 			if (!string.IsNullOrEmpty(Info.AmmoPool))
 				ammoPool = self.TraitsImplementing<AmmoPool>().FirstOrDefault(pool => pool.Info.Name == Info.AmmoPool);
 		}

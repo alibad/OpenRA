@@ -119,13 +119,7 @@ DirectionalCue = function(waypoint, sonar)
 end
 
 IsNear = function(actor, target, radius)
-	if not actor or actor.IsDead or not actor.IsInWorld then
-		return false
-	end
-
-	return Utils.Any(Map.ActorsInCircle(target.CenterPosition, WDist.FromCells(radius)), function(a)
-		return a == actor
-	end)
+	return ExperienceObjectives.IsNear(actor, target, radius)
 end
 
 IsNearActor = function(actor, target, radius)

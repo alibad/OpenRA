@@ -1,0 +1,15 @@
+Player:
+	ReusableCapability@COMMANDERPROMOTIONS:
+		Id: commander-promotions
+		Domain: progression
+		Provides: promotion.points, promotion.choice, doctrine.upgrade
+		Requires: faction.doctrine, synchronized-orders
+		Strategies: choose-promotion, counter-doctrine
+
+^ReusablePromotionEligible:
+	ReusableCapability:
+		Id: promotion-eligible
+		Domain: progression
+		Provides: promotion.target, veterancy.delta
+		Requires: GainsExperience, doctrine.upgrade
+		Strategies: prioritize-veterans

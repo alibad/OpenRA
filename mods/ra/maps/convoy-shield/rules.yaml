@@ -1,6 +1,6 @@
 World:
 	LuaScript:
-		Scripts: campaign.lua, utils.lua, convoy-shield.lua
+		Scripts: campaign.lua, utils.lua, experience-objectives.lua, convoy-shield.lua
 	MissionData:
 		Briefing: briefing
 		WinVideo: allymorf.vqa

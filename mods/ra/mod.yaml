@@ -75,9 +75,30 @@ MapFolders:
 
 Rules:
 	ra|rules/misc.yaml
+	ra|experiences/components/faction-doctrine-contract.yaml
 	ra|experiences/components/minefield-generator.yaml
 	ra|experiences/components/point-defense-interception.yaml
 	ra|experiences/components/battlefield-salvage.yaml
+	ra|experiences/components/asset-import-audit-pipeline.yaml
+	ra|experiences/components/supply-logistics-economy.yaml
+	ra|experiences/components/building-garrisons.yaml
+	ra|experiences/components/carrier-and-drone-wing.yaml
+	ra|experiences/components/commander-promotions.yaml
+	ra|experiences/components/unit-composition-doctrine-ai.yaml
+	ra|experiences/components/targeted-unit-abilities.yaml
+	ra|experiences/components/campaign-objective-toolkit.yaml
+	ra|experiences/components/convoy-and-evacuation-mission-pattern.yaml
+	ra|experiences/components/status-and-thermal-system.yaml
+	ra|experiences/components/weather-and-battlefield-lighting.yaml
+	ra|experiences/components/teleport-network.yaml
+	ra|experiences/components/advanced-projectile-library.yaml
+	ra|experiences/components/air-attack-profiles.yaml
+	ra|experiences/components/naval-combat-archetypes.yaml
+	ra|experiences/components/ground-force-archetypes.yaml
+	ra|experiences/components/base-and-defense-archetypes.yaml
+	ra|experiences/components/capture-technology.yaml
+	ra|experiences/components/mind-control-and-disguise.yaml
+	ra|experiences/components/terrain-and-random-map-systems.yaml
 	ra|rules/ai.yaml
 	ra|rules/rl-bot.yaml
 	ra|rules/player.yaml

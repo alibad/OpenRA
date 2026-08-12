@@ -1,0 +1,28 @@
+World:
+	ReusableCapability@BASEARCHETYPES:
+		Id: base-and-defense-archetypes
+		Domain: buildings-and-defenses
+		Provides: base.command, base.power, base.production, base.radar, base.tech, base.repair, defense.gun, defense.sam, defense.artillery, defense.mine
+		Requires: faction.doctrine, production-queue, power-economy
+		Strategies: build-base, layered-defense, forward-operating-base
+
+^ReusableBaseStructure:
+	ReusableCapability:
+		Id: base-structure
+		Domain: buildings-and-defenses
+		Provides: base.structure-slot
+		Requires: Building, ownership
+		Strategies: build-base, repair-base
+
+^ReusableDefenseStructure:
+	ReusableCapability:
+		Id: defense-structure
+		Domain: buildings-and-defenses
+		Provides: defense.emplacement
+		Requires: Building, attack-profile
+		Strategies: layered-defense, protect-base
+	StrategicRole:
+		Roles: defense, emplacement, base-protection
+		Counters: infantry, armor, aircraft
+		Domain: building
+		AIWeight: 105
