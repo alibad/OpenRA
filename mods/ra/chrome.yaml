@@ -72,6 +72,46 @@ command-button-allies-disabled:
 command-button-allies-highlighted-disabled:
 	Inherits: command-button-allies-highlighted
 
+# China shares the established Allied command interface.  The in-game chrome
+# appends the active faction id to these collection names, so explicit aliases
+# are required even though the rules faction uses the Allied side.
+sidebar-china:
+	Inherits: sidebar-allies
+
+sidebar-button-china:
+	Inherits: sidebar-button-allies
+sidebar-button-china-hover:
+	Inherits: sidebar-button-allies-hover
+sidebar-button-china-pressed:
+	Inherits: sidebar-button-allies-pressed
+sidebar-button-china-highlighted:
+	Inherits: sidebar-button-allies-highlighted
+sidebar-button-china-highlighted-hover:
+	Inherits: sidebar-button-allies-highlighted-hover
+sidebar-button-china-highlighted-pressed:
+	Inherits: sidebar-button-allies-highlighted-pressed
+sidebar-button-china-disabled:
+	Inherits: sidebar-button-allies-disabled
+sidebar-button-china-highlighted-disabled:
+	Inherits: sidebar-button-allies-highlighted-disabled
+
+command-button-china:
+	Inherits: command-button-allies
+command-button-china-hover:
+	Inherits: command-button-allies-hover
+command-button-china-pressed:
+	Inherits: command-button-allies-pressed
+command-button-china-highlighted:
+	Inherits: command-button-allies-highlighted
+command-button-china-highlighted-hover:
+	Inherits: command-button-allies-highlighted-hover
+command-button-china-highlighted-pressed:
+	Inherits: command-button-allies-highlighted-pressed
+command-button-china-disabled:
+	Inherits: command-button-allies-disabled
+command-button-china-highlighted-disabled:
+	Inherits: command-button-allies-highlighted-disabled
+
 sidebar-soviet:
 	Inherits: ^Sidebar
 	Regions:
@@ -392,6 +432,7 @@ flags:
 		saudi: 226, 1, 30, 15
 		yemen: 226, 17, 30, 15
 		iran: 226, 33, 30, 15
+		china: 226, 257, 30, 15
 		england: 226, 49, 30, 15
 		germany: 226, 65, 30, 15
 		france: 226, 81, 30, 15

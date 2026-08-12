@@ -6,6 +6,7 @@ GenericVoice:
 		germany: .v01,.v03
 		saudi: .v01,.v03
 		turkey: .v01,.v03
+		china: .v01,.v03
 		soviet: .r01,.r03
 		russia: .r01,.r03
 		ukraine: .r01,.r03
@@ -27,6 +28,7 @@ VehicleVoice:
 		germany: .v00,.v02
 		saudi: .v00,.v02
 		turkey: .v00,.v02
+		china: .v00,.v02
 		soviet: .r00,.r02
 		russia: .r00,.r02
 		ukraine: .r00,.r02
@@ -101,6 +103,14 @@ IranInfantryVoice:
 		Burned: dedman10
 		Zapped: dedman6
 
+ChinaInfantryVoice:
+	Voices:
+		Select: rcn-infantry-select-zh,rcn-infantry-select-en
+		Action: rcn-infantry-action-zh,rcn-infantry-action-en
+		Die: dedman1,dedman2,dedman3,dedman4,dedman5,dedman7,dedman8
+		Burned: dedman10
+		Zapped: dedman6
+
 IranVehicleVoice:
 	Voices:
 		Select: iran-veh-select-fa,iran-veh-select-en
@@ -142,6 +152,29 @@ ShadowOneVoice:
 		Build: shadow-build-fa,shadow-build-en
 		Kill: shadow-action-fa,shadow-action-en
 		Die: dedman1,dedman3,dedman5
+		Burned: dedman10
+		Zapped: dedman6
+
+ChinaVehicleVoice:
+	Voices:
+		Select: rcn-vehicle-select-zh,rcn-vehicle-select-en
+		Action: rcn-vehicle-action-zh,rcn-vehicle-action-en
+
+ChinaAirVoice:
+	Voices:
+		Select: rcn-air-select-zh,rcn-air-select-en
+		Action: rcn-air-action-zh,rcn-air-action-en
+
+ChinaNavalVoice:
+	Voices:
+		Select: rcn-naval-select-zh,rcn-naval-select-en
+		Action: rcn-naval-action-zh,rcn-naval-action-en
+
+RedSpearVoice:
+	Voices:
+		Select: rcn-redspear-select-zh,rcn-redspear-select-en
+		Action: rcn-redspear-action-zh,rcn-redspear-action-en
+		Die: dedman1,dedman2,dedman3
 		Burned: dedman10
 		Zapped: dedman6
 
