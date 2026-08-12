@@ -35,6 +35,10 @@ namespace OpenRA.Mods.Common.Traits
 		[Desc("What units to the AI should build.", "What relative share of the total army must be this type of unit.")]
 		public readonly FrozenDictionary<string, int> UnitsToBuild = null;
 
+		[Desc("Optional strategic-role shares used before actor-specific shares.",
+			"Roles are supplied by StrategicRole traits and let new faction actors join doctrine AI without editing this list.")]
+		public readonly FrozenDictionary<string, int> RoleShares = FrozenDictionary<string, int>.Empty;
+
 		[Desc("What units should the AI have a maximum limit to train.")]
 		public readonly FrozenDictionary<string, int> UnitLimits = null;
 
@@ -187,6 +191,9 @@ namespace OpenRA.Mods.Common.Traits
 				return null;
 
 			var allUnits = unitsToBuild.Actors.Where(a => !a.IsDead).ToArray();
+			var roleUnit = ChooseRoleUnitToBuild(buildableThings, allUnits);
+			if (roleUnit != null)
+				return HasAdequateAirUnitReloadBuildings(roleUnit) ? roleUnit : null;
 
 			ActorInfo desiredUnit = null;
 			var desiredError = int.MaxValue;
@@ -212,6 +219,42 @@ namespace OpenRA.Mods.Common.Traits
 			}
 
 			return desiredUnit != null ? (HasAdequateAirUnitReloadBuildings(desiredUnit) ? desiredUnit : null) : null;
+		}
+
+		ActorInfo ChooseRoleUnitToBuild(ActorInfo[] buildableThings, Actor[] allUnits)
+		{
+			if (Info.RoleShares.Count == 0)
+				return null;
+
+			var taggedUnits = allUnits.Where(a => a.Info.TraitInfos<StrategicRoleInfo>()
+				.Any(role => role.Roles.Any(Info.RoleShares.ContainsKey))).ToArray();
+			var desiredError = int.MaxValue;
+			ActorInfo desiredUnit = null;
+
+			foreach (var unit in buildableThings)
+			{
+				if ((Info.UnitDelays != null && Info.UnitDelays.TryGetValue(unit.Name, out var delay) && delay > world.WorldTick) ||
+					(Info.UnitLimits != null && Info.UnitLimits.TryGetValue(unit.Name, out var limit) &&
+						allUnits.Count(a => a.Info.Name == unit.Name) >= limit))
+					continue;
+
+				foreach (var role in unit.TraitInfos<StrategicRoleInfo>().SelectMany(info => info.Roles).Distinct())
+				{
+					if (!Info.RoleShares.TryGetValue(role, out var share))
+						continue;
+
+					var roleCount = taggedUnits.Count(a => a.Info.TraitInfos<StrategicRoleInfo>()
+						.Any(info => info.Roles.Contains(role)));
+					var error = taggedUnits.Length > 0 ? roleCount * 100 / taggedUnits.Length - share : -share;
+					if (error < desiredError)
+					{
+						desiredError = error;
+						desiredUnit = unit;
+					}
+				}
+			}
+
+			return desiredUnit;
 		}
 
 		// For mods like RA (number of RearmActors must match the number of aircraft)
