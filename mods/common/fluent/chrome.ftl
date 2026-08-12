@@ -743,6 +743,7 @@ label-experience-composer-title = Experience Builder
 label-experience-composer-subtitle = Assemble gameplay modules and presentation assets. Select a module to inspect exactly what it changes.
 label-experience-gameplay-header = Gameplay Loadout
 label-experience-profile = Starting Preset
+checkbox-experience-enabled-only = Enabled only
 label-experience-presentation-header = Presentation
 label-experience-presentation-pack = Presentation Pack
 button-experience-refresh = Refresh

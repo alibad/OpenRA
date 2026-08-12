@@ -79,6 +79,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		readonly LabelWidget profileDescription;
 		readonly LabelWidget presentationDescription;
 		readonly LabelWidget componentSummary;
+		readonly TextFieldWidget componentSearch;
+		readonly CheckboxWidget enabledComponentsOnly;
 		readonly LabelWidget componentDetailTitle;
 		readonly LabelWidget componentDetailDescription;
 		readonly LabelWidget componentDetailImpact;
@@ -100,6 +102,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		string selectedReplacement;
 		bool workingCustomComponents;
 		bool packFolderCopied;
+		bool showEnabledComponentsOnly;
 
 		[ObjectCreator.UseCtor]
 		public ExperienceComposerLogic(Widget widget, ModData modData, Action onExit)
@@ -130,6 +133,27 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			profileDescription = widget.Get<LabelWidget>("PROFILE_DESCRIPTION");
 			presentationDescription = widget.Get<LabelWidget>("PRESENTATION_DESCRIPTION");
 			componentSummary = widget.Get<LabelWidget>("COMPONENT_SUMMARY");
+			componentSearch = widget.Get<TextFieldWidget>("COMPONENT_SEARCH");
+			componentSearch.OnTextEdited = PopulateComponents;
+			componentSearch.OnEscKey = _ =>
+			{
+				if (string.IsNullOrEmpty(componentSearch.Text))
+					componentSearch.YieldKeyboardFocus();
+				else
+				{
+					componentSearch.Text = "";
+					PopulateComponents();
+				}
+
+				return true;
+			};
+			enabledComponentsOnly = widget.Get<CheckboxWidget>("ENABLED_COMPONENTS_ONLY");
+			enabledComponentsOnly.IsChecked = () => showEnabledComponentsOnly;
+			enabledComponentsOnly.OnClick = () =>
+			{
+				showEnabledComponentsOnly ^= true;
+				PopulateComponents();
+			};
 			componentDetailTitle = widget.Get<LabelWidget>("COMPONENT_DETAIL_TITLE");
 			componentDetailDescription = widget.Get<LabelWidget>("COMPONENT_DETAIL_DESCRIPTION");
 			componentDetailImpact = widget.Get<LabelWidget>("COMPONENT_DETAIL_IMPACT");
@@ -270,13 +294,18 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		void PopulateComponents()
 		{
 			componentPanel.RemoveChildren();
-			foreach (var component in catalog.Components.Values.OrderBy(c => c.Category).ThenBy(c => c.Title))
+			var matchingComponents = catalog.Components.Values
+				.Where(ComponentMatchesFilter)
+				.OrderBy(c => c.Category)
+				.ThenBy(c => c.Title)
+				.ToArray();
+			foreach (var component in matchingComponents)
 			{
 				var captured = component;
 				var checkbox = componentTemplate.Clone();
 				checkbox.Id = "COMPONENT_" + captured.Id;
 				checkbox.IsVisible = () => true;
-				checkbox.GetText = () => $"{captured.Category} — {captured.Title}";
+				checkbox.GetText = () => $"{captured.Category} - {captured.Title}";
 				checkbox.IsChecked = () => workingComponents.Contains(captured.Id);
 				checkbox.IsHighlighted = () => selectedComponentId == captured.Id;
 				checkbox.OnMouseDown = _ =>
@@ -301,8 +330,32 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			}
 
 			componentPanel.Layout.AdjustChildren();
+			componentPanel.ScrollToTop();
+			RefreshComponentSummary(matchingComponents.Length);
 			RefreshComponentDetail();
 			PopulateParameters();
+		}
+
+		bool ComponentMatchesFilter(ExperienceComponent component)
+		{
+			if (showEnabledComponentsOnly && !workingComponents.Contains(component.Id))
+				return false;
+
+			var filter = componentSearch.Text.Trim();
+			return filter.Length == 0 || new[]
+			{
+				component.Id, component.Title, component.Category, component.Description, component.Source
+			}.Any(value => value.Contains(filter, StringComparison.OrdinalIgnoreCase));
+		}
+
+		void RefreshComponentSummary(int? visibleCount = null)
+		{
+			var loadout = workingCustomComponents ? "Custom loadout" : "Preset loadout";
+			var visible = visibleCount ?? catalog.Components.Values.Count(ComponentMatchesFilter);
+			var filtered = componentSearch.Text.Trim().Length > 0 || showEnabledComponentsOnly;
+			componentSummary.GetText = () => filtered ?
+				$"{loadout} - {workingComponents.Length} enabled - {visible} matching" :
+				$"{loadout} - {workingComponents.Length} of {catalog.Components.Count} enabled";
 		}
 
 		void PopulateParameters()
@@ -323,7 +376,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				row.Id = "PARAMETER_" + captured.Id;
 				row.IsVisible = () => true;
 
-				row.Get<LabelWidget>("TITLE").GetText = () => $"{captured.Group} — {captured.Title}";
+				row.Get<LabelWidget>("TITLE").GetText = () => $"{captured.Group} - {captured.Title}";
 				var description = row.Get<LabelWithTooltipWidget>("DESCRIPTION");
 				WidgetUtils.TruncateLabelToTooltip(description, captured.Description);
 				description.GetTooltipText = () => captured.Description;
@@ -433,10 +486,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			componentDetailDescription.GetText = () => WidgetUtils.WrapText(component.Description,
 				componentDetailDescription.Bounds.Width, Game.Renderer.Fonts[componentDetailDescription.Font]);
 			componentDetailImpact.GetText = () => WidgetUtils.WrapText(
-				$"{enabled} · Version {component.Version} · {dependencies}\n{changes}",
+				$"{enabled} | Version {component.Version} | {dependencies}\n{changes}",
 				componentDetailImpact.Bounds.Width, Game.Renderer.Fonts[componentDetailImpact.Font]);
 			componentDetailSource.GetText = () => WidgetUtils.WrapText(
-				$"Source: {component.Source} · License: {component.License}",
+				$"Source: {component.Source} | License: {component.License}",
 				componentDetailSource.Bounds.Width, Game.Renderer.Fonts[componentDetailSource.Font]);
 		}
 
@@ -485,7 +538,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				selectedReplacement.Replace('/', Path.DirectorySeparatorChar));
 			var size = File.Exists(replacementPath) ? new FileInfo(replacementPath).Length : 0;
 			replacementDetail.GetText = () => WidgetUtils.WrapText(
-				$"{selectedReplacement}\n{original} · Replacement {FormatBytes(size)}",
+				$"{selectedReplacement}\n{original} | Replacement {FormatBytes(size)}",
 				replacementDetail.Bounds.Width, Game.Renderer.Fonts[replacementDetail.Font]);
 		}
 
@@ -595,13 +648,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var profile = catalog.Profiles[workingProfileId];
 			profileDescription.GetText = () => WidgetUtils.WrapText(profile.Description,
 				profileDescription.Bounds.Width, Game.Renderer.Fonts[profileDescription.Font]);
-			componentSummary.GetText = () => workingCustomComponents ?
-				$"Custom loadout · {workingComponents.Length} modules" :
-				$"Preset loadout · {workingComponents.Length} modules";
+			RefreshComponentSummary();
 
 			var pack = presentationPacks[workingPresentationPackId];
 			presentationDescription.GetText = () => WidgetUtils.WrapText(
-				$"{pack.Description}\n{pack.Author} · {pack.License}",
+				$"{pack.Description}\n{pack.Author} | {pack.License}",
 				presentationDescription.Bounds.Width, Game.Renderer.Fonts[presentationDescription.Font]);
 			gameplayFingerprint.GetText = () =>
 				$"Gameplay: {Short(catalog.ComputeGameplayFingerprint(workingComponents, workingParameterValues))}";

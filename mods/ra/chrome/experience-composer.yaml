@@ -58,11 +58,23 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 			Width: 510
 			Height: 20
 			Font: TinyBold
-		ScrollPanel@COMPONENTS:
+		TextField@COMPONENT_SEARCH:
 			X: 25
 			Y: 210
+			Width: 330
+			Height: 28
+		Checkbox@ENABLED_COMPONENTS_ONLY:
+			X: 365
+			Y: 211
+			Width: 170
+			Height: 26
+			Text: checkbox-experience-enabled-only
+			Font: TinyBold
+		ScrollPanel@COMPONENTS:
+			X: 25
+			Y: 244
 			Width: 510
-			Height: 118
+			Height: 134
 			TopBottomSpacing: 5
 			ItemSpacing: 4
 			Children:
@@ -74,7 +86,7 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 					TooltipContainer: EXPERIENCE_TOOLTIP_CONTAINER
 		Background@COMPONENT_DETAIL:
 			X: 25
-			Y: 338
+			Y: 388
 			Width: 510
 			Height: 122
 			Background: dialog3
@@ -108,23 +120,23 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 					WordWrap: true
 		Label@PARAMETERS_TITLE:
 			X: 25
-			Y: 470
+			Y: 520
 			Width: 360
 			Height: 20
 			Text: label-experience-parameters-title
 			Font: Bold
 		Button@RESET_PARAMETERS_BUTTON:
 			X: 415
-			Y: 465
+			Y: 515
 			Width: 120
 			Height: 25
 			Text: button-experience-reset-module
 			Font: TinyBold
 		ScrollPanel@PARAMETERS:
 			X: 25
-			Y: 495
+			Y: 545
 			Width: 510
-			Height: 151
+			Height: 101
 			TopBottomSpacing: 4
 			ItemSpacing: 4
 			Children:
@@ -177,7 +189,7 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 							Visible: false
 		Label@PARAMETER_EMPTY:
 			X: 40
-			Y: 555
+			Y: 585
 			Width: 480
 			Height: 24
 			Text: label-experience-parameters-empty
