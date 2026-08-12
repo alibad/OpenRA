@@ -40,6 +40,7 @@ namespace OpenRA
 		public readonly HotkeyManager Hotkeys;
 		public readonly IFileSystemLoader FileSystemLoader;
 		public readonly FrozenDictionary<string, CursorSequence> Cursors;
+		public readonly FrozenDictionary<string, CursorEffect> CursorEffects;
 
 		public ILoadScreen LoadScreen { get; }
 		public FS ModFiles;
@@ -108,7 +109,7 @@ namespace OpenRA
 			VideoLoaders = ObjectCreator.GetLoaders<IVideoLoader>(Manifest.VideoFormats, "video");
 			SpriteSequenceLoader = ObjectCreator.GetLoader<ISpriteSequenceLoader>(Manifest.SpriteSequenceFormat, "sequence");
 			Hotkeys = new HotkeyManager(ModFiles, ObjectCreator, Manifest);
-			Cursors = ParseCursors(Manifest, DefaultFileSystem);
+			(Cursors, CursorEffects) = ParseCursors(Manifest, DefaultFileSystem);
 
 			defaultRules = Exts.Lazy(() => Ruleset.LoadDefaults(this));
 			defaultTerrainInfo = Exts.Lazy(() =>
@@ -132,21 +133,32 @@ namespace OpenRA
 			initialThreadId = Environment.CurrentManagedThreadId;
 		}
 
-		static FrozenDictionary<string, CursorSequence> ParseCursors(Manifest manifest, IReadOnlyFileSystem fileSystem)
+		static (FrozenDictionary<string, CursorSequence> Cursors, FrozenDictionary<string, CursorEffect> CursorEffects)
+			ParseCursors(Manifest manifest, IReadOnlyFileSystem fileSystem)
 		{
 			var stringPool = new HashSet<string>(); // Reuse common strings in YAML
 			var sequenceYaml = MiniYaml.Merge(manifest.Cursors.Select(
 				s => MiniYaml.FromStream(fileSystem.Open(s), s, stringPool: stringPool)));
 
 			var cursors = new Dictionary<string, CursorSequence>();
+			var effects = new Dictionary<string, CursorEffect>();
 			foreach (var node in sequenceYaml)
+			{
 				if (node.Key == "Cursors")
 					foreach (var fileNode in node.Value.Nodes)
 						foreach (var sequenceNode in fileNode.Value.Nodes)
 							cursors.Add(sequenceNode.Key, new CursorSequence(
 								sequenceNode.Key, fileNode.Key, fileNode.Value.Value, sequenceNode.Value));
+				else if (node.Key == "CursorEffects")
+				{
+					var defaultsNode = node.Value.Nodes.FirstOrDefault(n => n.Key == "Defaults");
+					var defaults = defaultsNode != null ? new CursorEffect(defaultsNode.Value) : null;
+					foreach (var effectNode in node.Value.Nodes.Where(n => n.Key != "Defaults"))
+						effects.Add(effectNode.Key, new CursorEffect(effectNode.Value, defaults));
+				}
+			}
 
-			return cursors.ToFrozenDictionary();
+			return (cursors.ToFrozenDictionary(), effects.ToFrozenDictionary());
 		}
 
 		// HACK: Only update the loading screen if we're in the main thread.

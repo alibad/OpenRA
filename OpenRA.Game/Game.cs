@@ -769,7 +769,8 @@ namespace OpenRA
 						Cursor?.SetCursor(null);
 					else
 					{
-						Cursor?.SetCursor(Ui.Root.GetCursorOuter(Viewport.LastMousePos) ?? "default");
+						Cursor?.SetCursor(Ui.Root.GetCursorOuter(Viewport.LastMousePos) ?? "default",
+							worldRenderer?.World.LocalPlayer?.Faction.InternalName);
 						Cursor?.Render(Renderer);
 					}
 				}

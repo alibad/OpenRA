@@ -9,8 +9,52 @@
  */
 #endregion
 
+using OpenRA.Primitives;
+
 namespace OpenRA.Graphics
 {
+	public enum CursorEffectStyle
+	{
+		Cross,
+		Sweep,
+		Chevrons,
+		Orbit,
+		Crescent,
+		Pulse,
+		Sparks,
+		Streaks,
+		Sunburst
+	}
+
+	public sealed class CursorEffect
+	{
+		public readonly Color PrimaryColor = Color.White;
+		public readonly Color SecondaryColor = Color.White;
+		public readonly CursorEffectStyle Style = CursorEffectStyle.Cross;
+		public readonly int FrameCount = 8;
+		public readonly int Size = 40;
+
+		public CursorEffect(MiniYaml info, CursorEffect defaults = null)
+		{
+			if (defaults != null)
+			{
+				PrimaryColor = defaults.PrimaryColor;
+				SecondaryColor = defaults.SecondaryColor;
+				Style = defaults.Style;
+				FrameCount = defaults.FrameCount;
+				Size = defaults.Size;
+			}
+
+			FieldLoader.Load(this, info);
+
+			if (FrameCount < 1)
+				throw new YamlException($"Cursor effect {nameof(FrameCount)} must be at least 1.");
+
+			if (Size < 16 || Size > 128 || Size % 2 != 0)
+				throw new YamlException($"Cursor effect {nameof(Size)} must be an even number between 16 and 128.");
+		}
+	}
+
 	public class CursorSequence
 	{
 		public readonly string Name;

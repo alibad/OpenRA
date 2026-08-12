@@ -228,3 +228,44 @@ Cursors:
 			Start: 17
 		assaultmove-blocked-minimap:
 			Start: 19
+
+CursorEffects:
+	Defaults:
+		FrameCount: 8
+		Size: 40
+	england:
+		PrimaryColor: 3D7DFF
+		SecondaryColor: F4F8FF
+		Style: Cross
+	france:
+		PrimaryColor: 2764E8
+		SecondaryColor: EF3340
+		Style: Sweep
+	germany:
+		PrimaryColor: F2A900
+		SecondaryColor: FFE8A3
+		Style: Chevrons
+	saudi:
+		PrimaryColor: 00A651
+		SecondaryColor: DCBF4A
+		Style: Orbit
+	turkey:
+		PrimaryColor: E11D2E
+		SecondaryColor: FFFFFF
+		Style: Crescent
+	russia:
+		PrimaryColor: 55AFFF
+		SecondaryColor: E8F6FF
+		Style: Pulse
+	ukraine:
+		PrimaryColor: 176BFF
+		SecondaryColor: FFD43B
+		Style: Sparks
+	yemen:
+		PrimaryColor: CE2029
+		SecondaryColor: F2F2F2
+		Style: Streaks
+	iran:
+		PrimaryColor: 18B8AE
+		SecondaryColor: C9823B
+		Style: Sunburst

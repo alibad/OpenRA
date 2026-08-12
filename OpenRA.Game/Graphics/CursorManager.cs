@@ -30,11 +30,18 @@ namespace OpenRA.Graphics
 			public IHardwareCursor[] Cursors;
 		}
 
+		sealed class Effect
+		{
+			public Sprite[] Sprites;
+		}
+
 		readonly Dictionary<string, Cursor> cursors = [];
+		readonly Dictionary<string, Effect> effects = [];
 		public readonly SheetBuilder SheetBuilder;
 		readonly GraphicSettings graphicSettings;
 
 		Cursor cursor;
+		Effect effect;
 		bool isLocked = false;
 		int2 lockedPosition;
 		readonly bool hardwareCursorsDisabled = false;
@@ -111,6 +118,17 @@ namespace OpenRA.Graphics
 				cursors.Add(kv.Key, c);
 			}
 
+			foreach (var kv in modData.CursorEffects)
+			{
+				var sprites = new Sprite[kv.Value.FrameCount];
+				var offset = new int2(-kv.Value.Size / 2, -kv.Value.Size / 2);
+				for (var i = 0; i < sprites.Length; i++)
+					sprites[i] = SheetBuilder.Add(CursorEffectRenderer.Render(kv.Value, i), SpriteFrameType.Bgra32,
+						new Size(kv.Value.Size, kv.Value.Size), 0, offset);
+
+				effects.Add(kv.Key, new Effect { Sprites = sprites });
+			}
+
 			// Allow the utility to create a cursor manager.
 			if (Game.Renderer != null)
 			{
@@ -156,11 +174,19 @@ namespace OpenRA.Graphics
 
 		public void SetCursor(string cursorName)
 		{
-			if ((cursorName == null && cursor == null) || (cursor != null && cursorName == cursor.Name))
+			SetCursor(cursorName, null);
+		}
+
+		public void SetCursor(string cursorName, string faction)
+		{
+			var nextCursor = cursorName != null && cursors.TryGetValue(cursorName, out var resolvedCursor) ? resolvedCursor : null;
+			var nextEffect = faction != null && effects.TryGetValue(faction, out var resolvedEffect) ? resolvedEffect : null;
+
+			if (nextCursor == cursor && nextEffect == effect)
 				return;
 
-			if (cursorName == null || !cursors.TryGetValue(cursorName, out cursor))
-				cursor = null;
+			cursor = nextCursor;
+			effect = nextEffect;
 
 			Update();
 		}
@@ -176,7 +202,7 @@ namespace OpenRA.Graphics
 				Update();
 			}
 
-			if (cursor == null || cursor.Cursors.Length == 1)
+			if (cursor == null || (cursor.Cursors.Length == 1 && (effect == null || effect.Sprites.Length == 1)))
 				return;
 
 			if (++ticks > 2)
@@ -190,14 +216,33 @@ namespace OpenRA.Graphics
 
 		void Update()
 		{
-			if (cursor != null && frame >= cursor.Cursors.Length)
-				frame %= cursor.Cursors.Length;
+			if (cursor != null)
+			{
+				var animationLength = effect == null ? cursor.Cursors.Length :
+					LeastCommonMultiple(cursor.Cursors.Length, effect.Sprites.Length);
+				if (frame >= animationLength)
+					frame %= animationLength;
+			}
 
-			var hardwareCursor = cursor?.Cursors[frame];
+			var hardwareCursor = effect == null && cursor != null ? cursor.Cursors[frame % cursor.Cursors.Length] : null;
 			if (hardwareCursor == null || isLocked)
 				Game.Renderer.Window.SetHardwareCursor(null);
 			else
 				Game.Renderer.Window.SetHardwareCursor(hardwareCursor);
+		}
+
+		static int LeastCommonMultiple(int a, int b)
+		{
+			var x = a;
+			var y = b;
+			while (y != 0)
+			{
+				var remainder = x % y;
+				x = y;
+				y = remainder;
+			}
+
+			return a / x * b;
 		}
 
 		public void Render(Renderer renderer)
@@ -207,7 +252,7 @@ namespace OpenRA.Graphics
 				return;
 
 			// Hardware cursor is enabled
-			if (!isLocked && cursor.Cursors[frame % cursor.Length] != null)
+			if (effect == null && !isLocked && cursor.Cursors[frame % cursor.Length] != null)
 				return;
 
 			// Render cursor in software
@@ -221,6 +266,14 @@ namespace OpenRA.Graphics
 				cursorScale *= 2;
 
 			var mousePos = isLocked ? lockedPosition : Viewport.LastMousePos;
+			if (effect != null)
+			{
+				var effectSprite = effect.Sprites[frame % effect.Sprites.Length];
+				renderer.RgbaSpriteRenderer.DrawSprite(effectSprite,
+					mousePos,
+					cursorScale / Game.Renderer.WindowScale);
+			}
+
 			renderer.RgbaSpriteRenderer.DrawSprite(cursorSprite,
 				mousePos,
 				cursorScale / Game.Renderer.WindowScale);
@@ -311,6 +364,7 @@ namespace OpenRA.Graphics
 			ClearHardwareCursors();
 
 			cursors.Clear();
+			effects.Clear();
 			SheetBuilder.Dispose();
 		}
 	}

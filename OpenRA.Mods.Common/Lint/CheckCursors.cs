@@ -21,15 +21,15 @@ namespace OpenRA.Mods.Common.Lint
 	{
 		void ILintRulesPass.Run(Action<string> emitError, Action<string> emitWarning, ModData modData, Ruleset rules)
 		{
-			Run(emitError, modData, rules);
+			Run(emitError, modData, rules, true);
 		}
 
 		void ILintServerMapPass.Run(Action<string> emitError, Action<string> emitWarning, ModData modData, MapPreview map, Ruleset mapRules)
 		{
-			Run(emitError, modData, mapRules);
+			Run(emitError, modData, mapRules, false);
 		}
 
-		static void Run(Action<string> emitError, ModData modData, Ruleset rules)
+		static void Run(Action<string> emitError, ModData modData, Ruleset rules, bool checkFactionEffects)
 		{
 			var fileSystem = modData.DefaultFileSystem;
 			var sequenceYaml = MiniYaml.Merge(modData.Manifest.Cursors.Select(s => MiniYaml.FromStream(fileSystem.Open(s), s)));
@@ -60,6 +60,15 @@ namespace OpenRA.Mods.Common.Lint
 							emitError($"Undefined cursor `{cursor}` for actor `{actorInfo.Value.Name}` with trait `{traitInfo}`.");
 					}
 				}
+			}
+
+			if (checkFactionEffects && modData.CursorEffects.Count > 0)
+			{
+				var playableFactions = rules.Actors[SystemActors.World].TraitInfos<FactionInfo>()
+					.Where(f => f.Selectable && f.RandomFactionMembers.Count == 0);
+				foreach (var faction in playableFactions)
+					if (!modData.CursorEffects.ContainsKey(faction.InternalName))
+						emitError($"Undefined cursor effect for playable faction `{faction.InternalName}`.");
 			}
 		}
 	}
