@@ -14,6 +14,7 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using OpenRA.Activities;
+using OpenRA.GameRules;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Graphics;
@@ -29,6 +30,18 @@ namespace OpenRA.Mods.Common.Traits
 	public enum VisibilityType { Footprint, CenterPosition, GroundPosition }
 
 	public enum AttackDelayType { Preparation, Attack }
+
+	[RequireExplicitImplementation]
+	public interface IPointDefense
+	{
+		bool TryIntercept(WPos position, Player projectileOwner, string type, ProjectileArgs args);
+	}
+
+	[RequireExplicitImplementation]
+	public interface INotifyPointDefenseHit
+	{
+		void Hit(int damagePrevented);
+	}
 
 	[Flags]
 	public enum ResupplyType

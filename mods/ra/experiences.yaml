@@ -1,0 +1,50 @@
+ExperienceCatalog:
+	Mod: ra
+	DefaultProfile: world-war-iii
+	Components:
+		minefield-generator:
+			Title: Replenishing minefields
+			Description: Structures and mission proxies can maintain configurable defensive mine perimeters.
+			Category: Defenses
+			Version: 1
+			Source: Combined Arms and Generals Alpha adaptations
+			License: GPL-3.0-or-later
+			Rules: ra|experiences/components/minefield-generator.yaml
+		mission-aware-minelayer-ai:
+			Title: Mission-aware minelayer AI
+			Description: Bots seed authored mine zones, scan quickly, filter rosters, and recover stuck minelayers.
+			Category: AI strategies
+			Version: 1
+			Source: Shattered Paradise pattern adapted into native OpenRA AI
+			License: GPL-3.0-or-later
+			Dependencies: minefield-generator
+		point-defense-interception:
+			Title: Point-defense interception
+			Description: Opt-in anti-missile weapons create layered protection for bases, fleets, and aircraft groups.
+			Category: Defenses
+			Version: 1
+			Source: Combined Arms and RA Plus adaptations
+			License: GPL-3.0-or-later
+			Rules: ra|experiences/components/point-defense-interception.yaml
+			Weapons: ra|experiences/weapons/point-defense-interception.yaml
+		battlefield-salvage:
+			Title: Battlefield salvage
+			Description: Destroyed vehicles can leave recoverable value for scavenger forces and mission objectives.
+			Category: Economy and missions
+			Version: 1
+			Source: OpenHV and Combined Arms adaptations
+			License: GPL-3.0-or-later
+			Rules: ra|experiences/components/battlefield-salvage.yaml
+	Profiles:
+		world-war-iii:
+			Title: World War III
+			Description: The curated default with every stable reusable capability enabled.
+			Components: minefield-generator, mission-aware-minelayer-ai, point-defense-interception, battlefield-salvage
+		core-operations:
+			Title: Core Operations
+			Description: The core game without optional reusable capability modules.
+			Components:
+		layered-defense:
+			Title: Layered Defense
+			Description: Mine warfare, defensive AI, and missile interception without battlefield salvage.
+			Components: minefield-generator, mission-aware-minelayer-ai, point-defense-interception

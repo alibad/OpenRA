@@ -1,0 +1,11 @@
+# Reusable battlefield salvage contract adapted from community OpenRA mods.
+^ReusableSalvageable:
+	SpawnSalvageOnDeath:
+		Actors: REUSABLESALVAGE
+		Probability: 50
+
+REUSABLESALVAGE:
+	Inherits: ^Crate
+	CollectSalvageCrateAction:
+	SalvageValue:
+		Percentage: 15

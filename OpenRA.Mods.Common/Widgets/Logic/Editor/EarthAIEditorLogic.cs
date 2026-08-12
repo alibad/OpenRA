@@ -39,6 +39,14 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{ "Supply Raid", "Disrupt the enemy economy while defending exposed resource fields and a vulnerable reinforcement route." }
 		};
 
+		static readonly Dictionary<string, string> ArchetypeIds = new()
+		{
+			{ "Balanced Skirmish", "balanced-skirmish" },
+			{ "River Crossing", "river-crossing" },
+			{ "Urban Siege", "urban-siege" },
+			{ "Supply Raid", "supply-raid" }
+		};
+
 		static readonly Dictionary<string, string> GenerationModeLabels = new()
 		{
 			{ "reality-first", "Reality First  -  Closest Match" },
@@ -389,6 +397,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					seed = seedValue,
 					story_seed = direction.Text.Trim(),
 					generation_mode = remix ? "creative-remix" : generationMode,
+					mission_archetype = ArchetypeIds[archetype],
 					imagery_style = "satellite",
 					source = "openstreetmap"
 				};

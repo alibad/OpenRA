@@ -278,6 +278,7 @@ namespace OpenRA.Network
 						Client = info,
 						Mod = mod.Id,
 						Version = mod.Metadata.Version,
+						ConfigurationFingerprint = Game.ModData.GameplayFingerprint,
 						Password = CurrentServerSettings.Password,
 						Fingerprint = localProfile.Fingerprint,
 						OrdersProtocol = ProtocolVersion.Orders

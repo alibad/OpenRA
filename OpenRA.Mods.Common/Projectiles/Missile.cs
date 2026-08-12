@@ -69,6 +69,12 @@ namespace OpenRA.Mods.Common.Projectiles
 		[Desc("Is the missile blocked by actors with BlocksProjectiles: trait.")]
 		public readonly bool Blockable = true;
 
+		[Desc("Optional class used by PointDefense to intercept this projectile.")]
+		public readonly string PointDefenseType = null;
+
+		[Desc("Apply the weapon impact at the interception point instead of removing the projectile harmlessly.")]
+		public readonly bool DetonateOnInterception = false;
+
 		[Desc("Is the missile aware of terrain height levels. Only needed for mods with real, non-visual height levels.")]
 		public readonly bool TerrainHeightAware = false;
 
@@ -891,6 +897,16 @@ namespace OpenRA.Mods.Common.Projectiles
 			else
 				pos += move;
 
+			if (ProjectileInterception.TryIntercept(world, pos, args.SourceActor.Owner, info.PointDefenseType, args))
+			{
+				if (info.DetonateOnInterception)
+					Explode(world);
+				else
+					Remove(world);
+
+				return;
+			}
+
 			// Check for walls or other blocking obstacles
 			var shouldExplode = false;
 			if (info.Blockable && BlocksProjectiles.AnyBlockingActorsBetween(world, args.SourceActor.Owner, lastPos, pos, info.Width, out var blockedPos))
@@ -927,10 +943,7 @@ namespace OpenRA.Mods.Common.Projectiles
 
 		void Explode(World world)
 		{
-			if (info.ContrailLength > 0)
-				world.AddFrameEndTask(w => w.Add(new ContrailFader(pos, contrail)));
-
-			world.AddFrameEndTask(w => w.Remove(this));
+			Remove(world);
 
 			// Don't blow up in our launcher's face!
 			if (ticks <= info.Arm)
@@ -943,6 +956,14 @@ namespace OpenRA.Mods.Common.Projectiles
 			};
 
 			args.Weapon.Impact(Target.FromPos(pos), warheadArgs);
+		}
+
+		void Remove(World world)
+		{
+			if (info.ContrailLength > 0)
+				world.AddFrameEndTask(w => w.Add(new ContrailFader(pos, contrail)));
+
+			world.AddFrameEndTask(w => w.Remove(this));
 		}
 
 		public IEnumerable<IRenderable> Render(WorldRenderer wr)

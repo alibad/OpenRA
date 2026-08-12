@@ -15,6 +15,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using OpenRA.Mods.Common.Experience;
 using OpenRA.Mods.Common.FileSystem;
 using OpenRA.Network;
 using OpenRA.Support;
@@ -36,7 +37,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[FluentReference("author", "datetime")]
 		const string AuthorDateTime = "label-author-datetime";
 
-		protected enum MenuType { Main, Singleplayer, Extras, MapEditor, WorldTools, StartupPrompts, None }
+		protected enum MenuType { Main, Singleplayer, Extras, MapEditor, Workshop, StartupPrompts, None }
 
 		protected enum MenuPanel { None, Missions, Skirmish, Multiplayer, MapEditor, Replays, GameSaves }
 
@@ -86,7 +87,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			var worldToolsButton = mainMenu.GetOrNull<ButtonWidget>("WORLD_TOOLS_BUTTON");
 			if (worldToolsButton != null)
-				worldToolsButton.OnClick = () => SwitchMenu(MenuType.WorldTools);
+				worldToolsButton.OnClick = () => SwitchMenu(MenuType.Workshop);
 
 			var contentButton = mainMenu.GetOrNull<ButtonWidget>("CONTENT_BUTTON");
 			if (contentButton != null)
@@ -146,19 +147,6 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				});
 			};
 
-			extrasMenu.Get<ButtonWidget>("MAP_EDITOR_BUTTON").OnClick = () => SwitchMenu(MenuType.MapEditor);
-
-			var assetBrowserButton = extrasMenu.GetOrNull<ButtonWidget>("ASSETBROWSER_BUTTON");
-			if (assetBrowserButton != null)
-				assetBrowserButton.OnClick = () =>
-				{
-					SwitchMenu(MenuType.None);
-					Game.OpenWindow("ASSETBROWSER_PANEL", new WidgetArgs
-					{
-						{ "onExit", () => SwitchMenu(MenuType.Extras) },
-					});
-				};
-
 			extrasMenu.Get<ButtonWidget>("CREDITS_BUTTON").OnClick = () =>
 			{
 				SwitchMenu(MenuType.None);
@@ -180,7 +168,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var onSelect = new Action<string>(uid =>
 			{
 				if (modData.MapCache[uid].Status != MapStatus.Available)
-					SwitchMenu(MenuType.Extras);
+					SwitchMenu(MenuType.Workshop);
 				else
 					LoadMapIntoEditor(modData.MapCache[uid].Uid);
 			});
@@ -215,20 +203,36 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			loadMapButton.Disabled = !hasMaps;
 
-			mapEditorMenu.Get<ButtonWidget>("BACK_BUTTON").OnClick = () => SwitchMenu(MenuType.Extras);
+			mapEditorMenu.Get<ButtonWidget>("BACK_BUTTON").OnClick = () => SwitchMenu(MenuType.Workshop);
 
 			// OpenRA AI world tools: generate a map from Earth context, then refine it
 			// with the native editor without burying either workflow under Extras.
 			var worldToolsMenu = widget.GetOrNull("WORLD_TOOLS_MENU");
 			if (worldToolsMenu != null)
 			{
-				worldToolsMenu.IsVisible = () => menuType == MenuType.WorldTools;
+				worldToolsMenu.IsVisible = () => menuType == MenuType.Workshop;
+				var experienceCatalog = modData.GetOrNull<ExperienceCatalog>();
+				var experienceButton = worldToolsMenu.GetOrNull<ButtonWidget>("EXPERIENCE_BUTTON");
+				if (experienceButton != null)
+				{
+					experienceButton.IsVisible = () => experienceCatalog != null;
+					if (experienceCatalog != null)
+						experienceButton.OnClick = () =>
+						{
+							SwitchMenu(MenuType.None);
+							Game.OpenWindow("EXPERIENCE_COMPOSER_PANEL", new WidgetArgs
+							{
+								{ "onExit", () => SwitchMenu(MenuType.Workshop) }
+							});
+						};
+				}
+
 				worldToolsMenu.Get<ButtonWidget>("EARTH_STUDIO_BUTTON").OnClick = () =>
 				{
 					SwitchMenu(MenuType.None);
 					Game.OpenWindow("EARTH_MISSION_PANEL", new WidgetArgs
 					{
-						{ "onExit", () => SwitchMenu(MenuType.WorldTools) },
+						{ "onExit", () => SwitchMenu(MenuType.Workshop) },
 						{ "onPlay", (Action<string>)StartSkirmishGame },
 						{ "onEdit", (Action<string>)LoadMapIntoEditor }
 					});
@@ -238,11 +242,23 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					modData.MapCache.UpdateMaps();
 					SwitchMenu(MenuType.MapEditor);
 				};
+				worldToolsMenu.Get<ButtonWidget>("ASSET_LIBRARY_BUTTON").OnClick = () =>
+				{
+					SwitchMenu(MenuType.None);
+					Game.OpenWindow("ASSETBROWSER_PANEL", new WidgetArgs
+					{
+						{ "onExit", () => SwitchMenu(MenuType.Workshop) },
+					});
+				};
 				worldToolsMenu.Get<ButtonWidget>("BACK_BUTTON").OnClick = () => SwitchMenu(MenuType.Main);
 
 				// Enables deterministic local UI capture without adding a visible debug control.
 				if (Environment.GetEnvironmentVariable("OPENRA_AI_START_EARTH_STUDIO") == "1")
 					Game.RunAfterTick(worldToolsMenu.Get<ButtonWidget>("EARTH_STUDIO_BUTTON").OnClick);
+				else if (Environment.GetEnvironmentVariable("OPENRA_AI_START_EXPERIENCE_COMPOSER") == "1" && experienceCatalog != null)
+					Game.RunAfterTick(experienceButton.OnClick);
+				else if (Environment.GetEnvironmentVariable("OPENRA_AI_START_ASSET_LIBRARY") == "1")
+					Game.RunAfterTick(worldToolsMenu.Get<ButtonWidget>("ASSET_LIBRARY_BUTTON").OnClick);
 			}
 
 			var newsBG = widget.GetOrNull("NEWS_BG");

@@ -18,6 +18,7 @@ namespace OpenRA.Network
 	{
 		public string Mod;
 		public string Version;
+		public string ConfigurationFingerprint;
 		public string AuthToken;
 
 		public static HandshakeRequest Deserialize(string data, string name)
@@ -38,6 +39,7 @@ namespace OpenRA.Network
 	{
 		public string Mod;
 		public string Version;
+		public string ConfigurationFingerprint;
 		public string Password;
 
 		// Default value is hardcoded to 7 so that newer servers
@@ -80,7 +82,8 @@ namespace OpenRA.Network
 			var data = new List<MiniYamlNode>
 			{
 				new("Handshake", null,
-					new[] { "Mod", "Version", "Password", "Fingerprint", "AuthSignature", "OrdersProtocol" }.Select(p => FieldSaver.SaveField(this, p)).ToList()),
+					new[] { "Mod", "Version", "ConfigurationFingerprint", "Password", "Fingerprint", "AuthSignature", "OrdersProtocol" }
+						.Select(p => FieldSaver.SaveField(this, p)).ToList()),
 				new("Client", FieldSaver.Save(Client))
 			};
 
