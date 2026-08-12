@@ -13,6 +13,16 @@
 
 Open-source C#/.NET RTS engine reimplementing Command & Conquer: Red Alert, Tiberian Dawn, and Dune 2000.
 
+## Canonical branch and test version
+
+- The canonical local checkout is `C:\Users\Admin\Code\hq\games\OpenRA`. Use it for routine development launches, manual playtesting, and all user-facing test commands.
+- The default delivery target is `alibad/OpenRA` branch `main`. Completed and validated changes must be integrated and pushed there unless the user explicitly requests a separate branch or pull request.
+- Feature branches and additional worktrees are temporary isolation tools. Do not leave finished work available only in a `codex/*` branch, and do not ask the user to test from a temporary worktree after integration.
+- Before integrating, fetch the latest fork `main`. Apply only the task's commits, resolve compatible conflicts without discarding existing features, and validate the exact integrated `main` tree.
+- After pushing, fast-forward the canonical checkout and verify that its local `main` matches `alibad/OpenRA:main`. Provide one test procedure rooted at the canonical checkout.
+- Never force-push, rewrite shared history, hard-reset away unrelated work, or overwrite another worktree. If integration requires a substantive choice between conflicting features, stop and ask the user.
+- Remove temporary branches or worktrees only after confirming that they have no unique commits, uncommitted work, screenshots, replays, logs, or other user artifacts.
+
 ## Build & Run
 
 ```bash
