@@ -2,11 +2,11 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 	Logic: ExperienceComposerLogic
 	X: (WINDOW_WIDTH - WIDTH) / 2
 	Y: (WINDOW_HEIGHT - HEIGHT) / 2
-	Width: 1000
-	Height: 650
+	Width: 1100
+	Height: 720
 	Children:
 		Label@TITLE:
-			Y: 18
+			Y: 16
 			Width: PARENT_WIDTH
 			Height: 28
 			Text: label-experience-composer-title
@@ -14,7 +14,7 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 			Font: Bold
 		Label@SUBTITLE:
 			X: 25
-			Y: 44
+			Y: 42
 			Width: PARENT_WIDTH - 50
 			Height: 20
 			Text: label-experience-composer-subtitle
@@ -22,8 +22,8 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 			Font: Tiny
 		Background@GAMEPLAY_HEADER:
 			X: 25
-			Y: 75
-			Width: 455
+			Y: 72
+			Width: 510
 			Height: 13
 			Background: separator
 			ClickThrough: true
@@ -36,80 +36,157 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 					Font: TinyBold
 		Label@PROFILE_LABEL:
 			X: 25
-			Y: 98
-			Width: 455
+			Y: 94
+			Width: 510
 			Height: 20
 			Text: label-experience-profile
 		DropDownButton@PROFILE_DROPDOWN:
 			X: 25
-			Y: 120
-			Width: 455
+			Y: 115
+			Width: 510
 			Height: 28
 		Label@PROFILE_DESCRIPTION:
 			X: 25
-			Y: 154
-			Width: 455
-			Height: 38
+			Y: 149
+			Width: 510
+			Height: 36
 			Font: Tiny
 			WordWrap: true
 		Label@COMPONENT_SUMMARY:
 			X: 25
-			Y: 194
-			Width: 455
+			Y: 188
+			Width: 510
 			Height: 20
 			Font: TinyBold
 		ScrollPanel@COMPONENTS:
 			X: 25
-			Y: 216
-			Width: 455
-			Height: 158
+			Y: 210
+			Width: 510
+			Height: 118
 			TopBottomSpacing: 5
-			ItemSpacing: 5
+			ItemSpacing: 4
 			Children:
 				Checkbox@COMPONENT_TEMPLATE:
 					X: 5
 					Width: PARENT_WIDTH - 30
-					Height: 24
+					Height: 23
 					Font: Tiny
 					TooltipContainer: EXPERIENCE_TOOLTIP_CONTAINER
 		Background@COMPONENT_DETAIL:
 			X: 25
-			Y: 386
-			Width: 455
-			Height: 144
+			Y: 338
+			Width: 510
+			Height: 122
 			Background: dialog3
 			Children:
 				Label@COMPONENT_DETAIL_TITLE:
 					X: 10
-					Y: 8
+					Y: 7
 					Width: PARENT_WIDTH - 20
 					Height: 20
 					Font: Bold
 				Label@COMPONENT_DETAIL_DESCRIPTION:
 					X: 10
-					Y: 31
+					Y: 29
 					Width: PARENT_WIDTH - 20
-					Height: 42
+					Height: 34
 					Font: Tiny
 					WordWrap: true
 				Label@COMPONENT_DETAIL_IMPACT:
 					X: 10
-					Y: 76
+					Y: 65
 					Width: PARENT_WIDTH - 20
-					Height: 32
+					Height: 29
 					Font: TinyBold
 					WordWrap: true
 				Label@COMPONENT_DETAIL_SOURCE:
 					X: 10
-					Y: 109
+					Y: 96
 					Width: PARENT_WIDTH - 20
-					Height: 27
+					Height: 22
 					Font: Tiny
 					WordWrap: true
+		Label@PARAMETERS_TITLE:
+			X: 25
+			Y: 470
+			Width: 360
+			Height: 20
+			Text: label-experience-parameters-title
+			Font: Bold
+		Button@RESET_PARAMETERS_BUTTON:
+			X: 415
+			Y: 465
+			Width: 120
+			Height: 25
+			Text: button-experience-reset-module
+			Font: TinyBold
+		ScrollPanel@PARAMETERS:
+			X: 25
+			Y: 495
+			Width: 510
+			Height: 151
+			TopBottomSpacing: 4
+			ItemSpacing: 4
+			Children:
+				ScrollItem@PARAMETER_TEMPLATE:
+					Width: PARENT_WIDTH - 27
+					Height: 48
+					Visible: false
+					Children:
+						Label@TITLE:
+							X: 8
+							Y: 3
+							Width: 265
+							Height: 18
+							Font: TinyBold
+						LabelWithTooltip@DESCRIPTION:
+							X: 8
+							Y: 22
+							Width: 265
+							Height: 18
+							Font: Tiny
+							TooltipContainer: EXPERIENCE_TOOLTIP_CONTAINER
+							TooltipTemplate: SIMPLE_TOOLTIP
+						Slider@INTEGER:
+							X: 280
+							Y: 9
+							Width: 120
+							Height: 20
+							Visible: false
+						Label@VALUE:
+							X: 405
+							Y: 8
+							Width: 70
+							Height: 22
+							Align: Right
+							Font: TinyBold
+							Visible: false
+						Checkbox@BOOLEAN:
+							X: 280
+							Y: 8
+							Width: 195
+							Height: 24
+							Font: TinyBold
+							Visible: false
+						DropDownButton@CHOICE:
+							X: 280
+							Y: 7
+							Width: 195
+							Height: 26
+							Font: TinyBold
+							Visible: false
+		Label@PARAMETER_EMPTY:
+			X: 40
+			Y: 555
+			Width: 480
+			Height: 24
+			Text: label-experience-parameters-empty
+			Align: Center
+			Font: Tiny
 		Background@PRESENTATION_HEADER:
-			X: 520
-			Y: 75
-			Width: 455
+			X: 565
+			Y: 72
+			Width: 510
 			Height: 13
 			Background: separator
 			ClickThrough: true
@@ -121,109 +198,179 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 					Align: Center
 					Font: TinyBold
 		Label@PRESENTATION_LABEL:
-			X: 520
-			Y: 98
-			Width: 455
+			X: 565
+			Y: 94
+			Width: 510
 			Height: 20
 			Text: label-experience-presentation-pack
 		DropDownButton@PRESENTATION_DROPDOWN:
-			X: 520
-			Y: 120
-			Width: 335
+			X: 565
+			Y: 115
+			Width: 380
 			Height: 28
 		Button@REFRESH_PACKS_BUTTON:
-			X: 865
-			Y: 120
-			Width: 110
+			X: 955
+			Y: 115
+			Width: 120
 			Height: 28
 			Text: button-experience-refresh
 			Font: TinyBold
 		Label@PRESENTATION_DESCRIPTION:
-			X: 520
-			Y: 154
-			Width: 455
-			Height: 58
+			X: 565
+			Y: 149
+			Width: 510
+			Height: 45
 			Font: Tiny
 			WordWrap: true
+		Button@CREATE_PACK_BUTTON:
+			X: 565
+			Y: 199
+			Width: 120
+			Height: 26
+			Text: button-experience-create-pack
+			Font: TinyBold
+		Button@DUPLICATE_PACK_BUTTON:
+			X: 695
+			Y: 199
+			Width: 120
+			Height: 26
+			Text: button-experience-duplicate-pack
+			Font: TinyBold
+		Button@RENAME_PACK_BUTTON:
+			X: 825
+			Y: 199
+			Width: 120
+			Height: 26
+			Text: button-experience-rename-pack
+			Font: TinyBold
+		Button@DELETE_PACK_BUTTON:
+			X: 955
+			Y: 199
+			Width: 120
+			Height: 26
+			Text: button-experience-delete-pack
+			Font: TinyBold
+		Label@REPLACEMENTS_TITLE:
+			X: 565
+			Y: 235
+			Width: 510
+			Height: 20
+			Text: label-experience-replacements-editor-title
+			Font: Bold
+		ScrollPanel@REPLACEMENTS:
+			X: 565
+			Y: 258
+			Width: 510
+			Height: 132
+			TopBottomSpacing: 4
+			ItemSpacing: 3
+			Children:
+				ScrollItem@REPLACEMENT_TEMPLATE:
+					Width: PARENT_WIDTH - 27
+					Height: 26
+					Visible: false
+					EnableChildMouseOver: true
+					Children:
+						LabelWithTooltip@TITLE:
+							X: 8
+							Width: PARENT_WIDTH - 16
+							Height: 26
+							Font: Tiny
+							TooltipContainer: EXPERIENCE_TOOLTIP_CONTAINER
+							TooltipTemplate: SIMPLE_TOOLTIP
+		Background@REPLACEMENT_DETAIL_PANEL:
+			X: 565
+			Y: 398
+			Width: 510
+			Height: 66
+			Background: dialog3
+			Children:
+				Label@REPLACEMENT_DETAIL:
+					X: 10
+					Y: 8
+					Width: PARENT_WIDTH - 20
+					Height: 50
+					Font: Tiny
+					WordWrap: true
 		Button@BROWSE_ASSETS_BUTTON:
-			X: 520
-			Y: 220
-			Width: 215
+			X: 565
+			Y: 472
+			Width: 170
 			Height: 28
 			Text: button-experience-browse-assets
 			Font: Bold
-		Button@COPY_PACK_FOLDER_BUTTON:
+		Button@COMPARE_REPLACEMENT_BUTTON:
 			X: 745
-			Y: 220
-			Width: 230
+			Y: 472
+			Width: 150
 			Height: 28
-			Font: Bold
-		Background@OVERRIDE_SCOPE:
-			X: 520
-			Y: 260
-			Width: 455
-			Height: 112
-			Background: dialog3
-			Children:
-				Label@TITLE:
-					X: 10
-					Y: 8
-					Width: PARENT_WIDTH - 20
-					Height: 20
-					Text: label-experience-replacements-title
-					Font: Bold
-				Label@DESCRIPTION:
-					X: 10
-					Y: 30
-					Width: PARENT_WIDTH - 20
-					Height: 72
-					Text: label-experience-replacements-description
-					Font: Tiny
-					WordWrap: true
+			Text: button-experience-compare
+			Font: TinyBold
+		Button@REMOVE_REPLACEMENT_BUTTON:
+			X: 905
+			Y: 472
+			Width: 170
+			Height: 28
+			Text: button-experience-remove-replacement
+			Font: TinyBold
+		Button@COPY_PACK_FOLDER_BUTTON:
+			X: 565
+			Y: 508
+			Width: 220
+			Height: 26
+			Font: TinyBold
+		Label@PACK_STATUS:
+			X: 795
+			Y: 510
+			Width: 280
+			Height: 24
+			Text: label-experience-pack-ready
+			Align: Right
+			Font: Tiny
 		Background@COMPATIBILITY:
-			X: 520
-			Y: 386
-			Width: 455
-			Height: 144
+			X: 565
+			Y: 542
+			Width: 510
+			Height: 104
 			Background: dialog3
 			Children:
 				Label@TITLE:
 					X: 10
-					Y: 8
+					Y: 7
 					Width: PARENT_WIDTH - 20
-					Height: 20
+					Height: 18
 					Text: label-experience-compatibility-title
-					Font: Bold
+					Font: TinyBold
 				Label@GAMEPLAY_FINGERPRINT:
 					X: 10
-					Y: 34
+					Y: 27
 					Width: PARENT_WIDTH - 20
 					Height: 18
 					Font: TinyBold
 				Label@PRESENTATION_FINGERPRINT:
 					X: 10
-					Y: 54
+					Y: 46
 					Width: PARENT_WIDTH - 20
 					Height: 18
 					Font: TinyBold
 				Label@PACK_FOLDER:
 					X: 10
-					Y: 79
+					Y: 66
 					Width: PARENT_WIDTH - 20
-					Height: 55
+					Height: 34
 					Font: Tiny
 					WordWrap: true
 		Label@RESTART_HINT:
 			X: 25
-			Y: 548
+			Y: 656
 			Width: PARENT_WIDTH - 50
-			Height: 20
+			Height: 18
 			Text: label-experience-restart-hint
 			Align: Center
 			Font: Tiny
 		Button@RESET_BUTTON:
 			X: 25
-			Y: PARENT_HEIGHT - 50
+			Y: PARENT_HEIGHT - 40
 			Width: 170
 			Height: 28
 			Text: button-experience-reset
@@ -231,14 +378,14 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 		Button@CANCEL_BUTTON:
 			Key: escape
 			X: PARENT_WIDTH - 370
-			Y: PARENT_HEIGHT - 50
+			Y: PARENT_HEIGHT - 40
 			Width: 160
 			Height: 28
 			Text: button-back
 			Font: Bold
 		Button@APPLY_BUTTON:
 			X: PARENT_WIDTH - 195
-			Y: PARENT_HEIGHT - 50
+			Y: PARENT_HEIGHT - 40
 			Width: 170
 			Height: 28
 			Text: button-experience-apply

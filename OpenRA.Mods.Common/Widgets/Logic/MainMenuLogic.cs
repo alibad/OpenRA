@@ -160,6 +160,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					Game.OpenWindow("ASSETBROWSER_PANEL", new WidgetArgs
 					{
 						{ "onExit", () => SwitchMenu(MenuType.Extras) },
+						{ "presentationPackId", PresentationPackDefinition.Default.Id },
+						{ "comparisonTarget", null },
+						{ "initialAsset", null },
+						{ "onPackChanged", (Action)(() => { }) },
 					});
 				};
 
@@ -264,6 +268,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					Game.OpenWindow("ASSETBROWSER_PANEL", new WidgetArgs
 					{
 						{ "onExit", () => SwitchMenu(MenuType.Workshop) },
+						{ "presentationPackId", experienceCatalog?.ActivePresentationPack.Id ?? PresentationPackDefinition.Default.Id },
+						{ "comparisonTarget", null },
+						{ "initialAsset", null },
+						{ "onPackChanged", (Action)(() => { }) },
 					});
 				};
 				worldToolsMenu.Get<ButtonWidget>("BACK_BUTTON").OnClick = () => SwitchMenu(MenuType.Main);

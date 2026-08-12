@@ -16,6 +16,7 @@ using System.IO;
 using System.Linq;
 using OpenRA.FileSystem;
 using OpenRA.Graphics;
+using OpenRA.Mods.Common.Experience;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Primitives;
 using OpenRA.Video;
@@ -47,6 +48,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[FluentReference]
 		const string SelectHint = "label-asset-library-select-hint";
 
+		[FluentReference]
+		const string ImportReplacementTitle = "dialog-asset-library-import-title";
+
+		[FluentReference]
+		const string ImportReplacementPrompt = "dialog-asset-library-import-prompt";
+
 		readonly string[] allowedExtensions;
 		readonly string[] allowedSpriteExtensions;
 		readonly string[] allowedModelExtensions;
@@ -56,6 +63,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		readonly string[] palettes;
 		readonly World world;
 		readonly ModData modData;
+		readonly Action onPackChanged;
+		readonly string presentationPackId;
+		PresentationPackDefinition workingPack;
 
 		readonly Widget panel;
 
@@ -74,6 +84,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		string currentFilename;
 		IReadOnlyPackage currentPackage;
 		Sprite[] currentSprites;
+		Sprite[] originalSprites;
+		IReadOnlyPackage originalPackage;
+		ISound originalSound;
+		ISoundFormat originalSoundFormat;
+		Stream originalAudioStream;
 		IModel currentVoxel;
 		ISound currentSound;
 		ISoundFormat currentSoundFormat;
@@ -86,12 +101,15 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		WRot modelOrientation;
 		float spriteScale;
 		float modelScale;
+		string comparisonTarget;
+		string replacementStatus;
 		AssetType assetTypesToDisplay = AssetType.Sprite | AssetType.Model | AssetType.Audio | AssetType.Video;
 
 		readonly string allPackages;
 
 		[ObjectCreator.UseCtor]
-		public AssetBrowserLogic(Widget widget, Action onExit, ModData modData, WorldRenderer worldRenderer)
+		public AssetBrowserLogic(Widget widget, Action onExit, ModData modData, WorldRenderer worldRenderer,
+			string presentationPackId, string comparisonTarget, string initialAsset, Action onPackChanged)
 		{
 			var rc = modData.Manifest.RendererConstants;
 			sheetBuilders = new Dictionary<SheetType, SheetBuilder>
@@ -107,6 +125,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			world = worldRenderer.World;
 			this.modData = modData;
+			this.presentationPackId = presentationPackId ?? PresentationPackDefinition.Default.Id;
+			this.comparisonTarget = comparisonTarget;
+			this.onPackChanged = onPackChanged;
+			workingPack = PresentationPackRegistry.Find(modData.Manifest.Id, this.presentationPackId);
 			panel = widget;
 
 			allPackages = FluentProvider.GetMessage(AllPackages);
@@ -158,6 +180,16 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				spriteWidget.GetPalette = () => currentPalette;
 				spriteWidget.IsVisible = () => !isVideoLoaded && !isLoadError && currentSprites != null;
 				spriteWidget.GetScale = () => spriteScale;
+			}
+
+			var originalSpriteWidget = panel.GetOrNull<SpriteWidget>("ORIGINAL_SPRITE");
+			if (originalSpriteWidget != null)
+			{
+				originalSpriteWidget.GetSprite = () => originalSprites?.Length > 0 ?
+					originalSprites[Math.Min(currentFrame, originalSprites.Length - 1)] : null;
+				originalSpriteWidget.GetPalette = () => currentPalette;
+				originalSpriteWidget.GetScale = () => spriteScale;
+				originalSpriteWidget.IsVisible = () => originalSprites != null && !isLoadError;
 			}
 
 			var playerWidget = panel.GetOrNull<VideoPlayerWidget>("PLAYER");
@@ -441,16 +473,78 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				copyAssetButton.OnClick = () => Game.SetClipboardText(currentFilename);
 			}
 
-			var initialAsset = Environment.GetEnvironmentVariable("OPENRA_AI_ASSET_LIBRARY_SELECT");
+			var targetLabel = panel.GetOrNull<LabelWidget>("REPLACEMENT_TARGET");
+			if (targetLabel != null)
+				targetLabel.GetText = () => comparisonTarget ?? "No original target selected";
+
+			var packContext = panel.GetOrNull<LabelWidget>("PACK_CONTEXT");
+			if (packContext != null)
+				packContext.GetText = () => EditablePack()?.Title ?? "Original presentation (read-only)";
+
+			var originalPreviewMeta = panel.GetOrNull<LabelWidget>("ORIGINAL_PREVIEW_META");
+			if (originalPreviewMeta != null)
+				originalPreviewMeta.GetText = () => comparisonTarget == null ? "No target" :
+					$"{comparisonTarget} · {(originalPackage == null ? "not found" : GetSourceDisplayName(originalPackage))}";
+
+			var candidatePreviewMeta = panel.GetOrNull<LabelWidget>("CANDIDATE_PREVIEW_META");
+			if (candidatePreviewMeta != null)
+				candidatePreviewMeta.GetText = () => currentFilename == null ? "No candidate" :
+					$"{currentFilename} · {GetSourceDisplayName(currentPackage)}";
+
+			var statusLabel = panel.GetOrNull<LabelWidget>("REPLACEMENT_STATUS");
+			if (statusLabel != null)
+				statusLabel.GetText = () => replacementStatus ??
+					(IsEditablePack() ? "Set an original target, choose a candidate, then add it to the pack." :
+					"Create or select an editable presentation pack in Experience Builder first.");
+
+			var setTargetButton = panel.GetOrNull<ButtonWidget>("SET_TARGET_BUTTON");
+			if (setTargetButton != null)
+			{
+				setTargetButton.IsDisabled = () => currentFilename == null;
+				setTargetButton.OnClick = () => SetComparisonTarget(currentFilename);
+			}
+
+			var useReplacementButton = panel.GetOrNull<ButtonWidget>("USE_REPLACEMENT_BUTTON");
+			if (useReplacementButton != null)
+			{
+				useReplacementButton.IsDisabled = () => !CanUseCurrentReplacement();
+				useReplacementButton.OnClick = UseCurrentReplacement;
+			}
+
+			var importReplacementButton = panel.GetOrNull<ButtonWidget>("IMPORT_REPLACEMENT_BUTTON");
+			if (importReplacementButton != null)
+			{
+				importReplacementButton.IsDisabled = () => !IsEditablePack() || comparisonTarget == null;
+				importReplacementButton.OnClick = ImportReplacement;
+			}
+
+			var playOriginalButton = panel.GetOrNull<ButtonWidget>("PLAY_ORIGINAL_BUTTON");
+			if (playOriginalButton != null)
+			{
+				playOriginalButton.IsVisible = () => originalSoundFormat != null;
+				playOriginalButton.OnClick = () =>
+				{
+					if (originalSound != null)
+						Game.Sound.StopSound(originalSound);
+					originalSound = Game.Sound.Play(originalSoundFormat, Game.Sound.SoundVolume);
+				};
+			}
+
+			initialAsset ??= Environment.GetEnvironmentVariable("OPENRA_AI_ASSET_LIBRARY_SELECT");
 			if (!string.IsNullOrEmpty(initialAsset) &&
 				modData.DefaultFileSystem.TryGetPackageContaining(initialAsset, out var initialPackage, out var initialFilename))
 				LoadAsset(initialPackage, initialFilename);
+			else if (!string.IsNullOrEmpty(comparisonTarget))
+				SetComparisonTarget(comparisonTarget);
 
 			var closeButton = panel.GetOrNull<ButtonWidget>("CLOSE_BUTTON");
 			if (closeButton != null)
 				closeButton.OnClick = () =>
 				{
 					ClearLoadedAssets();
+					if (originalSound != null)
+						Game.Sound.StopSound(originalSound);
+					originalAudioStream?.Dispose();
 					Ui.CloseWindow();
 					onExit();
 				};
@@ -469,6 +563,111 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				return "Video";
 
 			return "Asset";
+		}
+
+		PresentationPackDefinition EditablePack()
+		{
+			return workingPack?.Id == PresentationPackDefinition.Default.Id ? null : workingPack;
+		}
+
+		bool IsEditablePack() => EditablePack() != null;
+
+		void SetComparisonTarget(string target)
+		{
+			if (originalSound != null)
+				Game.Sound.StopSound(originalSound);
+			originalAudioStream?.Dispose();
+			originalAudioStream = null;
+			originalSoundFormat = null;
+			comparisonTarget = target;
+			replacementStatus = null;
+			originalSprites = null;
+			originalPackage = FindOriginalPackage(target);
+			if (originalPackage == null)
+				return;
+
+			try
+			{
+				var extension = Path.GetExtension(target).ToLowerInvariant();
+				if (allowedSpriteExtensions.Contains(extension))
+				{
+					using var stream = originalPackage.GetStream(target);
+					if (stream == null)
+						return;
+
+					var frames = FrameLoader.GetFrames(stream, modData.SpriteLoaders, target, out _);
+					if (frames != null)
+						originalSprites = frames.Select(f =>
+							sheetBuilders[SheetBuilder.FrameTypeToSheetType(f.Type)].Add(f)).ToArray();
+				}
+				else if (allowedAudioExtensions.Contains(extension))
+				{
+					originalAudioStream = originalPackage.GetStream(target);
+					foreach (var loader in Game.ModData.SoundLoaders)
+						if (loader.TryParseSound(originalAudioStream, out originalSoundFormat))
+							break;
+				}
+			}
+			catch (Exception e)
+			{
+				replacementStatus = $"Original preview failed: {e.Message}";
+			}
+		}
+
+		IReadOnlyPackage FindOriginalPackage(string target)
+		{
+			var packPath = EditablePack()?.AssetsPath;
+			return acceptablePackages.FirstOrDefault(package => package.Contains(target) &&
+				(packPath == null || !package.Name.Equals(packPath, StringComparison.OrdinalIgnoreCase)));
+		}
+
+		bool CanUseCurrentReplacement()
+		{
+			return IsEditablePack() && comparisonTarget != null && currentFilename != null && currentPackage != null &&
+				Path.GetExtension(comparisonTarget).Equals(Path.GetExtension(currentFilename), StringComparison.OrdinalIgnoreCase);
+		}
+
+		void UseCurrentReplacement()
+		{
+			if (!CanUseCurrentReplacement())
+				return;
+
+			try
+			{
+				using var stream = currentPackage.GetStream(currentFilename);
+				if (stream == null)
+					throw new FileNotFoundException($"Could not read `{currentFilename}` from the selected package.");
+
+				workingPack = PresentationPackRegistry.AddOrUpdateReplacement(
+					modData.Manifest.Id, presentationPackId, comparisonTarget, currentFilename, stream);
+				replacementStatus = $"Added {comparisonTarget} to {workingPack.Title}.";
+				onPackChanged?.Invoke();
+			}
+			catch (Exception e)
+			{
+				replacementStatus = e.Message;
+			}
+		}
+
+		void ImportReplacement()
+		{
+			if (!IsEditablePack() || comparisonTarget == null)
+				return;
+
+			ConfirmationDialogs.TextInputPrompt(modData, ImportReplacementTitle, ImportReplacementPrompt, "",
+				onAccept: sourcePath =>
+				{
+					try
+					{
+						workingPack = PresentationPackRegistry.AddOrUpdateReplacementFromFile(
+							modData.Manifest.Id, presentationPackId, comparisonTarget, sourcePath);
+						replacementStatus = $"Imported {Path.GetFileName(sourcePath)} for {comparisonTarget}.";
+						onPackChanged?.Invoke();
+					}
+					catch (Exception e) { replacementStatus = e.Message; }
+				},
+				inputValidator: sourcePath => File.Exists(sourcePath) &&
+					Path.GetExtension(sourcePath).Equals(Path.GetExtension(comparisonTarget), StringComparison.OrdinalIgnoreCase));
 		}
 
 		void SelectNextFrame()
@@ -652,6 +851,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 				return false;
 			}
+
+			if (comparisonTarget == null)
+				SetComparisonTarget(filename);
 
 			return true;
 		}
