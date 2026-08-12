@@ -3,17 +3,37 @@
 
 IranBasijRifle:
 	Inherits: M1Carbine
-	ReloadDelay: 36
+	ReloadDelay: 42
+	Burst: 3
+	BurstDelays: 3
 	Range: 4c256
 	Report: iran-rifle.wav
+	Projectile: Bullet
+		Speed: 2048
+		Inaccuracy: 96
+		Blockable: true
+		ContrailLength: 3
+		ContrailDelay: 0
+		ContrailStartWidth: 18
+		ContrailEndWidth: 5
+		ContrailStartColor: F2C45A
+		ContrailEndColor: C25B24
+		ContrailStartColorAlpha: 210
+		ContrailEndColorAlpha: 0
 	Warhead@1Dam: SpreadDamage
-		Damage: 1200
+		Damage: 500
 		Versus:
 			None: 105
 			Wood: 30
 			Light: 18
 			Heavy: 6
 			Concrete: 8
+	Warhead@SUPPRESS: GrantExternalCondition
+		Condition: iran-suppressed
+		Duration: 75
+		Range: 0c192
+		ValidRelationships: Enemy, Neutral
+		ValidTargets: Infantry
 
 IranATGM:
 	Inherits: Dragon
@@ -38,6 +58,12 @@ IranATGM:
 			Light: 120
 			Heavy: 135
 			Concrete: 70
+	Warhead@TRACK: GrantExternalCondition
+		Condition: iran-atgm-tracked
+		Duration: 110
+		Range: 0c256
+		ValidRelationships: Enemy, Neutral
+		ValidTargets: Vehicle
 	Warhead@3Eff: CreateEffect
 		Image: ir_effects
 		Explosions: impact
@@ -52,6 +78,35 @@ IranControllerCarbine:
 	Warhead@1Dam: SpreadDamage
 		Damage: 650
 
+IranSignalSpike:
+	ReloadDelay: 118
+	Range: 8c0
+	TargetActorCenter: true
+	ValidTargets: GroundActor, WaterActor
+	Projectile: Bullet
+		Speed: 1536
+		Inaccuracy: 0
+		Blockable: false
+		ContrailLength: 9
+		ContrailDelay: 0
+		ContrailStartWidth: 28
+		ContrailEndWidth: 6
+		ContrailStartColor: 5DC3A6
+		ContrailEndColor: 5DC7DF
+		ContrailStartColorAlpha: 235
+		ContrailEndColorAlpha: 0
+	Warhead@JAM: GrantExternalCondition
+		Condition: iran-signal-jammed
+		Duration: 165
+		Range: 0c256
+		ValidRelationships: Enemy, Neutral
+		ValidTargets: GroundActor, WaterActor
+	Warhead@EFFECT: CreateEffect
+		Image: ir_signal
+		Explosions: pulse
+		ImpactSounds: iran-drone-release.wav
+		ValidTargets: GroundActor, WaterActor
+
 IranShadowSMG:
 	Inherits: SilencedPPK
 	ReloadDelay: 18
@@ -59,6 +114,18 @@ IranShadowSMG:
 	BurstDelays: 2
 	Range: 5c0
 	Report: iran-shadow-fire.wav
+	Projectile: Bullet
+		Speed: 2560
+		Inaccuracy: 48
+		Blockable: true
+		ContrailLength: 2
+		ContrailDelay: 0
+		ContrailStartWidth: 12
+		ContrailEndWidth: 3
+		ContrailStartColor: 5DC7DF
+		ContrailEndColor: 162D32
+		ContrailStartColorAlpha: 150
+		ContrailEndColorAlpha: 0
 	Warhead@1Dam: SpreadDamage
 		Damage: 2100
 		Versus:
@@ -84,6 +151,12 @@ IranSabotageCharge:
 			Light: 70
 			Heavy: 45
 			Concrete: 105
+	Warhead@SABOTAGE: GrantExternalCondition
+		Condition: iran-sabotaged
+		Duration: 225
+		Range: 0c256
+		ValidRelationships: Enemy, Neutral
+		ValidTargets: Structure, Defense
 	Warhead@2Eff: CreateEffect
 		Image: ir_effects
 		Explosions: sabotage

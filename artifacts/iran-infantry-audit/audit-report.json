@@ -1,0 +1,31 @@
+{
+  "audit": "Iran infantry native-style comparison",
+  "reference_pairs": {
+    "irbas": "e1",
+    "iratgm": "e3",
+    "irdc": "e6",
+    "shadowone": "spy"
+  },
+  "structural_results": {
+    "fixed_canvas": "50x39 for all custom and native world sprites",
+    "custom_stand_facings": "8/8 unique for every unit",
+    "custom_stand_top": "y=5 for every unit",
+    "custom_stand_baseline": "y=22..23; native references y=22",
+    "custom_height_delta": "0..1 px versus native role references",
+    "production_icons": "indexed 64x48 with native portrait bases and custom role labels/equipment"
+  },
+  "weapon_identity": {
+    "irbas": "Visible three-round tracer burst; suppresses infantry movement and reload speed.",
+    "iratgm": "Long-range guided anti-armor missile; tracks and cripples vehicle mobility.",
+    "irdc": "Visible cyan signal-spike projectile; jams target reload systems and adds a status marker.",
+    "shadowone": "Visible suppressed burst plus sabotage charge that cripples defensive reloads."
+  },
+  "validation": {
+    "sprite_audit": "passed",
+    "full_ra_yaml_and_map_validation": "passed",
+    "visual_sheets_inspected": true,
+    "live_map_loaded": true,
+    "live_world_sprites_rendered": true,
+    "live_combat_capture": false
+  }
+}

@@ -1465,22 +1465,22 @@ actor-naval-salvage =
 
 actor-irbas =
     .name = Basij Rifle Section
-    .description = Inexpensive mass infantry.
-     Strong in groups; vulnerable to armor and area damage.
+    .description = Fires visible three-round bursts that suppress infantry.
+     Suppressed targets move slower and return fire less often.
 
 actor-iratgm =
     .name = ATGM Team
-    .description = Long-range anti-armor specialist.
+    .description = Long-range anti-armor team whose top-attack missile cripples vehicle mobility.
      Cannot move while setting up and reloading.
 
 actor-irdc =
     .name = Drone Controller
-    .description = Long-range reconnaissance and cloak detection.
-     A living controller unlocks Simorgh loitering munitions.
+    .description = Reconnaissance specialist with a visible signal-spike weapon that jams enemy reload systems.
+     Detects cloaks and unlocks Simorgh loitering munitions while alive.
 
 actor-shadowone =
     .name = Shadow One
-    .description = Fictional stealth and sabotage commando.
+    .description = Cloaked commando with a suppressed burst weapon and defense-disrupting sabotage charges.
      Build limit: 1. Revealed by movement, attacks, nearby infantry, and detectors.
 
 actor-irkarr =

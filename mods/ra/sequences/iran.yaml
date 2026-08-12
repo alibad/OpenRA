@@ -379,6 +379,16 @@ ir_effects:
 		Tick: 2
 		ZOffset: 2047
 
+ir_signal:
+	marker:
+		Filename: turkey-designator.shp
+		Length: 8
+		Tick: 4
+	pulse:
+		Filename: turkey-designator.shp
+		Length: 8
+		Tick: 2
+
 ir_cloak:
 	idle:
 		Filename: ircloak.shp

@@ -2,6 +2,45 @@
 # Stock economy, construction, repair, defenses, transport, veterancy and core
 # production remain available; the actors below add the faction identity.
 
+^ExistsInWorld:
+	ExternalCondition@IRANSIGNALJAMMED:
+		Condition: iran-signal-jammed
+	ReloadDelayMultiplier@IRANSIGNALJAMMED:
+		Modifier: 165
+		RequiresCondition: iran-signal-jammed
+	WithDecoration@IRANSIGNALJAMMED:
+		Image: ir_signal
+		Sequence: marker
+		Palette: effect
+		Position: TopRight
+		Margin: 4, 4
+		ValidRelationships: Ally, Enemy, Neutral
+		RequiresCondition: iran-signal-jammed
+
+^Infantry:
+	ExternalCondition@IRANSUPPRESSED:
+		Condition: iran-suppressed
+	SpeedMultiplier@IRANSUPPRESSED:
+		Modifier: 82
+		RequiresCondition: iran-suppressed
+	ReloadDelayMultiplier@IRANSUPPRESSED:
+		Modifier: 125
+		RequiresCondition: iran-suppressed
+
+^Vehicle:
+	ExternalCondition@IRANATGMTRACKED:
+		Condition: iran-atgm-tracked
+	SpeedMultiplier@IRANATGMTRACKED:
+		Modifier: 65
+		RequiresCondition: iran-atgm-tracked
+
+^Building:
+	ExternalCondition@IRANSABOTAGED:
+		Condition: iran-sabotaged
+	ReloadDelayMultiplier@IRANSABOTAGED:
+		Modifier: 300
+		RequiresCondition: iran-sabotaged
+
 World:
 	StartingUnits@mcvonly:
 		Factions: allies, england, france, germany, saudi, soviet, russia, ukraine, yemen, iran
@@ -184,6 +223,11 @@ IRDC:
 		Prerequisite: iran.drone-control
 	Armament@PRIMARY:
 		Weapon: IranControllerCarbine
+	Armament@SIGNAL:
+		Name: secondary
+		Weapon: IranSignalSpike
+		LocalOffset: 0,0,555
+		FireDelay: 8
 	Armament@GARRISONED:
 		Name: garrisoned
 		Weapon: IranControllerCarbine
