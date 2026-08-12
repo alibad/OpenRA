@@ -227,6 +227,32 @@ cnphl.destroyed:
 		UseClassicFacings: True
 		ZOffset: -512
 
+cnmantis:
+	Defaults:
+		Filename: cnmantis.shp
+	idle:
+		Facings: 32
+		UseClassicFacings: True
+	turret:
+		Start: 32
+		Facings: 32
+		UseClassicFacings: True
+	icon:
+		Filename: cnmantisicon.shp
+
+cnmantis.destroyed:
+	idle:
+		Filename: cnmantishusk.shp
+		Facings: 32
+		UseClassicFacings: True
+		ZOffset: -512
+	turret:
+		Filename: cnmantishusk.shp
+		Start: 32
+		Facings: 32
+		UseClassicFacings: True
+		ZOffset: -512
+
 cnskyspear:
 	idle:
 		Filename: cnskyspear.shp
@@ -331,6 +357,145 @@ cnhaiwang.sinking:
 		Facings: 16
 		InterpolatedFacings: 32
 		Tick: 6
+
+cnhaiying:
+	idle:
+		Filename: cnhaiying.shp
+		Facings: 16
+		InterpolatedFacings: 32
+	turret:
+		Filename: cnhaiyingturret.shp
+		Facings: 32
+	icon:
+		Filename: cnhaiyingicon.shp
+
+cnhaiying.sinking:
+	sink:
+		Filename: cnhaiyingsink.shp
+		Length: 4
+		Facings: 16
+		InterpolatedFacings: 32
+		Tick: 6
+
+cnkunlun:
+	Defaults:
+		Filename: cnkunlun.shp
+	idle:
+		Facings: 16
+		InterpolatedFacings: 32
+	open:
+		Start: 16
+		Length: 4
+		Facings: 16
+		InterpolatedFacings: 32
+		Tick: 5
+	close:
+		Start: 80
+		Length: 4
+		Facings: 16
+		InterpolatedFacings: 32
+		Tick: 5
+	unload:
+		Start: 19
+		Facings: 16
+		Stride: 4
+		InterpolatedFacings: 32
+		ZOffset: -511
+	turret:
+		Filename: cnkunlunturret.shp
+		Facings: 32
+	icon:
+		Filename: cnkunlunicon.shp
+
+cnkunlun.sinking:
+	sink:
+		Filename: cnkunlunsink.shp
+		Length: 4
+		Facings: 16
+		InterpolatedFacings: 32
+		Tick: 6
+
+cnjiaolong:
+	idle:
+		Filename: cnjiaolong.shp
+		Facings: 16
+		InterpolatedFacings: 32
+	icon:
+		Filename: cnjiaolongicon.shp
+
+cnjiaolong.sinking:
+	sink:
+		Filename: cnjiaolongsink.shp
+		Length: 4
+		Facings: 16
+		InterpolatedFacings: 32
+		Tick: 6
+
+cnbastion:
+	Defaults:
+		Filename: cnbastion.shp
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 10
+		Tick: 3
+	turret:
+		Filename: cnbastiontop.shp
+		Facings: 32
+		UseClassicFacings: True
+	damaged-turret:
+		Filename: cnbastiontop.shp
+		Start: 32
+		Facings: 32
+		UseClassicFacings: True
+	icon:
+		Filename: cnbastionicon.shp
+
+cnskyshield:
+	Defaults:
+		Filename: cnskyshield.shp
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 10
+		Tick: 3
+	turret:
+		Filename: cnskyshieldtop.shp
+		Facings: 32
+		UseClassicFacings: True
+	damaged-turret:
+		Filename: cnskyshieldtop.shp
+		Start: 32
+		Facings: 32
+		UseClassicFacings: True
+	icon:
+		Filename: cnskyshieldicon.shp
+
+cnspectrum:
+	Defaults:
+		Filename: cnspectrum.shp
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 10
+		Tick: 3
+	active:
+		Filename: cnspectrumtop.shp
+		Length: 16
+		Tick: 3
+	damaged-active:
+		Filename: cnspectrumtop.shp
+		Start: 16
+		Length: 16
+		Tick: 3
+	icon:
+		Filename: cnspectrumicon.shp
 
 china_missile:
 	idle:
