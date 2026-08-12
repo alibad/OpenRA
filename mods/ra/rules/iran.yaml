@@ -237,7 +237,8 @@ SHADOWONE:
 	Cloak:
 		InitialDelay: 100
 		CloakDelay: 85
-		CloakedAlpha: 0.72
+		# Hidden from enemies, but intentionally legible to its owner.
+		CloakedAlpha: 0.94
 		UncloakOn: Attack, Unload, Infiltrate, Demolish, Move
 		DetectionTypes: Cloak
 		CloakedCondition: shadow-cloaked
