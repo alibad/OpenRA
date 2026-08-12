@@ -39,6 +39,7 @@ FileSystem: ContentInstallerFileSystem
 		# Below are mod-provided (system) packages that need to be loaded after the content packages so they can override content assets.
 		ra|bits
 		ra|bits/desert
+		ra|bits/environment
 	RequiredContentFiles:
 		content|expand/chrotnk1.aud
 		content|expand/fixit1.aud
@@ -78,6 +79,7 @@ Rules:
 	ra|rules/palettes.yaml
 	ra|rules/world.yaml
 	ra|rules/defaults.yaml
+	ra|rules/environment.yaml
 	ra|rules/vehicles.yaml
 	ra|rules/red-sea.yaml
 	ra|rules/turkey.yaml
