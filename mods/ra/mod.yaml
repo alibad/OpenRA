@@ -78,6 +78,7 @@ Rules:
 	ra|rules/palettes.yaml
 	ra|rules/world.yaml
 	ra|rules/defaults.yaml
+	ra|rules/environment.yaml
 	ra|rules/vehicles.yaml
 	ra|rules/red-sea.yaml
 	ra|rules/turkey.yaml

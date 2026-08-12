@@ -241,6 +241,8 @@
 	Inherits@bounty: ^GlobalBounty
 	Inherits@selection: ^SelectableCombatUnit
 	Inherits@handicaps: ^PlayerHandicaps
+	EnvironmentResponse:
+		Domain: Ground
 	Huntable:
 	OwnerLostAction:
 		Action: Kill
@@ -325,6 +327,8 @@
 	Inherits@bounty: ^GlobalBounty
 	Inherits@selection: ^SelectableCombatUnit
 	Inherits@handicaps: ^PlayerHandicaps
+	EnvironmentResponse:
+		Domain: Infantry
 	Huntable:
 	OwnerLostAction:
 		Action: Kill
@@ -508,6 +512,8 @@
 	Inherits@bounty: ^GlobalBounty
 	Inherits@selection: ^SelectableCombatUnit
 	Inherits@handicaps: ^PlayerHandicaps
+	EnvironmentResponse:
+		Domain: Naval
 	Huntable:
 	OwnerLostAction:
 		Action: Kill
@@ -585,6 +591,8 @@
 	Inherits@bounty: ^GlobalBounty
 	Inherits@selection: ^SelectableCombatUnit
 	Inherits@handicaps: ^PlayerHandicaps
+	EnvironmentResponse:
+		Domain: Air
 	OwnerLostAction:
 		Action: Kill
 	Armor:
@@ -689,6 +697,8 @@
 	Inherits@bounty: ^GlobalBounty
 	Inherits@selection: ^SelectableBuilding
 	Inherits@handicaps: ^PlayerHandicaps
+	EnvironmentResponse:
+		Domain: Building
 	Targetable:
 		TargetTypes: GroundActor, C4, DetonateAttack, Structure
 	Building:
