@@ -81,6 +81,12 @@ namespace OpenRA.Mods.Common.Projectiles
 		[Desc("Is this blocked by actors with BlocksProjectiles trait.")]
 		public readonly bool Blockable = true;
 
+		[Desc("Optional class used by PointDefense to intercept this projectile.")]
+		public readonly string PointDefenseType = null;
+
+		[Desc("Apply the weapon impact at the interception point instead of removing the projectile harmlessly.")]
+		public readonly bool DetonateOnInterception = false;
+
 		[Desc("Width of projectile (used for finding blocking actors).")]
 		public readonly WDist Width = new(1);
 
@@ -248,6 +254,19 @@ namespace OpenRA.Mods.Common.Projectiles
 
 			lastPos = pos;
 			pos = WPos.LerpQuadratic(source, target, angle, ticks, length);
+
+			if (ProjectileInterception.TryIntercept(world, pos, Args.SourceActor.Owner, info.PointDefenseType, Args))
+			{
+				if (info.ContrailLength > 0)
+					world.AddFrameEndTask(w => w.Add(new ContrailFader(pos, contrail)));
+
+				if (info.DetonateOnInterception)
+					Explode(world);
+				else
+					world.AddFrameEndTask(w => w.Remove(this));
+
+				return;
+			}
 
 			if (ShouldExplode(world))
 			{

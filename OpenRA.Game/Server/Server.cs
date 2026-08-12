@@ -202,6 +202,7 @@ namespace OpenRA.Server
 			{
 				Mod = ModData.Manifest.Id,
 				Version = ModData.Manifest.Metadata.Version,
+				ConfigurationFingerprint = ModData.GameplayFingerprint,
 			};
 
 			recorder.ReceiveFrame(0, 0, new Order("HandshakeRequest", null, false)
@@ -215,6 +216,7 @@ namespace OpenRA.Server
 			{
 				Mod = ModData.Manifest.Id,
 				Version = ModData.Manifest.Metadata.Version,
+				ConfigurationFingerprint = ModData.GameplayFingerprint,
 				OrdersProtocol = ProtocolVersion.Orders,
 				Client = new Session.Client(),
 			};
@@ -448,6 +450,7 @@ namespace OpenRA.Server
 				{
 					Mod = ModData.Manifest.Id,
 					Version = ModData.Manifest.Metadata.Version,
+					ConfigurationFingerprint = ModData.GameplayFingerprint,
 					AuthToken = token
 				};
 
@@ -518,6 +521,15 @@ namespace OpenRA.Server
 				if (ModData.Manifest.Metadata.Version != handshake.Version)
 				{
 					Log.Write("server", $"Rejected connection from {newConn.EndPoint}; Not running the same version.");
+
+					SendOrderTo(newConn, "ServerError", IncompatibleVersion);
+					DropClient(newConn);
+					return;
+				}
+
+				if (!string.Equals(ModData.GameplayFingerprint, handshake.ConfigurationFingerprint, StringComparison.Ordinal))
+				{
+					Log.Write("server", $"Rejected connection from {newConn.EndPoint}; experience configurations do not match.");
 
 					SendOrderTo(newConn, "ServerError", IncompatibleVersion);
 					DropClient(newConn);

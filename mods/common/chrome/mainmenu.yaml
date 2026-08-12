@@ -73,7 +73,7 @@ Container@MAINMENU:
 							Y: 175
 							Width: 140
 							Height: 30
-							Text: button-main-menu-world-tools
+							Text: button-main-menu-workshop
 							Font: Bold
 						Button@SETTINGS_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
@@ -170,23 +170,9 @@ Container@MAINMENU:
 							Height: 30
 							Text: label-music-title
 							Font: Bold
-						Button@MAP_EDITOR_BUTTON:
-							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 140
-							Width: 140
-							Height: 30
-							Text: label-map-editor-title
-							Font: Bold
-						Button@ASSETBROWSER_BUTTON:
-							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 180
-							Width: 140
-							Height: 30
-							Text: button-extras-menu-assetbrowser
-							Font: Bold
 						Button@CREDITS_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 220
+							Y: 140
 							Width: 140
 							Height: 30
 							Text: label-credits-title
@@ -241,22 +227,36 @@ Container@MAINMENU:
 							Y: 20
 							Width: PARENT_WIDTH
 							Height: 30
-							Text: button-main-menu-world-tools
+							Text: button-main-menu-workshop
 							Align: Center
+							Font: Bold
+						Button@EXPERIENCE_BUTTON:
+							X: PARENT_WIDTH / 2 - WIDTH / 2
+							Y: 60
+							Width: 150
+							Height: 30
+							Text: button-workshop-experience
 							Font: Bold
 						Button@EARTH_STUDIO_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 70
+							Y: 100
 							Width: 150
 							Height: 30
 							Text: button-world-tools-earth-studio
 							Font: Bold
 						Button@NATIVE_EDITOR_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 110
+							Y: 140
 							Width: 150
 							Height: 30
 							Text: button-world-tools-native-editor
+							Font: Bold
+						Button@ASSET_LIBRARY_BUTTON:
+							X: PARENT_WIDTH / 2 - WIDTH / 2
+							Y: 180
+							Width: 150
+							Height: 30
+							Text: button-workshop-asset-library
 							Font: Bold
 						Button@BACK_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2

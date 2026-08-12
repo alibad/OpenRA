@@ -9,10 +9,16 @@
  */
 #endregion
 
+/*
+ * Mission-seeded positions, accelerated opening scans, roster filtering, and
+ * stuck recovery are adapted from Shattered Paradise's MinelayerBotModuleSP.
+ */
+
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
+using OpenRA.Mods.Common.Experience;
 using OpenRA.Primitives;
 using OpenRA.Traits;
 
@@ -21,7 +27,8 @@ namespace OpenRA.Mods.Common.Traits
 	[TraitLocation(SystemActors.Player)]
 	[Desc("Manages AI minelayer unit related with " + nameof(Minelayer) + " traits.",
 		"When enemy damage AI's actors, the location of conflict will be recorded,",
-		"If a location is a valid spot, it will add/merge to favorite location for usage later")]
+		"If a location is a valid spot, it will add/merge to favorite location for usage later.",
+		"Includes mission marker initialization, accelerated opening scans, and stuck-unit recovery.")]
 	public class MinelayerBotModuleInfo : ConditionalTraitInfo
 	{
 		[Desc("Enemy target types to ignore when add the minefield location to conflict location.")]
@@ -58,6 +65,19 @@ namespace OpenRA.Mods.Common.Traits
 			"If favorite minefield positions is at the max of 5, we always merge it to closest regardless of this")]
 		public readonly int FavoritePositionDistance = 6;
 
+		[ActorReference]
+		[Desc("Optional map marker actor whose locations seed the initial minefield positions.")]
+		public readonly string InitializingMinefieldActor = null;
+
+		[Desc("Ticks to ignore combat reports after initial marker positions are loaded.")]
+		public readonly int RecordDelayAfterInitializing = 0;
+
+		[Desc("Ticks between the accelerated scans performed after initial marker positions are loaded.")]
+		public readonly int QuickScanTickAfterInitializing = 1;
+
+		[Desc("Number of accelerated scans to perform after loading initial marker positions.")]
+		public readonly int QuickScanTickTimes = 0;
+
 		public override object Create(ActorInitializer init) { return new MinelayerBotModule(init.Self, this); }
 	}
 
@@ -70,16 +90,22 @@ namespace OpenRA.Mods.Common.Traits
 		readonly Player player;
 		readonly Predicate<Actor> unitCannotBeOrdered;
 		readonly Predicate<Actor> unitCannotBeOrderedOrIsBusy;
+		readonly Dictionary<Actor, WPos> activeMinelayers = [];
+		readonly HashSet<Actor> stuckMinelayers = [];
 		readonly CPos?[] conflictPositionQueue;
 		readonly CPos?[] favoritePositions;
 
 		int minAssignRoleDelayTicks;
+		int quickScanTimes;
 		int conflictPositionLength;
 		int favoritePositionsLength;
 		int currentFavoritePositionIndex;
 		int alertedTicks;
+		bool firstTick;
 
 		PathFinder pathFinder;
+		static bool EnhancedBehaviorEnabled => Game.ModData.GetOrNull<ExperienceCatalog>()?
+			.ActiveComponentIds.Contains("mission-aware-minelayer-ai") ?? true;
 
 		public MinelayerBotModule(Actor self, MinelayerBotModuleInfo info)
 		: base(info)
@@ -87,7 +113,7 @@ namespace OpenRA.Mods.Common.Traits
 			world = self.World;
 			player = self.Owner;
 			unitCannotBeOrdered = a => a == null || a.IsDead || !a.IsInWorld || a.Owner != player;
-			unitCannotBeOrderedOrIsBusy = a => unitCannotBeOrdered(a) || !a.IsIdle;
+			unitCannotBeOrderedOrIsBusy = a => unitCannotBeOrdered(a) || !a.IsIdle || stuckMinelayers.Contains(a);
 			conflictPositionQueue = new CPos?[MaxPositionCacheLength];
 			favoritePositions = new CPos?[MaxPositionCacheLength];
 		}
@@ -100,17 +126,59 @@ namespace OpenRA.Mods.Common.Traits
 			conflictPositionLength = 0;
 			favoritePositionsLength = 0;
 			currentFavoritePositionIndex = 0;
+			quickScanTimes = 0;
+			firstTick = true;
+			activeMinelayers.Clear();
+			stuckMinelayers.Clear();
 			pathFinder = self.World.WorldActor.Trait<PathFinder>();
 		}
 
 		void IBotTick.BotTick(IBot bot)
 		{
+			if (firstTick)
+			{
+				firstTick = false;
+				if (EnhancedBehaviorEnabled && !string.IsNullOrEmpty(Info.InitializingMinefieldActor))
+					foreach (var location in world.Actors
+						.Where(a => a.Info.Name == Info.InitializingMinefieldActor)
+						.Select(a => a.Location))
+						EnqueueConflictPosition(location);
+
+				alertedTicks = EnhancedBehaviorEnabled ? Info.RecordDelayAfterInitializing : 0;
+				if (EnhancedBehaviorEnabled && Info.QuickScanTickTimes > 0)
+				{
+					quickScanTimes = Info.QuickScanTickTimes;
+					minAssignRoleDelayTicks = world.LocalRandom.Next(0, Math.Max(1, Info.QuickScanTickAfterInitializing));
+				}
+			}
+
 			if (alertedTicks > 0)
 				alertedTicks--;
 
 			if (--minAssignRoleDelayTicks <= 0)
 			{
-				minAssignRoleDelayTicks = Info.ScanTick;
+				minAssignRoleDelayTicks = EnhancedBehaviorEnabled && quickScanTimes-- > 0 ?
+					Info.QuickScanTickAfterInitializing : Info.ScanTick;
+				stuckMinelayers.Clear();
+				foreach (var pair in EnhancedBehaviorEnabled ? activeMinelayers.ToArray() : [])
+				{
+					var actor = pair.Key;
+					if (unitCannotBeOrdered(actor) || actor.IsIdle)
+					{
+						activeMinelayers.Remove(actor);
+						continue;
+					}
+
+					if (actor.CenterPosition == pair.Value)
+					{
+						stuckMinelayers.Add(actor);
+						bot.QueueOrder(new Order("Stop", actor, false));
+						activeMinelayers.Remove(actor);
+						continue;
+					}
+
+					activeMinelayers[actor] = actor.CenterPosition;
+				}
 
 				var minelayingPosition = CPos.Zero;
 				var useFavoritePosition = false;
@@ -137,7 +205,8 @@ namespace OpenRA.Mods.Common.Traits
 					// we will try find a location that at the middle of pathfinding cells
 					if (favoritePositionsLength == 0)
 					{
-						minelayers = world.ActorsWithTrait<Minelayer>().Where(at => !unitCannotBeOrderedOrIsBusy(at.Actor)).ToArray();
+						minelayers = world.ActorsWithTrait<Minelayer>()
+							.Where(at => IsConfiguredMinelayer(at.Actor) && !unitCannotBeOrderedOrIsBusy(at.Actor)).ToArray();
 						if (minelayers.Length == 0)
 							return;
 
@@ -185,7 +254,8 @@ namespace OpenRA.Mods.Common.Traits
 					}
 				}
 
-				minelayers ??= world.ActorsWithTrait<Minelayer>().Where(at => !unitCannotBeOrderedOrIsBusy(at.Actor)).ToArray();
+				minelayers ??= world.ActorsWithTrait<Minelayer>()
+					.Where(at => IsConfiguredMinelayer(at.Actor) && !unitCannotBeOrderedOrIsBusy(at.Actor)).ToArray();
 
 				if (minelayers.Length == 0)
 					return;
@@ -199,6 +269,8 @@ namespace OpenRA.Mods.Common.Traits
 					if (cells != null && cells.Count != 0)
 					{
 						orderedActors.Add(minelayer.Actor);
+						if (EnhancedBehaviorEnabled)
+							activeMinelayers[minelayer.Actor] = minelayer.Actor.CenterPosition;
 
 						// if there is enemy actor nearby, we will try to lay mine on
 						// 3/4 distance to desired position (the path cell is reversed)
@@ -252,6 +324,12 @@ namespace OpenRA.Mods.Common.Traits
 						DequeueFirstConflictPosition();
 				}
 			}
+		}
+
+		bool IsConfiguredMinelayer(Actor actor)
+		{
+			return !EnhancedBehaviorEnabled || Info.MinelayingActorTypes == null || Info.MinelayingActorTypes.Count == 0 ||
+				Info.MinelayingActorTypes.Contains(actor.Info.Name);
 		}
 
 		void DequeueFirstConflictPosition()

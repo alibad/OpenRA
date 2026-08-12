@@ -77,6 +77,33 @@ AFLD:
 		Factions: yemen
 		Prerequisite: aircraft.soviet
 
+# Fixed-wing aircraft use a native Plane production/resupply building instead
+# of borrowing the helicopter pad.  Reuse the stock Airfield presentation and
+# behavior while gating this copy to the Saudi structure tree.
+SAFLD:
+	Inherits: AFLD
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 130
+		Prerequisites: dome, ~structures.saudi, ~techlevel.medium
+		Description: actor-afld.description
+	ProvidesPrerequisite@saudi:
+		Factions: saudi
+		Prerequisite: aircraft.saudi
+	-ProvidesPrerequisite@soviet:
+	-ProvidesPrerequisite@sovietvanilla:
+	-ProvidesPrerequisite@russia:
+	-ProvidesPrerequisite@ukraine:
+	-ProvidesPrerequisite@sovietstructure:
+	-ProvidesPrerequisite@sovietvanillastructure:
+	-ProvidesPrerequisite@russianstructure:
+	-ProvidesPrerequisite@ukrainianstructure:
+	-AirstrikePower@spyplane:
+	-ParatroopersPower@paratroopers:
+	-AirstrikePower@parabombs:
+	RenderSprites:
+		Image: afld
+
 TENT:
 	ProvidesPrerequisite@allies:
 		Factions: allies, england, france, germany, saudi
@@ -120,6 +147,424 @@ SPEN:
 	ProvidesPrerequisite@yemensoviettree:
 		Factions: yemen
 		Prerequisite: ships.soviet
+
+# JTAC designations are a first-class target state.  Only Red Sea guided
+# weapons include bonus warheads against the tag, so normal small arms do not
+# receive a hidden global damage buff.
+^Infantry:
+	ExternalCondition@REDSEA_DESIGNATED:
+		Condition: redsea-designated
+	Targetable@REDSEA_DESIGNATED:
+		TargetTypes: RedSeaDesignated
+		RequiresCondition: redsea-designated
+	WithColoredOverlay@REDSEA_DESIGNATED:
+		Color: 35D8C360
+		RequiresCondition: redsea-designated
+
+^Vehicle:
+	ExternalCondition@REDSEA_DESIGNATED:
+		Condition: redsea-designated
+	Targetable@REDSEA_DESIGNATED:
+		TargetTypes: RedSeaDesignated
+		RequiresCondition: redsea-designated
+	WithColoredOverlay@REDSEA_DESIGNATED:
+		Color: 35D8C360
+		RequiresCondition: redsea-designated
+
+^Ship:
+	ExternalCondition@REDSEA_DESIGNATED:
+		Condition: redsea-designated
+	Targetable@REDSEA_DESIGNATED:
+		TargetTypes: RedSeaDesignated
+		RequiresCondition: redsea-designated
+	WithColoredOverlay@REDSEA_DESIGNATED:
+		Color: 35D8C360
+		RequiresCondition: redsea-designated
+
+^Building:
+	ExternalCondition@REDSEA_DESIGNATED:
+		Condition: redsea-designated
+	Targetable@REDSEA_DESIGNATED:
+		TargetTypes: RedSeaDesignated
+		RequiresCondition: redsea-designated
+	WithColoredOverlay@REDSEA_DESIGNATED:
+		Color: 35D8C360
+		RequiresCondition: redsea-designated
+
+^Plane:
+	ExternalCondition@REDSEA_DESIGNATED:
+		Condition: redsea-designated
+	Targetable@REDSEA_DESIGNATED:
+		TargetTypes: RedSeaDesignated
+		RequiresCondition: redsea-designated
+	WithColoredOverlay@REDSEA_DESIGNATED:
+		Color: 35D8C360
+		RequiresCondition: redsea-designated
+
+^RedSeaCombatInfantry:
+	Inherits: ^Soldier
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Selectable:
+		Bounds: 768, 853, 0, -256
+		DecorationBounds: 512, 768, 0, -341
+	Armament@GARRISONED:
+		Name: garrisoned
+		Weapon: RedSeaGuardRifle
+	WithInfantryBody:
+		DefaultAttackSequence: shoot
+		RequiresCondition: !parachute
+	WithInfantryBody@PARACHUTE:
+		StandSequences: parachute
+		RequiresCondition: parachute
+		Palette: player-noshadow
+		IsPlayerPalette: true
+	ProducibleWithLevel:
+		Prerequisites: barracks.upgraded
+	WithProductionIconOverlay:
+		Types: Veterancy
+		Prerequisites: barracks.upgraded
+
+SANG:
+	Inherits: ^RedSeaCombatInfantry
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 12
+		Prerequisites: ~infantry.saudi, ~techlevel.infonly
+		Description: actor-sang.description
+	Valued:
+		Cost: 180
+	Tooltip:
+		Name: actor-sang.name
+	Health:
+		HP: 7800
+	Mobile:
+		Speed: 58
+	Armament@PRIMARY:
+		Weapon: RedSeaGuardRifle
+	Armament@GARRISONED:
+		Weapon: RedSeaGuardRifle
+	Voiced:
+		VoiceSet: SaudiInfantryVoice
+	RenderSprites:
+		Image: sang
+
+SAJTAC:
+	Inherits: ^RedSeaCombatInfantry
+	Inherits@selection: ^SelectableSupportUnit
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 52
+		Prerequisites: dome, ~infantry.saudi, ~techlevel.medium
+		Description: actor-sajtac.description
+	Valued:
+		Cost: 650
+	Tooltip:
+		Name: actor-sajtac.name
+	Health:
+		HP: 5200
+	Mobile:
+		Speed: 62
+	RevealsShroud:
+		Range: 8c0
+	DetectCloaked:
+		Range: 5c0
+	Armament@PRIMARY:
+		Weapon: RedSeaJTACDesignator
+		LocalOffset: 0,0,555
+	Armament@GARRISONED:
+		Weapon: RedSeaSpotterCarbine
+	AutoTarget:
+		ScanRadius: 9
+	AutoTargetPriority@DEFAULT:
+		ValidTargets: GroundActor, WaterActor
+	Voiced:
+		VoiceSet: SaudiJTACVoice
+	RenderSprites:
+		Image: sajtac
+
+SAAT:
+	Inherits: ^RedSeaCombatInfantry
+	Inherits@AUTOTARGET: ^AutoTargetAllAssaultMove
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 32
+		Prerequisites: ~infantry.saudi, ~techlevel.low
+		Description: actor-saat.description
+	Valued:
+		Cost: 575
+	Tooltip:
+		Name: actor-saat.name
+	Health:
+		HP: 4600
+	Mobile:
+		Speed: 43
+	RevealsShroud:
+		Range: 7c0
+	Armament@PRIMARY:
+		Weapon: RedSeaATGM
+		LocalOffset: 0,0,555
+	Armament@GARRISONED:
+		Weapon: RedSeaATGM
+	AutoTarget:
+		ScanRadius: 9
+	Voiced:
+		VoiceSet: SaudiInfantryVoice
+	RenderSprites:
+		Image: saat
+
+FALCON1:
+	Inherits: ^RedSeaCombatInfantry
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 122
+		Prerequisites: atek, ~infantry.saudi, ~techlevel.high
+		BuildLimit: 1
+		Description: actor-falcon1.description
+	Valued:
+		Cost: 1900
+	Tooltip:
+		Name: actor-falcon1.name
+	Health:
+		HP: 11500
+	Mobile:
+		Speed: 78
+		Voice: Move
+	Guard:
+		Voice: Move
+	Passenger:
+		CustomPipType: red
+		Voice: Move
+	RevealsShroud:
+		Range: 8c0
+	Armament@PRIMARY:
+		Weapon: RedSeaFalconRifle
+	Armament@GARRISONED:
+		Weapon: RedSeaFalconRifle
+	Demolition:
+		DetonationDelay: 55
+		Voice: Demolish
+	AirstrikePower@PRECISION:
+		OrderName: FalconPrecisionStrike
+		Icon: parabombs
+		ChargeInterval: 1800
+		StartFullyCharged: true
+		Name: actor-falcon1.airstrikepower-precision-name
+		Description: actor-falcon1.airstrikepower-precision-description
+		SelectTargetTextNotification: actor-falcon1.airstrikepower-precision-select-target
+		UnitType: f15sa.strike
+		SquadSize: 1
+		QuantizedFacings: 8
+		DisplayBeacon: true
+		BeaconPoster: pbmbicon
+		ClockSequence: clock
+		ArrowSequence: arrow
+		CircleSequence: circles
+		CameraActor: camera
+		CameraRemoveDelay: 120
+		SupportPowerPaletteOrder: 25
+	ExternalCondition@PRODUCED:
+		Condition: produced
+	VoiceAnnouncement:
+		RequiresCondition: produced
+		Voice: Build
+	AnnounceOnKill:
+	Voiced:
+		VoiceSet: FalconOneVoice
+	RenderSprites:
+		Image: falcon1
+
+YMR:
+	Inherits: ^RedSeaCombatInfantry
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 14
+		Prerequisites: ~infantry.yemen, ~techlevel.infonly
+		Description: actor-ymr.description
+	Valued:
+		Cost: 75
+	Tooltip:
+		Name: actor-ymr.name
+	Health:
+		HP: 4200
+	Mobile:
+		Speed: 66
+	Armament@PRIMARY:
+		Weapon: RedSeaMountainRifle
+	Armament@GARRISONED:
+		Weapon: RedSeaMountainRifle
+	Cloak:
+		InitialDelay: 85
+		CloakDelay: 95
+		UncloakOn: Attack, Move, Damage
+		CloakStyle: Alpha
+		CloakedAlpha: 0.45
+	Voiced:
+		VoiceSet: YemenInfantryVoice
+	RenderSprites:
+		Image: ymr
+
+YRPG:
+	Inherits: ^RedSeaCombatInfantry
+	Inherits@AUTOTARGET: ^AutoTargetAllAssaultMove
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 34
+		Prerequisites: ~infantry.yemen, ~techlevel.low
+		Description: actor-yrpg.description
+	Valued:
+		Cost: 325
+	Tooltip:
+		Name: actor-yrpg.name
+	Health:
+		HP: 4300
+	Mobile:
+		Speed: 61
+	Armament@PRIMARY:
+		Weapon: RedSeaRPG
+		LocalOffset: 0,0,555
+	Armament@GARRISONED:
+		Weapon: RedSeaRPG
+	ExternalCondition@DRONE_GUIDANCE:
+		Condition: redsea-drone-guidance
+	RangeMultiplier@DRONE_GUIDANCE:
+		Modifier: 120
+		RequiresCondition: redsea-drone-guidance
+	ReloadDelayMultiplier@DRONE_GUIDANCE:
+		Modifier: 82
+		RequiresCondition: redsea-drone-guidance
+	Voiced:
+		VoiceSet: YemenInfantryVoice
+	RenderSprites:
+		Image: yrpg
+
+YSPOT:
+	Inherits: ^RedSeaCombatInfantry
+	Inherits@selection: ^SelectableSupportUnit
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 54
+		Prerequisites: dome, ~infantry.yemen, ~techlevel.medium
+		Description: actor-yspot.description
+	Valued:
+		Cost: 525
+	Tooltip:
+		Name: actor-yspot.name
+	Health:
+		HP: 4500
+	Mobile:
+		Speed: 64
+	RevealsShroud:
+		Range: 10c0
+	DetectCloaked:
+		Range: 7c0
+	RenderDetectionCircle:
+	ProximityExternalCondition@DRONE_GUIDANCE:
+		Range: 6c0
+		ValidRelationships: Ally
+		Condition: redsea-drone-guidance
+	WithRangeCircle@DRONE_GUIDANCE:
+		Type: drone-guidance
+		Range: 6c0
+		Color: 52E7D680
+	Armament@PRIMARY:
+		Weapon: RedSeaSpotterCarbine
+	Armament@GARRISONED:
+		Weapon: RedSeaSpotterCarbine
+	Voiced:
+		VoiceSet: YemenSpotterVoice
+	RenderSprites:
+		Image: yspot
+
+WADIGHOST:
+	Inherits: ^RedSeaCombatInfantry
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 124
+		Prerequisites: stek, ~infantry.yemen, ~techlevel.high
+		BuildLimit: 1
+		BuildDuration: 600
+		BuildDurationModifier: 100
+		Description: actor-wadighost.description
+	Valued:
+		Cost: 1650
+	Tooltip:
+		Name: actor-wadighost.name
+	Health:
+		HP: 9000
+	Mobile:
+		Speed: 82
+		Voice: Move
+	Guard:
+		Voice: Move
+	Passenger:
+		CustomPipType: red
+		Voice: Move
+	RevealsShroud:
+		Range: 7c0
+	Armament@PRIMARY:
+		Weapon: RedSeaGhostCarbine
+	Armament@REMOTE:
+		Name: secondary
+		Weapon: RedSeaRemoteDemolition
+		LocalOffset: 0,0,256
+	Armament@GARRISONED:
+		Weapon: RedSeaGhostCarbine
+	AttackFrontal:
+		Armaments: primary, secondary
+	Demolition:
+		DetonationDelay: 80
+		Voice: Demolish
+	Infiltrates:
+		Types: SpyInfiltrate
+		Notification: BuildingInfiltrated
+		TextNotification: notification-building-infiltrated
+	Cloak:
+		InitialDelay: 40
+		CloakDelay: 70
+		UncloakOn: Attack, Infiltrate, Demolish, Damage
+		CloakStyle: Alpha
+		CloakedAlpha: 0.32
+	ExternalCondition@PRODUCED:
+		Condition: produced
+	VoiceAnnouncement:
+		RequiresCondition: produced
+		Voice: Build
+	AnnounceOnKill:
+	Voiced:
+		VoiceSet: WadiGhostVoice
+	RenderSprites:
+		Image: wadighost
+
+F15SA.STRIKE:
+	Inherits: BADR.Bomber
+	Health:
+		HP: 9000
+	Aircraft:
+		CruiseAltitude: 2560
+		TurnSpeed: 20
+		Speed: 240
+		Repulsable: false
+		MaximumPitch: 56
+	AttackBomber:
+		FacingTolerance: 16
+	AmmoPool:
+		Ammo: 1
+	Armament:
+		Weapon: RedSeaPrecisionBomb
+	SpawnActorOnDeath:
+		Actor: F15SA.Husk
+	RenderSprites:
+		Image: f15sa
 
 M1A2S:
 	Inherits: 2TNK
@@ -222,6 +667,17 @@ YMLR:
 	Armament:
 		Weapon: RedSeaMobileStrike
 		ReloadingCondition: reloading
+	ExternalCondition@DRONE_GUIDANCE:
+		Condition: redsea-drone-guidance
+	RangeMultiplier@DRONE_GUIDANCE:
+		Modifier: 125
+		RequiresCondition: redsea-drone-guidance
+	ReloadDelayMultiplier@DRONE_GUIDANCE:
+		Modifier: 72
+		RequiresCondition: redsea-drone-guidance
+	WithColoredOverlay@DRONE_GUIDANCE:
+		Color: 52E7D628
+		RequiresCondition: redsea-drone-guidance
 	SpawnActorOnDeath:
 		Actor: YMLR.Husk
 	RenderSprites:
@@ -234,9 +690,9 @@ F15SA:
 		VoiceSet: SaudiAirVoice
 	Buildable:
 		Queue: Aircraft
-		BuildAtProductionType: Helicopter
+		BuildAtProductionType: Plane
 		BuildPaletteOrder: 45
-		Prerequisites: ~hpad, atek, ~aircraft.saudi, ~techlevel.high
+		Prerequisites: ~afld, atek, ~aircraft.saudi, ~techlevel.high
 		Description: actor-f15sa.description
 	Valued:
 		Cost: 2200
@@ -268,9 +724,9 @@ F15SA:
 		PauseOnCondition: !gun-ammo
 	AttackAircraft:
 		Armaments: aam, cannon
-		FacingTolerance: 72
+		FacingTolerance: 80
 		PersistentTargeting: false
-		OpportunityFire: True
+		OpportunityFire: False
 	Aircraft:
 		CruiseAltitude: 2560
 		TurnSpeed: 18
@@ -279,7 +735,7 @@ F15SA:
 		MaximumPitch: 56
 	AutoTarget:
 		InitialStance: HoldFire
-		InitialStanceAI: AttackAnything
+		InitialStanceAI: HoldFire
 	AmmoPool@AAM:
 		Name: aam
 		Armaments: aam
@@ -311,8 +767,10 @@ F15SA:
 	Selectable:
 		Bounds: 1536, 1194
 		DecorationBounds: 1706, 1280
+	ProducibleWithLevel:
+		Prerequisites: aircraft.upgraded
 	Rearmable:
-		RearmActors: hpad
+		RearmActors: safld, afld, afld.ukraine
 		AmmoPools: aam, gun
 	WithAmmoPipsDecoration:
 		Position: BottomLeft
@@ -321,6 +779,9 @@ F15SA:
 		PipCount: 8
 	GrantConditionOnDamageState@SmokeTrail:
 		Condition: enable-smoke
+	WithProductionIconOverlay:
+		Types: Veterancy
+		Prerequisites: aircraft.upgraded
 	RenderSprites:
 		Image: f15sa
 
@@ -364,16 +825,16 @@ AH64SA:
 		PauseOnCondition: !rocket-ammo
 	AttackAircraft:
 		Armaments: cannon, rockets
-		FacingTolerance: 112
+		FacingTolerance: 80
 		PersistentTargeting: false
 		AttackType: Hover
-		OpportunityFire: True
+		OpportunityFire: False
 	Aircraft:
 		TurnSpeed: 20
 		Speed: 132
 	AutoTarget:
-		InitialStance: Defend
-		InitialStanceAI: AttackAnything
+		InitialStance: HoldFire
+		InitialStanceAI: HoldFire
 	WithIdleOverlay@ROTORAIR:
 		Offset: 0,0,192
 		Sequence: rotor
@@ -409,6 +870,8 @@ AH64SA:
 	Selectable:
 		Bounds: 1536, 1280
 		DecorationBounds: 1706, 1365
+	ProducibleWithLevel:
+		Prerequisites: aircraft.upgraded
 	Rearmable:
 		RearmActors: hpad
 		AmmoPools: cannon, rockets
@@ -419,11 +882,15 @@ AH64SA:
 		PipCount: 8
 	GrantConditionOnDamageState@SmokeTrail:
 		Condition: enable-smoke
+	WithProductionIconOverlay:
+		Types: Veterancy
+		Prerequisites: aircraft.upgraded
 	RenderSprites:
 		Image: ah64sa
 
 SAMAD:
-	Inherits: YAK
+	Inherits: ^Plane
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
 	Voiced:
 		VoiceSet: YemenDroneVoice
 	Buildable:
@@ -436,9 +903,10 @@ SAMAD:
 		Cost: 700
 	Tooltip:
 		Name: actor-samad.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
 	Health:
 		HP: 3200
-	-Armament:
 	Armament@PAYLOAD:
 		Name: primary
 		Weapon: RedSeaDroneStrike
@@ -448,13 +916,9 @@ SAMAD:
 		Armaments: primary
 		Ammo: 1
 		AmmoCondition: ammo
-	-AttackAircraft:
-	AttackDive:
-		FacingTolerance: 96
-		CommitFacingTolerance: 56
-		DiveRange: 5c0
-		ImpactAltitude: 96
-		DivingCondition: diving
+	AttackAircraft:
+		Armaments: primary
+		FacingTolerance: 80
 		PersistentTargeting: false
 		OpportunityFire: False
 	GrantConditionOnAttack@PAYLOAD:
@@ -481,31 +945,27 @@ SAMAD:
 		Type: GroundPosition
 	AutoTarget:
 		InitialStance: HoldFire
-		InitialStanceAI: AttackAnything
+		InitialStanceAI: HoldFire
 	AmbientSound@PROPELLER:
 		SoundFiles: redsea-drone-loiter.wav
-		RequiresCondition: !diving
-	AmbientSound@DIVE:
-		SoundFiles: redsea-drone-strike.wav
-		RequiresCondition: diving
-	-Contrail:
-	-LeavesTrails:
-	-GrantConditionOnDamageState@SmokeTrail:
-	-SpawnActorOnDeath:
+		RequiresCondition: airborne
+	Selectable:
+		Bounds: 1024, 768
+		DecorationBounds: 1109, 853
+	ProducibleWithLevel:
+		Prerequisites: aircraft.upgraded
+	WithAmmoPipsDecoration:
+		Position: BottomLeft
+		Margin: 4, 3
+		RequiresSelection: true
+		PipCount: 1
+	WithProductionIconOverlay:
+		Types: Veterancy
+		Prerequisites: aircraft.upgraded
+	SpawnActorOnDeath:
+		Actor: SAMAD.Husk
+		RequiresCondition: airborne && !payload-released
 	-EjectOnDeath:
-	-FireWarheadsOnDeath:
-	-Rearmable:
-	-WithAmmoPipsDecoration:
-	-WithMuzzleOverlay:
-	-WithFacingSpriteBody:
-	WithFacingSpriteBody@LOITER:
-		Name: loiter
-		Sequence: idle
-		RequiresCondition: !diving
-	WithFacingSpriteBody@DIVE:
-		Name: dive
-		Sequence: dive
-		RequiresCondition: diving
 	RenderSprites:
 		Image: samad
 
@@ -565,6 +1025,22 @@ YMLR.Husk:
 	RenderSprites:
 		Image: ymlr.destroyed
 
+SAMAD.Husk:
+	Inherits: ^PlaneHusk
+	Tooltip:
+		Name: actor-samad-husk-name
+	Aircraft:
+		TurnSpeed: 16
+		Speed: 112
+	LeavesTrails:
+		Offsets: -384,0,0
+		MovingInterval: 2
+		Image: smokey
+		SpawnAtLastPosition: False
+		Type: CenterPosition
+	RenderSprites:
+		Image: samad.destroyed
+
 F15SA.Husk:
 	Inherits: ^PlaneHusk
 	Tooltip:
@@ -611,29 +1087,58 @@ Player:
 	# already knows how to construct. Medium and Rush receive air production so
 	# Yemen's Samad weight is reachable instead of dead configuration.
 	BaseBuilderBotModule@medium:
-		TechTypes: dome, atek, stek, fix, afld, hpad
-		ProductionTypes: barr,tent,weap,afld,hpad
+		TechTypes: dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		BuildingLimits:
 			hpad: 2
 			afld: 2
+			safld: 2
 		BuildingFractions:
 			hpad: 1
 			afld: 1
+			safld: 1
 	BaseBuilderBotModule@rush:
-		TechTypes: mslo, dome, atek, stek, fix, afld, hpad
-		ProductionTypes: barr,tent,weap,afld,hpad
+		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
 		BuildingLimits:
 			hpad: 3
 			afld: 3
+			safld: 3
 		BuildingFractions:
 			hpad: 1
 			afld: 1
+			safld: 1
+	BaseBuilderBotModule@normal:
+		TechTypes: dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
+		BuildingLimits:
+			safld: 4
+		BuildingFractions:
+			safld: 1
+	BaseBuilderBotModule@turtle:
+		TechTypes: dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
+		BuildingLimits:
+			safld: 4
+		BuildingFractions:
+			safld: 1
+	BaseBuilderBotModule@naval:
+		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
+		ProductionTypes: barr,tent,weap,afld,hpad,safld
+		BuildingLimits:
+			safld: 8
+		BuildingFractions:
+			safld: 15
 	UnitBuilderBotModule@easy:
 		UnitsToBuild:
 			m1a2s: 25
 			sads: 18
 			tech: 35
 			ymlr: 22
+			sang: 70
+			saat: 22
+			ymr: 80
+			yrpg: 32
 		UnitLimits:
 			m1a2s: 3
 			sads: 2
@@ -648,6 +1153,14 @@ Player:
 			samad: 25
 			f15sa: 30
 			ah64sa: 32
+			sang: 80
+			sajtac: 18
+			saat: 38
+			falcon1: 8
+			ymr: 90
+			yrpg: 48
+			yspot: 20
+			wadighost: 8
 		UnitLimits:
 			m1a2s: 6
 			sads: 4
@@ -656,6 +1169,10 @@ Player:
 			samad: 4
 			f15sa: 4
 			ah64sa: 4
+			sajtac: 2
+			falcon1: 1
+			yspot: 2
+			wadighost: 1
 	UnitBuilderBotModule@rush:
 		UnitsToBuild:
 			m1a2s: 40
@@ -665,6 +1182,14 @@ Player:
 			samad: 35
 			f15sa: 34
 			ah64sa: 42
+			sang: 110
+			sajtac: 14
+			saat: 42
+			falcon1: 10
+			ymr: 130
+			yrpg: 64
+			yspot: 16
+			wadighost: 12
 		UnitLimits:
 			m1a2s: 6
 			sads: 3
@@ -673,6 +1198,10 @@ Player:
 			samad: 6
 			f15sa: 5
 			ah64sa: 5
+			sajtac: 2
+			falcon1: 1
+			yspot: 2
+			wadighost: 1
 	UnitBuilderBotModule@normal:
 		UnitsToBuild:
 			m1a2s: 50
@@ -682,6 +1211,14 @@ Player:
 			samad: 40
 			f15sa: 40
 			ah64sa: 45
+			sang: 90
+			sajtac: 22
+			saat: 46
+			falcon1: 12
+			ymr: 105
+			yrpg: 55
+			yspot: 24
+			wadighost: 12
 		UnitLimits:
 			m1a2s: 8
 			sads: 6
@@ -690,6 +1227,10 @@ Player:
 			samad: 8
 			f15sa: 6
 			ah64sa: 6
+			sajtac: 3
+			falcon1: 1
+			yspot: 3
+			wadighost: 1
 	UnitBuilderBotModule@turtle:
 		UnitsToBuild:
 			m1a2s: 45
@@ -699,6 +1240,14 @@ Player:
 			samad: 25
 			f15sa: 48
 			ah64sa: 32
+			sang: 80
+			sajtac: 28
+			saat: 55
+			falcon1: 10
+			ymr: 78
+			yrpg: 62
+			yspot: 30
+			wadighost: 8
 		UnitLimits:
 			m1a2s: 6
 			sads: 10
@@ -707,6 +1256,10 @@ Player:
 			samad: 5
 			f15sa: 7
 			ah64sa: 4
+			sajtac: 4
+			falcon1: 1
+			yspot: 4
+			wadighost: 1
 	UnitBuilderBotModule@naval:
 		UnitsToBuild:
 			sads: 45
@@ -715,6 +1268,14 @@ Player:
 			samad: 55
 			f15sa: 35
 			ah64sa: 36
+			sang: 60
+			sajtac: 18
+			saat: 32
+			falcon1: 8
+			ymr: 80
+			yrpg: 46
+			yspot: 26
+			wadighost: 8
 		UnitLimits:
 			m1a2s: 4
 			sads: 6
@@ -723,6 +1284,10 @@ Player:
 			samad: 10
 			f15sa: 5
 			ah64sa: 5
+			sajtac: 2
+			falcon1: 1
+			yspot: 3
+			wadighost: 1
 	SquadManagerBotModule@medium:
 		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
 	SquadManagerBotModule@rush:

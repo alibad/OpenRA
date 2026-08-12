@@ -123,20 +123,20 @@ namespace OpenRA
 			Ruleset ruleset = null;
 			void LoadRuleset()
 			{
-				var actors = MergeOrDefault("Manifest,Rules", fs, m.Rules, null, null,
+				var actors = MergeOrDefault("Manifest,Rules", fs, modData.Rules, null, null,
 					k => new ActorInfo(modData.ObjectCreator, k.Key.ToLowerInvariant(), k.Value),
 					filterNode: n => n.Key.StartsWith(ActorInfo.AbstractActorPrefix));
 
-				var weapons = MergeOrDefault("Manifest,Weapons", fs, m.Weapons, null, null,
+				var weapons = MergeOrDefault("Manifest,Weapons", fs, modData.Weapons, null, null,
 					k => new WeaponInfo(k.Value));
 
-				var voices = MergeOrDefault("Manifest,Voices", fs, m.Voices, null, null,
+				var voices = MergeOrDefault("Manifest,Voices", fs, modData.Voices, null, null,
 					k => new SoundInfo(k.Value));
 
-				var notifications = MergeOrDefault("Manifest,Notifications", fs, m.Notifications, null, null,
+				var notifications = MergeOrDefault("Manifest,Notifications", fs, modData.Notifications, null, null,
 					k => new SoundInfo(k.Value));
 
-				var music = MergeOrDefault("Manifest,Music", fs, m.Music, null, null,
+				var music = MergeOrDefault("Manifest,Music", fs, modData.Music, null, null,
 					k => new MusicInfo(k.Key, k.Value));
 
 				var modelSequences = MergeOrDefault("Manifest,ModelSequences", fs, m.ModelSequences, null, null,
@@ -181,20 +181,20 @@ namespace OpenRA
 			Ruleset ruleset = null;
 			void LoadRuleset()
 			{
-				var actors = MergeOrDefault("Rules", fileSystem, m.Rules, mapRules, dr.Actors,
+				var actors = MergeOrDefault("Rules", fileSystem, modData.Rules, mapRules, dr.Actors,
 					k => new ActorInfo(modData.ObjectCreator, k.Key.ToLowerInvariant(), k.Value),
 					filterNode: n => n.Key.StartsWith(ActorInfo.AbstractActorPrefix));
 
-				var weapons = MergeOrDefault("Weapons", fileSystem, m.Weapons, mapWeapons, dr.Weapons,
+				var weapons = MergeOrDefault("Weapons", fileSystem, modData.Weapons, mapWeapons, dr.Weapons,
 					k => new WeaponInfo(k.Value));
 
-				var voices = MergeOrDefault("Voices", fileSystem, m.Voices, mapVoices, dr.Voices,
+				var voices = MergeOrDefault("Voices", fileSystem, modData.Voices, mapVoices, dr.Voices,
 					k => new SoundInfo(k.Value));
 
-				var notifications = MergeOrDefault("Notifications", fileSystem, m.Notifications, mapNotifications, dr.Notifications,
+				var notifications = MergeOrDefault("Notifications", fileSystem, modData.Notifications, mapNotifications, dr.Notifications,
 					k => new SoundInfo(k.Value));
 
-				var music = MergeOrDefault("Music", fileSystem, m.Music, mapMusic, dr.Music,
+				var music = MergeOrDefault("Music", fileSystem, modData.Music, mapMusic, dr.Music,
 					k => new MusicInfo(k.Key, k.Value));
 
 				// TODO: Add support for merging custom terrain modifications

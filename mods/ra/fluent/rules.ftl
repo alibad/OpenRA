@@ -213,6 +213,8 @@ actor-samad =
     .name = Samad Drone
     .description = One-way loitering munition with a committed terminal dive. Cannot return or rearm.
 
+actor-samad-husk-name = Crashing Samad Drone
+
 actor-f15sa =
     .name = F-15SA Eagle
     .description =
@@ -230,6 +232,66 @@ actor-ah64sa =
       Weak vs Fighters and Air Defense
 
 actor-ah64sa-husk-name = Crashing AH-64E Apache
+
+actor-sang =
+    .name = Saudi National Guard
+    .description =
+    Durable rifle infantry with disciplined three-round bursts.
+      Strong vs Infantry
+      Weak vs Armor
+
+actor-sajtac =
+    .name = Saudi JTAC
+    .description =
+    Long-range forward observer whose visible laser mark amplifies guided aircraft strikes.
+      Support: Designates Enemy Targets
+      Detects Cloaked Units
+
+actor-saat =
+    .name = Saudi ATGM Team
+    .description =
+    Slow, long-range guided-missile specialist.
+      Strong vs Heavy Armor
+      Weak at Close Range and vs Infantry
+
+actor-falcon1 =
+    .name = Falcon One
+    .description =
+    Fictional elite commando with a suppressed precision rifle, demolition charges and a precision-strike designator.
+      Build Limit: 1
+      Strong vs Infantry and Structures
+    .airstrikepower-precision-name = Falcon Precision Strike
+    .airstrikepower-precision-description = Calls one precision bomber while Falcon One remains in the field.
+    .airstrikepower-precision-select-target = Select a target for Falcon One's precision strike.
+
+actor-ymr =
+    .name = Yemeni Mountain Rifleman
+    .description =
+    Inexpensive ambush infantry that camouflages while stationary.
+      Strong in Numbers and Ambushes
+      Weak vs Vehicles
+
+actor-yrpg =
+    .name = Yemeni RPG Hunter
+    .description =
+    Mobile short-range anti-armor infantry. Drone guidance improves range and reload speed.
+      Strong vs Light and Medium Armor
+      Weak at Long Range
+
+actor-yspot =
+    .name = Yemeni Drone Spotter
+    .description =
+    Reconnaissance controller with exceptional sight and a guidance field for nearby launchers.
+      Support: Improves RPG and Mobile Launcher Range/Reload
+      Detects Cloaked Units
+
+actor-wadighost =
+    .name = Wadi Ghost
+    .description =
+    Fictional build-limit-one infiltrator with persistent camouflage, a suppressed carbine and delayed remote demolition.
+      Build Limit: 1
+      Strong vs Structures and Isolated Infantry
+      Detectable at Close Range
 
 ## aircraft.yaml
 actor-badr-name = Badger

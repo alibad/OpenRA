@@ -5,6 +5,8 @@ Metadata:
 	WebIcon32: https://www.openra.net/images/icons/ra_32x32.png
 	WindowTitle: mod-windowtitle
 
+Include: experiences.yaml
+
 PackageFormats: Mix
 
 FileSystem: ContentInstallerFileSystem
@@ -73,6 +75,9 @@ MapFolders:
 
 Rules:
 	ra|rules/misc.yaml
+	ra|experiences/components/minefield-generator.yaml
+	ra|experiences/components/point-defense-interception.yaml
+	ra|experiences/components/battlefield-salvage.yaml
 	ra|rules/ai.yaml
 	ra|rules/rl-bot.yaml
 	ra|rules/player.yaml
@@ -153,6 +158,7 @@ ChromeLayout:
 	common|chrome/settings-hotkeys.yaml
 	common|chrome/settings-gameplay.yaml
 	common|chrome/settings-advanced.yaml
+	ra|chrome/experience-composer.yaml
 	common|chrome/credits.yaml
 	common|chrome/lobby.yaml
 	common|chrome/lobby-mappreview.yaml
@@ -202,6 +208,7 @@ Weapons:
 	ra|weapons/other.yaml
 	ra|weapons/smallcaliber.yaml
 	ra|weapons/superweapons.yaml
+	ra|experiences/weapons/point-defense-interception.yaml
 	ra|weapons/red-sea.yaml
 	ra|weapons/turkey.yaml
 	ra|weapons/iran.yaml

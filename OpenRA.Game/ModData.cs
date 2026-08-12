@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,33 @@ using FS = OpenRA.FileSystem.FileSystem;
 namespace OpenRA
 {
 	public interface IGlobalModData { }
+
+	/// <summary>
+	/// Allows a mod-defined global data module to select a deterministic subset of
+	/// manifest files. Files listed as managed remain visible to lint/update tools,
+	/// but only their active subset is loaded by the running game.
+	/// </summary>
+	public interface IModFileConfiguration : IGlobalModData
+	{
+		IReadOnlyCollection<string> ManagedRules { get; }
+		IReadOnlyCollection<string> ActiveRules { get; }
+		IReadOnlyCollection<string> ManagedWeapons { get; }
+		IReadOnlyCollection<string> ActiveWeapons { get; }
+		IReadOnlyCollection<string> ManagedSequences { get; }
+		IReadOnlyCollection<string> ActiveSequences { get; }
+		IReadOnlyCollection<string> ManagedCursors { get; }
+		IReadOnlyCollection<string> ActiveCursors { get; }
+		IReadOnlyCollection<string> ManagedChrome { get; }
+		IReadOnlyCollection<string> ActiveChrome { get; }
+		IReadOnlyCollection<string> ManagedVoices { get; }
+		IReadOnlyCollection<string> ActiveVoices { get; }
+		IReadOnlyCollection<string> ManagedNotifications { get; }
+		IReadOnlyCollection<string> ActiveNotifications { get; }
+		IReadOnlyCollection<string> ManagedMusic { get; }
+		IReadOnlyCollection<string> ActiveMusic { get; }
+		string GameplayFingerprint { get; }
+		string PresentationFingerprint { get; }
+	}
 
 	public sealed class ModData : IDisposable
 	{
@@ -41,6 +69,16 @@ namespace OpenRA
 		public readonly IFileSystemLoader FileSystemLoader;
 		public readonly FrozenDictionary<string, CursorSequence> Cursors;
 		public readonly FrozenDictionary<string, CursorEffect> CursorEffects;
+		public readonly ImmutableArray<string> Rules;
+		public readonly ImmutableArray<string> Weapons;
+		public readonly ImmutableArray<string> Sequences;
+		public readonly ImmutableArray<string> CursorDefinitions;
+		public readonly ImmutableArray<string> Chrome;
+		public readonly ImmutableArray<string> Voices;
+		public readonly ImmutableArray<string> Notifications;
+		public readonly ImmutableArray<string> Music;
+		public readonly string GameplayFingerprint;
+		public readonly string PresentationFingerprint;
 
 		public ILoadScreen LoadScreen { get; }
 		public FS ModFiles;
@@ -92,6 +130,18 @@ namespace OpenRA
 				modules.Add(module);
 			}
 
+			var fileConfigurations = modules.WithInterface<IModFileConfiguration>().ToArray();
+			Rules = ConfigureFiles(Manifest.Rules, fileConfigurations, c => c.ManagedRules, c => c.ActiveRules);
+			Weapons = ConfigureFiles(Manifest.Weapons, fileConfigurations, c => c.ManagedWeapons, c => c.ActiveWeapons);
+			Sequences = ConfigureFiles(Manifest.Sequences, fileConfigurations, c => c.ManagedSequences, c => c.ActiveSequences);
+			CursorDefinitions = ConfigureFiles(Manifest.Cursors, fileConfigurations, c => c.ManagedCursors, c => c.ActiveCursors);
+			Chrome = ConfigureFiles(Manifest.Chrome, fileConfigurations, c => c.ManagedChrome, c => c.ActiveChrome);
+			Voices = ConfigureFiles(Manifest.Voices, fileConfigurations, c => c.ManagedVoices, c => c.ActiveVoices);
+			Notifications = ConfigureFiles(Manifest.Notifications, fileConfigurations, c => c.ManagedNotifications, c => c.ActiveNotifications);
+			Music = ConfigureFiles(Manifest.Music, fileConfigurations, c => c.ManagedMusic, c => c.ActiveMusic);
+			GameplayFingerprint = JoinFingerprints(fileConfigurations.Select(c => c.GameplayFingerprint));
+			PresentationFingerprint = JoinFingerprints(fileConfigurations.Select(c => c.PresentationFingerprint));
+
 			FluentProvider.Initialize(Manifest, DefaultFileSystem);
 
 			if (useLoadScreen)
@@ -109,7 +159,7 @@ namespace OpenRA
 			VideoLoaders = ObjectCreator.GetLoaders<IVideoLoader>(Manifest.VideoFormats, "video");
 			SpriteSequenceLoader = ObjectCreator.GetLoader<ISpriteSequenceLoader>(Manifest.SpriteSequenceFormat, "sequence");
 			Hotkeys = new HotkeyManager(ModFiles, ObjectCreator, Manifest);
-			(Cursors, CursorEffects) = ParseCursors(Manifest, DefaultFileSystem);
+			(Cursors, CursorEffects) = ParseCursors(CursorDefinitions, DefaultFileSystem);
 
 			defaultRules = Exts.Lazy(() => Ruleset.LoadDefaults(this));
 			defaultTerrainInfo = Exts.Lazy(() =>
@@ -133,11 +183,31 @@ namespace OpenRA
 			initialThreadId = Environment.CurrentManagedThreadId;
 		}
 
+		static ImmutableArray<string> ConfigureFiles(
+			ImmutableArray<string> defaults,
+			IEnumerable<IModFileConfiguration> configurations,
+			Func<IModFileConfiguration, IReadOnlyCollection<string>> managedSelector,
+			Func<IModFileConfiguration, IReadOnlyCollection<string>> activeSelector)
+		{
+			var configurationArray = configurations.ToArray();
+			var managed = configurationArray.SelectMany(managedSelector).ToHashSet();
+			return defaults.Where(f => !managed.Contains(f))
+				.Concat(configurationArray.SelectMany(activeSelector))
+				.Distinct()
+				.ToImmutableArray();
+		}
+
+		static string JoinFingerprints(IEnumerable<string> fingerprints)
+		{
+			var values = fingerprints.Where(f => !string.IsNullOrEmpty(f)).Order().ToArray();
+			return values.Length == 0 ? "default" : values.JoinWith("+");
+		}
+
 		static (FrozenDictionary<string, CursorSequence> Cursors, FrozenDictionary<string, CursorEffect> CursorEffects)
-			ParseCursors(Manifest manifest, IReadOnlyFileSystem fileSystem)
+			ParseCursors(IEnumerable<string> cursorDefinitions, IReadOnlyFileSystem fileSystem)
 		{
 			var stringPool = new HashSet<string>(); // Reuse common strings in YAML
-			var sequenceYaml = MiniYaml.Merge(manifest.Cursors.Select(
+			var sequenceYaml = MiniYaml.Merge(cursorDefinitions.Select(
 				s => MiniYaml.FromStream(fileSystem.Open(s), s, stringPool: stringPool)));
 
 			var cursors = new Dictionary<string, CursorSequence>();
@@ -202,7 +272,7 @@ namespace OpenRA
 		public MiniYamlNode[][] GetRulesYaml()
 		{
 			var stringPool = new HashSet<string>(); // Reuse common strings in YAML
-			return Manifest.Rules.Select(s => MiniYaml.FromStream(DefaultFileSystem.Open(s), s, stringPool: stringPool).ToArray()).ToArray();
+			return Rules.Select(s => MiniYaml.FromStream(DefaultFileSystem.Open(s), s, stringPool: stringPool).ToArray()).ToArray();
 		}
 
 		/// <summary>Load a cached IGlobalModData instance.</summary>

@@ -89,7 +89,7 @@ namespace OpenRA.Graphics
 
 		IReadOnlyDictionary<string, IReadOnlyDictionary<string, ISpriteSequence>> Load(IReadOnlyFileSystem fileSystem, MiniYaml additionalSequences)
 		{
-			var nodes = MiniYaml.Load(fileSystem, modData.Manifest.Sequences, additionalSequences);
+			var nodes = MiniYaml.Load(fileSystem, modData.Sequences, additionalSequences);
 			var images = new Dictionary<string, IReadOnlyDictionary<string, ISpriteSequence>>();
 			foreach (var node in nodes)
 			{

@@ -80,7 +80,7 @@ namespace OpenRA.Graphics
 			cachedCollectionSheets = [];
 
 			var stringPool = new HashSet<string>(); // Reuse common strings in YAML
-			var chrome = MiniYaml.Merge(modData.Manifest.Chrome
+			var chrome = MiniYaml.Merge(modData.Chrome
 				.Select(s => MiniYaml.FromStream(fileSystem.Open(s), s, stringPool: stringPool)));
 
 			foreach (var c in chrome)

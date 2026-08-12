@@ -174,6 +174,63 @@ RedSpearVoice:
 	Voices:
 		Select: rcn-redspear-select-zh,rcn-redspear-select-en
 		Action: rcn-redspear-action-zh,rcn-redspear-action-en
+
+SaudiInfantryVoice:
+	Voices:
+		Select: rsa-inf-select-ar,rsa-inf-select-en
+		Action: rsa-inf-action-ar,rsa-inf-action-en
+		Move: rsa-inf-action-ar,rsa-inf-action-en
+		Die: dedman1,dedman2,dedman3,dedman4,dedman5,dedman7,dedman8
+		Burned: dedman10
+		Zapped: dedman6
+
+SaudiJTACVoice:
+	Voices:
+		Select: rsa-jtac-select-ar,rsa-jtac-select-en
+		Action: rsa-jtac-action-ar,rsa-jtac-action-en
+		Move: rsa-inf-action-ar,rsa-inf-action-en
+		Die: dedman1,dedman2,dedman3,dedman4,dedman5,dedman7,dedman8
+		Burned: dedman10
+		Zapped: dedman6
+
+FalconOneVoice:
+	Voices:
+		Select: rsa-falcon-select-ar,rsa-falcon-select-en
+		Move: rsa-falcon-move-ar,rsa-falcon-move-en
+		Action: rsa-falcon-action-ar,rsa-falcon-action-en
+		Demolish: rsa-falcon-action-ar,rsa-falcon-action-en
+		Build: rsa-falcon-build-ar,rsa-falcon-build-en
+		Kill: rsa-falcon-action-ar,rsa-falcon-action-en
+		Die: dedman1,dedman2,dedman3
+		Burned: dedman10
+		Zapped: dedman6
+
+YemenInfantryVoice:
+	Voices:
+		Select: rye-inf-select-ar,rye-inf-select-en
+		Action: rye-inf-action-ar,rye-inf-action-en
+		Move: rye-inf-action-ar,rye-inf-action-en
+		Die: dedman1,dedman2,dedman3,dedman4,dedman5,dedman7,dedman8
+		Burned: dedman10
+		Zapped: dedman6
+
+YemenSpotterVoice:
+	Voices:
+		Select: rye-spot-select-ar,rye-spot-select-en
+		Action: rye-spot-action-ar,rye-spot-action-en
+		Move: rye-inf-action-ar,rye-inf-action-en
+		Die: dedman1,dedman2,dedman3,dedman4,dedman5,dedman7,dedman8
+		Burned: dedman10
+		Zapped: dedman6
+
+WadiGhostVoice:
+	Voices:
+		Select: rye-ghost-select-ar,rye-ghost-select-en
+		Move: rye-ghost-move-ar,rye-ghost-move-en
+		Action: rye-ghost-action-ar,rye-ghost-action-en
+		Demolish: rye-ghost-action-ar,rye-ghost-action-en
+		Build: rye-ghost-build-ar,rye-ghost-build-en
+		Kill: rye-ghost-action-ar,rye-ghost-action-en
 		Die: dedman1,dedman2,dedman3
 		Burned: dedman10
 		Zapped: dedman6

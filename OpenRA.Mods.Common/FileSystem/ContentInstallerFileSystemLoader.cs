@@ -11,6 +11,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using OpenRA.Mods.Common.Experience;
 
 namespace OpenRA.Mods.Common.FileSystem
 {
@@ -91,6 +92,25 @@ namespace OpenRA.Mods.Common.FileSystem
 				foreach (var kv in RequiredContentFiles)
 					if (!fileSystem.Exists(kv.Key))
 						isContentAvailable = false;
+
+			// Presentation packs are exact-path asset overlays. Mounting them last
+			// lets images, sounds, and cursor sprites replace the base asset while
+			// preserving automatic fallback for every undeclared file.
+			var experienceSettings = Game.Settings.GetOrCreate<ExperienceSettings>(objectCreator, manifest.Id);
+			var presentationPack = PresentationPackRegistry.Find(manifest.Id, experienceSettings.PresentationPack);
+			if (presentationPack.Id != PresentationPackDefinition.Default.Id)
+			{
+				try
+				{
+					presentationPack.ValidateReplacementTargets(fileSystem.Exists);
+					fileSystem.Mount(presentationPack.AssetsPath);
+				}
+				catch (System.Exception e)
+				{
+					Log.Write("debug", $"Failed to mount presentation pack `{presentationPack.Id}`: {e.Message}");
+					experienceSettings.PresentationPack = PresentationPackDefinition.Default.Id;
+				}
+			}
 		}
 
 		bool IFileSystemExternalContent.InstallContentIfRequired(ModData modData)

@@ -467,8 +467,11 @@ button-extras-title = Extras
 button-main-menu-content = Manage Content
 button-main-menu-ai-companion = AI Companion
 button-main-menu-world-tools = World Tools
-button-world-tools-earth-studio = Earth Mission Studio
-button-world-tools-native-editor = Native Map Editor
+button-main-menu-workshop = Workshop
+button-workshop-experience = Experience Builder
+button-world-tools-earth-studio = Mission Studio
+button-world-tools-native-editor = Map Editor
+button-workshop-asset-library = Asset Library
 button-singleplayer-menu-skirmish = Skirmish
 button-singleplayer-menu-load = Load
 button-extras-menu-replays = Replays
@@ -724,6 +727,21 @@ button-ai-tab-models = Models
 button-ai-tab-usage = Usage
 button-panel-hotkeys = Hotkeys
 button-panel-advanced = Advanced
+
+button-main-menu-experience = Experience
+label-experience-composer-title = Experience Composer
+label-experience-composer-subtitle = Choose a curated gameplay profile, customize its capabilities, and select a local presentation pack.
+label-experience-gameplay-header = Gameplay Experience
+label-experience-profile = Preset
+label-experience-presentation-header = Look & Sound
+label-experience-presentation-pack = Presentation Pack
+button-experience-refresh = Refresh
+label-experience-replacements-title = Exact-path asset replacement
+label-experience-replacements-description = Presentation packs can replace declared images, sprites, sounds, voices, music, palettes, and mouse cursor sheets. Every undeclared asset falls back to the standard presentation. Packs cannot execute code or change gameplay YAML.
+label-experience-compatibility-title = Compatibility Fingerprints
+label-experience-restart-hint = Gameplay and presentation changes are applied safely after restarting the mod.
+button-experience-reset = Restore Default
+button-experience-apply = Apply & Restart
 
 ## settings-ai.yaml
 label-ai-companion-section = Companion Experience

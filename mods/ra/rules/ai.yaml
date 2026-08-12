@@ -833,6 +833,8 @@ Player:
 		UseEnemyLocationTargetTypes: Structure, Defense, AirborneActor
 		AwayFromAlliedTargetTypes: Structure, Defense
 		AwayFromEnemyTargetTypes: Structure, Defense
+		QuickScanTickAfterInitializing: 40
+		QuickScanTickTimes: 2
 	SquadManagerBotModule@naval:
 		RequiresCondition: enable-naval-ai
 		SquadSize: 8
