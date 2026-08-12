@@ -2,63 +2,69 @@ Background@ASSETBROWSER_PANEL:
 	Logic: AssetBrowserLogic
 	X: (WINDOW_WIDTH - WIDTH) / 2
 	Y: (WINDOW_HEIGHT - HEIGHT) / 2
-	Width: 900
-	Height: 600
+	Width: 1000
+	Height: 650
 	Children:
 		LogicTicker@ANIMATION_TICKER:
 		Label@ASSETBROWSER_TITLE:
-			Y: 16
+			Y: 14
 			Width: PARENT_WIDTH
 			Height: 25
 			Font: Bold
 			Align: Center
-			Text: label-assetbrowser-title
-		Label@SOURCE_SELECTOR_DESC:
-			X: 20
-			Y: 36
-			Width: 195
-			Height: 25
-			Font: TinyBold
+			Text: label-asset-library-title
+		Label@ASSETBROWSER_SUBTITLE:
+			X: 25
+			Y: 38
+			Width: PARENT_WIDTH - 50
+			Height: 20
+			Font: Tiny
 			Align: Center
-			Text: label-assetbrowser-source-selector-desc
+			Text: label-asset-library-subtitle
+		Label@FILENAME_DESC:
+			X: 25
+			Y: 70
+			Width: 280
+			Height: 20
+			Font: TinyBold
+			Text: label-asset-library-search
+		TextField@FILENAME_INPUT:
+			X: 25
+			Y: 91
+			Width: 280
+			Height: 28
+			Type: Filename
+		Label@SOURCE_SELECTOR_DESC:
+			X: 25
+			Y: 128
+			Width: 280
+			Height: 20
+			Font: TinyBold
+			Text: label-asset-library-source
 		DropDownButton@SOURCE_SELECTOR:
-			X: 20
-			Y: 60
-			Width: 195
-			Height: 25
+			X: 25
+			Y: 149
+			Width: 280
+			Height: 28
 			Font: Bold
 			Text: dropdownbutton-assetbrowser-source-selector
 		DropDownButton@ASSET_TYPES_DROPDOWN:
-			X: 20
-			Y: 90
-			Width: 195
-			Height: 25
+			X: 25
+			Y: 185
+			Width: 280
+			Height: 28
 			Font: Bold
 			Text: dropdownbutton-assetbrowser-asset-types-dropdown
-		Label@FILENAME_DESC:
-			X: 20
-			Y: 115
-			Width: 195
-			Height: 25
-			Font: TinyBold
-			Align: Center
-			Text: label-assetbrowser-filename-desc
-		TextField@FILENAME_INPUT:
-			X: 20
-			Y: 140
-			Width: 195
-			Height: 25
-			Type: Filename
 		ScrollPanel@ASSET_LIST:
-			X: 20
-			Y: 170
-			Width: 195
-			Height: PARENT_HEIGHT - 250
+			X: 25
+			Y: 221
+			Width: 280
+			Height: 377
 			CollapseHiddenChildren: True
 			Children:
 				ScrollItem@ASSET_TEMPLATE:
 					Width: PARENT_WIDTH - 27
-					Height: 25
+					Height: 28
 					X: 2
 					Visible: false
 					EnableChildMouseOver: True
@@ -66,43 +72,60 @@ Background@ASSETBROWSER_PANEL:
 						LabelWithTooltip@TITLE:
 							X: 10
 							Width: PARENT_WIDTH - 20
-							Height: 25
+							Height: 28
 							TooltipContainer: TOOLTIP_CONTAINER
 							TooltipTemplate: SIMPLE_TOOLTIP
+		Label@SELECTED_ASSET:
+			X: 330
+			Y: 70
+			Width: 420
+			Height: 24
+			Font: Bold
+		Label@SELECTED_ASSET_META:
+			X: 330
+			Y: 94
+			Width: 420
+			Height: 20
+			Font: Tiny
+		Button@COPY_ASSET_BUTTON:
+			X: 775
+			Y: 73
+			Width: 200
+			Height: 28
+			Text: button-asset-library-copy-name
+			Font: Bold
 		Label@SPRITE_SCALE:
-			X: PARENT_WIDTH - WIDTH - 440
-			Y: 60
+			X: 330
+			Y: 124
 			Width: 50
 			Height: 25
-			Font: Bold
-			Align: Left
+			Font: TinyBold
 			Text: label-assetbrowser-sprite-scale
 		Slider@SPRITE_SCALE_SLIDER:
-			X: PARENT_WIDTH - WIDTH - 330
-			Y: 62
-			Width: 100
+			X: 385
+			Y: 127
+			Width: 110
 			Height: 20
 			MinimumValue: 0.5
 			MaximumValue: 4
 		Label@PALETTE_DESC:
-			X: PARENT_WIDTH - WIDTH - 270
-			Y: 60
-			Width: 150
+			X: 525
+			Y: 124
+			Width: 65
 			Height: 25
-			Font: Bold
-			Align: Right
+			Font: TinyBold
 			Text: label-assetbrowser-palette-desc
 		DropDownButton@PALETTE_SELECTOR:
-			X: PARENT_WIDTH - WIDTH - 110
-			Y: 60
-			Width: 150
-			Height: 25
+			X: 590
+			Y: 122
+			Width: 200
+			Height: 28
 			Font: Bold
 		DropDownButton@COLOR:
-			X: PARENT_WIDTH - WIDTH - 20
-			Y: 60
+			X: 805
+			Y: 122
 			Width: 80
-			Height: 25
+			Height: 28
 			Children:
 				ColorBlock@COLORBLOCK:
 					X: 5
@@ -110,19 +133,26 @@ Background@ASSETBROWSER_PANEL:
 					Width: PARENT_WIDTH - 35
 					Height: PARENT_HEIGHT - 12
 		Background@SPRITE_BG:
-			X: 226
-			Y: 90
-			Width: PARENT_WIDTH - 226 - 20
-			Height: PARENT_HEIGHT - 170
+			X: 330
+			Y: 158
+			Width: 645
+			Height: 372
 			Background: dialog3
 			Children:
 				Sprite@SPRITE:
 					Width: PARENT_WIDTH
 					Height: PARENT_HEIGHT
+					Scale: 3
 				VideoPlayer@PLAYER:
 					Width: PARENT_WIDTH
 					Height: PARENT_HEIGHT
 					AspectRatio: 1
+				Label@EMPTY_STATE:
+					Width: PARENT_WIDTH
+					Height: PARENT_HEIGHT
+					Align: Center
+					Font: Bold
+					Text: label-asset-library-empty-state
 				Label@ERROR:
 					Width: PARENT_WIDTH
 					Height: PARENT_HEIGHT
@@ -130,90 +160,98 @@ Background@ASSETBROWSER_PANEL:
 					Visible: false
 					Text: label-assetbrowser-sprite-bg-error
 		Container@FRAME_SELECTOR:
-			X: 226
-			Y: PARENT_HEIGHT - 75
-			Width: PARENT_WIDTH - 226
+			X: 330
+			Y: 542
+			Width: 645
 			Children:
 				Button@BUTTON_PREV:
-					Width: 26
-					Height: 26
+					Width: 28
+					Height: 28
 					Key: LEFT
 					Children:
 						Image@IMAGE_PREV:
-							X: 5
-							Y: 5
+							X: 6
+							Y: 6
 							ImageCollection: music
 							ImageName: prev
 				Button@BUTTON_PLAY:
-					X: 35
-					Width: 26
-					Height: 26
+					X: 37
+					Width: 28
+					Height: 28
 					Key: SPACE
 					Children:
 						Image@IMAGE_PLAY:
-							X: 5
-							Y: 5
+							X: 6
+							Y: 6
 							ImageCollection: music
 							ImageName: play
 				Button@BUTTON_PAUSE:
 					Visible: false
-					X: 35
-					Width: 26
-					Height: 26
+					X: 37
+					Width: 28
+					Height: 28
 					Key: SPACE
 					Children:
 						Image@IMAGE_PAUSE:
-							X: 5
-							Y: 5
+							X: 6
+							Y: 6
 							ImageCollection: music
 							ImageName: pause
 				Button@BUTTON_STOP:
-					X: 70
-					Width: 26
-					Height: 26
+					X: 74
+					Width: 28
+					Height: 28
 					Key: RETURN
 					Children:
 						Image@IMAGE_STOP:
-							X: 5
-							Y: 5
+							X: 6
+							Y: 6
 							ImageCollection: music
 							ImageName: stop
 				Button@BUTTON_NEXT:
-					X: 105
-					Width: 26
-					Height: 26
+					X: 111
+					Width: 28
+					Height: 28
 					Key: RIGHT
 					Children:
 						Image@IMAGE_NEXT:
-							X: 5
-							Y: 5
+							X: 6
+							Y: 6
 							ImageCollection: music
 							ImageName: next
 				Slider@FRAME_SLIDER:
-					X: 140
-					Y: 3
-					Width: PARENT_WIDTH - 140 - 85
+					X: 150
+					Y: 4
+					Width: PARENT_WIDTH - 245
 					Height: 20
 					MinimumValue: 0
 				Label@FRAME_COUNT:
-					X: PARENT_WIDTH - WIDTH + 5
-					Y: 0
+					X: PARENT_WIDTH - 85
+					Y: 1
 					Width: 85
 					Height: 25
 					Font: TinyBold
 					Align: Left
+		Label@PRESENTATION_HINT:
+			X: 330
+			Y: 583
+			Width: 460
+			Height: 36
+			Font: Tiny
+			WordWrap: true
+			Text: label-asset-library-presentation-hint
 		Button@CLOSE_BUTTON:
 			Key: escape
-			X: PARENT_WIDTH - 180
-			Y: PARENT_HEIGHT - 45
-			Width: 160
-			Height: 25
+			X: PARENT_WIDTH - 200
+			Y: PARENT_HEIGHT - 48
+			Width: 175
+			Height: 28
 			Font: Bold
 			Text: button-back
 		TooltipContainer@TOOLTIP_CONTAINER:
 
 ScrollPanel@ASSET_TYPES_PANEL:
-	Width: 195
+	Width: 280
 	Height: 130
 	ItemSpacing: 5
 	TopBottomSpacing: 0

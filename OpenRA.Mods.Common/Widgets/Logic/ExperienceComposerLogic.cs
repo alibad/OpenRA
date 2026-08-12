@@ -20,6 +20,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 {
 	public sealed class ExperienceComposerLogic : ChromeLogic
 	{
+		[FluentReference]
+		const string CopyPackFolder = "button-experience-copy-pack-folder";
+
+		[FluentReference]
+		const string PackFolderCopied = "button-experience-pack-folder-copied";
+
 		readonly Action onExit;
 		readonly ModData modData;
 		readonly ExperienceCatalog catalog;
@@ -31,6 +37,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		readonly LabelWidget profileDescription;
 		readonly LabelWidget presentationDescription;
 		readonly LabelWidget componentSummary;
+		readonly LabelWidget componentDetailTitle;
+		readonly LabelWidget componentDetailDescription;
+		readonly LabelWidget componentDetailImpact;
+		readonly LabelWidget componentDetailSource;
 		readonly LabelWidget gameplayFingerprint;
 		readonly LabelWidget presentationFingerprint;
 		readonly LabelWidget packFolder;
@@ -40,7 +50,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		ImmutableArray<string> workingComponents;
 		string workingProfileId;
 		string workingPresentationPackId;
+		string selectedComponentId;
 		bool workingCustomComponents;
+		bool packFolderCopied;
 
 		[ObjectCreator.UseCtor]
 		public ExperienceComposerLogic(Widget widget, ModData modData, Action onExit)
@@ -54,6 +66,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			workingProfileId = catalog.Profiles.ContainsKey(settings.Profile) ? settings.Profile : catalog.DefaultProfileId;
 			workingCustomComponents = settings.UseCustomComponents;
 			workingComponents = catalog.ActiveComponentIds;
+			selectedComponentId = workingComponents.FirstOrDefault() ?? catalog.Components.Keys.Order().FirstOrDefault();
 			presentationPacks = PresentationPackRegistry.Discover(catalog.Mod);
 			workingPresentationPackId = presentationPacks.ContainsKey(settings.PresentationPack) ? settings.PresentationPack : "default";
 
@@ -68,6 +81,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			profileDescription = widget.Get<LabelWidget>("PROFILE_DESCRIPTION");
 			presentationDescription = widget.Get<LabelWidget>("PRESENTATION_DESCRIPTION");
 			componentSummary = widget.Get<LabelWidget>("COMPONENT_SUMMARY");
+			componentDetailTitle = widget.Get<LabelWidget>("COMPONENT_DETAIL_TITLE");
+			componentDetailDescription = widget.Get<LabelWidget>("COMPONENT_DETAIL_DESCRIPTION");
+			componentDetailImpact = widget.Get<LabelWidget>("COMPONENT_DETAIL_IMPACT");
+			componentDetailSource = widget.Get<LabelWidget>("COMPONENT_DETAIL_SOURCE");
 			gameplayFingerprint = widget.Get<LabelWidget>("GAMEPLAY_FINGERPRINT");
 			presentationFingerprint = widget.Get<LabelWidget>("PRESENTATION_FINGERPRINT");
 			packFolder = widget.Get<LabelWidget>("PACK_FOLDER");
@@ -83,6 +100,21 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					workingPresentationPackId = "default";
 
 				RefreshSummary();
+			};
+
+			widget.Get<ButtonWidget>("BROWSE_ASSETS_BUTTON").OnClick = () =>
+				Game.OpenWindow("ASSETBROWSER_PANEL", new WidgetArgs
+				{
+					{ "onExit", () => { } },
+				});
+
+			var copyPackFolderButton = widget.Get<ButtonWidget>("COPY_PACK_FOLDER_BUTTON");
+			copyPackFolderButton.GetText = () => FluentProvider.GetMessage(packFolderCopied ? PackFolderCopied : CopyPackFolder);
+			copyPackFolderButton.OnClick = () =>
+			{
+				Game.SetClipboardText(PresentationPackRegistry.PackDirectory(catalog.Mod));
+				packFolderCopied = true;
+				Game.RunAfterDelay(1500, () => packFolderCopied = false);
 			};
 
 			widget.Get<ButtonWidget>("RESET_BUTTON").OnClick = () =>
@@ -159,6 +191,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				checkbox.IsVisible = () => true;
 				checkbox.GetText = () => $"{captured.Category} — {captured.Title}";
 				checkbox.IsChecked = () => workingComponents.Contains(captured.Id);
+				checkbox.IsHighlighted = () => selectedComponentId == captured.Id;
+				checkbox.OnMouseDown = _ =>
+				{
+					selectedComponentId = captured.Id;
+					RefreshComponentDetail();
+				};
 				checkbox.OnClick = () =>
 				{
 					workingComponents = catalog.ToggleComponent(
@@ -175,6 +213,41 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			}
 
 			componentPanel.Layout.AdjustChildren();
+			RefreshComponentDetail();
+		}
+
+		void RefreshComponentDetail()
+		{
+			if (selectedComponentId == null || !catalog.Components.TryGetValue(selectedComponentId, out var component))
+			{
+				componentDetailTitle.GetText = () => "Select a gameplay module";
+				componentDetailDescription.GetText = () => "Choose a module above to inspect its behavior and provenance.";
+				componentDetailImpact.GetText = () => "";
+				componentDetailSource.GetText = () => "";
+				return;
+			}
+
+			var enabled = workingComponents.Contains(component.Id) ? "Enabled" : "Disabled";
+			var dependencies = component.Dependencies.Length == 0 ? "No dependencies" :
+				"Requires " + component.Dependencies.Select(id => catalog.Components[id].Title).JoinWith(", ");
+			var fileCounts = new (string Type, int Count)[]
+			{
+				("rule", component.Rules.Length), ("weapon", component.Weapons.Length),
+				("sequence", component.Sequences.Length), ("cursor", component.Cursors.Length),
+				("interface", component.Chrome.Length), ("voice", component.Voices.Length),
+				("notification", component.Notifications.Length), ("music", component.Music.Length)
+			}.Where(v => v.Count > 0).Select(v => $"{v.Count} {v.Type}{(v.Count == 1 ? "" : "s")}").ToArray();
+			var changes = fileCounts.Length == 0 ? "Native runtime behavior" : "Loads " + fileCounts.JoinWith(", ");
+
+			componentDetailTitle.GetText = () => component.Title;
+			componentDetailDescription.GetText = () => WidgetUtils.WrapText(component.Description,
+				componentDetailDescription.Bounds.Width, Game.Renderer.Fonts[componentDetailDescription.Font]);
+			componentDetailImpact.GetText = () => WidgetUtils.WrapText(
+				$"{enabled} · Version {component.Version} · {dependencies}\n{changes}",
+				componentDetailImpact.Bounds.Width, Game.Renderer.Fonts[componentDetailImpact.Font]);
+			componentDetailSource.GetText = () => WidgetUtils.WrapText(
+				$"Source: {component.Source} · License: {component.License}",
+				componentDetailSource.Bounds.Width, Game.Renderer.Fonts[componentDetailSource.Font]);
 		}
 
 		void RefreshSummary()
@@ -183,8 +256,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			profileDescription.GetText = () => WidgetUtils.WrapText(profile.Description,
 				profileDescription.Bounds.Width, Game.Renderer.Fonts[profileDescription.Font]);
 			componentSummary.GetText = () => workingCustomComponents ?
-				$"Custom selection · {workingComponents.Length} components" :
-				$"Preset selection · {workingComponents.Length} components";
+				$"Custom loadout · {workingComponents.Length} modules" :
+				$"Preset loadout · {workingComponents.Length} modules";
 
 			var pack = presentationPacks[workingPresentationPackId];
 			presentationDescription.GetText = () => WidgetUtils.WrapText(
