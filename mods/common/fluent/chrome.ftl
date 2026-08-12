@@ -736,6 +736,7 @@ label-experience-profile = Preset
 label-experience-presentation-header = Look & Sound
 label-experience-presentation-pack = Presentation Pack
 button-experience-refresh = Refresh
+button-experience-browse-assets = Browse Assets
 label-experience-replacements-title = Exact-path asset replacement
 label-experience-replacements-description = Presentation packs can replace declared images, sprites, sounds, voices, music, palettes, and mouse cursor sheets. Every undeclared asset falls back to the standard presentation. Packs cannot execute code or change gameplay YAML.
 label-experience-compatibility-title = Compatibility Fingerprints
