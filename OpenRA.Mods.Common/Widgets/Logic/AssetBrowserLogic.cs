@@ -530,12 +530,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				};
 			}
 
+			if (!string.IsNullOrEmpty(comparisonTarget))
+				SetComparisonTarget(comparisonTarget);
+
 			initialAsset ??= Environment.GetEnvironmentVariable("OPENRA_AI_ASSET_LIBRARY_SELECT");
 			if (!string.IsNullOrEmpty(initialAsset) &&
 				modData.DefaultFileSystem.TryGetPackageContaining(initialAsset, out var initialPackage, out var initialFilename))
 				LoadAsset(initialPackage, initialFilename);
-			else if (!string.IsNullOrEmpty(comparisonTarget))
-				SetComparisonTarget(comparisonTarget);
 
 			var closeButton = panel.GetOrNull<ButtonWidget>("CLOSE_BUTTON");
 			if (closeButton != null)
@@ -624,6 +625,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		bool CanUseCurrentReplacement()
 		{
 			return IsEditablePack() && comparisonTarget != null && currentFilename != null && currentPackage != null &&
+				currentPackage.Name?.Equals(EditablePack().AssetsPath, StringComparison.OrdinalIgnoreCase) != true &&
 				Path.GetExtension(comparisonTarget).Equals(Path.GetExtension(currentFilename), StringComparison.OrdinalIgnoreCase);
 		}
 

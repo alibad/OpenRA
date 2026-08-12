@@ -414,6 +414,8 @@ namespace OpenRA.Mods.Common.Experience
 				AppendFiles(builder, "rules", component.Rules);
 				AppendFiles(builder, "weapons", component.Weapons);
 				AppendFiles(builder, "sequences", component.Sequences);
+				AppendFiles(builder, "cursors", component.Cursors);
+				AppendFiles(builder, "chrome", component.Chrome);
 				AppendFiles(builder, "voices", component.Voices);
 				AppendFiles(builder, "notifications", component.Notifications);
 				AppendFiles(builder, "music", component.Music);

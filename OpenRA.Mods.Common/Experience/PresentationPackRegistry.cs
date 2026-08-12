@@ -336,7 +336,7 @@ namespace OpenRA.Mods.Common.Experience
 			if (string.IsNullOrWhiteSpace(sourcePath) || !File.Exists(sourcePath))
 				throw new FileNotFoundException("Replacement source file was not found.", sourcePath);
 
-			using var stream = File.OpenRead(sourcePath);
+			using var stream = new MemoryStream(File.ReadAllBytes(sourcePath));
 			return AddOrUpdateReplacement(modId, id, target, sourcePath, stream);
 		}
 

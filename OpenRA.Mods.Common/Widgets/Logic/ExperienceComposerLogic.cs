@@ -49,7 +49,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[FluentReference]
 		const string DeletePackTitle = "dialog-experience-delete-pack-title";
 
-		[FluentReference]
+		[FluentReference("pack")]
 		const string DeletePackPrompt = "dialog-experience-delete-pack-prompt";
 
 		[FluentReference]
@@ -58,7 +58,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[FluentReference]
 		const string RemoveReplacementTitle = "dialog-experience-remove-replacement-title";
 
-		[FluentReference]
+		[FluentReference("asset")]
 		const string RemoveReplacementPrompt = "dialog-experience-remove-replacement-prompt";
 
 		[FluentReference]
@@ -354,7 +354,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				toggle.GetText = () => bool.Parse(workingParameterValues[key]) ? "Enabled" : "Disabled";
 				toggle.OnClick = () =>
 				{
-					workingParameterValues[key] = (!bool.Parse(workingParameterValues[key])).ToString();
+					workingParameterValues[key] = captured.Normalize(
+						(!bool.Parse(workingParameterValues[key])).ToString());
 					workingCustomComponents = true;
 					RefreshSummary();
 				};

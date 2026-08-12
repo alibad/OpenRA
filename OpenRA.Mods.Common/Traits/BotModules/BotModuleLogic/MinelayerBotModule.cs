@@ -279,7 +279,7 @@ namespace OpenRA.Mods.Common.Traits
 					if (cells != null && cells.Count != 0)
 					{
 						orderedActors.Add(minelayer.Actor);
-						if (EnhancedBehaviorEnabled)
+						if (EnhancedBehaviorEnabled && stuckRecovery)
 							activeMinelayers[minelayer.Actor] = minelayer.Actor.CenterPosition;
 
 						// if there is enemy actor nearby, we will try to lay mine on
