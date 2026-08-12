@@ -81,10 +81,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			mainMenu.Get<ButtonWidget>("MULTIPLAYER_BUTTON").OnClick = OpenMultiplayerPanel;
 
-			var aiCompanionButton = mainMenu.GetOrNull<ButtonWidget>("AI_COMPANION_BUTTON");
-			if (aiCompanionButton != null)
-				aiCompanionButton.OnClick = () => OpenSettings(MenuType.Main, "AI_PANEL");
-
+			var experienceCatalog = modData.GetOrNull<ExperienceCatalog>();
 			var worldToolsButton = mainMenu.GetOrNull<ButtonWidget>("WORLD_TOOLS_BUTTON");
 			if (worldToolsButton != null)
 				worldToolsButton.OnClick = () => SwitchMenu(MenuType.Workshop);
@@ -231,7 +228,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			if (worldToolsMenu != null)
 			{
 				worldToolsMenu.IsVisible = () => menuType == MenuType.Workshop;
-				var experienceCatalog = modData.GetOrNull<ExperienceCatalog>();
+				worldToolsMenu.Get<ButtonWidget>("AI_COMPANION_BUTTON").OnClick =
+					() => OpenSettings(MenuType.Workshop, "AI_PANEL");
 				var experienceButton = worldToolsMenu.GetOrNull<ButtonWidget>("EXPERIENCE_BUTTON");
 				if (experienceButton != null)
 				{
