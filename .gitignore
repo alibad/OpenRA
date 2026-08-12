@@ -46,6 +46,10 @@ update.log
 /lib/
 /.venv/
 
+# Python test caches
+__pycache__/
+*.pyc
+
 # Support directory
 /Support
 
