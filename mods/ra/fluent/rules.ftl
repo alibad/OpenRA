@@ -65,6 +65,12 @@ faction-saudi =
      Special Unit: M1A2S
      Special Unit: Mobile Air Defense System
 
+faction-china =
+    .name = China
+    .description = China: Coordinated Systems Warfare
+     Special Ability: Battlefield Network
+     Special Units: Drones, Precision Missiles, Amphibious Forces
+
 faction-soviet =
     .name = Soviet
 
@@ -93,6 +99,75 @@ faction-iran =
      Special Infantry: Basij Rifle Section, ATGM Team, Drone Controller
      Hero Commando: Shadow One
      Special Units: Karrar Tank, Simorgh Loitering Munition, Ghadir Submarine
+
+actor-cnrifle =
+    .name = PLA Combined-Arms Rifleman
+    .description = Disciplined general-purpose infantry effective against infantry and light vehicles.
+actor-cnnetwork =
+    .name = Battlefield Network Specialist
+    .description = Deploys a sensor and missile-jamming node. Immobile while the network is active.
+actor-cnportable =
+    .name = Portable Missile Team
+    .description = Deploy to toggle between anti-armor and anti-air missile roles.
+actor-redspear =
+    .name = Red Spear
+    .description = Fictional command-network hero. Improves nearby Chinese units and uses a precision rifle.
+actor-cnqilin =
+    .name = Qilin Main Battle Tank
+    .description = Durable main battle tank with a precision 125 mm cannon.
+actor-cnlynx =
+    .name = Lynx Unmanned Ground Vehicle
+    .description = Fast reconnaissance UGV with sensors and a light autocannon.
+actor-cnzbd =
+    .name = Sea Dragon Amphibious IFV
+    .description = Amphibious infantry carrier with autocannon and guided missiles.
+actor-cnphl =
+    .name = Longbow Modular Rocket System
+    .description = Vulnerable long-range precision missile artillery with a minimum range.
+actor-cnmantis =
+    .name = Mantis Mobile Air Defense
+    .description = Networked tracked air-defense vehicle with twin guided-missile salvos.
+actor-cnskyspear =
+    .name = Sky Spear Command Fighter
+    .description = High-end multi-role fighter with air-to-air and precision strike ammunition.
+actor-cncloud =
+    .name = Cloud Shadow UAV
+    .description = Unmanned reconnaissance and precision-strike aircraft with limited ammunition.
+actor-cncrane =
+    .name = Crane Assault Helicopter
+    .description = Armed air-assault transport with cannon and guided rockets.
+actor-cnluyang =
+    .name = Luyang Network Frigate
+    .description = Multi-role escort with integrated air defense and anti-surface missiles.
+actor-cnhaiwang =
+    .name = Haiwang Drone Assault Ship
+    .description = Expensive amphibious command ship that launches long-range drone strikes.
+actor-cnhaiying =
+    .name = Haiying Missile Patrol Craft
+    .description = Fast, fragile littoral patrol craft for scouting and missile interception.
+actor-cnkunlun =
+    .name = Kunlun Amphibious Dock Ship
+    .description = Armored beach-capable transport with a defensive air-defense mount.
+actor-cnjiaolong =
+    .name = Jiaolong Attack Submarine
+    .description = Stealthy conventional submarine specialized against heavy warships.
+actor-cnbastion =
+    .name = Bastion Ground-Defense Turret
+    .description = Twin-cannon point defense effective against vehicles and infantry.
+actor-cnskyshield =
+    .name = Sky Shield Air-Defense Battery
+    .description = Integrated radar-guided missile defense for broad anti-air coverage.
+actor-cnspectrum =
+    .name = Spectrum Control Node
+    .description = High-tech sensor, local shroud, and missile-jamming defense; requires power.
+actor-cnqilin-husk-name = Destroyed Qilin Tank
+actor-cnlynx-husk-name = Destroyed Lynx UGV
+actor-cnzbd-husk-name = Destroyed Sea Dragon IFV
+actor-cnphl-husk-name = Destroyed Longbow Launcher
+actor-cnmantis-husk-name = Destroyed Mantis Air-Defense Vehicle
+actor-cnskyspear-husk-name = Destroyed Sky Spear
+actor-cncloud-husk-name = Destroyed Cloud Shadow
+actor-cncrane-husk-name = Destroyed Crane Helicopter
 
 faction-random =
     .name = Any

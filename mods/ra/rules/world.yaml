@@ -124,6 +124,11 @@
 		InternalName: turkey
 		Side: Allies
 		Description: faction-turkey.description
+	Faction@china:
+		Name: faction-china.name
+		InternalName: china
+		Side: Allies
+		Description: faction-china.description
 	Faction@soviet:
 		Name: faction-soviet.name
 		InternalName: soviet
@@ -158,7 +163,7 @@
 	Faction@randomallies:
 		Name: faction-randomallies.name
 		InternalName: RandomAllies
-		RandomFactionMembers: england, france, germany, saudi, turkey
+		RandomFactionMembers: england, france, germany, saudi, turkey, china
 		Side: Random
 		Description: faction-randomallies.description
 	Faction@randomsoviet:

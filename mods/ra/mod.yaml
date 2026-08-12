@@ -84,6 +84,7 @@ Rules:
 	ra|rules/red-sea.yaml
 	ra|rules/turkey.yaml
 	ra|rules/iran.yaml
+	ra|rules/china.yaml
 	ra|rules/husks.yaml
 	ra|rules/structures.yaml
 	ra|rules/infantry.yaml
@@ -102,6 +103,7 @@ Sequences:
 	ra|sequences/red-sea.yaml
 	ra|sequences/turkey.yaml
 	ra|sequences/iran.yaml
+	ra|sequences/china.yaml
 	ra|sequences/structures.yaml
 	ra|sequences/infantry.yaml
 	ra|sequences/aircraft.yaml
@@ -203,6 +205,7 @@ Weapons:
 	ra|weapons/red-sea.yaml
 	ra|weapons/turkey.yaml
 	ra|weapons/iran.yaml
+	ra|weapons/china.yaml
 
 Voices:
 	ra|audio/voices.yaml

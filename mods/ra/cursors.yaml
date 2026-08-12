@@ -253,6 +253,10 @@ CursorEffects:
 		PrimaryColor: E11D2E
 		SecondaryColor: FFFFFF
 		Style: Crescent
+	china:
+		PrimaryColor: DE2910
+		SecondaryColor: FFDE00
+		Style: Pulse
 	russia:
 		PrimaryColor: 55AFFF
 		SecondaryColor: E8F6FF
