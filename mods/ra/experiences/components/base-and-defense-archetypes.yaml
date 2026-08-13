@@ -26,3 +26,69 @@ World:
 		Counters: infantry, armor, aircraft
 		Domain: building
 		AIWeight: 105
+
+^ReusableCommandStructure:
+	Inherits: ^ReusableBaseStructure
+	StrategicRole:
+		Roles: command, construction, base-core
+		Domain: building
+		AIWeight: 180
+
+^ReusablePowerStructure:
+	Inherits: ^ReusableBaseStructure
+	StrategicRole:
+		Roles: power, infrastructure
+		Domain: building
+		AIWeight: 90
+
+^ReusableProductionStructure:
+	Inherits: ^ReusableBaseStructure
+	StrategicRole:
+		Roles: production, reinforcement
+		Domain: building
+		AIWeight: 140
+
+^ReusableTechStructure:
+	Inherits: ^ReusableBaseStructure
+	StrategicRole:
+		Roles: technology, radar, upgrade
+		Domain: building
+		AIWeight: 135
+
+FACT:
+	Inherits@WW3BASEPROFILE: ^ReusableCommandStructure
+POWR:
+	Inherits@WW3BASEPROFILE: ^ReusablePowerStructure
+APWR:
+	Inherits@WW3BASEPROFILE: ^ReusablePowerStructure
+TENT:
+	Inherits@WW3BASEPROFILE: ^ReusableProductionStructure
+BARR:
+	Inherits@WW3BASEPROFILE: ^ReusableProductionStructure
+WEAP:
+	Inherits@WW3BASEPROFILE: ^ReusableProductionStructure
+AFLD:
+	Inherits@WW3BASEPROFILE: ^ReusableProductionStructure
+SYRD:
+	Inherits@WW3BASEPROFILE: ^ReusableProductionStructure
+SPEN:
+	Inherits@WW3BASEPROFILE: ^ReusableProductionStructure
+DOME:
+	Inherits@WW3BASEPROFILE: ^ReusableTechStructure
+ATEK:
+	Inherits@WW3BASEPROFILE: ^ReusableTechStructure
+STEK:
+	Inherits@WW3BASEPROFILE: ^ReusableTechStructure
+FIX:
+	Inherits@WW3BASEPROFILE: ^ReusableBaseStructure
+
+GUN:
+	Inherits@WW3DEFENSEPROFILE: ^ReusableDefenseStructure
+TURRET:
+	Inherits@WW3DEFENSEPROFILE: ^ReusableDefenseStructure
+SAM:
+	Inherits@WW3DEFENSEPROFILE: ^ReusableDefenseStructure
+AGUN:
+	Inherits@WW3DEFENSEPROFILE: ^ReusableDefenseStructure
+FTUR:
+	Inherits@WW3DEFENSEPROFILE: ^ReusableDefenseStructure

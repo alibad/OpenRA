@@ -16,7 +16,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using OpenRA.Primitives;
 
 namespace OpenRA.Mods.Common.Experience
 {
@@ -130,8 +129,13 @@ namespace OpenRA.Mods.Common.Experience
 		public readonly ImmutableArray<string> Notifications;
 		public readonly ImmutableArray<string> Music;
 		public readonly IReadOnlyDictionary<string, ExperienceParameter> Parameters;
+		public readonly bool IsExternal;
+		public readonly string PackageId;
+		public readonly string PackagePath;
+		public readonly string ContentFingerprint;
 
-		public ExperienceComponent(string id, MiniYaml yaml)
+		public ExperienceComponent(string id, MiniYaml yaml, string filePrefix = null,
+			string packageId = null, string packagePath = null, string contentFingerprint = null)
 		{
 			Id = id;
 			Title = Required(yaml, "Title", id);
@@ -142,15 +146,19 @@ namespace OpenRA.Mods.Common.Experience
 			License = Value(yaml, "License", "GPL-3.0-or-later code; project asset policy");
 			Dependencies = ParseList(yaml, "Dependencies");
 			Conflicts = ParseList(yaml, "Conflicts");
-			Rules = ParseFiles(yaml, "Rules");
-			Weapons = ParseFiles(yaml, "Weapons");
-			Sequences = ParseFiles(yaml, "Sequences");
-			Cursors = ParseFiles(yaml, "Cursors");
-			Chrome = ParseFiles(yaml, "Chrome");
-			Voices = ParseFiles(yaml, "Voices");
-			Notifications = ParseFiles(yaml, "Notifications");
-			Music = ParseFiles(yaml, "Music");
+			Rules = ParseFiles(yaml, "Rules", filePrefix);
+			Weapons = ParseFiles(yaml, "Weapons", filePrefix);
+			Sequences = ParseFiles(yaml, "Sequences", filePrefix);
+			Cursors = ParseFiles(yaml, "Cursors", filePrefix);
+			Chrome = ParseFiles(yaml, "Chrome", filePrefix);
+			Voices = ParseFiles(yaml, "Voices", filePrefix);
+			Notifications = ParseFiles(yaml, "Notifications", filePrefix);
+			Music = ParseFiles(yaml, "Music", filePrefix);
 			Parameters = ParseParameters(yaml.NodeWithKeyOrDefault("Parameters")?.Value);
+			IsExternal = packageId != null;
+			PackageId = packageId;
+			PackagePath = packagePath;
+			ContentFingerprint = contentFingerprint;
 		}
 
 		static string Required(MiniYaml yaml, string key, string id)
@@ -177,14 +185,17 @@ namespace OpenRA.Mods.Common.Experience
 				.ToImmutableArray();
 		}
 
-		static ImmutableArray<string> ParseFiles(MiniYaml yaml, string key)
+		static ImmutableArray<string> ParseFiles(MiniYaml yaml, string key, string prefix)
 		{
 			var files = ParseList(yaml, key);
-			foreach (var file in files)
-				if (file.Contains("..", StringComparison.Ordinal) || file.StartsWith('^'))
-					throw new InvalidDataException($"Experience component file `{file}` must be inside a mounted mod package.");
+			if (!string.IsNullOrEmpty(prefix))
+				foreach (var file in files)
+					if (file.Contains("..", StringComparison.Ordinal) || file.StartsWith('^') ||
+						file.Contains('|') || Path.IsPathRooted(file))
+						throw new InvalidDataException($"Experience component file `{file}` must be inside its capability pack.");
 
-			return files;
+			return string.IsNullOrEmpty(prefix) ? files : files.Select(file => $"{prefix}/{file.Replace('\\', '/')}")
+				.ToImmutableArray();
 		}
 
 		static IReadOnlyDictionary<string, ExperienceParameter> ParseParameters(MiniYaml yaml)
@@ -245,7 +256,15 @@ namespace OpenRA.Mods.Common.Experience
 		{
 			Mod = RequiredValue(yaml, "Mod");
 			DefaultProfileId = RequiredValue(yaml, "DefaultProfile");
-			Components = ParseComponents(RequiredNode(yaml, "Components"));
+			var builtInComponents = ParseComponents(RequiredNode(yaml, "Components"));
+			var components = new Dictionary<string, ExperienceComponent>(builtInComponents, StringComparer.OrdinalIgnoreCase);
+			foreach (var pack in CapabilityPackRegistry.Discover(Mod).Values)
+			{
+				if (!components.TryAdd(pack.Component.Id, pack.Component))
+					throw new InvalidDataException($"Capability pack `{pack.Id}` duplicates experience component `{pack.Component.Id}`.");
+			}
+
+			Components = components;
 			Profiles = ParseProfiles(RequiredNode(yaml, "Profiles"));
 
 			if (!Profiles.TryGetValue(DefaultProfileId, out var defaultProfile))
@@ -395,6 +414,11 @@ namespace OpenRA.Mods.Common.Experience
 			return ActiveParameterValues.TryGetValue(ParameterKey(componentId, parameterId), out var value) ? value : fallback;
 		}
 
+		public bool IsComponentActive(string componentId)
+		{
+			return ActiveComponentIds.Contains(componentId, StringComparer.OrdinalIgnoreCase);
+		}
+
 		public string ComputeGameplayFingerprint(IEnumerable<string> componentIds,
 			IReadOnlyDictionary<string, string> parameterValues = null)
 		{
@@ -404,6 +428,8 @@ namespace OpenRA.Mods.Common.Experience
 			{
 				var component = Components[id];
 				builder.Append(component.Id).Append(':').Append(component.Version).Append('\n');
+				if (!string.IsNullOrEmpty(component.ContentFingerprint))
+					builder.Append("content:").Append(component.ContentFingerprint).Append('\n');
 				foreach (var parameter in component.Parameters.Values.OrderBy(p => p.Id))
 				{
 					var key = ParameterKey(component.Id, parameter.Id);

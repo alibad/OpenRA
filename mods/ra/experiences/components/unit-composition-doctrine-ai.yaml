@@ -44,6 +44,18 @@ Player:
 			interceptor: 10
 			strike-aircraft: 10
 			anti-air: 10
+	SquadManagerBotModule@rush:
+		ExperienceComponent: unit-composition-doctrine-ai
+		ExperienceSquadSizeParameter: formation-size
+	SquadManagerBotModule@normal:
+		ExperienceComponent: unit-composition-doctrine-ai
+		ExperienceSquadSizeParameter: formation-size
+	SquadManagerBotModule@turtle:
+		ExperienceComponent: unit-composition-doctrine-ai
+		ExperienceSquadSizeParameter: formation-size
+	SquadManagerBotModule@naval:
+		ExperienceComponent: unit-composition-doctrine-ai
+		ExperienceSquadSizeParameter: formation-size
 
 ^ReusableCompositionMember:
 	ReusableCapability:

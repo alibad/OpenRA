@@ -43,8 +43,22 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 		DropDownButton@PROFILE_DROPDOWN:
 			X: 25
 			Y: 115
-			Width: 510
+			Width: 290
 			Height: 28
+		Button@IMPORT_COMPONENT_BUTTON:
+			X: 325
+			Y: 115
+			Width: 100
+			Height: 28
+			Text: button-experience-import-module
+			Font: TinyBold
+		Button@COPY_COMPONENT_FOLDER_BUTTON:
+			X: 435
+			Y: 115
+			Width: 100
+			Height: 28
+			Text: button-experience-module-folder
+			Font: TinyBold
 		Label@PROFILE_DESCRIPTION:
 			X: 25
 			Y: 149
@@ -121,7 +135,7 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 		Label@PARAMETERS_TITLE:
 			X: 25
 			Y: 520
-			Width: 360
+			Width: 245
 			Height: 20
 			Text: label-experience-parameters-title
 			Font: Bold
@@ -131,6 +145,13 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 			Width: 120
 			Height: 25
 			Text: button-experience-reset-module
+			Font: TinyBold
+		Button@REMOVE_COMPONENT_PACK_BUTTON:
+			X: 285
+			Y: 515
+			Width: 120
+			Height: 25
+			Text: button-experience-remove-module
 			Font: TinyBold
 		ScrollPanel@PARAMETERS:
 			X: 25

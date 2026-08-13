@@ -93,6 +93,85 @@ namespace OpenRA.Test
 			}
 		}
 
+		[TestCase(TestName = "Capability packs load as namespaced data-only experience modules")]
+		public void LoadCapabilityPack()
+		{
+			var root = CreateCapabilityPack("true");
+			try
+			{
+				var pack = CapabilityPackDefinition.Load(root, "ra");
+				Assert.That(pack.Id, Is.EqualTo("test-capability"));
+				Assert.That(pack.Component.IsExternal, Is.True);
+				Assert.That(pack.Component.Rules.Single(),
+					Is.EqualTo("experience-packs/test-capability/rules.yaml"));
+				Assert.That(pack.Fingerprint, Has.Length.EqualTo(64));
+			}
+			finally
+			{
+				if (Directory.Exists(root))
+					Directory.Delete(root, true);
+			}
+		}
+
+		[TestCase(TestName = "Capability packs require an explicit redistribution-rights acknowledgement")]
+		public void RejectCapabilityPackWithoutRights()
+		{
+			var root = CreateCapabilityPack("false");
+			try
+			{
+				Assert.Throws<InvalidDataException>(() => CapabilityPackDefinition.Load(root, "ra"));
+			}
+			finally
+			{
+				if (Directory.Exists(root))
+					Directory.Delete(root, true);
+			}
+		}
+
+		[TestCase(TestName = "Capability packs reject executable or compiled code")]
+		public void RejectExecutableCapabilityPack()
+		{
+			var root = CreateCapabilityPack("true");
+			try
+			{
+				File.WriteAllText(Path.Combine(root, "plugin.dll"), "not executable, but still prohibited");
+				Assert.Throws<InvalidDataException>(() => CapabilityPackDefinition.Load(root, "ra"));
+			}
+			finally
+			{
+				if (Directory.Exists(root))
+					Directory.Delete(root, true);
+			}
+		}
+
+		static string CreateCapabilityPack(string rightsAcknowledged)
+		{
+			var root = Path.Combine(Path.GetTempPath(), "openra-capability-test-" + Guid.NewGuid().ToString("N"));
+			Directory.CreateDirectory(root);
+			File.WriteAllText(Path.Combine(root, "rules.yaml"), "World:\n");
+			File.WriteAllText(Path.Combine(root, "pack.yaml"), $$"""
+				CapabilityPack:
+					Id: test-capability
+					Title: Test Capability
+					Version: 1
+					Author: OpenRA Test
+					License: GPL-3.0-or-later
+					Source: Automated test fixture
+					TargetMod: ra
+					EngineApi: experience-v2
+					RightsAcknowledged: {{rightsAcknowledged}}
+					Component:
+						Title: Test Capability
+						Description: Test-only reusable module.
+						Category: Tests
+						Version: 1
+						Source: Automated test fixture
+						License: GPL-3.0-or-later
+						Rules: rules.yaml
+				""");
+			return root;
+		}
+
 		static ExperienceParameter Parameter(string yaml)
 		{
 			var indented = yaml.Split('\n', StringSplitOptions.RemoveEmptyEntries)

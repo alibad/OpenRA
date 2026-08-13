@@ -230,6 +230,7 @@ Weapons:
 	ra|weapons/smallcaliber.yaml
 	ra|weapons/superweapons.yaml
 	ra|experiences/weapons/point-defense-interception.yaml
+	ra|experiences/weapons/reusable-abilities.yaml
 	ra|weapons/red-sea.yaml
 	ra|weapons/turkey.yaml
 	ra|weapons/iran.yaml

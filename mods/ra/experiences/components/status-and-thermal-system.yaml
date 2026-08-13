@@ -29,3 +29,48 @@ World:
 		Provides: status.source
 		Requires: condition-warhead-or-aura
 		Strategies: prioritize-status-target
+
+^Infantry:
+	Inherits@WW3STATUS: ^ReusableStatusReceiver
+	SpeedMultiplier@WW3SUPPRESSED:
+		Modifier: 65
+		RequiresCondition: status-suppressed
+	ReloadDelayMultiplier@WW3SUPPRESSED:
+		Modifier: 140
+		RequiresCondition: status-suppressed
+	RangeMultiplier@WW3SENSORJAM:
+		Modifier: 70
+		RequiresCondition: status-sensor-jammed
+	ReloadDelayMultiplier@WW3WEAPONLOCK:
+		Modifier: 300
+		RequiresCondition: status-weapon-locked
+
+^Vehicle:
+	Inherits@WW3STATUS: ^ReusableStatusReceiver
+	SpeedMultiplier@WW3HEAT:
+		Modifier: 75
+		RequiresCondition: status-heat
+	RangeMultiplier@WW3SENSORJAM:
+		Modifier: 70
+		RequiresCondition: status-sensor-jammed
+	ReloadDelayMultiplier@WW3WEAPONLOCK:
+		Modifier: 300
+		RequiresCondition: status-weapon-locked
+
+^Ship:
+	Inherits@WW3STATUS: ^ReusableStatusReceiver
+	SpeedMultiplier@WW3HEAT:
+		Modifier: 80
+		RequiresCondition: status-heat
+	RangeMultiplier@WW3SENSORJAM:
+		Modifier: 75
+		RequiresCondition: status-sensor-jammed
+
+^Plane:
+	Inherits@WW3STATUS: ^ReusableStatusReceiver
+	SpeedMultiplier@WW3HEAT:
+		Modifier: 80
+		RequiresCondition: status-heat
+	RangeMultiplier@WW3SENSORJAM:
+		Modifier: 75
+		RequiresCondition: status-sensor-jammed

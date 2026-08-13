@@ -747,6 +747,9 @@ checkbox-experience-enabled-only = Enabled only
 label-experience-presentation-header = Presentation
 label-experience-presentation-pack = Presentation Pack
 button-experience-refresh = Refresh
+button-experience-import-module = Import Module
+button-experience-module-folder = Module Folder
+button-experience-remove-module = Remove Module
 button-experience-browse-assets = Browse Asset Library
 button-experience-copy-pack-folder = Copy Pack Folder Path
 button-experience-pack-folder-copied = Folder Path Copied
@@ -778,6 +781,11 @@ dialog-experience-delete-pack-accept = Delete Pack
 dialog-experience-remove-replacement-title = Remove replacement?
 dialog-experience-remove-replacement-prompt = Remove { $asset } from this pack and delete its copied file?
 dialog-experience-remove-replacement-accept = Remove
+dialog-experience-import-module-title = Import Capability Module
+dialog-experience-import-module-prompt = Enter the full path to a capability pack folder or .zip archive. The pack must declare its source, license, compatibility, and redistribution-rights acknowledgement:
+dialog-experience-remove-module-title = Remove capability module?
+dialog-experience-remove-module-prompt = Permanently remove { $module } and its installed files? The game will restart without it.
+dialog-experience-remove-module-accept = Remove Module
 
 ## settings-ai.yaml
 label-ai-companion-section = Companion Experience

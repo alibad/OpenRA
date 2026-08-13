@@ -59,6 +59,8 @@ ROADMAP.SUPPLYDEPOT:
 	ProximityExternalCondition@RESUPPLY:
 		Condition: roadmap-resupplied
 		Range: 5c0
+		ExperienceComponent: supply-logistics-economy
+		ExperienceRangeParameter: resupply-radius
 		ValidRelationships: Ally
 	WithRangeCircle@RESUPPLY:
 		Range: 5c0

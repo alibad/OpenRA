@@ -13,6 +13,17 @@ SPY:
 		Provides: disguise.identity, infiltration
 		Requires: disguise-order, effective-owner
 		Strategies: infiltrate, impersonate
+	Inherits@WW3MINDCONTROLLER: ^ReusableMindController
+	MindControlCapacity:
+		Capacity: 2
+	TargetedWeaponAbility@CONTROL:
+		Weapon: ReusableControlPulse
+		OrderName: ControlTarget
+		Cooldown: 500
+		TargetTerrain: false
+		RequiresForceFire: true
+		Cursor: ability
+		BlockedCursor: ability-blocked
 
 ^ReusableMindController:
 	ReusableCapability:
@@ -21,3 +32,9 @@ SPY:
 		Provides: control.target, control.capacity
 		Requires: ownership-transfer, release-policy
 		Strategies: control-high-value-target
+
+^Infantry:
+	TemporaryOwnerManager:
+
+^Vehicle:
+	TemporaryOwnerManager:

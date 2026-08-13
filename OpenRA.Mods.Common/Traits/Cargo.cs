@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using OpenRA.Mods.Common.Activities;
+using OpenRA.Mods.Common.Experience;
 using OpenRA.Mods.Common.Orders;
 using OpenRA.Primitives;
 using OpenRA.Traits;
@@ -26,6 +27,10 @@ namespace OpenRA.Mods.Common.Traits
 	{
 		[Desc("The maximum sum of Passenger.Weight that this actor can support.")]
 		public readonly int MaxWeight = 0;
+
+		[Desc("Optional Experience component and integer parameter that override MaxWeight.")]
+		public readonly string ExperienceComponent = null;
+		public readonly string ExperienceCapacityParameter = null;
 
 		[Desc("`Passenger.CargoType`s that can be loaded into this actor.")]
 		public readonly FrozenSet<string> Types = FrozenSet<string>.Empty;
@@ -102,6 +107,7 @@ namespace OpenRA.Mods.Common.Traits
 		readonly Dictionary<string, Stack<int>> passengerTokens = [];
 		readonly Lazy<IFacing> facing;
 		readonly bool checkTerrainType;
+		readonly int maximumWeight;
 
 		int totalWeight = 0;
 		int reservedWeight = 0;
@@ -122,6 +128,11 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			self = init.Self;
 			checkTerrainType = info.UnloadTerrainTypes.Count > 0;
+			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
+			maximumWeight = !string.IsNullOrEmpty(info.ExperienceComponent) &&
+				experience?.IsComponentActive(info.ExperienceComponent) == true ?
+				experience.GetIntegerParameter(info.ExperienceComponent,
+					info.ExperienceCapacityParameter, info.MaxWeight) : info.MaxWeight;
 
 			var runtimeCargoInit = init.GetOrDefault<RuntimeCargoInit>(info);
 			var cargoInit = init.GetOrDefault<CargoInit>(info);
@@ -333,7 +344,8 @@ namespace OpenRA.Mods.Common.Traits
 			return Info.UnloadVoice;
 		}
 
-		public bool HasSpace(int weight) { return totalWeight + reservedWeight + weight <= Info.MaxWeight; }
+		public int MaximumWeight => maximumWeight;
+		public bool HasSpace(int weight) { return totalWeight + reservedWeight + weight <= maximumWeight; }
 		public bool IsEmpty() { return cargo.Count == 0; }
 
 		public Actor Peek() { return cargo[^1]; }

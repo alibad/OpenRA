@@ -5,11 +5,13 @@ World:
 		Provides: weather.sandstorm, weather.rain, lighting.night, visibility.modifier
 		Requires: mission-trigger, palette-compatibility
 		Strategies: weather-visibility, night-operations
-	ExternalCondition@ROADMAPWEATHER:
+	GrantCondition@ROADMAPWEATHER:
 		Condition: roadmap-weather-active
 	WeatherOverlay@ROADMAPSANDSTORM:
 		RequiresCondition: roadmap-weather-active
 		ParticleDensityFactor: 7
+		ExperienceComponent: weather-and-battlefield-lighting
+		ExperienceIntensityParameter: intensity
 		WindLevels: -10, -6, -3, 3, 6, 10
 		ParticleColors: D2B48CAA, C69C6DAA, 9E7B52AA
 		ParticleSize: 1, 3

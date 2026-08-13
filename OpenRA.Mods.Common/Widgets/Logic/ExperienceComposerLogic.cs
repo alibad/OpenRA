@@ -64,6 +64,21 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[FluentReference]
 		const string RemoveReplacementAccept = "dialog-experience-remove-replacement-accept";
 
+		[FluentReference]
+		const string ImportModuleTitle = "dialog-experience-import-module-title";
+
+		[FluentReference]
+		const string ImportModulePrompt = "dialog-experience-import-module-prompt";
+
+		[FluentReference]
+		const string RemoveModuleTitle = "dialog-experience-remove-module-title";
+
+		[FluentReference("module")]
+		const string RemoveModulePrompt = "dialog-experience-remove-module-prompt";
+
+		[FluentReference]
+		const string RemoveModuleAccept = "dialog-experience-remove-module-accept";
+
 		readonly Action onExit;
 		readonly ModData modData;
 		readonly ExperienceCatalog catalog;
@@ -125,6 +140,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			profileDropdown = widget.Get<DropDownButtonWidget>("PROFILE_DROPDOWN");
 			profileDropdown.OnClick = ShowProfileDropdown;
 			profileDropdown.GetText = ProfileTitle;
+			widget.Get<ButtonWidget>("IMPORT_COMPONENT_BUTTON").OnClick = ImportCapabilityPack;
+			widget.Get<ButtonWidget>("COPY_COMPONENT_FOLDER_BUTTON").OnClick = () =>
+				Game.SetClipboardText(CapabilityPackRegistry.PackDirectory(catalog.Mod));
 
 			presentationDropdown = widget.Get<DropDownButtonWidget>("PRESENTATION_DROPDOWN");
 			presentationDropdown.OnClick = ShowPresentationDropdown;
@@ -219,6 +237,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			resetParametersButton.IsDisabled = () => selectedComponentId == null ||
 				catalog.Components[selectedComponentId].Parameters.Count == 0;
 			resetParametersButton.OnClick = ResetSelectedParameters;
+
+			var removeComponentPackButton = widget.Get<ButtonWidget>("REMOVE_COMPONENT_PACK_BUTTON");
+			removeComponentPackButton.IsVisible = () => selectedComponentId != null &&
+				catalog.Components.TryGetValue(selectedComponentId, out var selected) && selected.IsExternal;
+			removeComponentPackButton.OnClick = RemoveSelectedCapabilityPack;
 
 			widget.Get<ButtonWidget>("RESET_BUTTON").OnClick = () =>
 			{
@@ -575,6 +598,46 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				inputValidator: title => !string.IsNullOrWhiteSpace(title));
 		}
 
+		void ImportCapabilityPack()
+		{
+			ConfirmationDialogs.TextInputPrompt(modData, ImportModuleTitle, ImportModulePrompt, "",
+				onAccept: sourcePath =>
+				{
+					try
+					{
+						CapabilityPackRegistry.Import(catalog.Mod, sourcePath);
+						SaveAndRestart();
+					}
+					catch (Exception e) { SetPackStatus(e.Message); }
+				},
+				inputValidator: sourcePath => Directory.Exists(sourcePath.Trim().Trim('"')) ||
+					(File.Exists(sourcePath.Trim().Trim('"')) &&
+					Path.GetExtension(sourcePath.Trim().Trim('"')).Equals(".zip", StringComparison.OrdinalIgnoreCase)));
+		}
+
+		void RemoveSelectedCapabilityPack()
+		{
+			if (selectedComponentId == null || !catalog.Components.TryGetValue(selectedComponentId, out var component) ||
+				!component.IsExternal)
+				return;
+
+			ConfirmationDialogs.ButtonPrompt(modData, RemoveModuleTitle, RemoveModulePrompt,
+				textArguments: ["module", component.Title],
+				onConfirm: () =>
+				{
+					try
+					{
+						workingComponents = workingComponents.Where(id => id != component.Id).ToImmutableArray();
+						workingCustomComponents = true;
+						CapabilityPackRegistry.Delete(catalog.Mod, component.PackageId);
+						SaveAndRestart();
+					}
+					catch (Exception e) { SetPackStatus(e.Message); }
+				},
+				confirmText: RemoveModuleAccept,
+				onCancel: () => { });
+		}
+
 		void DuplicatePack()
 		{
 			var pack = presentationPacks[workingPresentationPackId];
@@ -700,6 +763,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		}
 
 		void ApplyAndRestart()
+		{
+			SaveAndRestart();
+		}
+
+		void SaveAndRestart()
 		{
 			settings.Profile = workingProfileId;
 			settings.UseCustomComponents = workingCustomComponents;

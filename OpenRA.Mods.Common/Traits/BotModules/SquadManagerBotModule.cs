@@ -13,6 +13,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
+using OpenRA.Mods.Common.Experience;
 using OpenRA.Mods.Common.Traits.BotModules.Squads;
 using OpenRA.Primitives;
 using OpenRA.Traits;
@@ -55,6 +56,10 @@ namespace OpenRA.Mods.Common.Traits
 
 		[Desc("Random number of up to this many units is added to squad size when creating an attack squad.")]
 		public readonly int SquadSizeRandomBonus = 30;
+
+		[Desc("Optional Experience component and integer parameter that override SquadSize.")]
+		public readonly string ExperienceComponent = null;
+		public readonly string ExperienceSquadSizeParameter = null;
 
 		[Desc("Delay (in ticks) between giving out orders to units.")]
 		public readonly int AssignRolesInterval = 50;
@@ -144,12 +149,18 @@ namespace OpenRA.Mods.Common.Traits
 		int attackForceTicks;
 		int minAttackForceDelayTicks;
 		int respondToAttackCooldown = MaxRespondToAttackCooldown; // prevent too many responses to the same wave of attacks
+		readonly int squadSize;
 
 		public SquadManagerBotModule(Actor self, SquadManagerBotModuleInfo info)
 			: base(info)
 		{
 			World = self.World;
 			Player = self.Owner;
+			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
+			squadSize = !string.IsNullOrEmpty(info.ExperienceComponent) &&
+				experience?.IsComponentActive(info.ExperienceComponent) == true ?
+				experience.GetIntegerParameter(info.ExperienceComponent,
+					info.ExperienceSquadSizeParameter, info.SquadSize) : info.SquadSize;
 
 			unitCannotBeOrdered = a => a == null || a.Owner != Player || a.IsDead || !a.IsInWorld;
 			constructionYardBuildings = new ActorIndex.NamesAndTrait<BuildingInfo>(World, info.ConstructionYardTypes);
@@ -420,7 +431,7 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			// Create an attack force when we have enough units around our base.
 			// (don't bother leaving any behind for defense)
-			var randomizedSquadSize = Info.SquadSize + World.LocalRandom.Next(Info.SquadSizeRandomBonus);
+			var randomizedSquadSize = squadSize + World.LocalRandom.Next(Info.SquadSizeRandomBonus);
 
 			if (unitsHangingAroundTheBase.Count >= randomizedSquadSize)
 			{
@@ -444,7 +455,7 @@ namespace OpenRA.Mods.Common.Traits
 					groundTroopNum += s.Units.Count;
 			}
 
-			if (groundTroopNum < Info.SquadSize)
+			if (groundTroopNum < squadSize)
 				return;
 
 			var randomAttackableUnit = unitsHangingAroundTheBase.Where(a => a.Info.HasTraitInfo<AttackBaseInfo>()).RandomOrDefault(World.LocalRandom);

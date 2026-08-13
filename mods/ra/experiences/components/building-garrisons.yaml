@@ -39,6 +39,8 @@ V01:
 	Cargo:
 		Types: Infantry
 		MaxWeight: 4
+		ExperienceComponent: building-garrisons
+		ExperienceCapacityParameter: capacity
 		EjectOnDeath: true
 	AttackGarrisoned:
 		Armaments: garrisoned
@@ -56,6 +58,8 @@ V02:
 	Cargo:
 		Types: Infantry
 		MaxWeight: 4
+		ExperienceComponent: building-garrisons
+		ExperienceCapacityParameter: capacity
 		EjectOnDeath: true
 	AttackGarrisoned:
 		Armaments: garrisoned

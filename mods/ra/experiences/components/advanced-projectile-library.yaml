@@ -21,3 +21,12 @@ World:
 		Provides: projectile.ballistic, projectile.arc
 		Requires: Armament, Bullet
 		Strategies: indirect-fire
+
+ARTY:
+	Inherits@WW3BALLISTIC: ^ReusableBallisticProjectileHost
+	Armament@WW3BALLISTIC:
+		Weapon: ReusableBallisticStrike
+
+TTNK:
+	Armament@WW3BEAM:
+		Weapon: ReusableBeamLance

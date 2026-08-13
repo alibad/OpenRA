@@ -2,6 +2,7 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<AssemblyName>OpenRA</AssemblyName>
+		<ApplicationIcon>OpenRA.ico</ApplicationIcon>
 		<IsPublishable Condition="'$(CopyGenericLauncher)' == 'False'">false</IsPublishable>
 	</PropertyGroup>
 
@@ -24,6 +25,7 @@
 
 	<ItemGroup>
 		<None Include="App.config" />
+		<None Include="OpenRA.ico" />
 		<ProjectReference Include="..\OpenRA.Game\OpenRA.Game.csproj" />
 		<AdditionalFiles Include="Properties/launchSettings.json" />
 	</ItemGroup>

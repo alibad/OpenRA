@@ -224,6 +224,13 @@ ExperienceCatalog:
 					Maximum: 200
 					Step: 5
 					Unit: percent
+				doctrine:
+					Title: Commander doctrine
+					Description: Mutually exclusive match-wide upgrade path unlocked by combat experience.
+					Group: Factions
+					Type: Choice
+					Default: Balanced
+					Options: Balanced, Firepower, Mobility, Fortification
 		unit-composition-doctrine-ai:
 			Title: Composition and doctrine AI
 			Description: Role-driven combined-arms formations, faction doctrine templates, loss replacement, and counter-response contracts.
@@ -251,7 +258,9 @@ ExperienceCatalog:
 			Version: 1
 			Source: Combined Arms and Cameo patterns
 			License: GPL-3.0-or-later code; original cursors and effects required
+			Dependencies: status-and-thermal-system
 			Rules: ra|experiences/components/targeted-unit-abilities.yaml
+			Weapons: ra|experiences/weapons/reusable-abilities.yaml
 			Parameters:
 				cooldown-rate:
 					Title: Ability cooldown rate
@@ -325,6 +334,7 @@ ExperienceCatalog:
 			License: GPL-3.0-or-later code; original effects and audio required
 			Dependencies: point-defense-interception
 			Rules: ra|experiences/components/advanced-projectile-library.yaml
+			Weapons: ra|experiences/weapons/reusable-abilities.yaml
 		air-attack-profiles:
 			Title: Air attack profiles
 			Description: Interceptor, strike, airlift, bomber-run, gunship, and return-to-base role contracts for current and future aircraft.
@@ -379,6 +389,17 @@ ExperienceCatalog:
 			License: GPL-3.0-or-later code; no upstream content
 			Dependencies: targeted-unit-abilities
 			Rules: ra|experiences/components/mind-control-and-disguise.yaml
+			Parameters:
+				capacity:
+					Title: Control capacity
+					Description: Maximum number of enemy units one operative can control at the same time.
+					Group: Units
+					Type: Integer
+					Default: 2
+					Minimum: 1
+					Maximum: 6
+					Step: 1
+					Unit: units
 		terrain-and-random-map-systems:
 			Title: Terrain and random map systems
 			Description: Earth terrain enrichment, auto-tiling, forests, liquids, resources, deterministic seeds, and native random map integration.

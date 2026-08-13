@@ -11,6 +11,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using OpenRA.Mods.Common.Experience;
 
 namespace OpenRA.Mods.Common.FileSystem
@@ -92,6 +93,13 @@ namespace OpenRA.Mods.Common.FileSystem
 				foreach (var kv in RequiredContentFiles)
 					if (!fileSystem.Exists(kv.Key))
 						isContentAvailable = false;
+
+			// Data-only capability packs live under a namespaced directory so their
+			// rules, sequences, and assets cannot collide with built-in mod files.
+			// The ExperienceCatalog selects which declared YAML files become active.
+			var capabilityPackDirectory = CapabilityPackRegistry.PackDirectory(manifest.Id);
+			Directory.CreateDirectory(Path.Combine(capabilityPackDirectory, "experience-packs"));
+			fileSystem.Mount(capabilityPackDirectory);
 
 			// Presentation packs are exact-path asset overlays. Mounting them last
 			// lets images, sounds, and cursor sprites replace the base asset while

@@ -38,16 +38,18 @@ namespace OpenRA.Mods.Common.Warheads
 				if (a.Owner == firedBy.Owner)
 					continue;
 
+				var tempOwnerManager = Duration > 0 ? a.TraitOrDefault<TemporaryOwnerManager>() : null;
+				if (Duration > 0 && tempOwnerManager == null)
+					continue;
+
+				var capacity = firedBy.TraitOrDefault<MindControlCapacity>();
+				if (capacity != null && !capacity.TryReserve(firedBy, a))
+					continue;
+
 				if (Duration == 0)
 					a.ChangeOwner(firedBy.Owner); // Permanent
 				else
-				{
-					var tempOwnerManager = a.TraitOrDefault<TemporaryOwnerManager>();
-					if (tempOwnerManager == null)
-						continue;
-
 					tempOwnerManager.ChangeOwner(a, firedBy.Owner, Duration);
-				}
 
 				// Stop shooting, you have new enemies
 				a.CancelActivity();

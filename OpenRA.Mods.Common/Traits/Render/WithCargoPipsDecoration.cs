@@ -55,13 +55,13 @@ namespace OpenRA.Mods.Common.Traits.Render
 			: base(self, info)
 		{
 			cargo = self.Trait<Cargo>();
-			pipCount = info.PipCount > 0 ? info.PipCount : cargo.Info.MaxWeight;
+			pipCount = info.PipCount > 0 ? info.PipCount : cargo.MaximumWeight;
 			pips = new Animation(self.World, info.Image);
 		}
 
 		string GetPipSequence(int i)
 		{
-			var n = i * cargo.Info.MaxWeight / pipCount;
+			var n = i * cargo.MaximumWeight / pipCount;
 
 			foreach (var c in cargo.Passengers)
 			{
