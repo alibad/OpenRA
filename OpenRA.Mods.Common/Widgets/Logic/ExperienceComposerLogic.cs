@@ -99,6 +99,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		readonly LabelWidget componentDetailTitle;
 		readonly LabelWidget componentDetailDescription;
 		readonly LabelWidget componentDetailImpact;
+		readonly LabelWidget componentDetailScope;
 		readonly LabelWidget componentDetailSource;
 		readonly LabelWidget gameplayFingerprint;
 		readonly LabelWidget presentationFingerprint;
@@ -118,6 +119,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		bool workingCustomComponents;
 		bool packFolderCopied;
 		bool showEnabledComponentsOnly;
+		string aiStatus = "AI Assistant status: local service unavailable; inspect Settings > AI before enabling it.";
 
 		[ObjectCreator.UseCtor]
 		public ExperienceComposerLogic(Widget widget, ModData modData, Action onExit)
@@ -175,6 +177,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			componentDetailTitle = widget.Get<LabelWidget>("COMPONENT_DETAIL_TITLE");
 			componentDetailDescription = widget.Get<LabelWidget>("COMPONENT_DETAIL_DESCRIPTION");
 			componentDetailImpact = widget.Get<LabelWidget>("COMPONENT_DETAIL_IMPACT");
+			componentDetailScope = widget.Get<LabelWidget>("COMPONENT_DETAIL_SCOPE");
 			componentDetailSource = widget.Get<LabelWidget>("COMPONENT_DETAIL_SOURCE");
 			gameplayFingerprint = widget.Get<LabelWidget>("GAMEPLAY_FINGERPRINT");
 			presentationFingerprint = widget.Get<LabelWidget>("PRESENTATION_FINGERPRINT");
@@ -275,13 +278,24 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			applyButton = widget.Get<ButtonWidget>("APPLY_BUTTON");
 			applyButton.IsDisabled = () => !HasChanges();
-			applyButton.OnClick = ApplyAndRestart;
+			applyButton.OnClick = ReviewChanges;
 
 			widget.Get<ButtonWidget>("CANCEL_BUTTON").OnClick = Close;
 
 			PopulateComponents();
 			PopulateReplacements();
 			RefreshSummary();
+			_ = LoadAIStatusAsync();
+
+			// Opt-in deterministic review state for local visual regression capture.
+			if (Environment.GetEnvironmentVariable("OPENRA_AI_CAPTURE_EXPERIENCE_REVIEW") == "1")
+				Game.RunAfterDelay(750, () =>
+				{
+					workingComponents = catalog.ToggleComponent(workingComponents, "advanced-projectile-library", true);
+					workingCustomComponents = true;
+					ReviewChanges();
+					Game.RunAfterDelay(750, Game.TakeScreenshot);
+				});
 		}
 
 		void ShowProfileDropdown()
@@ -365,7 +379,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 				checkbox.GetTooltipText = () => captured.Title;
 				checkbox.GetTooltipDesc = () =>
-					$"{captured.Description}\n\nSource: {captured.Source}\nLicense: {captured.License}";
+					$"{captured.Description}\n\nDoes: {captured.Effects}\nTradeoff: {captured.Tradeoffs}\n" +
+					$"Where: {captured.Scope}\n\nSource: {captured.Source}\nLicense: {captured.License}";
 				componentPanel.AddChild(checkbox);
 			}
 
@@ -506,6 +521,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				componentDetailTitle.GetText = () => "Select a gameplay module";
 				componentDetailDescription.GetText = () => "Choose a module above to inspect its behavior and provenance.";
 				componentDetailImpact.GetText = () => "";
+				componentDetailScope.GetText = () => "";
 				componentDetailSource.GetText = () => "";
 				return;
 			}
@@ -513,6 +529,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var enabled = workingComponents.Contains(component.Id) ? "Enabled" : "Disabled";
 			var dependencies = component.Dependencies.Length == 0 ? "No dependencies" :
 				"Requires " + component.Dependencies.Select(id => catalog.Components[id].Title).JoinWith(", ");
+			var conflicts = component.Conflicts.Length == 0 ? "No conflicts" :
+				"Conflicts with " + component.Conflicts.Select(id => catalog.Components[id].Title).JoinWith(", ");
 			var fileCounts = new (string Type, int Count)[]
 			{
 				("rule", component.Rules.Length), ("weapon", component.Weapons.Length),
@@ -526,10 +544,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			componentDetailDescription.GetText = () => WidgetUtils.WrapText(component.Description,
 				componentDetailDescription.Bounds.Width, Game.Renderer.Fonts[componentDetailDescription.Font]);
 			componentDetailImpact.GetText = () => WidgetUtils.WrapText(
-				$"{enabled} | Version {component.Version} | {dependencies}\n{changes}",
+				$"{enabled} | {dependencies} | {conflicts}\nDOES: {component.Effects}\nTRADEOFF: {component.Tradeoffs}",
 				componentDetailImpact.Bounds.Width, Game.Renderer.Fonts[componentDetailImpact.Font]);
+			componentDetailScope.GetText = () => WidgetUtils.WrapText($"WHERE: {component.Scope}",
+				componentDetailScope.Bounds.Width, Game.Renderer.Fonts[componentDetailScope.Font]);
 			componentDetailSource.GetText = () => WidgetUtils.WrapText(
-				$"Source: {component.Source} | License: {component.License}",
+				$"Version {component.Version} | {changes} | Source: {component.Source} | License: {component.License}",
 				componentDetailSource.Bounds.Width, Game.Renderer.Fonts[componentDetailSource.Font]);
 		}
 
@@ -760,6 +780,47 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			return savedProfile != workingProfileId || settings.UseCustomComponents != workingCustomComponents ||
 				savedPack != workingPresentationPackId || parametersChanged ||
 				!savedComponents.SequenceEqual(workingComponents.Order());
+		}
+
+		void ReviewChanges()
+		{
+			var savedProfile = catalog.Profiles.ContainsKey(settings.Profile) ? settings.Profile : catalog.DefaultProfileId;
+			var savedComponents = settings.UseCustomComponents ?
+				ParseComponentSettings(settings.EnabledComponents) : catalog.ComponentsForProfile(savedProfile);
+			var savedParameters = catalog.ParseParameterSettings(settings.ParameterValues);
+			var savedPresentation = presentationPacks.ContainsKey(settings.PresentationPack) ?
+				settings.PresentationPack : PresentationPackDefinition.Default.Id;
+			var review = new ExperienceReviewModel(catalog, savedComponents, workingComponents,
+				savedParameters, workingParameterValues, savedPresentation, workingPresentationPackId);
+			var gameplayFingerprint = catalog.ComputeGameplayFingerprint(workingComponents, workingParameterValues);
+
+			Game.OpenWindow("EXPERIENCE_REVIEW_PANEL", new WidgetArgs
+			{
+				{ "review", review },
+				{ "profileTitle", ProfileTitle() },
+				{ "presentationTitle", presentationPacks[workingPresentationPackId].Title },
+				{ "gameplayFingerprint", gameplayFingerprint },
+				{ "aiStatus", aiStatus },
+				{ "onConfirm", (Action)ApplyAndRestart },
+				{ "onExit", (Action)(() => { }) }
+			});
+		}
+
+		async System.Threading.Tasks.Task LoadAIStatusAsync()
+		{
+			try
+			{
+				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_CONSOLE_URL", "http://127.0.0.1:8787/");
+				using var document = await OpenRAAILocalClient.GetAsync(baseUri, "v1/state");
+				var config = document.RootElement.GetProperty("config");
+				var enabled = config.GetProperty("companion_enabled").GetBoolean() ? "ON" : "OFF";
+				var provider = config.TryGetProperty("model_provider", out var providerValue) ?
+					providerValue.GetString() ?? "unknown" : "unknown";
+				var vision = config.TryGetProperty("vision_model", out var visionValue) ?
+					visionValue.GetString() ?? "not configured" : "not configured";
+				Game.RunAfterTick(() => aiStatus = $"AI Assistant: {enabled} | Provider: {provider} | Vision: {vision}");
+			}
+			catch { }
 		}
 
 		void ApplyAndRestart()

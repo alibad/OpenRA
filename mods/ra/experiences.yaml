@@ -5,6 +5,9 @@ ExperienceCatalog:
 		faction-and-subfaction-contract:
 			Title: Faction and doctrine contract
 			Description: Stable country, side, doctrine, and unit-role identifiers for rosters, AI, missions, promotions, and captured technology.
+			Effects: Publishes faction, doctrine, combat-role, counter, AI-weight, and transport metadata used by the modern country rosters and dependent modules.
+			Tradeoffs: No direct combat or economy change by itself; enabling it can automatically support modules that depend on this shared vocabulary.
+			Scope: Framework metadata for actors and players that inherit its contracts; it does not add units or change a faction roster on its own.
 			Category: Factions and strategies
 			Version: 1
 			Source: RA Plus, Combined Arms, Cameo, and Generals Alpha patterns synthesized for OpenRA AI
@@ -13,6 +16,9 @@ ExperienceCatalog:
 		minefield-generator:
 			Title: Replenishing minefields
 			Description: Structures and mission proxies can maintain configurable defensive mine perimeters.
+			Effects: Enables reusable generators to place and replace a configured ring of anti-vehicle or anti-personnel mines around authored positions.
+			Tradeoffs: Strong area denial rewards detection, clearing, artillery, or attacking the generator; faster replacement and more slots make defenses harder to breach.
+			Scope: Concrete only where a roster or map uses the ReusableMinefieldGenerator contract; it does not place mines on every map automatically.
 			Category: Defenses
 			Version: 1
 			Source: Combined Arms and Generals Alpha adaptations
@@ -42,6 +48,9 @@ ExperienceCatalog:
 		mission-aware-minelayer-ai:
 			Title: Mission-aware minelayer AI
 			Description: Bots seed authored mine zones, scan quickly, filter rosters, and recover stuck minelayers.
+			Effects: Changes bot control of available minelayers by assigning mine zones, choosing legal units, and recovering stalled orders.
+			Tradeoffs: More frequent scans improve responsiveness but add bot work; larger radii spread mines farther and may leave individual approaches thinner.
+			Scope: Bot behavior only in matches with compatible minelayers or authored mine zones; human unit controls are unchanged.
 			Category: AI strategies
 			Version: 1
 			Source: Shattered Paradise pattern adapted into native OpenRA AI
@@ -77,6 +86,9 @@ ExperienceCatalog:
 		point-defense-interception:
 			Title: Point-defense interception
 			Description: Opt-in anti-missile weapons create layered protection for bases, fleets, and aircraft groups.
+			Effects: Allows equipped defenses to target and destroy interceptable missiles, with configurable reach and optional interception feedback.
+			Tradeoffs: Reduces the reliability of missile volleys and rewards saturation or disabling the screen first; it does not stop bullets, shells, or beams.
+			Scope: Concrete only on actors that inherit the ReusablePointDefense contract; it does not grant point defense to every unit.
 			Category: Defenses
 			Version: 1
 			Source: Combined Arms and RA Plus adaptations
@@ -103,6 +115,9 @@ ExperienceCatalog:
 		salvage-and-scrap-economy:
 			Title: Battlefield salvage
 			Description: Destroyed vehicles can leave recoverable value for scavenger forces and mission objectives.
+			Effects: Eligible destroyed actors can drop collectible salvage that awards a configurable percentage of their sell value.
+			Tradeoffs: Creates contested post-battle income and can amplify a winning force if wreck sites are not denied; drop chance, value, and eligible faction are configurable.
+			Scope: Concrete only for actors marked ReusableSalvageable and compatible collectors or mission logic; ordinary deaths remain unchanged otherwise.
 			Category: Economy and missions
 			Version: 1
 			Source: OpenHV and Combined Arms adaptations
@@ -139,6 +154,9 @@ ExperienceCatalog:
 		asset-import-audit-pipeline:
 			Title: Asset acceptance contract
 			Description: Records provenance, fixed canvases, native facing order, contact sheets, and live turning as mandatory authoring gates.
+			Effects: Publishes asset provenance and sprite-validation capability metadata for tooling and for modules that require audited presentation.
+			Tradeoffs: Adds no player-facing mechanics; its value is stricter authoring and compatibility checks for dependent content.
+			Scope: Authoring and compatibility framework only; enabling it does not replace art or alter a live match.
 			Category: Authoring and compatibility
 			Version: 1
 			Source: OpenRA Mod SDK and OpenHV pipeline patterns
@@ -147,6 +165,9 @@ ExperienceCatalog:
 		supply-logistics-economy:
 			Title: Supply and logistics
 			Description: Reusable supply nodes, consumers, transports, convoy routes, resupply, protection, and interdiction contracts.
+			Effects: Adds logistics contracts plus a mission-editor supply depot that reloads compatible aircraft such as the MiG while they remain in its service radius.
+			Tradeoffs: Makes positioning and protecting service nodes meaningful; aircraft that rely on a mission depot must leave combat to replenish there.
+			Scope: Concrete in authored missions using the supplied depot and on actors inheriting the logistics contracts; it does not impose fuel on every roster.
 			Category: Economy and logistics
 			Version: 1
 			Source: Generals Alpha mechanics synthesized into native OpenRA contracts
@@ -167,6 +188,9 @@ ExperienceCatalog:
 		building-garrisons:
 			Title: Building garrisons
 			Description: Enterable strongpoints, passenger firing, evacuation, and AI occupancy using native Cargo and AttackGarrisoned primitives.
+			Effects: Makes the stock V01 and V02 civilian structures carry up to four infantry who can fire through directional ports, and exposes reusable garrison contracts.
+			Tradeoffs: Infantry gain protection and fire positions but become concentrated targets; destroying the structure ejects surviving passengers and dedicated clearing remains effective.
+			Scope: Immediately affects V01 and V02 on maps plus any structure inheriting the reusable contract; other buildings remain unchanged.
 			Category: Buildings and infantry
 			Version: 1
 			Source: Romanov's Vengeance, Shattered Paradise, Cameo, and Generals Alpha patterns
@@ -187,6 +211,9 @@ ExperienceCatalog:
 		carrier-and-drone-wing:
 			Title: Carrier and drone wings
 			Description: Normalized parent, child, sortie, recall, command-link, and replenishment contracts for carriers and unmanned systems.
+			Effects: Publishes carrier-parent and wing-child roles for launching, recalling, replenishing, and directing compatible aircraft or drones.
+			Tradeoffs: Wing platforms concentrate reusable striking power in a valuable parent and reward destroying or isolating that command link.
+			Scope: Framework for compatible carriers and drones; it does not create a carrier or attach a wing to every ship automatically.
 			Category: Navy and air
 			Version: 1
 			Source: Combined Arms, OpenRA RA2, OpenHV, and RA+ patterns
@@ -207,6 +234,9 @@ ExperienceCatalog:
 		commander-promotions:
 			Title: Commander promotions
 			Description: Match-scoped points, mutually exclusive doctrine choices, veterancy targets, and synchronized upgrade contracts.
+			Effects: Publishes progression contracts for commander points, doctrine choices, and veterancy-aware upgrade targets.
+			Tradeoffs: Intended doctrine choices are mutually exclusive and can lock a force into a specialization that an opponent can counter.
+			Scope: Framework for rosters or missions that implement promotion awards and choices; no promotion menu is added to stock rosters by this module alone.
 			Category: Factions and strategies
 			Version: 1
 			Source: Cameo, Generals Alpha, and Combined Arms patterns
@@ -234,6 +264,9 @@ ExperienceCatalog:
 		unit-composition-doctrine-ai:
 			Title: Composition and doctrine AI
 			Description: Role-driven combined-arms formations, faction doctrine templates, loss replacement, and counter-response contracts.
+			Effects: Changes standard rush, normal, turtle, and naval bot production shares to mix infantry, armor, artillery, air defense, aircraft, and naval roles by personality.
+			Tradeoffs: More coherent combined arms can make bots harder to exploit, but role weighting is a preference rather than a guaranteed counter and still depends on available factories and tech.
+			Scope: Concrete bot-production behavior for units carrying strategic-role metadata; human production and unit statistics are unchanged.
 			Category: AI strategies
 			Version: 1
 			Source: Combined Arms and Cameo patterns adapted into native role metadata
@@ -254,6 +287,9 @@ ExperienceCatalog:
 		targeted-unit-abilities:
 			Title: Targeted unit abilities
 			Description: Shared actor and cell targeting, validation, cooldown, cursor feedback, telemetry, and bot-use contracts.
+			Effects: Publishes synchronized targeting, cooldown, validation, cursor, and telemetry contracts for compatible activated unit abilities.
+			Tradeoffs: Abilities remain gated by cooldowns and legal targets, giving opponents timing windows and preventing unconditional casts.
+			Scope: Framework for units that implement the contract; it does not grant a new ability to every unit.
 			Category: Units and effects
 			Version: 1
 			Source: Combined Arms and Cameo patterns
@@ -275,6 +311,9 @@ ExperienceCatalog:
 		campaign-objective-toolkit:
 			Title: Campaign objective toolkit
 			Description: Original Lua helpers for objectives, reinforcement schedules, escalation, extraction, waves, and difficulty scaling.
+			Effects: Provides mission authors with objective, reinforcement, escalation, extraction, wave, and difficulty-scaling anchors.
+			Tradeoffs: Adds no autonomous skirmish mechanic and only changes missions that explicitly use the toolkit.
+			Scope: Mission-authoring framework; existing missions and ordinary skirmishes are unchanged unless authored against it.
 			Category: Missions and story
 			Version: 1
 			Source: Patterns extracted from Combined Arms, OpenHV, Shattered Paradise, Romanov's Vengeance, and Cameo
@@ -283,6 +322,9 @@ ExperienceCatalog:
 		convoy-and-evacuation-mission-pattern:
 			Title: Convoy and evacuation missions
 			Description: Composable escort, interdiction, embarkation, unloading, extraction, regroup, and failure-state contracts.
+			Effects: Adds reusable mission roles for convoy routing, escort, ambush, embarkation, unloading, regrouping, extraction, and failure conditions.
+			Tradeoffs: Convoys create vulnerable moving objectives and route-management pressure for both escort and interdiction forces.
+			Scope: Mission-authoring framework for compatible scripted maps; it does not spawn convoys in normal skirmishes.
 			Category: Missions and story
 			Version: 1
 			Source: Original module synthesized from Combined Arms, Generals Alpha, and OpenHV mission patterns
@@ -292,6 +334,9 @@ ExperienceCatalog:
 		status-and-thermal-system:
 			Title: Status and thermal system
 			Description: Shared heat, suppression, sensor-jam, weapon-lock, visibility, emitter, and receiver contracts.
+			Effects: Enables compatible actors to receive heat, suppression, sensor-jam, and weapon-lock conditions and exposes matching emitter roles.
+			Tradeoffs: Temporary disabling and visibility pressure reward combined arms, while condition duration and application remain defined by each concrete weapon or aura.
+			Scope: Framework for actors and weapons that inherit the receiver or emitter contracts; existing weapons do not gain status effects automatically.
 			Category: Effects and sensors
 			Version: 1
 			Source: Combined Arms and Cameo condition patterns
@@ -300,6 +345,9 @@ ExperienceCatalog:
 		weather-and-battlefield-lighting:
 			Title: Weather and battlefield lighting
 			Description: Mission-triggered deterministic sandstorm overlay plus rain, night-lighting, and visibility extension contracts.
+			Effects: Adds a mission-triggered sandstorm overlay and contracts for rain, night lighting, and visibility modifiers at configurable intensity.
+			Tradeoffs: Weather can reduce clarity and visibility, changing target acquisition and readability; mission authors control when it occurs.
+			Scope: Authored weather only. The separate Dynamic Environment lobby option controls global random events and remains off by default.
 			Category: Effects and missions
 			Version: 1
 			Source: OpenRA RA2, RA+, Cameo, and Shattered Paradise patterns using native WeatherOverlay
@@ -319,6 +367,9 @@ ExperienceCatalog:
 		teleport-network:
 			Title: Transit network
 			Description: Generalized entrance, exit, routing, placement validation, and AI contracts for tunnels or rapid transit.
+			Effects: Publishes synchronized entrance, exit, routing, placement, and AI contracts for tunnel or rapid-transit networks.
+			Tradeoffs: Fast redeployment depends on valid, vulnerable endpoints and safe exit placement; losing the network removes the mobility advantage.
+			Scope: Framework for factions or missions that implement transit structures; no tunnel is added to stock build menus by this module alone.
 			Category: Buildings and support powers
 			Version: 1
 			Source: Combined Arms and OpenHV teleport-network patterns generalized for modern transit
@@ -328,6 +379,9 @@ ExperienceCatalog:
 		advanced-projectile-library:
 			Title: Advanced projectile library
 			Description: Guided, ballistic, beam, trail, husk, and interception contracts built around native Missile and Bullet projectiles.
+			Effects: Publishes guided, ballistic, beam, trail, husk, and interceptable projectile profiles for compatible weapons.
+			Tradeoffs: Guided and interceptable profiles introduce point-defense counterplay, while ballistic and beam choices retain their native accuracy and line-of-fire limits.
+			Scope: Weapon-authoring framework; existing weapons change only when they inherit or reference these profiles.
 			Category: Weapons and effects
 			Version: 1
 			Source: Combined Arms, Cameo, Shattered Paradise, and OpenHV patterns
@@ -338,6 +392,9 @@ ExperienceCatalog:
 		air-attack-profiles:
 			Title: Air attack profiles
 			Description: Interceptor, strike, airlift, bomber-run, gunship, and return-to-base role contracts for current and future aircraft.
+			Effects: Publishes interceptor, strike, airlift, bomber, gunship, rearm, and return-to-base roles used by compatible aircraft and AI composition.
+			Tradeoffs: Aircraft roles preserve ammo, rearming, air-defense, and mission-profile counters instead of providing unlimited loitering firepower.
+			Scope: Role framework for aircraft inheriting these profiles; it does not add aircraft or change every plane by itself.
 			Category: Air warfare
 			Version: 1
 			Source: Combined Arms, RA+, Cameo, and Generals Alpha patterns merged with current air warfare
@@ -347,6 +404,9 @@ ExperienceCatalog:
 		naval-combat-archetypes:
 			Title: Naval combat archetypes
 			Description: Patrol, missile-corvette, destroyer, submarine, landing-ship, and carrier contracts with explicit counter roles.
+			Effects: Publishes patrol, missile-corvette, destroyer, submarine, landing-ship, and carrier roles with fleet-screen and amphibious strategies.
+			Tradeoffs: The roles form an explicit counter web: screens protect valuable platforms, submarines ambush, escorts detect, and transports remain vulnerable.
+			Scope: Naval role framework for compatible ships and bots; it does not add ships to maps without naval production or change stock hull statistics alone.
 			Category: Navy and air
 			Version: 1
 			Source: Role patterns from Combined Arms, RA+, Romanov's Vengeance, OpenHV, and Cameo
@@ -356,6 +416,9 @@ ExperienceCatalog:
 		ground-force-archetypes:
 			Title: Ground force archetypes
 			Description: Rifle, AT, engineer, scout, APC, MBT, artillery, air-defense, tank-destroyer, and recovery role contracts.
+			Effects: Publishes ground combat roles and reusable tank-destroyer and recovery profiles for combined-arms rosters and bot composition.
+			Tradeoffs: Each role is deliberately incomplete alone—armor needs infantry and air-defense cover, artillery needs screening, and recovery units trade firepower for support.
+			Scope: Ground-role framework for actors inheriting these profiles; no unit is inserted into a build queue by this module alone.
 			Category: Soldiers and tanks
 			Version: 1
 			Source: Role and balance patterns synthesized across all cataloged gameplay mods
@@ -365,6 +428,9 @@ ExperienceCatalog:
 		base-and-defense-archetypes:
 			Title: Base and defense archetypes
 			Description: Command, power, production, radar, tech, repair, gun, SAM, artillery, garrison, point-defense, and mine contracts.
+			Effects: Publishes command, power, production, radar, technology, repair, gun, SAM, artillery, garrison, point-defense, and mine roles for bases and AI planning.
+			Tradeoffs: Layered defense requires power, technology, placement, and mixed coverage; no single emplacement counters every threat domain.
+			Scope: Base and defense framework for compatible structures; it does not place defenses or modify stock build trees by itself.
 			Category: Buildings and defenses
 			Version: 1
 			Source: Base grammar synthesized across all cataloged gameplay mods
@@ -374,6 +440,9 @@ ExperienceCatalog:
 		capture-technology:
 			Title: Capture technology
 			Description: Controlled captured-faction prerequisites, hybrid rosters, capturable structures, and mission reward contracts.
+			Effects: Tracks captured factories, barracks, airfields, helipads, and naval yards so compatible rosters or missions can grant controlled foreign-technology prerequisites.
+			Tradeoffs: Hybrid access requires capturing and holding valuable production structures, creating a visible objective the original owner can reclaim or destroy.
+			Scope: Immediately adds capture tracking to the listed production structures; actual foreign units still require build rules that consume the captured prerequisites.
 			Category: Factions and missions
 			Version: 1
 			Source: Combined Arms and Cameo patterns
@@ -383,6 +452,9 @@ ExperienceCatalog:
 		mind-control-and-disguise:
 			Title: Mind control and disguise
 			Description: Disguise, detection, effective ownership, control capacity, release policy, and counterplay contracts.
+			Effects: Publishes disguise, infiltration, detection, ownership-transfer, control-capacity, and release-policy roles for special units.
+			Tradeoffs: Detection, limited capacity, legal targets, and release rules provide counterplay to identity deception or temporary control.
+			Scope: Special-unit framework and metadata for the Spy; it does not grant mind control or disguise orders without a concrete unit implementation.
 			Category: Special units
 			Version: 1
 			Source: Combined Arms, OpenRA RA2, Romanov's Vengeance, and Cameo patterns
@@ -403,6 +475,9 @@ ExperienceCatalog:
 		terrain-and-random-map-systems:
 			Title: Terrain and random map systems
 			Description: Earth terrain enrichment, auto-tiling, forests, liquids, resources, deterministic seeds, and native random map integration.
+			Effects: Publishes editor and generator contracts for Earth auto-tiling, forests, liquids, resources, deterministic seeds, and native random-map integration.
+			Tradeoffs: Richer generated terrain can change pathing and resource distribution, but deterministic seeds preserve reproducibility and multiplayer compatibility.
+			Scope: Map-authoring and generation framework; it does not rewrite an already selected map when enabled.
 			Category: Maps and world generation
 			Version: 1
 			Source: OpenHV patterns compared with the existing OpenRA AI world generator

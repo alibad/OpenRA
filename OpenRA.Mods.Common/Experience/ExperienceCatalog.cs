@@ -114,6 +114,9 @@ namespace OpenRA.Mods.Common.Experience
 		public readonly string Id;
 		public readonly string Title;
 		public readonly string Description;
+		public readonly string Effects;
+		public readonly string Tradeoffs;
+		public readonly string Scope;
 		public readonly string Category;
 		public readonly string Version;
 		public readonly string Source;
@@ -140,6 +143,9 @@ namespace OpenRA.Mods.Common.Experience
 			Id = id;
 			Title = Required(yaml, "Title", id);
 			Description = Required(yaml, "Description", id);
+			Effects = Required(yaml, "Effects", id);
+			Tradeoffs = Required(yaml, "Tradeoffs", id);
+			Scope = Required(yaml, "Scope", id);
 			Category = Required(yaml, "Category", id);
 			Version = Required(yaml, "Version", id);
 			Source = Value(yaml, "Source", "OpenRA AI");

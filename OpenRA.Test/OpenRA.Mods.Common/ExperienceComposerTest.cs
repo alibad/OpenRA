@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
@@ -163,6 +164,9 @@ namespace OpenRA.Test
 					Component:
 						Title: Test Capability
 						Description: Test-only reusable module.
+						Effects: Adds a test-only reusable capability.
+						Tradeoffs: Exists only for automated validation.
+						Scope: Test fixtures only.
 						Category: Tests
 						Version: 1
 						Source: Automated test fixture
@@ -172,12 +176,107 @@ namespace OpenRA.Test
 			return root;
 		}
 
+		[TestCase(TestName = "Experience components require complete player-facing disclosure metadata")]
+		public void ExperienceComponentDisclosureIsRequired()
+		{
+			var component = Component("""
+				Title: Layered defense
+				Description: Adds a defensive system.
+				Effects: Intercepts compatible projectiles.
+				Tradeoffs: Saturation attacks can overwhelm it.
+				Scope: Only affects actors that inherit the contract.
+				Category: Defenses
+				Version: 1
+				""");
+			Assert.That(component.Effects, Does.Contain("Intercepts"));
+			Assert.That(component.Tradeoffs, Does.Contain("Saturation"));
+			Assert.That(component.Scope, Does.Contain("Only affects"));
+
+			Assert.Throws<InvalidDataException>(() => Component("""
+				Title: Incomplete
+				Description: Missing the required disclosure fields.
+				Category: Test
+				Version: 1
+				"""));
+		}
+
+		[TestCase(TestName = "Experience review reports effective module, parameter, and presentation changes")]
+		public void ExperienceReviewReportsEffectiveChanges()
+		{
+			var components = Components();
+			var before = components.Values.SelectMany(component => component.Parameters.Values.Select(parameter =>
+				KeyValuePair.Create(ExperienceCatalog.ParameterKey(component.Id, parameter.Id), parameter.Default)))
+				.ToDictionary(kv => kv.Key, kv => kv.Value);
+			var after = before.ToDictionary(kv => kv.Key, kv => kv.Value);
+			after[ExperienceCatalog.ParameterKey("dependent", "amount")] = "75";
+			var review = new ExperienceReviewModel(components, ["standalone"], ["framework", "dependent"],
+				before, after, "default", "alternate");
+
+			Assert.That(review.RegisteredCount, Is.EqualTo(3));
+			Assert.That(review.NewlyEnabledComponents.Select(c => c.Id), Is.EquivalentTo(new[] { "framework", "dependent" }));
+			Assert.That(review.NewlyDisabledComponents.Single().Id, Is.EqualTo("standalone"));
+			Assert.That(review.RequiredBy["framework"].Single().Id, Is.EqualTo("dependent"));
+			Assert.That(review.ParameterChanges.Single().Value, Is.EqualTo("75"));
+			Assert.That(review.PresentationChanged, Is.True);
+			Assert.That(review.ChangeCount, Is.EqualTo(5));
+		}
+
 		static ExperienceParameter Parameter(string yaml)
 		{
 			var indented = yaml.Split('\n', StringSplitOptions.RemoveEmptyEntries)
 				.Select(line => "\t" + line.Trim()).JoinWith("\n");
 			var node = MiniYaml.FromString("Parameter:\n" + indented, "experience-parameter-test").Single();
 			return new ExperienceParameter("test", node.Value);
+		}
+
+		static ExperienceComponent Component(string yaml, string id = "test")
+		{
+			var indented = yaml.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+				.Select(line => "\t" + line.Trim()).JoinWith("\n");
+			var node = MiniYaml.FromString("Component:\n" + indented, "experience-component-test").Single();
+			return new ExperienceComponent(id, node.Value);
+		}
+
+		static IReadOnlyDictionary<string, ExperienceComponent> Components()
+		{
+			var yaml = MiniYaml.FromString("""
+				Components:
+					framework:
+						Title: Framework
+						Description: Shared framework.
+						Effects: Publishes shared metadata.
+						Tradeoffs: No direct mechanic.
+						Scope: Compatible actors only.
+						Category: Test
+						Version: 1
+					dependent:
+						Title: Dependent
+						Description: Dependent module.
+						Effects: Adds a dependent effect.
+						Tradeoffs: Has a counter.
+						Scope: Authored maps only.
+						Category: Test
+						Version: 1
+						Dependencies: framework
+						Parameters:
+							amount:
+								Title: Amount
+								Description: Effect amount.
+								Type: Integer
+								Default: 50
+								Minimum: 0
+								Maximum: 100
+					standalone:
+						Title: Standalone
+						Description: Standalone module.
+						Effects: Adds a standalone effect.
+						Tradeoffs: Has another counter.
+						Scope: Compatible actors only.
+						Category: Test
+						Version: 1
+				""", "experience-catalog-test").Single();
+			return yaml.Value.Nodes.Select(node => new ExperienceComponent(node.Key, node.Value))
+				.ToDictionary(component => component.Id);
 		}
 	}
 }

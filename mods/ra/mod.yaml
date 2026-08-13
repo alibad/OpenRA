@@ -180,6 +180,7 @@ ChromeLayout:
 	common|chrome/settings-gameplay.yaml
 	common|chrome/settings-advanced.yaml
 	ra|chrome/experience-composer.yaml
+	ra|chrome/experience-review.yaml
 	common|chrome/credits.yaml
 	common|chrome/lobby.yaml
 	common|chrome/lobby-mappreview.yaml
