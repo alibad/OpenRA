@@ -76,10 +76,23 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			// Menu buttons
 			var mainMenu = widget.Get("MAIN_MENU");
 			mainMenu.IsVisible = () => menuType == MenuType.Main;
+			void OpenWarRoom(MenuType returnMenu, string initialTab = "live")
+			{
+				SwitchMenu(MenuType.None);
+				Game.OpenWindow("AI_WAR_ROOM_PANEL", new WidgetArgs
+				{
+					{ "initialTab", initialTab },
+					{ "onExit", () => SwitchMenu(returnMenu) },
+				});
+			}
 
 			mainMenu.Get<ButtonWidget>("SINGLEPLAYER_BUTTON").OnClick = () => SwitchMenu(MenuType.Singleplayer);
 
 			mainMenu.Get<ButtonWidget>("MULTIPLAYER_BUTTON").OnClick = OpenMultiplayerPanel;
+
+			var warRoomButton = mainMenu.GetOrNull<ButtonWidget>("AI_WAR_ROOM_BUTTON");
+			if (warRoomButton != null)
+				warRoomButton.OnClick = () => OpenWarRoom(MenuType.Main);
 
 			var experienceCatalog = modData.GetOrNull<ExperienceCatalog>();
 			var worldToolsButton = mainMenu.GetOrNull<ButtonWidget>("WORLD_TOOLS_BUTTON");
@@ -229,7 +242,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{
 				worldToolsMenu.IsVisible = () => menuType == MenuType.Workshop;
 				worldToolsMenu.Get<ButtonWidget>("AI_COMPANION_BUTTON").OnClick =
-					() => OpenSettings(MenuType.Workshop, "AI_PANEL");
+					() => OpenWarRoom(MenuType.Workshop, "settings");
 				var experienceButton = worldToolsMenu.GetOrNull<ButtonWidget>("EXPERIENCE_BUTTON");
 				if (experienceButton != null)
 				{
@@ -275,7 +288,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				worldToolsMenu.Get<ButtonWidget>("BACK_BUTTON").OnClick = () => SwitchMenu(MenuType.Main);
 
 				// Enables deterministic local UI capture without adding a visible debug control.
-				if (Environment.GetEnvironmentVariable("OPENRA_AI_START_EARTH_STUDIO") == "1")
+				if (Environment.GetEnvironmentVariable("OPENRA_AI_START_WAR_ROOM") == "1")
+					Game.RunAfterTick(() => OpenWarRoom(MenuType.Main));
+				else if (Environment.GetEnvironmentVariable("OPENRA_AI_START_EARTH_STUDIO") == "1")
 					Game.RunAfterTick(worldToolsMenu.Get<ButtonWidget>("EARTH_STUDIO_BUTTON").OnClick);
 				else if (Environment.GetEnvironmentVariable("OPENRA_AI_START_EXPERIENCE_COMPOSER") == "1" && experienceCatalog != null)
 					Game.RunAfterTick(experienceButton.OnClick);

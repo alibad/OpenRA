@@ -86,8 +86,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		readonly ColorBlockWidget feedAccent;
 		readonly SpriteFont latestFont;
 		readonly ModData modData;
+		readonly World world;
 		bool feedExpanded;
 		bool showOnlyPlayer;
+		bool postGameDebriefScheduled;
 		string lastCapturedSignature = "";
 		string latestMeta = "LINK READY // AWAITING FIRST SIGNAL";
 		string latestMessage = "Your latest AI advice, alerts, voice transcript, and confirmed orders will remain here.";
@@ -95,9 +97,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		int laidOutFeedWidth;
 
 		[ObjectCreator.UseCtor]
-		public CompanionStatusLogic(Widget widget, ModData modData)
+		public CompanionStatusLogic(Widget widget, ModData modData, World world)
 		{
 			this.modData = modData;
+			this.world = world;
 			var statusButton = widget.Get<ButtonWidget>("STATUS");
 			var feedToggleButton = widget.Get<ButtonWidget>("FEED_TOGGLE");
 			var actionConfirmButton = widget.Get<ButtonWidget>("ACTION_CONFIRM");
@@ -127,7 +130,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			feedPanel.Get<LabelWidget>("LATEST_KICKER").GetText = () =>
 				showOnlyPlayer ? "YOUR TRANSMISSIONS" : "LAST TRANSMISSION";
 			feedPanel.Get<LabelWidget>("FEED_FOOTER").GetText = () =>
-				$"{Binding("AIAsk").ToUpperInvariant()} // COMMAND CHANNEL     CLICK STRIP // CLOSE FEED";
+				$"{Binding("AIAsk").ToUpperInvariant()} // COMMAND CHANNEL     CLICK STRIP // OPEN WAR ROOM";
 			feedEmptyLabel.GetText = () => showOnlyPlayer
 				? $"NO VOICE TRANSMISSIONS YET // HOLD {Binding("AIAsk").ToUpperInvariant()}"
 				: $"NO SIGNALS YET // HOLD {Binding("AIAsk").ToUpperInvariant()} TO OPEN COMMS";
@@ -166,7 +169,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					historyPanel.ScrollToBottom();
 			}
 
-			statusButton.OnClick = ToggleFeed;
+			statusButton.OnClick = () => OpenWarRoom("live");
 			feedToggleButton.OnClick = ToggleFeed;
 			feedToggleButton.GetText = () => feedExpanded ? "X" : "LOG";
 			feedToggleButton.IsHighlighted = () => feedExpanded;
@@ -413,6 +416,16 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		public override void Tick()
 		{
+			if (!postGameDebriefScheduled && !world.IsReplay && world.IsGameOver && world.LocalPlayer != null)
+			{
+				postGameDebriefScheduled = true;
+				Game.RunAfterDelay(120, () =>
+				{
+					if (Game.IsCurrentWorld(world))
+						OpenWarRoom("debrief");
+				});
+			}
+
 			if (!CompanionBridge.TryGetStatus(out var state, out var message) || string.IsNullOrWhiteSpace(message))
 				return;
 
@@ -426,6 +439,18 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			CompanionBridge.TryGetThreat(out var threatScore, out _, out _);
 			AppendFeedEntry(state, CleanMessage(LocalizeShortcutMessage(message)), threatScore);
+		}
+
+		static void OpenWarRoom(string initialTab)
+		{
+			if (Ui.CurrentWindow()?.Id == "AI_WAR_ROOM_PANEL")
+				return;
+
+			Game.OpenWindow("AI_WAR_ROOM_PANEL", new WidgetArgs
+			{
+				{ "initialTab", initialTab },
+				{ "onExit", () => { } },
+			});
 		}
 
 		void AppendFeedEntry(string state, string message, int threatScore)

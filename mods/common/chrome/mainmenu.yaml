@@ -61,30 +61,37 @@ Container@MAINMENU:
 							Height: 30
 							Text: label-multiplayer-title
 							Font: Bold
-						Button@WORLD_TOOLS_BUTTON:
+						Button@AI_WAR_ROOM_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
 							Y: 135
+							Width: 140
+							Height: 30
+							Text: button-main-menu-war-room
+							Font: Bold
+						Button@WORLD_TOOLS_BUTTON:
+							X: PARENT_WIDTH / 2 - WIDTH / 2
+							Y: 175
 							Width: 140
 							Height: 30
 							Text: button-main-menu-workshop
 							Font: Bold
 						Button@SETTINGS_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 175
+							Y: 215
 							Width: 140
 							Height: 30
 							Text: button-settings-title
 							Font: Bold
 						Button@EXTRAS_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 215
+							Y: 255
 							Width: 140
 							Height: 30
 							Text: button-extras-title
 							Font: Bold
 						Button@CONTENT_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 255
+							Y: 295
 							Width: 140
 							Height: 30
 							Text: button-main-menu-content
@@ -228,7 +235,7 @@ Container@MAINMENU:
 							Y: 60
 							Width: 150
 							Height: 30
-							Text: button-main-menu-ai-companion
+							Text: button-main-menu-war-room
 							Font: Bold
 						Button@EXPERIENCE_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
