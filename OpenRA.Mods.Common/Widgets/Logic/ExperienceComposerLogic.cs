@@ -73,11 +73,18 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[FluentReference]
 		const string RemoveModuleAccept = "dialog-experience-remove-module-accept";
 
+		static readonly string[] ComponentGroupOrder =
+		[
+			"Factions", "AI & Strategy", "Units & Weapons", "Bases & Defenses", "Air & Naval",
+			"Economy & Logistics", "Missions & Story", "World & Effects", "Tools & Compatibility"
+		];
+
 		readonly Action onExit;
 		readonly ModData modData;
 		readonly ExperienceCatalog catalog;
 		readonly ExperienceSettings settings;
 		readonly ScrollPanelWidget componentPanel;
+		readonly ScrollItemWidget componentGroupTemplate;
 		readonly CheckboxWidget componentTemplate;
 		readonly ScrollPanelWidget parameterPanel;
 		readonly ScrollItemWidget parameterTemplate;
@@ -132,7 +139,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			workingComponents = catalog.ActiveComponentIds;
 			workingParameterValues = catalog.ParseParameterSettings(settings.ParameterValues)
 				.ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.OrdinalIgnoreCase);
-			selectedComponentId = workingComponents.FirstOrDefault() ?? catalog.Components.Keys.Order().FirstOrDefault();
+			selectedComponentId = workingComponents.FirstOrDefault();
 			presentationPacks = PresentationPackRegistry.Discover(catalog.Mod);
 			workingPresentationPackId = presentationPacks.ContainsKey(settings.PresentationPack) ? settings.PresentationPack : "default";
 
@@ -187,7 +194,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			packStatus = widget.Get<LabelWidget>("PACK_STATUS");
 
 			componentPanel = widget.Get<ScrollPanelWidget>("COMPONENTS");
+			componentGroupTemplate = componentPanel.Get<ScrollItemWidget>("COMPONENT_GROUP_TEMPLATE");
 			componentTemplate = componentPanel.Get<CheckboxWidget>("COMPONENT_TEMPLATE");
+			componentPanel.RemoveChild(componentGroupTemplate);
 			componentPanel.RemoveChild(componentTemplate);
 
 			parameterPanel = widget.Get<ScrollPanelWidget>("PARAMETERS");
@@ -363,38 +372,51 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			componentPanel.RemoveChildren();
 			var matchingComponents = catalog.Components.Values
 				.Where(component => !component.Hidden && ComponentMatchesFilter(component))
-				.OrderBy(c => c.Category)
+				.OrderBy(c => ComponentGroupIndex(ComponentGroup(c)))
+				.ThenBy(c => c.Kind == ExperienceComponentKind.Faction ? 0 : 1)
 				.ThenBy(c => c.Title)
 				.ToArray();
-			foreach (var component in matchingComponents)
-			{
-				var captured = component;
-				var checkbox = componentTemplate.Clone();
-				checkbox.Id = "COMPONENT_" + captured.Id;
-				checkbox.IsVisible = () => true;
-				checkbox.GetText = () => $"{captured.Category} - {captured.Title}";
-				checkbox.IsChecked = () => workingComponents.Contains(captured.Id);
-				checkbox.IsHighlighted = () => selectedComponentId == captured.Id;
-				checkbox.OnMouseDown = _ =>
-				{
-					selectedComponentId = captured.Id;
-					RefreshComponentDetail();
-					PopulateParameters();
-				};
-				checkbox.OnClick = () =>
-				{
-					workingComponents = catalog.ToggleComponent(
-						workingComponents, captured.Id, !workingComponents.Contains(captured.Id));
-					workingCustomComponents = true;
-					PopulateComponents(preserveScroll: true);
-					RefreshSummary();
-				};
 
-				checkbox.GetTooltipText = () => captured.Title;
-				checkbox.GetTooltipDesc = () =>
-					$"{captured.Description}\n\nDoes: {captured.Effects}\nTradeoff: {captured.Tradeoffs}\n" +
-					$"Where: {captured.Scope}\n\nSource: {captured.Source}\nLicense: {captured.License}";
-				componentPanel.AddChild(checkbox);
+			selectedComponentId ??= matchingComponents.FirstOrDefault()?.Id;
+			foreach (var group in matchingComponents.GroupBy(ComponentGroup))
+			{
+				var groupName = group.Key;
+				var header = ScrollItemWidget.Setup(componentGroupTemplate, () => false, () => { });
+				header.Id = "COMPONENT_GROUP_" + groupName.Replace(' ', '_').Replace('&', '_');
+				header.Get<LabelWidget>("LABEL").GetText = () => groupName;
+				componentPanel.AddChild(header);
+
+				foreach (var component in group)
+				{
+					var captured = component;
+					var checkbox = componentTemplate.Clone();
+					checkbox.Id = "COMPONENT_" + captured.Id;
+					checkbox.IsVisible = () => true;
+					checkbox.GetText = () => captured.Title;
+					checkbox.IsChecked = () => workingComponents.Contains(captured.Id);
+					checkbox.IsHighlighted = () => selectedComponentId == captured.Id;
+					checkbox.OnMouseDown = _ =>
+					{
+						selectedComponentId = captured.Id;
+						RefreshComponentDetail();
+						PopulateParameters();
+					};
+					checkbox.OnClick = () =>
+					{
+						workingComponents = catalog.ToggleComponent(
+							workingComponents, captured.Id, !workingComponents.Contains(captured.Id));
+						workingCustomComponents = true;
+						PopulateComponents(preserveScroll: true);
+						RefreshSummary();
+					};
+
+					checkbox.GetTooltipText = () => captured.Title;
+					checkbox.GetTooltipDesc = () =>
+						$"{ComponentGroup(captured)} > {captured.Category}\n\n{captured.Description}\n\n" +
+						$"Does: {captured.Effects}\nTradeoff: {captured.Tradeoffs}\n" +
+						$"Where: {captured.Scope}\n\nSource: {captured.Source}\nLicense: {captured.License}";
+					componentPanel.AddChild(checkbox);
+				}
 			}
 
 			componentPanel.Layout.AdjustChildren();
@@ -405,6 +427,35 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			RefreshComponentSummary(matchingComponents.Length);
 			RefreshComponentDetail();
 			PopulateParameters();
+		}
+
+		static string ComponentGroup(ExperienceComponent component)
+		{
+			if (component.Kind == ExperienceComponentKind.Faction ||
+				component.Category.Equals("Faction packs", StringComparison.OrdinalIgnoreCase) ||
+				component.Category.StartsWith("Factions", StringComparison.OrdinalIgnoreCase))
+				return "Factions";
+
+			return component.Category switch
+			{
+				"AI strategies" => "AI & Strategy",
+				"Soldiers and tanks" or "Units and effects" or
+					"Weapons and effects" or "Special units" => "Units & Weapons",
+				"Defenses" or "Buildings and infantry" or
+					"Buildings and defenses" or "Buildings and support powers" => "Bases & Defenses",
+				"Air warfare" or "Navy and air" => "Air & Naval",
+				"Economy and missions" or "Economy and logistics" => "Economy & Logistics",
+				"Missions and story" => "Missions & Story",
+				"Effects and sensors" or "Effects and missions" or "Maps and world generation" => "World & Effects",
+				"Authoring and compatibility" => "Tools & Compatibility",
+				_ => component.Category
+			};
+		}
+
+		static int ComponentGroupIndex(string group)
+		{
+			var index = Array.IndexOf(ComponentGroupOrder, group);
+			return index < 0 ? ComponentGroupOrder.Length : index;
 		}
 
 		bool ComponentMatchesFilter(ExperienceComponent component)
@@ -418,7 +469,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var filter = componentSearch.Text.Trim();
 			return filter.Length == 0 || new[]
 			{
-				component.Id, component.Title, component.Category, component.Description, component.Source
+				component.Id, component.Title, component.Category, ComponentGroup(component),
+				component.Description, component.Source
 			}.Any(value => value.Contains(filter, StringComparison.OrdinalIgnoreCase));
 		}
 
@@ -558,7 +610,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			factionPreviewEmpty.IsVisible = () => !previewLoaded;
 			factionPreviewEmpty.GetText = () => "PREVIEW UNAVAILABLE";
 			componentKind.GetText = () => isFaction ?
-				$"{component.Faction.Side.ToUpperInvariant()} FACTION PACK" : "REUSABLE CAPABILITY";
+				$"{component.Faction.Side.ToUpperInvariant()} FACTION PACK" : ComponentGroup(component).ToUpperInvariant();
 
 			var enabled = workingComponents.Contains(component.Id) ? "Enabled" : "Disabled";
 			var dependencies = component.Dependencies.Length == 0 ? "No dependencies" :
@@ -624,17 +676,17 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			if (selectedReplacement == null)
 			{
 				replacementDetail.GetText = () => pack.Id == PresentationPackDefinition.Default.Id ?
-					"Create a pack to start replacing images, audio, video, palettes, and cursors." :
-					"No replacements yet. Open the Asset Library and choose an original target.";
+					"Create a presentation pack, then choose which images, sounds, videos, palettes, or cursors it should change." :
+					"No asset changes yet. Browse the Asset Library, select an original asset, and import the file to use instead.";
 				return;
 			}
 
-			var original = modData.DefaultFileSystem.Exists(selectedReplacement) ? "Original target found" : "Original target missing";
+			var original = modData.DefaultFileSystem.Exists(selectedReplacement) ? "Original asset found" : "Original asset missing";
 			var replacementPath = Path.Combine(pack.AssetsPath,
 				selectedReplacement.Replace('/', Path.DirectorySeparatorChar));
 			var size = File.Exists(replacementPath) ? new FileInfo(replacementPath).Length : 0;
 			replacementDetail.GetText = () => WidgetUtils.WrapText(
-				$"{selectedReplacement}\n{original} | Replacement {FormatBytes(size)}",
+				$"Original: {selectedReplacement}\n{original} | Custom pack file: {FormatBytes(size)}",
 				replacementDetail.Bounds.Width, Game.Renderer.Fonts[replacementDetail.Font]);
 		}
 

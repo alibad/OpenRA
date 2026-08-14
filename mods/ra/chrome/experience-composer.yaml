@@ -90,8 +90,20 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 			Width: 510
 			Height: 104
 			TopBottomSpacing: 5
-			ItemSpacing: 4
+			ItemSpacing: 3
 			Children:
+				ScrollItem@COMPONENT_GROUP_TEMPLATE:
+					X: 5
+					Width: PARENT_WIDTH - 30
+					Height: 20
+					Background: scrollheader
+					Visible: false
+					Children:
+						Label@LABEL:
+							X: 8
+							Width: PARENT_WIDTH - 16
+							Height: PARENT_HEIGHT
+							Font: TinyBold
 				Checkbox@COMPONENT_TEMPLATE:
 					X: 5
 					Width: PARENT_WIDTH - 30
