@@ -19,6 +19,10 @@
 			<_Parameter1>FaqUrl</_Parameter1>
 			<_Parameter2>$(FaqUrl)</_Parameter2>
 		</AssemblyAttribute>
+		<AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="$(CompanionBootstrap) != ''">
+			<_Parameter1>CompanionBootstrap</_Parameter1>
+			<_Parameter2>$(CompanionBootstrap)</_Parameter2>
+		</AssemblyAttribute>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="OpenRA-SDL2-CS" Version="1.0.42" />

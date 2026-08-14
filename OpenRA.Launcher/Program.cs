@@ -11,6 +11,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace OpenRA.Launcher
@@ -20,6 +21,9 @@ namespace OpenRA.Launcher
 		[STAThread]
 		static int Main(string[] args)
 		{
+			if (ShouldStartWithCompanion(args))
+				return StartWithCompanion(args);
+
 			if (Debugger.IsAttached || args.Contains("--just-die"))
 			{
 				try
@@ -55,6 +59,53 @@ namespace OpenRA.Launcher
 				// Flushing logs in finally block is okay here, as the catch block handles the exception.
 				Log.Dispose();
 			}
+		}
+
+		static bool ShouldStartWithCompanion(string[] args)
+		{
+			if (!OperatingSystem.IsWindows() || Debugger.IsAttached || args.Contains("--just-die"))
+				return false;
+
+			if (Environment.GetEnvironmentVariable("OPENRA_AI_COMPANION") == "1" ||
+				Environment.GetEnvironmentVariable("OPENRA_AI_DISABLE_AUTOSTART") == "1")
+				return false;
+
+			var mod = args.LastOrDefault(a => a.StartsWith("Game.Mod=", StringComparison.OrdinalIgnoreCase));
+			if (mod != null && !mod["Game.Mod=".Length..].Trim('"').Equals("ra", StringComparison.OrdinalIgnoreCase))
+				return false;
+
+			return File.Exists(GetCompanionLauncherPath());
+		}
+
+		static int StartWithCompanion(string[] args)
+		{
+			var startInfo = new ProcessStartInfo("powershell.exe")
+			{
+				UseShellExecute = false,
+				CreateNoWindow = true,
+				WorkingDirectory = Path.GetDirectoryName(GetCompanionLauncherPath())
+			};
+
+			startInfo.ArgumentList.Add("-NoLogo");
+			startInfo.ArgumentList.Add("-NoProfile");
+			startInfo.ArgumentList.Add("-ExecutionPolicy");
+			startInfo.ArgumentList.Add("Bypass");
+			startInfo.ArgumentList.Add("-File");
+			startInfo.ArgumentList.Add(GetCompanionLauncherPath());
+			foreach (var argument in args)
+				startInfo.ArgumentList.Add(argument);
+
+			using var process = Process.Start(startInfo);
+			if (process == null)
+				return (int)RunStatus.Error;
+
+			process.WaitForExit();
+			return process.ExitCode;
+		}
+
+		static string GetCompanionLauncherPath()
+		{
+			return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "launch-game.ps1"));
 		}
 	}
 }

@@ -15,6 +15,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using SDL2;
@@ -33,6 +35,7 @@ namespace OpenRA.WindowsLauncher
 		static string modID;
 		static string displayName;
 		static string faqUrl;
+		static bool companionBootstrap;
 
 		static int Main(string[] args)
 		{
@@ -48,14 +51,97 @@ namespace OpenRA.WindowsLauncher
 						case "ModID": modID = metadata.Value; break;
 						case "DisplayName": displayName = metadata.Value; break;
 						case "FaqUrl": faqUrl = metadata.Value; break;
+						case "CompanionBootstrap":
+							companionBootstrap = metadata.Value.Equals("true", StringComparison.OrdinalIgnoreCase);
+							break;
 					}
 				}
 			}
+
+			// The branded OpenRA AI executable is also a supported user entry point. Route a
+			// direct launch through the product bootstrap so the local companion, voice, and
+			// control services cannot be accidentally skipped. The bootstrap sets this marker
+			// before it starts the game, which prevents a launch loop.
+			if (companionBootstrap && Environment.GetEnvironmentVariable("OPENRA_AI_COMPANION") != "1")
+				return RunCompanionBootstrap(args);
 
 			if (Array.Exists(args, x => x.StartsWith("Engine.LaunchPath=", StringComparison.Ordinal)))
 				return RunGame(args);
 
 			return RunInnerLauncher(args);
+		}
+
+		static int RunCompanionBootstrap(string[] args)
+		{
+			var directory = new DirectoryInfo(Path.GetDirectoryName(Environment.ProcessPath));
+			string bootstrap = null;
+			var encodeArguments = false;
+			for (var depth = 0; directory != null && depth < 8; depth++, directory = directory.Parent)
+			{
+				var candidate = Path.Combine(directory.FullName, "apps", "launcher", "Start-OpenRAAI.ps1");
+				if (File.Exists(candidate))
+				{
+					bootstrap = candidate;
+					encodeArguments = true;
+					break;
+				}
+			}
+
+			// Developer builds live in the canonical OpenRA checkout instead of the packaged
+			// OpenRA AI directory. Use its companion-aware launcher when the product bootstrap
+			// is not present, so the branded executable remains the one local entry point.
+			if (bootstrap == null)
+			{
+				directory = new DirectoryInfo(Path.GetDirectoryName(Environment.ProcessPath));
+				for (var depth = 0; directory != null && depth < 4; depth++, directory = directory.Parent)
+				{
+					var candidate = Path.Combine(directory.FullName, "launch-game.ps1");
+					if (File.Exists(candidate))
+					{
+						bootstrap = candidate;
+						break;
+					}
+				}
+			}
+
+			if (bootstrap == null)
+				return (int)RunStatus.Error;
+
+			var powershell = Path.Combine(
+				Environment.GetFolderPath(Environment.SpecialFolder.System),
+				"WindowsPowerShell", "v1.0", "powershell.exe");
+			var psi = new ProcessStartInfo
+			{
+				FileName = powershell,
+				UseShellExecute = false,
+				WorkingDirectory = encodeArguments
+					? Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(bootstrap)))
+					: Path.GetDirectoryName(bootstrap)
+			};
+			psi.ArgumentList.Add("-NoLogo");
+			psi.ArgumentList.Add("-NoProfile");
+			psi.ArgumentList.Add("-ExecutionPolicy");
+			psi.ArgumentList.Add("Bypass");
+			psi.ArgumentList.Add("-File");
+			psi.ArgumentList.Add(bootstrap);
+			if (encodeArguments && args.Length > 0)
+			{
+				var encodedArgs = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(args)));
+				psi.ArgumentList.Add("-EncodedGameArguments");
+				psi.ArgumentList.Add(encodedArgs);
+			}
+			else
+			{
+				foreach (var argument in args)
+					psi.ArgumentList.Add(argument);
+			}
+
+			using var process = Process.Start(psi);
+			if (process == null)
+				return (int)RunStatus.Error;
+
+			process.WaitForExit();
+			return process.ExitCode;
 		}
 
 		static int RunGame(string[] args)

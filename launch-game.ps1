@@ -134,15 +134,11 @@ foreach ($argument in $GameArguments) {
 }
 
 $mod = Get-ArgumentValue "Game.Mod" $arguments
-while ([string]::IsNullOrWhiteSpace($mod)) {
-	$mod = (Read-Host "Select mod (ra, cnc, d2k, ts) or --exit").Trim().ToLowerInvariant()
-	if ($mod -eq "--exit") {
-		exit 0
-	}
-	if ($mod -notin @("ra", "cnc", "d2k", "ts")) {
-		Write-Host "Unknown mod: $mod" -ForegroundColor Yellow
-		$mod = $null
-	}
+if ([string]::IsNullOrWhiteSpace($mod)) {
+	$mod = "ra"
+}
+if ($mod -notin @("ra", "cnc", "d2k", "ts")) {
+	throw "Unknown mod: $mod"
 }
 
 Add-DefaultArgument $arguments "Game.Mod" $mod
@@ -200,6 +196,7 @@ try {
 
 		$env:DOTNET_ROLL_FORWARD = "Major"
 		$env:OPENRA_AI_COMPANION = "1"
+		$env:OPENRA_AI_COMPANION_ENABLED = "1"
 		$env:OPENRA_AI_GRPC_PORT = [string]$ports.Bridge
 		$env:OPENRA_AI_CONSOLE_URL = "http://127.0.0.1:$($ports.Console)/"
 		$env:OPENRA_AI_WORLD_STUDIO_URL = "http://127.0.0.1:$($ports.WorldStudio)/"
