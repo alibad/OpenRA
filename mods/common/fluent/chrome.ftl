@@ -500,10 +500,8 @@ ai-war-room =
     .close = X
     .command-sections = COMMAND SECTIONS
     .live-command = LIVE COMMAND
-    .after-action = AFTER ACTION
     .learning-lab = LEARNING LAB
     .brain-inspector = BRAIN INSPECTOR
-    .settings = SETTINGS
     .local-note =
         BUNDLED LOCALLY
         NO BROWSER REQUIRED
