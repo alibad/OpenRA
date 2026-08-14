@@ -65,12 +65,6 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		const string RemoveReplacementAccept = "dialog-experience-remove-replacement-accept";
 
 		[FluentReference]
-		const string ImportModuleTitle = "dialog-experience-import-module-title";
-
-		[FluentReference]
-		const string ImportModulePrompt = "dialog-experience-import-module-prompt";
-
-		[FluentReference]
 		const string RemoveModuleTitle = "dialog-experience-remove-module-title";
 
 		[FluentReference("module")]
@@ -295,7 +289,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			// Opt-in deterministic states for local visual regression capture.
 			var captureFactionPack = Environment.GetEnvironmentVariable("OPENRA_AI_CAPTURE_FACTION_PACK");
-			if (!string.IsNullOrWhiteSpace(captureFactionPack) &&
+			if (Environment.GetEnvironmentVariable("OPENRA_AI_CAPTURE_CAPABILITY_BROWSER") == "1")
+				Game.RunAfterDelay(750, ImportCapabilityPack);
+			else if (!string.IsNullOrWhiteSpace(captureFactionPack) &&
 				catalog.Components.TryGetValue(captureFactionPack, out var capturedFaction) && capturedFaction.Faction != null)
 				Game.RunAfterDelay(750, () =>
 				{
@@ -655,19 +651,25 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		void ImportCapabilityPack()
 		{
-			ConfirmationDialogs.TextInputPrompt(modData, ImportModuleTitle, ImportModulePrompt, "",
-				onAccept: sourcePath =>
+			var capture = Environment.GetEnvironmentVariable("OPENRA_AI_CAPTURE_CAPABILITY_BROWSER") == "1";
+			var initialDirectory = capture ? CapabilityPackRegistry.PackDirectory(catalog.Mod) : null;
+			Directory.CreateDirectory(CapabilityPackRegistry.PackDirectory(catalog.Mod));
+			Action<string> install = sourcePath =>
+			{
+				try
 				{
-					try
-					{
-						CapabilityPackRegistry.Import(catalog.Mod, sourcePath);
-						SaveAndRestart();
-					}
-					catch (Exception e) { SetPackStatus(e.Message); }
-				},
-				inputValidator: sourcePath => Directory.Exists(sourcePath.Trim().Trim('"')) ||
-					(File.Exists(sourcePath.Trim().Trim('"')) &&
-					Path.GetExtension(sourcePath.Trim().Trim('"')).Equals(".zip", StringComparison.OrdinalIgnoreCase)));
+					CapabilityPackRegistry.Import(catalog.Mod, sourcePath);
+					SaveAndRestart();
+				}
+				catch (Exception e) { SetPackStatus(e.Message); }
+			};
+			Action cancel = () => { };
+			Ui.OpenWindow("CAPABILITY_PACK_BROWSER", new WidgetArgs
+			{
+				{ "initialDirectory", initialDirectory },
+				{ "onSelected", install },
+				{ "onCancel", cancel }
+			});
 		}
 
 		void RemoveSelectedCapabilityPack()
