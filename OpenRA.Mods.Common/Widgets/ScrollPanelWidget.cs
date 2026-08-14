@@ -266,6 +266,13 @@ namespace OpenRA.Mods.Common.Widgets
 		}
 
 		public bool ScrolledToBottom => targetListOffset == Math.Min(0, Bounds.Height - ContentHeight) || ContentHeight <= Bounds.Height;
+		public float CurrentListOffset => currentListOffset;
+
+		public void ScrollToOffset(float offset, bool smooth = false)
+		{
+			var value = Math.Min(0, Math.Max(Bounds.Height - ContentHeight, offset));
+			SetListOffset(value, smooth);
+		}
 
 		void ScrollToItem(Widget item, bool smooth = false)
 		{

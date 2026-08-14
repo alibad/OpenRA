@@ -151,7 +151,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			presentationDescription = widget.Get<LabelWidget>("PRESENTATION_DESCRIPTION");
 			componentSummary = widget.Get<LabelWidget>("COMPONENT_SUMMARY");
 			componentSearch = widget.Get<TextFieldWidget>("COMPONENT_SEARCH");
-			componentSearch.OnTextEdited = PopulateComponents;
+			componentSearch.OnTextEdited = () => PopulateComponents();
 			componentSearch.OnEscKey = _ =>
 			{
 				if (string.IsNullOrEmpty(componentSearch.Text))
@@ -356,8 +356,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				presentationPacks.Values.OrderBy(p => p.Title), SetupItem);
 		}
 
-		void PopulateComponents()
+		void PopulateComponents(bool preserveScroll = false)
 		{
+			var scrollOffset = componentPanel.CurrentListOffset;
 			componentPanel.RemoveChildren();
 			var matchingComponents = catalog.Components.Values
 				.Where(component => !component.Hidden && ComponentMatchesFilter(component))
@@ -384,7 +385,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					workingComponents = catalog.ToggleComponent(
 						workingComponents, captured.Id, !workingComponents.Contains(captured.Id));
 					workingCustomComponents = true;
-					PopulateComponents();
+					PopulateComponents(preserveScroll: true);
 					RefreshSummary();
 				};
 
@@ -396,7 +397,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			}
 
 			componentPanel.Layout.AdjustChildren();
-			componentPanel.ScrollToTop();
+			if (preserveScroll)
+				componentPanel.ScrollToOffset(scrollOffset);
+			else
+				componentPanel.ScrollToTop();
 			RefreshComponentSummary(matchingComponents.Length);
 			RefreshComponentDetail();
 			PopulateParameters();
