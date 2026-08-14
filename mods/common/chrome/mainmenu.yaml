@@ -61,44 +61,37 @@ Container@MAINMENU:
 							Height: 30
 							Text: label-multiplayer-title
 							Font: Bold
-						Button@AI_WAR_ROOM_BUTTON:
-							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 135
-							Width: 140
-							Height: 30
-							Text: button-main-menu-war-room
-							Font: Bold
 						Button@WORLD_TOOLS_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 175
+							Y: 135
 							Width: 140
 							Height: 30
 							Text: button-main-menu-workshop
 							Font: Bold
 						Button@SETTINGS_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 215
+							Y: 175
 							Width: 140
 							Height: 30
 							Text: button-settings-title
 							Font: Bold
 						Button@EXTRAS_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 255
+							Y: 215
 							Width: 140
 							Height: 30
 							Text: button-extras-title
 							Font: Bold
 						Button@CONTENT_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 295
+							Y: 255
 							Width: 140
 							Height: 30
 							Text: button-main-menu-content
 							Font: Bold
 						Button@QUIT_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 335
+							Y: 295
 							Width: 140
 							Height: 30
 							Text: button-quit
@@ -230,37 +223,30 @@ Container@MAINMENU:
 							Text: button-main-menu-workshop
 							Align: Center
 							Font: Bold
-						Button@AI_COMPANION_BUTTON:
-							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 60
-							Width: 150
-							Height: 30
-							Text: button-main-menu-war-room
-							Font: Bold
 						Button@EXPERIENCE_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 100
+							Y: 60
 							Width: 150
 							Height: 30
 							Text: button-workshop-experience
 							Font: Bold
 						Button@EARTH_STUDIO_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 140
+							Y: 100
 							Width: 150
 							Height: 30
 							Text: button-world-tools-earth-studio
 							Font: Bold
 						Button@NATIVE_EDITOR_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 180
+							Y: 140
 							Width: 150
 							Height: 30
 							Text: button-world-tools-native-editor
 							Font: Bold
 						Button@ASSET_LIBRARY_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
-							Y: 220
+							Y: 180
 							Width: 150
 							Height: 30
 							Text: button-workshop-asset-library

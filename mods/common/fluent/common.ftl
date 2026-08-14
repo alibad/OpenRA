@@ -218,7 +218,6 @@ menu-ingame =
     .settings = Settings
     .return-to-map = Return to map
     .resume = Resume
-    .ai-war-room = AI War Room
     .save-map = Save Map
     .exit-map = Exit Map Editor
 

@@ -109,7 +109,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				pair.Value.IsHighlighted = () => activeTab == tab;
 			}
 
-			widget.Get<ColorBlockWidget>("TOP_ACCENT").GetColor = () => Color.FromArgb(255, 73, 222, 105);
+			widget.Get<ColorBlockWidget>("TOP_ACCENT").GetColor = ThreatColor;
 			widget.Get<LabelWidget>("CONNECTION").GetText = () => model.Connection;
 			widget.Get<LabelWidget>("CONNECTION").GetColor = () => model.Connected ? Color.LightGreen : Color.OrangeRed;
 			widget.Get<LabelWidget>("THREAT_VALUE").GetText = () => $"{model.Threat} / {model.ThreatLevel}";

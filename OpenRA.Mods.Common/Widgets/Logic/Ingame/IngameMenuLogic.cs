@@ -89,9 +89,6 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		const string Resume = "menu-ingame.resume";
 
 		[FluentReference]
-		const string WarRoomButton = "menu-ingame.ai-war-room";
-
-		[FluentReference]
 		const string SaveMapButton = "menu-ingame.save-map";
 
 		[FluentReference]
@@ -180,7 +177,6 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				{ "MUSIC", CreateMusicButton },
 				{ "SETTINGS", CreateSettingsButton },
 				{ "RESUME", CreateResumeButton },
-				{ "WAR_ROOM", CreateWarRoomButton },
 				{ "SAVE_MAP", CreateSaveMapButton },
 				{ "PLAY_MAP", CreatePlayMapButton },
 				{ "EXIT_EDITOR", CreateExitEditorButton }
@@ -478,23 +474,6 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var button = AddButton("RESUME", world.IsGameOver ? ReturnToMap : Resume);
 			button.Key = modData.Hotkeys["escape"];
 			button.OnClick = CloseMenu;
-		}
-
-		void CreateWarRoomButton()
-		{
-			if (world.LocalPlayer?.PlayerActor?.Info.HasTraitInfo<CompanionBridgeInfo>() != true)
-				return;
-
-			var button = AddButton("WAR_ROOM", WarRoomButton);
-			button.OnClick = () =>
-			{
-				hideMenu = true;
-				Game.OpenWindow("AI_WAR_ROOM_PANEL", new WidgetArgs
-				{
-					{ "initialTab", world.IsGameOver ? "debrief" : "live" },
-					{ "onExit", () => hideMenu = false },
-				});
-			};
 		}
 
 		void CreateSaveMapButton()

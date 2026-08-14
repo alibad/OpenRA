@@ -478,7 +478,6 @@ checkbox-edgescroll-container = Screen Edge Panning
 label-singleplayer-title = Singleplayer
 button-extras-title = Extras
 button-main-menu-content = Manage Content
-button-main-menu-war-room = AI War Room
 button-main-menu-workshop = AI
 button-workshop-experience = Experience Builder
 button-world-tools-earth-studio = Mission Studio
@@ -490,8 +489,8 @@ button-extras-menu-replays = Replays
 
 ## ingame-player.yaml AI War Room
 ai-war-room =
-    .title = AI WAR ROOM
-    .subtitle = LOCAL BATTLE INTELLIGENCE / VERIFIED ACTIONS / CONTINUOUS LEARNING
+    .title = AI COMMAND
+    .subtitle = LIVE ASSISTANT / ORDERS / REVIEW / LEARNING
     .threat = THREAT
     .close = X
     .command-sections = COMMAND SECTIONS
@@ -867,8 +866,6 @@ label-ai-strategy-brain = AUTO gameplay strategy brain:
 label-ai-strategy-brain-description = Chooses the complete OpenRA AI profile used by AUTO. Changes apply immediately.
 label-ai-shortcuts-title = AI shortcuts
 label-ai-shortcuts-hint = Remap Ask, Accept, Reject, AUTO, and Voice under Settings > Hotkeys > AI Assistant.
-button-ai-open-war-room = Open AI War Room
-label-ai-open-war-room-description = Live command, match debriefs, learning, brain inspection, and automation controls.
 label-ai-model-section = Choose Your AI
 label-ai-provider = AI provider:
 label-ai-text-model = Companion model:

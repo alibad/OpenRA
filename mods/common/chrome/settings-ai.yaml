@@ -112,23 +112,6 @@ Container@AI_PANEL:
 							Height: 18
 							Font: Tiny
 							Text: label-ai-shortcuts-hint
-				Container@WAR_ROOM_ROW:
-					Width: PARENT_WIDTH - 24
-					Height: 58
-					Children:
-						Button@OPEN_WAR_ROOM:
-							X: 10
-							Width: PARENT_WIDTH - 20
-							Height: 30
-							Text: button-ai-open-war-room
-							Font: Bold
-						Label@WAR_ROOM_DESCRIPTION:
-							X: 10
-							Y: 34
-							Width: PARENT_WIDTH - 20
-							Height: 18
-							Text: label-ai-open-war-room-description
-							Font: Tiny
 				Background@VOICE_SECTION_HEADER:
 					X: 5
 					Width: PARENT_WIDTH - 34

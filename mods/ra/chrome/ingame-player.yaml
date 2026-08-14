@@ -866,135 +866,127 @@ Container@PLAYER_WIDGETS:
 
 Background@AI_WAR_ROOM_PANEL:
 	Logic: WarRoomLogic
-	X: 30
-	Y: 30
-	Width: WINDOW_WIDTH - 60
-	Height: WINDOW_HEIGHT - 60
+	X: (WINDOW_WIDTH - 250) / 2 - WIDTH / 2
+	Y: 44
+	Width: 760
+	Height: 620
 	Background: dialog4
 	Children:
 		ColorBlock@TOP_ACCENT:
 			Width: PARENT_WIDTH
-			Height: 4
+			Height: 3
 		Label@TITLE:
-			X: 24
-			Y: 14
-			Width: 360
-			Height: 28
+			X: 16
+			Y: 9
+			Width: 260
+			Height: 22
 			Text: ai-war-room.title
 			Font: Bold
 		Label@SUBTITLE:
-			X: 24
-			Y: 40
-			Width: 480
-			Height: 18
+			X: 16
+			Y: 31
+			Width: 390
+			Height: 15
 			Text: ai-war-room.subtitle
 			Font: Tiny
 		Label@CONNECTION:
-			X: PARENT_WIDTH - 500
-			Y: 17
-			Width: 250
-			Height: 22
+			X: PARENT_WIDTH - 350
+			Y: 10
+			Width: 160
+			Height: 18
 			Align: Right
 			Font: TinyBold
 		Label@THREAT_CAPTION:
-			X: PARENT_WIDTH - 500
-			Y: 40
-			Width: 110
-			Height: 18
+			X: PARENT_WIDTH - 350
+			Y: 31
+			Width: 52
+			Height: 15
 			Text: ai-war-room.threat
 			Align: Right
 			Font: TinyBold
 		ColorBlock@THREAT_TRACK:
-			X: PARENT_WIDTH - 378
-			Y: 45
-			Width: 100
-			Height: 6
+			X: PARENT_WIDTH - 288
+			Y: 37
+			Width: 75
+			Height: 5
 		ColorBlock@THREAT_FILL:
-			X: PARENT_WIDTH - 378
-			Y: 45
+			X: PARENT_WIDTH - 288
+			Y: 37
 			Width: 0
-			Height: 6
+			Height: 5
 		Label@THREAT_VALUE:
-			X: PARENT_WIDTH - 268
-			Y: 39
-			Width: 100
-			Height: 18
+			X: PARENT_WIDTH - 205
+			Y: 30
+			Width: 72
+			Height: 16
 			Font: TinyBold
 		Button@REFRESH_BUTTON:
-			X: PARENT_WIDTH - 158
-			Y: 15
-			Width: 92
-			Height: 28
+			X: PARENT_WIDTH - 124
+			Y: 12
+			Width: 72
+			Height: 26
 			Font: TinyBold
 		Button@CLOSE_BUTTON:
 			Key: escape
-			X: PARENT_WIDTH - 54
-			Y: 15
-			Width: 32
-			Height: 28
+			X: PARENT_WIDTH - 42
+			Y: 12
+			Width: 28
+			Height: 26
 			Text: ai-war-room.close
 			Font: Bold
 		Background@NAVIGATION:
-			X: 20
-			Y: 72
-			Width: 176
-			Height: PARENT_HEIGHT - 92
+			X: 12
+			Y: 55
+			Width: PARENT_WIDTH - 24
+			Height: 38
 			Background: dialog3
 			Children:
 				Label@NAV_TITLE:
-					X: 14
-					Y: 14
-					Width: PARENT_WIDTH - 28
-					Height: 18
+					Visible: false
 					Text: ai-war-room.command-sections
-					Font: TinyBold
 				Button@LIVE_TAB:
-					X: 12
-					Y: 45
-					Width: PARENT_WIDTH - 24
-					Height: 36
+					X: 6
+					Y: 5
+					Width: 136
+					Height: 28
 					Text: ai-war-room.live-command
 					Font: TinyBold
 				Button@DEBRIEF_TAB:
-					X: 12
-					Y: 89
-					Width: PARENT_WIDTH - 24
-					Height: 36
+					X: 152
+					Y: 5
+					Width: 136
+					Height: 28
 					Text: ai-war-room.after-action
 					Font: TinyBold
 				Button@LEARNING_TAB:
-					X: 12
-					Y: 133
-					Width: PARENT_WIDTH - 24
-					Height: 36
+					X: 298
+					Y: 5
+					Width: 136
+					Height: 28
 					Text: ai-war-room.learning-lab
 					Font: TinyBold
 				Button@BRAIN_TAB:
-					X: 12
-					Y: 177
-					Width: PARENT_WIDTH - 24
-					Height: 36
+					X: 444
+					Y: 5
+					Width: 136
+					Height: 28
 					Text: ai-war-room.brain-inspector
 					Font: TinyBold
 				Button@SETTINGS_TAB:
-					X: 12
-					Y: 221
-					Width: PARENT_WIDTH - 24
-					Height: 36
+					X: 590
+					Y: 5
+					Width: 136
+					Height: 28
 					Text: ai-war-room.settings
 					Font: TinyBold
 				Label@LOCAL_NOTE:
-					X: 14
-					Y: PARENT_HEIGHT - 82
-					Width: PARENT_WIDTH - 28
-					Height: 66
+					Visible: false
 					Text: ai-war-room.local-note
-					Font: Tiny
 		Container@CONTENT:
-			X: 210
-			Y: 72
-			Width: PARENT_WIDTH - 230
-			Height: PARENT_HEIGHT - 92
+			X: 16
+			Y: 105
+			Width: PARENT_WIDTH - 32
+			Height: PARENT_HEIGHT - 121
 			Children:
 				Container@LIVE_PANEL:
 					Width: PARENT_WIDTH
