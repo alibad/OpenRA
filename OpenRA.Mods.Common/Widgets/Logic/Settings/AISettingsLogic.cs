@@ -132,7 +132,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			BindTab(panel.Get<ButtonWidget>("MODELS_TAB"), "models");
 			BindTab(panel.Get<ButtonWidget>("USAGE_TAB"), "usage");
 
-			foreach (var id in new[] { "COMPANION_SECTION_HEADER", "COMPANION_ENABLED_ROW", "COMPANION_PACE_ROW", "STRATEGY_BRAIN_ROW", "SHORTCUTS_HINT_ROW" })
+			foreach (var id in new[]
+			{
+				"COMPANION_SECTION_HEADER", "COMPANION_ENABLED_ROW", "COMPANION_PACE_ROW",
+				"STRATEGY_BRAIN_ROW", "SHORTCUTS_HINT_ROW", "WAR_ROOM_ROW"
+			})
 				panel.Get(id).IsVisible = () => selectedTab == "assistant";
 			foreach (var id in new[] { "VOICE_SECTION_HEADER", "VOICE_ENABLED_ROW", "VOICE_PRIORITY_ROW", "VOICE_ROUTES_ROW" })
 				panel.Get(id).IsVisible = () => selectedTab == "voice";
@@ -192,6 +196,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var refresh = panel.Get<ButtonWidget>("REFRESH_USAGE");
 			refresh.IsDisabled = () => busy;
 			refresh.OnClick = () => _ = LoadAsync();
+			panel.Get<ButtonWidget>("OPEN_WAR_ROOM").OnClick = () =>
+				Game.OpenWindow("AI_WAR_ROOM_PANEL", new WidgetArgs
+				{
+					{ "initialTab", "live" },
+					{ "onExit", () => { } },
+				});
 
 			SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
 			_ = LoadAsync();
