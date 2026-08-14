@@ -30,7 +30,7 @@ namespace OpenRA.Mods.Common.UtilityCommands
 
 			var key = args[1];
 			var result = UtilityHelpers.GetTopLevelNodeByKey(modData, key,
-				manifest => manifest.Sequences,
+				data => data.Sequences,
 				map => map.SequenceDefinitions,
 				args.Length == 3 ? args[2] : null);
 
