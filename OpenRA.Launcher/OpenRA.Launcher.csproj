@@ -3,6 +3,7 @@
 		<OutputType>Exe</OutputType>
 		<AssemblyName>OpenRA</AssemblyName>
 		<ApplicationIcon>OpenRA.ico</ApplicationIcon>
+		<RollForward>Major</RollForward>
 		<IsPublishable Condition="'$(CopyGenericLauncher)' == 'False'">false</IsPublishable>
 	</PropertyGroup>
 
