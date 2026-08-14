@@ -29,6 +29,7 @@ CapabilityPack:
 		Tradeoffs: Has no effect until an actor opts into its rules.
 		Scope: Compatible actors and authored maps only.
 		Category: Units and effects
+		Preview: preview.png
 		Version: 1
 		Source: Original work
 		License: GPL-3.0-or-later
@@ -51,6 +52,15 @@ CapabilityPack:
 Paths inside the module must be relative to the package. References from one
 module file to another use the mounted name, for example
 `experience-packs/example-module/images/icon.png`.
+
+Every selectable module must declare a `Preview` PNG inside its package. This
+image is shown on the Experience Builder detail card, and the pack is rejected
+if the declaration is absent, names a non-PNG file, or points to a missing file.
+
+The bundled capability previews under `mods/ra/uibits/experience-previews/`
+are original project presentation generated with OpenAI GPT Image on
+2026-08-14. They do not reuse presentation assets from the surveyed mods or
+from the Command & Conquer games.
 
 ## First-class faction packs
 
@@ -80,10 +90,10 @@ it without hard-coded country names.
 				Defenses: PBOX, GUN, AGUN
 ```
 
-`Preview` must be a declared PNG inside the pack. The six roster categories are
-required and drive the card summary and validation; actor ids may refer to base
-actors or actors declared by the pack. The rules must register the matching
-faction and random-pool membership:
+Faction packs declare their preview inside `Faction` instead of at the component
+root. The six roster categories are required and drive the card summary and
+validation; actor ids may refer to base actors or actors declared by the pack.
+The rules must register the matching faction and random-pool membership:
 
 ```yaml
 World:

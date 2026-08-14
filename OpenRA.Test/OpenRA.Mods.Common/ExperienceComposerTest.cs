@@ -106,6 +106,8 @@ namespace OpenRA.Test
 				Assert.That(pack.Component.IsExternal, Is.True);
 				Assert.That(pack.Component.Rules.Single(),
 					Is.EqualTo("experience-packs/test-capability/rules.yaml"));
+				Assert.That(pack.Component.Preview,
+					Is.EqualTo("experience-packs/test-capability/preview.png"));
 				Assert.That(pack.Fingerprint, Has.Length.EqualTo(64));
 			}
 			finally
@@ -159,6 +161,7 @@ namespace OpenRA.Test
 				Assert.That(pack.Component.Faction.ActorCount, Is.EqualTo(6));
 				Assert.That(pack.Component.Faction.Preview,
 					Is.EqualTo("experience-packs/test-faction/preview.png"));
+				Assert.That(pack.Component.Preview, Is.EqualTo(pack.Component.Faction.Preview));
 			}
 			finally
 			{
@@ -210,6 +213,7 @@ namespace OpenRA.Test
 			var root = Path.Combine(Path.GetTempPath(), "openra-capability-test-" + Guid.NewGuid().ToString("N"));
 			Directory.CreateDirectory(root);
 			File.WriteAllText(Path.Combine(root, "rules.yaml"), "World:\n");
+			File.WriteAllBytes(Path.Combine(root, "preview.png"), [137, 80, 78, 71]);
 			File.WriteAllText(Path.Combine(root, "pack.yaml"), $$"""
 				CapabilityPack:
 					Id: test-capability
@@ -228,6 +232,7 @@ namespace OpenRA.Test
 						Tradeoffs: Exists only for automated validation.
 						Scope: Test fixtures only.
 						Category: Tests
+						Preview: preview.png
 						Version: 1
 						Source: Automated test fixture
 						License: GPL-3.0-or-later
@@ -311,6 +316,7 @@ namespace OpenRA.Test
 				Tradeoffs: Saturation attacks can overwhelm it.
 				Scope: Only affects actors that inherit the contract.
 				Category: Defenses
+				Preview: preview.png
 				Version: 1
 				""");
 			Assert.That(component.Effects, Does.Contain("Intercepts"));
@@ -323,6 +329,44 @@ namespace OpenRA.Test
 				Category: Test
 				Version: 1
 				"""));
+		}
+
+		[TestCase(TestName = "Every selectable Experience component requires a PNG preview")]
+		public void SelectableExperienceComponentsRequirePngPreviews()
+		{
+			Assert.Throws<InvalidDataException>(() => Component("""
+				Title: No preview
+				Description: A selectable component without artwork.
+				Effects: Adds a test effect.
+				Tradeoffs: Test only.
+				Scope: Test fixtures only.
+				Category: Test
+				Version: 1
+				"""));
+
+			Assert.Throws<InvalidDataException>(() => Component("""
+				Title: Wrong preview type
+				Description: A selectable component with invalid artwork.
+				Effects: Adds a test effect.
+				Tradeoffs: Test only.
+				Scope: Test fixtures only.
+				Category: Test
+				Preview: preview.jpg
+				Version: 1
+				"""));
+
+			var internalComponent = Component("""
+				Title: Internal dependency
+				Description: Hidden implementation data.
+				Effects: Supports selectable components.
+				Tradeoffs: Not directly selectable.
+				Scope: Test fixtures only.
+				Category: Test
+				Kind: Internal
+				Hidden: true
+				Version: 1
+				""");
+			Assert.That(internalComponent.Preview, Is.Null);
 		}
 
 		[TestCase(TestName = "Experience review reports effective module, parameter, and presentation changes")]
@@ -373,6 +417,7 @@ namespace OpenRA.Test
 						Tradeoffs: No direct mechanic.
 						Scope: Compatible actors only.
 						Category: Test
+						Preview: preview.png
 						Version: 1
 					dependent:
 						Title: Dependent
@@ -381,6 +426,7 @@ namespace OpenRA.Test
 						Tradeoffs: Has a counter.
 						Scope: Authored maps only.
 						Category: Test
+						Preview: preview.png
 						Version: 1
 						Dependencies: framework
 						Parameters:
@@ -398,6 +444,7 @@ namespace OpenRA.Test
 						Tradeoffs: Has another counter.
 						Scope: Compatible actors only.
 						Category: Test
+						Preview: preview.png
 						Version: 1
 				""", "experience-catalog-test").Single();
 			return yaml.Value.Nodes.Select(node => new ExperienceComponent(node.Key, node.Value))

@@ -124,7 +124,7 @@ namespace OpenRA.Mods.Common.Experience
 			{
 				component.Rules, component.Weapons, component.Sequences, component.Cursors,
 				component.Chrome, component.Voices, component.Notifications, component.Music
-			}.SelectMany(x => x).Concat(component.Faction == null ? [] : [component.Faction.Preview])
+			}.SelectMany(x => x).Concat(string.IsNullOrWhiteSpace(component.Preview) ? [] : [component.Preview])
 				.Select(file => file.StartsWith(prefix, StringComparison.Ordinal) ? file[prefix.Length..] : file);
 			var missing = declared.FirstOrDefault(file => !files.Contains(file, StringComparer.OrdinalIgnoreCase));
 			if (missing != null)

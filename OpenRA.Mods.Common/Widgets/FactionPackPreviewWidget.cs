@@ -18,7 +18,7 @@ using OpenRA.Widgets;
 
 namespace OpenRA.Mods.Common.Widgets
 {
-	/// <summary>Displays a scaled PNG identity card for a data-driven faction pack.</summary>
+	/// <summary>Displays a scaled PNG preview card for a data-driven Experience component.</summary>
 	public sealed class FactionPackPreviewWidget : Widget
 	{
 		Sheet sheet;

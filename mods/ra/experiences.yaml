@@ -9,6 +9,7 @@ ExperienceCatalog:
 			Tradeoffs: No direct combat or economy change by itself; enabling it can automatically support modules that depend on this shared vocabulary.
 			Scope: Framework metadata for actors and players that inherit its contracts; it does not add units or change a faction roster on its own.
 			Category: Factions and strategies
+			Preview: ra|uibits/experience-previews/faction-and-subfaction-contract.png
 			Version: 1
 			Source: RA Plus, Combined Arms, Cameo, and Generals Alpha patterns synthesized for OpenRA AI
 			License: GPL-3.0-or-later code; no upstream presentation assets
@@ -171,6 +172,7 @@ ExperienceCatalog:
 			Tradeoffs: Strong area denial rewards detection, clearing, artillery, or attacking the generator; faster replacement and more slots make defenses harder to breach.
 			Scope: Concrete only where a roster or map uses the ReusableMinefieldGenerator contract; it does not place mines on every map automatically.
 			Category: Defenses
+			Preview: ra|uibits/experience-previews/minefield-generator.png
 			Version: 1
 			Source: Combined Arms and Generals Alpha adaptations
 			License: GPL-3.0-or-later
@@ -203,6 +205,7 @@ ExperienceCatalog:
 			Tradeoffs: More frequent scans improve responsiveness but add bot work; larger radii spread mines farther and may leave individual approaches thinner.
 			Scope: Bot behavior only in matches with compatible minelayers or authored mine zones; human unit controls are unchanged.
 			Category: AI strategies
+			Preview: ra|uibits/experience-previews/mission-aware-minelayer-ai.png
 			Version: 1
 			Source: Shattered Paradise pattern adapted into native OpenRA AI
 			License: GPL-3.0-or-later
@@ -241,6 +244,7 @@ ExperienceCatalog:
 			Tradeoffs: Reduces the reliability of missile volleys and rewards saturation or disabling the screen first; it does not stop bullets, shells, or beams.
 			Scope: Concrete only on actors that inherit the ReusablePointDefense contract; it does not grant point defense to every unit.
 			Category: Defenses
+			Preview: ra|uibits/experience-previews/point-defense-interception.png
 			Version: 1
 			Source: Combined Arms and RA Plus adaptations
 			License: GPL-3.0-or-later
@@ -270,6 +274,7 @@ ExperienceCatalog:
 			Tradeoffs: Creates contested post-battle income and can amplify a winning force if wreck sites are not denied; drop chance, value, and eligible faction are configurable.
 			Scope: Concrete only for actors marked ReusableSalvageable and compatible collectors or mission logic; ordinary deaths remain unchanged otherwise.
 			Category: Economy and missions
+			Preview: ra|uibits/experience-previews/salvage-and-scrap-economy.png
 			Version: 1
 			Source: OpenHV and Combined Arms adaptations
 			License: GPL-3.0-or-later
@@ -309,6 +314,7 @@ ExperienceCatalog:
 			Tradeoffs: Adds no player-facing mechanics; its value is stricter authoring and compatibility checks for dependent content.
 			Scope: Authoring and compatibility framework only; enabling it does not replace art or alter a live match.
 			Category: Authoring and compatibility
+			Preview: ra|uibits/experience-previews/asset-import-audit-pipeline.png
 			Version: 1
 			Source: OpenRA Mod SDK and OpenHV pipeline patterns
 			License: GPL-3.0-or-later tooling; per-file presentation licenses remain mandatory
@@ -320,6 +326,7 @@ ExperienceCatalog:
 			Tradeoffs: Makes positioning and protecting service nodes meaningful; aircraft that rely on a mission depot must leave combat to replenish there.
 			Scope: Concrete in authored missions using the supplied depot and on actors inheriting the logistics contracts; it does not impose fuel on every roster.
 			Category: Economy and logistics
+			Preview: ra|uibits/experience-previews/supply-logistics-economy.png
 			Version: 1
 			Source: Generals Alpha mechanics synthesized into native OpenRA contracts
 			License: GPL-3.0-or-later code; original presentation required
@@ -343,6 +350,7 @@ ExperienceCatalog:
 			Tradeoffs: Infantry gain protection and fire positions but become concentrated targets; destroying the structure ejects surviving passengers and dedicated clearing remains effective.
 			Scope: Immediately affects V01 and V02 on maps plus any structure inheriting the reusable contract; other buildings remain unchanged.
 			Category: Buildings and infantry
+			Preview: ra|uibits/experience-previews/building-garrisons.png
 			Version: 1
 			Source: Romanov's Vengeance, Shattered Paradise, Cameo, and Generals Alpha patterns
 			License: GPL-3.0-or-later code; original damage overlays required
@@ -366,6 +374,7 @@ ExperienceCatalog:
 			Tradeoffs: Wing platforms concentrate reusable striking power in a valuable parent and reward destroying or isolating that command link.
 			Scope: Framework for compatible carriers and drones; it does not create a carrier or attach a wing to every ship automatically.
 			Category: Navy and air
+			Preview: ra|uibits/experience-previews/carrier-and-drone-wing.png
 			Version: 1
 			Source: Combined Arms, OpenRA RA2, OpenHV, and RA+ patterns
 			License: GPL-3.0-or-later code; original units required
@@ -389,6 +398,7 @@ ExperienceCatalog:
 			Tradeoffs: Intended doctrine choices are mutually exclusive and can lock a force into a specialization that an opponent can counter.
 			Scope: Framework for rosters or missions that implement promotion awards and choices; no promotion menu is added to stock rosters by this module alone.
 			Category: Factions and strategies
+			Preview: ra|uibits/experience-previews/commander-promotions.png
 			Version: 1
 			Source: Cameo, Generals Alpha, and Combined Arms patterns
 			License: GPL-3.0-or-later code; original icons required
@@ -419,6 +429,7 @@ ExperienceCatalog:
 			Tradeoffs: More coherent combined arms can make bots harder to exploit, but role weighting is a preference rather than a guaranteed counter and still depends on available factories and tech.
 			Scope: Concrete bot-production behavior for units carrying strategic-role metadata; human production and unit statistics are unchanged.
 			Category: AI strategies
+			Preview: ra|uibits/experience-previews/unit-composition-doctrine-ai.png
 			Version: 1
 			Source: Combined Arms and Cameo patterns adapted into native role metadata
 			License: GPL-3.0-or-later
@@ -442,6 +453,7 @@ ExperienceCatalog:
 			Tradeoffs: Abilities remain gated by cooldowns and legal targets, giving opponents timing windows and preventing unconditional casts.
 			Scope: Framework for units that implement the contract; it does not grant a new ability to every unit.
 			Category: Units and effects
+			Preview: ra|uibits/experience-previews/targeted-unit-abilities.png
 			Version: 1
 			Source: Combined Arms and Cameo patterns
 			License: GPL-3.0-or-later code; original cursors and effects required
@@ -466,6 +478,7 @@ ExperienceCatalog:
 			Tradeoffs: Adds no autonomous skirmish mechanic and only changes missions that explicitly use the toolkit.
 			Scope: Mission-authoring framework; existing missions and ordinary skirmishes are unchanged unless authored against it.
 			Category: Missions and story
+			Preview: ra|uibits/experience-previews/campaign-objective-toolkit.png
 			Version: 1
 			Source: Patterns extracted from Combined Arms, OpenHV, Shattered Paradise, Romanov's Vengeance, and Cameo
 			License: Original GPL-3.0-or-later module; no upstream story text or media
@@ -477,6 +490,7 @@ ExperienceCatalog:
 			Tradeoffs: Convoys create vulnerable moving objectives and route-management pressure for both escort and interdiction forces.
 			Scope: Mission-authoring framework for compatible scripted maps; it does not spawn convoys in normal skirmishes.
 			Category: Missions and story
+			Preview: ra|uibits/experience-previews/convoy-and-evacuation-mission-pattern.png
 			Version: 1
 			Source: Original module synthesized from Combined Arms, Generals Alpha, and OpenHV mission patterns
 			License: Original GPL-3.0-or-later module
@@ -489,6 +503,7 @@ ExperienceCatalog:
 			Tradeoffs: Temporary disabling and visibility pressure reward combined arms, while condition duration and application remain defined by each concrete weapon or aura.
 			Scope: Framework for actors and weapons that inherit the receiver or emitter contracts; existing weapons do not gain status effects automatically.
 			Category: Effects and sensors
+			Preview: ra|uibits/experience-previews/status-and-thermal-system.png
 			Version: 1
 			Source: Combined Arms and Cameo condition patterns
 			License: GPL-3.0-or-later code; original overlays required
@@ -500,6 +515,7 @@ ExperienceCatalog:
 			Tradeoffs: Weather can reduce clarity and visibility, changing target acquisition and readability; mission authors control when it occurs.
 			Scope: Authored weather only. The separate Dynamic Environment lobby option controls global random events and remains off by default.
 			Category: Effects and missions
+			Preview: ra|uibits/experience-previews/weather-and-battlefield-lighting.png
 			Version: 1
 			Source: OpenRA RA2, RA+, Cameo, and Shattered Paradise patterns using native WeatherOverlay
 			License: GPL-3.0-or-later code; original particles and audio only
@@ -522,6 +538,7 @@ ExperienceCatalog:
 			Tradeoffs: Fast redeployment depends on valid, vulnerable endpoints and safe exit placement; losing the network removes the mobility advantage.
 			Scope: Framework for factions or missions that implement transit structures; no tunnel is added to stock build menus by this module alone.
 			Category: Buildings and support powers
+			Preview: ra|uibits/experience-previews/teleport-network.png
 			Version: 1
 			Source: Combined Arms and OpenHV teleport-network patterns generalized for modern transit
 			License: GPL-3.0-or-later code; original effects required
@@ -534,6 +551,7 @@ ExperienceCatalog:
 			Tradeoffs: Guided and interceptable profiles introduce point-defense counterplay, while ballistic and beam choices retain their native accuracy and line-of-fire limits.
 			Scope: Weapon-authoring framework; existing weapons change only when they inherit or reference these profiles.
 			Category: Weapons and effects
+			Preview: ra|uibits/experience-previews/advanced-projectile-library.png
 			Version: 1
 			Source: Combined Arms, Cameo, Shattered Paradise, and OpenHV patterns
 			License: GPL-3.0-or-later code; original effects and audio required
@@ -547,6 +565,7 @@ ExperienceCatalog:
 			Tradeoffs: Aircraft roles preserve ammo, rearming, air-defense, and mission-profile counters instead of providing unlimited loitering firepower.
 			Scope: Role framework for aircraft inheriting these profiles; it does not add aircraft or change every plane by itself.
 			Category: Air warfare
+			Preview: ra|uibits/experience-previews/air-attack-profiles.png
 			Version: 1
 			Source: Combined Arms, RA+, Cameo, and Generals Alpha patterns merged with current air warfare
 			License: GPL-3.0-or-later code; no upstream aircraft binaries
@@ -559,6 +578,7 @@ ExperienceCatalog:
 			Tradeoffs: The roles form an explicit counter web: screens protect valuable platforms, submarines ambush, escorts detect, and transports remain vulnerable.
 			Scope: Naval role framework for compatible ships and bots; it does not add ships to maps without naval production or change stock hull statistics alone.
 			Category: Navy and air
+			Preview: ra|uibits/experience-previews/naval-combat-archetypes.png
 			Version: 1
 			Source: Role patterns from Combined Arms, RA+, Romanov's Vengeance, OpenHV, and Cameo
 			License: Original data contracts; original ships and effects required
@@ -571,6 +591,7 @@ ExperienceCatalog:
 			Tradeoffs: Each role is deliberately incomplete alone—armor needs infantry and air-defense cover, artillery needs screening, and recovery units trade firepower for support.
 			Scope: Ground-role framework for actors inheriting these profiles; no unit is inserted into a build queue by this module alone.
 			Category: Soldiers and tanks
+			Preview: ra|uibits/experience-previews/ground-force-archetypes.png
 			Version: 1
 			Source: Role and balance patterns synthesized across all cataloged gameplay mods
 			License: Original data contracts; original sprites required
@@ -583,6 +604,7 @@ ExperienceCatalog:
 			Tradeoffs: Layered defense requires power, technology, placement, and mixed coverage; no single emplacement counters every threat domain.
 			Scope: Base and defense framework for compatible structures; it does not place defenses or modify stock build trees by itself.
 			Category: Buildings and defenses
+			Preview: ra|uibits/experience-previews/base-and-defense-archetypes.png
 			Version: 1
 			Source: Base grammar synthesized across all cataloged gameplay mods
 			License: Original data contracts; original sprites required
@@ -595,6 +617,7 @@ ExperienceCatalog:
 			Tradeoffs: Hybrid access requires capturing and holding valuable production structures, creating a visible objective the original owner can reclaim or destroy.
 			Scope: Immediately adds capture tracking to the listed production structures; actual foreign units still require build rules that consume the captured prerequisites.
 			Category: Factions and missions
+			Preview: ra|uibits/experience-previews/capture-technology.png
 			Version: 1
 			Source: Combined Arms and Cameo patterns
 			License: GPL-3.0-or-later
@@ -607,6 +630,7 @@ ExperienceCatalog:
 			Tradeoffs: Detection, limited capacity, legal targets, and release rules provide counterplay to identity deception or temporary control.
 			Scope: Special-unit framework and metadata for the Spy; it does not grant mind control or disguise orders without a concrete unit implementation.
 			Category: Special units
+			Preview: ra|uibits/experience-previews/mind-control-and-disguise.png
 			Version: 1
 			Source: Combined Arms, OpenRA RA2, Romanov's Vengeance, and Cameo patterns
 			License: GPL-3.0-or-later code; no upstream content
@@ -630,6 +654,7 @@ ExperienceCatalog:
 			Tradeoffs: Richer generated terrain can change pathing and resource distribution, but deterministic seeds preserve reproducibility and multiplayer compatibility.
 			Scope: Map-authoring and generation framework; it does not rewrite an already selected map when enabled.
 			Category: Maps and world generation
+			Preview: ra|uibits/experience-previews/terrain-and-random-map-systems.png
 			Version: 1
 			Source: OpenHV patterns compared with the existing OpenRA AI world generator
 			License: GPL-3.0-or-later code; every terrain folder remains separately license-gated

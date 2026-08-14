@@ -179,6 +179,7 @@ namespace OpenRA.Mods.Common.Experience
 		public readonly string License;
 		public readonly ExperienceComponentKind Kind;
 		public readonly bool Hidden;
+		public readonly string Preview;
 		public readonly FactionPackMetadata Faction;
 		public readonly ImmutableArray<string> Dependencies;
 		public readonly ImmutableArray<string> Conflicts;
@@ -211,6 +212,7 @@ namespace OpenRA.Mods.Common.Experience
 			License = Value(yaml, "License", "GPL-3.0-or-later code; project asset policy");
 			Kind = FieldLoader.GetValue<ExperienceComponentKind>("Kind", Value(yaml, "Kind", "Module"));
 			Hidden = FieldLoader.GetValue<bool>("Hidden", Value(yaml, "Hidden", "false"));
+			var declaredPreview = ParseFile(yaml, "Preview", filePrefix, required: false);
 			Dependencies = ParseList(yaml, "Dependencies");
 			Conflicts = ParseList(yaml, "Conflicts");
 			Rules = ParseFiles(yaml, "Rules", filePrefix);
@@ -228,6 +230,14 @@ namespace OpenRA.Mods.Common.Experience
 					throw new InvalidDataException($"Faction component `{id}` requires a Faction node."), filePrefix) : null;
 			if (Kind != ExperienceComponentKind.Faction && factionNode != null)
 				throw new InvalidDataException($"Experience component `{id}` declares Faction metadata but Kind is `{Kind}`.");
+
+			Preview = Faction?.Preview ?? declaredPreview;
+			if (!Hidden && Kind != ExperienceComponentKind.Internal && string.IsNullOrWhiteSpace(Preview))
+				throw new InvalidDataException($"Selectable experience component `{id}` requires `Preview`.");
+
+			if (!string.IsNullOrWhiteSpace(Preview) &&
+				!Path.GetExtension(Preview).Equals(".png", StringComparison.OrdinalIgnoreCase))
+				throw new InvalidDataException($"Experience component `{id}` preview must be a PNG image.");
 
 			IsExternal = packageId != null;
 			PackageId = packageId;

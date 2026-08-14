@@ -288,14 +288,15 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			_ = LoadAIStatusAsync();
 
 			// Opt-in deterministic states for local visual regression capture.
-			var captureFactionPack = Environment.GetEnvironmentVariable("OPENRA_AI_CAPTURE_FACTION_PACK");
+			var captureComponent = Environment.GetEnvironmentVariable("OPENRA_AI_CAPTURE_EXPERIENCE_COMPONENT") ??
+				Environment.GetEnvironmentVariable("OPENRA_AI_CAPTURE_FACTION_PACK");
 			if (Environment.GetEnvironmentVariable("OPENRA_AI_CAPTURE_CAPABILITY_BROWSER") == "1")
 				Game.RunAfterDelay(750, ImportCapabilityPack);
-			else if (!string.IsNullOrWhiteSpace(captureFactionPack) &&
-				catalog.Components.TryGetValue(captureFactionPack, out var capturedFaction) && capturedFaction.Faction != null)
+			else if (!string.IsNullOrWhiteSpace(captureComponent) &&
+				catalog.Components.TryGetValue(captureComponent, out var capturedComponent))
 				Game.RunAfterDelay(750, () =>
 				{
-					selectedComponentId = capturedFaction.Id;
+					selectedComponentId = capturedComponent.Id;
 					PopulateComponents();
 					Game.RunAfterDelay(750, Game.TakeScreenshot);
 				});
@@ -552,10 +553,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			}
 
 			var isFaction = component.Faction != null;
-			var previewLoaded = isFaction && factionPreview.Update(modData.DefaultFileSystem, component.Faction.Preview);
+			var previewLoaded = factionPreview.Update(modData.DefaultFileSystem, component.Preview);
 			factionPreview.IsVisible = () => previewLoaded;
 			factionPreviewEmpty.IsVisible = () => !previewLoaded;
-			factionPreviewEmpty.GetText = () => isFaction ? "PREVIEW UNAVAILABLE" : "GAMEPLAY MODULE";
+			factionPreviewEmpty.GetText = () => "PREVIEW UNAVAILABLE";
 			componentKind.GetText = () => isFaction ?
 				$"{component.Faction.Side.ToUpperInvariant()} FACTION PACK" : "REUSABLE CAPABILITY";
 
