@@ -71,6 +71,7 @@ Background@CONNECTING_PANEL:
 	Width: 450
 	Height: 160
 	Children:
+		LogicTicker@CONNECTION_TICKER:
 		Label@CONNECTING_TITLE:
 			X: 0
 			Y: 21

@@ -23,9 +23,23 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		readonly Action onConnect;
 		readonly Action onAbort;
 		readonly Action<string> onRetry;
+		readonly OrderManager orderManager;
+		readonly NetworkConnection connection;
+		bool closed;
 
-		void ConnectionStateChanged(OrderManager om, string password, NetworkConnection connection)
+		void ConnectionStateChanged(OrderManager om, string password, NetworkConnection changedConnection)
 		{
+			if (!ReferenceEquals(om, orderManager) || !ReferenceEquals(changedConnection, connection))
+				return;
+
+			HandleConnectionState(password);
+		}
+
+		void HandleConnectionState(string password)
+		{
+			if (closed)
+				return;
+
 			if (connection.ConnectionState == ConnectionState.Connected)
 			{
 				CloseWindow();
@@ -38,7 +52,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				var switchPanel = CurrentServerSettings.ServerExternalMod != null ? "CONNECTION_SWITCHMOD_PANEL" : "CONNECTIONFAILED_PANEL";
 				Ui.OpenWindow(switchPanel, new WidgetArgs()
 				{
-					{ "orderManager", om },
+					{ "orderManager", orderManager },
 					{ "connection", connection },
 					{ "password", password },
 					{ "onAbort", onAbort },
@@ -50,20 +64,44 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		void CloseWindow()
 		{
+			if (closed)
+				return;
+
+			closed = true;
 			Game.ConnectionStateChanged -= ConnectionStateChanged;
 			Ui.CloseWindow();
 		}
 
 		[ObjectCreator.UseCtor]
-		public ConnectionLogic(Widget widget, ModData modData, ConnectionTarget endpoint, Action onConnect, Action onAbort, Action<string> onRetry)
+		public ConnectionLogic(Widget widget, ModData modData, ConnectionTarget endpoint, OrderManager orderManager,
+			NetworkConnection connection, Action onConnect, Action onAbort, Action<string> onRetry)
 		{
 			this.onConnect = onConnect;
 			this.onAbort = onAbort;
 			this.onRetry = onRetry;
+			this.orderManager = orderManager;
+			this.connection = connection;
 
 			Game.ConnectionStateChanged += ConnectionStateChanged;
 
 			var panel = widget;
+			panel.Get<LogicTickerWidget>("CONNECTION_TICKER").OnTick = () =>
+			{
+				if (closed)
+					return;
+
+				// UI resets and very fast localhost connections can race the state-change event.
+				// Poll the connection owned by this dialog so a missed event cannot strand the modal.
+				if (!ReferenceEquals(Game.OrderManager, orderManager))
+				{
+					CloseWindow();
+					onAbort();
+					return;
+				}
+
+				HandleConnectionState(CurrentServerSettings.Password);
+			};
+
 			panel.Get<ButtonWidget>("ABORT_BUTTON").OnClick = () => { CloseWindow(); onAbort(); };
 
 			var connectingDesc = FluentProvider.GetMessage(ConnectingToEndpoint, "endpoint", endpoint);
@@ -72,16 +110,27 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		public static void Connect(ConnectionTarget endpoint, string password, Action onConnect, Action onAbort)
 		{
-			Game.JoinServer(endpoint, password);
+			var orderManager = Game.JoinServer(endpoint, password);
+			var connection = (NetworkConnection)orderManager.Connection;
 			Action<string> onRetry = newPassword => Connect(endpoint, newPassword, onConnect, onAbort);
 
 			Ui.OpenWindow("CONNECTING_PANEL", new WidgetArgs()
 			{
 				{ "endpoint", endpoint },
+				{ "orderManager", orderManager },
+				{ "connection", connection },
 				{ "onConnect", onConnect },
 				{ "onAbort", onAbort },
 				{ "onRetry", onRetry }
 			});
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+				Game.ConnectionStateChanged -= ConnectionStateChanged;
+
+			base.Dispose(disposing);
 		}
 	}
 
