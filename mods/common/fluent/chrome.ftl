@@ -490,7 +490,12 @@ button-extras-menu-replays = Replays
 ## ingame-player.yaml AI War Room
 ai-war-room =
     .title = AI COMMAND
-    .subtitle = LIVE ASSISTANT / ORDERS / REVIEW / LEARNING
+    .subtitle = TACTICAL ASSISTANT / LOCAL CONTROL
+    .tab-live = LIVE
+    .tab-review = REVIEW
+    .tab-learning = LEARNING
+    .tab-brain = BRAIN
+    .tab-settings = CONTROLS
     .threat = THREAT
     .close = X
     .command-sections = COMMAND SECTIONS

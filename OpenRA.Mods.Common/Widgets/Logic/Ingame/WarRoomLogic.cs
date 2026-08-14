@@ -152,7 +152,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				"Battle data, screenshots, transcripts, and learning history stay on this machine unless the selected model route requires network access.");
 
 			refreshButton = widget.Get<ButtonWidget>("REFRESH_BUTTON");
-			refreshButton.GetText = () => requestPending ? "SYNCING..." : "REFRESH";
+			refreshButton.GetText = () => requestPending ? "SYNC..." : "SYNC";
 			refreshButton.IsDisabled = () => requestPending;
 			refreshButton.OnClick = () => _ = RefreshAsync();
 
