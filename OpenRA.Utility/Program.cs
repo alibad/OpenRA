@@ -56,6 +56,10 @@ namespace OpenRA
 			if (!string.IsNullOrEmpty(engineDir))
 				Platform.OverrideEngineDir(engineDir);
 
+			var supportDir = Environment.GetEnvironmentVariable("SUPPORT_DIR");
+			if (!string.IsNullOrEmpty(supportDir))
+				Platform.OverrideSupportDir(supportDir);
+
 			Log.AddChannel("perf", null);
 			Log.AddChannel("debug", null);
 

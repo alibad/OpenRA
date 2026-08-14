@@ -364,7 +364,9 @@ namespace OpenRA.Mods.Common.Experience
 				Resolve(profile.Components, strictConflicts: true);
 
 			var settings = Game.Settings.GetOrCreate<ExperienceSettings>(null, Mod);
-			ActiveProfile = Profiles.TryGetValue(settings.Profile, out var selectedProfile) ? selectedProfile : defaultProfile;
+			var utilityProfile = Environment.GetEnvironmentVariable("OPENRA_UTILITY_EXPERIENCE_PROFILE");
+			var selectedProfileId = string.IsNullOrWhiteSpace(utilityProfile) ? settings.Profile : utilityProfile;
+			ActiveProfile = Profiles.TryGetValue(selectedProfileId, out var selectedProfile) ? selectedProfile : defaultProfile;
 			var requested = settings.UseCustomComponents ? ParseSettingsList(settings.EnabledComponents) : ActiveProfile.Components;
 			ActiveComponentIds = Resolve(requested, strictConflicts: false).Order().ToImmutableArray();
 			ActiveParameterValues = ParseParameterSettings(settings.ParameterValues);
