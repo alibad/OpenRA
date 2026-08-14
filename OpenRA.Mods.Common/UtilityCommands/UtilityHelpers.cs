@@ -10,7 +10,6 @@
 #endregion
 
 using System;
-using System.Collections.Immutable;
 using System.IO;
 using OpenRA.FileSystem;
 
@@ -19,12 +18,12 @@ namespace OpenRA.Mods.Common.UtilityCommands
 	public static class UtilityHelpers
 	{
 		public static MiniYamlNode GetTopLevelNodeByKey(ModData modData, string key,
-			Func<Manifest, ImmutableArray<string>> manifestPropertySelector,
+			Func<ModData, System.Collections.Generic.IEnumerable<string>> modDataPropertySelector,
 			Func<Map, MiniYaml> mapPropertySelector = null,
 			string mapPath = null)
 		{
-			if (manifestPropertySelector == null)
-				throw new ArgumentNullException(nameof(manifestPropertySelector), "Must pass a non-null manifestPropertySelector");
+			if (modDataPropertySelector == null)
+				throw new ArgumentNullException(nameof(modDataPropertySelector), "Must pass a non-null mod data property selector");
 
 			Map map = null;
 			if (mapPath != null)
@@ -41,7 +40,7 @@ namespace OpenRA.Mods.Common.UtilityCommands
 				}
 			}
 
-			var manifestNodes = manifestPropertySelector.Invoke(modData.Manifest);
+			var manifestNodes = modDataPropertySelector.Invoke(modData);
 			var mapProperty = map == null || mapPropertySelector == null ? null
 				: mapPropertySelector.Invoke(map);
 
