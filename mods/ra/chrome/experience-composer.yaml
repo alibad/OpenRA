@@ -111,30 +111,56 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 					Width: PARENT_WIDTH - 20
 					Height: 20
 					Font: Bold
-				Label@COMPONENT_DETAIL_DESCRIPTION:
+				Background@FACTION_PREVIEW_FRAME:
 					X: 10
+					Y: 31
+					Width: 170
+					Height: 98
+					Background: dialog2
+					Children:
+						FactionPackPreview@FACTION_PREVIEW:
+							X: 2
+							Y: 2
+							Width: PARENT_WIDTH - 4
+							Height: PARENT_HEIGHT - 4
+						Label@FACTION_PREVIEW_EMPTY:
+							X: 5
+							Y: 36
+							Width: PARENT_WIDTH - 10
+							Height: 20
+							Align: Center
+							Font: TinyBold
+				Label@COMPONENT_KIND:
+					X: 10
+					Y: 132
+					Width: 170
+					Height: 17
+					Align: Center
+					Font: TinyBold
+				Label@COMPONENT_DETAIL_DESCRIPTION:
+					X: 190
 					Y: 29
-					Width: PARENT_WIDTH - 20
-					Height: 31
+					Width: PARENT_WIDTH - 200
+					Height: 43
 					Font: Tiny
 					WordWrap: true
 				Label@COMPONENT_DETAIL_IMPACT:
-					X: 10
-					Y: 62
-					Width: PARENT_WIDTH - 20
-					Height: 78
+					X: 190
+					Y: 74
+					Width: PARENT_WIDTH - 200
+					Height: 71
 					Font: TinyBold
 					WordWrap: true
 				Label@COMPONENT_DETAIL_SCOPE:
 					X: 10
-					Y: 142
+					Y: 151
 					Width: PARENT_WIDTH - 20
-					Height: 27
+					Height: 20
 					Font: Tiny
 					WordWrap: true
 				Label@COMPONENT_DETAIL_SOURCE:
 					X: 10
-					Y: 170
+					Y: 173
 					Width: PARENT_WIDTH - 20
 					Height: 30
 					Font: Tiny

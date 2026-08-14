@@ -1086,6 +1086,12 @@ Player:
 	# Easy can express each faction's ground identity using the tech buildings it
 	# already knows how to construct. Medium and Rush receive air production so
 	# Yemen's Samad weight is reachable instead of dead configuration.
+	NavalLogisticsBotModule:
+		DefensiveShipTypes: sa_frgt
+		SupportShipTypes: sa_fss, ye_surve
+		EscortShipTypes: sa_frgt, sa_intc, ye_mslc, ye_surve
+		RadarShipTypes: sa_frgt, ye_surve
+		EnemyNavalTypes: ss, msub, dd, ca, lst, pt, sa_frgt, sa_intc, sa_fss, ye_mslc, ye_usv, ye_surve
 	BaseBuilderBotModule@medium:
 		TechTypes: dome, atek, stek, fix, afld, hpad, safld
 		ProductionTypes: barr,tent,weap,afld,hpad,safld
@@ -1139,6 +1145,12 @@ Player:
 			saat: 22
 			ymr: 80
 			yrpg: 32
+			sa_frgt: 18
+			sa_intc: 16
+			sa_fss: 6
+			ye_mslc: 18
+			ye_usv: 14
+			ye_surve: 8
 		UnitLimits:
 			m1a2s: 3
 			sads: 2
@@ -1161,6 +1173,12 @@ Player:
 			yrpg: 48
 			yspot: 20
 			wadighost: 8
+			sa_frgt: 24
+			sa_intc: 20
+			sa_fss: 8
+			ye_mslc: 24
+			ye_usv: 18
+			ye_surve: 10
 		UnitLimits:
 			m1a2s: 6
 			sads: 4
@@ -1190,6 +1208,12 @@ Player:
 			yrpg: 64
 			yspot: 16
 			wadighost: 12
+			sa_frgt: 26
+			sa_intc: 24
+			sa_fss: 8
+			ye_mslc: 26
+			ye_usv: 22
+			ye_surve: 10
 		UnitLimits:
 			m1a2s: 6
 			sads: 3
@@ -1219,6 +1243,12 @@ Player:
 			yrpg: 55
 			yspot: 24
 			wadighost: 12
+			sa_frgt: 28
+			sa_intc: 22
+			sa_fss: 8
+			ye_mslc: 28
+			ye_usv: 18
+			ye_surve: 10
 		UnitLimits:
 			m1a2s: 8
 			sads: 6
@@ -1248,6 +1278,12 @@ Player:
 			yrpg: 62
 			yspot: 30
 			wadighost: 8
+			sa_frgt: 24
+			sa_intc: 18
+			sa_fss: 10
+			ye_mslc: 24
+			ye_usv: 15
+			ye_surve: 12
 		UnitLimits:
 			m1a2s: 6
 			sads: 10
@@ -1276,6 +1312,12 @@ Player:
 			yrpg: 46
 			yspot: 26
 			wadighost: 8
+			sa_frgt: 75
+			sa_intc: 65
+			sa_fss: 20
+			ye_mslc: 75
+			ye_usv: 65
+			ye_surve: 28
 		UnitLimits:
 			m1a2s: 4
 			sads: 6
@@ -1288,6 +1330,8 @@ Player:
 			falcon1: 1
 			yspot: 3
 			wadighost: 1
+			sa_fss: 2
+			ye_surve: 3
 	SquadManagerBotModule@medium:
 		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
 	SquadManagerBotModule@rush:

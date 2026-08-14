@@ -43,19 +43,19 @@
 
 World:
 	StartingUnits@mcvonly:
-		Factions: allies, england, france, germany, saudi, soviet, russia, ukraine, yemen, iran
+		Factions: allies, england, france, germany, soviet, russia, ukraine, iran
 	StartingUnits@lightallies:
-		Factions: allies, england, france, germany, saudi
+		Factions: allies, england, france, germany
 	StartingUnits@lightsoviet:
-		Factions: soviet, russia, ukraine, yemen, iran
+		Factions: soviet, russia, ukraine, iran
 	StartingUnits@heavyallies:
-		Factions: allies, england, france, germany, saudi
+		Factions: allies, england, france, germany
 	StartingUnits@heavysoviet:
-		Factions: soviet, russia, ukraine, yemen, iran
+		Factions: soviet, russia, ukraine, iran
 
 FACT:
 	ProvidesPrerequisite@soviet:
-		Factions: soviet, russia, ukraine, yemen, iran
+		Factions: soviet, russia, ukraine, iran
 		Prerequisite: structures.soviet
 	ProvidesPrerequisite@iran:
 		Factions: iran
@@ -66,7 +66,7 @@ FACT:
 
 WEAP:
 	ProvidesPrerequisite@soviet:
-		Factions: soviet, russia, ukraine, yemen, iran
+		Factions: soviet, russia, ukraine, iran
 		Prerequisite: vehicles.soviet
 	ProvidesPrerequisite@iran:
 		Factions: iran
@@ -77,7 +77,7 @@ WEAP:
 
 AFLD:
 	ProvidesPrerequisite@soviet:
-		Factions: soviet, russia, ukraine, yemen, iran
+		Factions: soviet, russia, ukraine, iran
 		Prerequisite: aircraft.soviet
 	ProvidesPrerequisite@iran:
 		Factions: iran
@@ -105,7 +105,7 @@ IRHPAD:
 
 BARR:
 	ProvidesPrerequisite@soviet:
-		Factions: soviet, russia, ukraine, yemen, iran
+		Factions: soviet, russia, ukraine, iran
 		Prerequisite: infantry.soviet
 	ProvidesPrerequisite@iran:
 		Factions: iran
@@ -116,7 +116,7 @@ BARR:
 
 SPEN:
 	ProvidesPrerequisite@soviet:
-		Factions: soviet, russia, ukraine, yemen, iran
+		Factions: soviet, russia, ukraine, iran
 		Prerequisite: ships.soviet
 	ProvidesPrerequisite@iran:
 		Factions: iran
@@ -442,7 +442,11 @@ IRCOAST:
 		Image: ircoast
 
 IRAZAR:
-	Inherits: F15SA
+	Inherits: MIG
+	-Armament:
+	-AmmoPool:
+	ReloadAmmoPool@ROADMAPRESUPPLY:
+		AmmoPool: aam
 	Buildable:
 		Queue: Aircraft
 		BuildAtProductionType: Plane
@@ -456,9 +460,29 @@ IRAZAR:
 	Health:
 		HP: 8500
 	Armament@AAM:
+		Name: aam
 		Weapon: IranAzarAAM
+		LocalOffset: 0,-640,-64, 0,640,-64
+		LocalYaw: -32, 32
+		PauseOnCondition: !aam-ammo
 	Armament@CANNON:
+		Name: cannon
 		Weapon: IranAzarCannon
+		LocalOffset: 384,128,-64
+		MuzzleSequence: air-muzzle
+		PauseOnCondition: !gun-ammo
+	AmmoPool@AAM:
+		Name: aam
+		Armaments: aam
+		Ammo: 4
+		ReloadDelay: 28
+		AmmoCondition: aam-ammo
+	AmmoPool@GUN:
+		Name: gun
+		Armaments: cannon
+		Ammo: 12
+		ReloadDelay: 5
+		AmmoCondition: gun-ammo
 	Aircraft:
 		CruiseAltitude: 2560
 		TurnSpeed: 18
@@ -476,7 +500,9 @@ IRAZAR:
 		Image: irazar
 
 IRTOUFAN:
-	Inherits: AH64SA
+	Inherits: HIND
+	-Armament:
+	-AmmoPool:
 	Buildable:
 		Queue: Aircraft
 		BuildAtProductionType: Helicopter
@@ -491,8 +517,25 @@ IRTOUFAN:
 		HP: 13200
 	Armament@CANNON:
 		Weapon: IranToufanCannon
+		LocalOffset: 384,0,-128
+		MuzzleSequence: air-muzzle
+		PauseOnCondition: !cannon-ammo
 	Armament@ROCKETS:
 		Weapon: IranToufanRockets
+		LocalOffset: 0,-512,-64, 0,512,-64
+		PauseOnCondition: !rocket-ammo
+	AmmoPool@CANNON:
+		Name: cannon
+		Armaments: cannon
+		Ammo: 24
+		ReloadDelay: 4
+		AmmoCondition: cannon-ammo
+	AmmoPool@ROCKETS:
+		Name: rockets
+		Armaments: rockets
+		Ammo: 6
+		ReloadDelay: 18
+		AmmoCondition: rocket-ammo
 	Aircraft:
 		TurnSpeed: 18
 		Speed: 132
@@ -578,7 +621,9 @@ IRMOHAJER:
 		Image: irmohajer
 
 IRLOITER:
-	Inherits: SAMAD
+	Inherits: IRMOHAJER
+	-Armament:
+	-SpawnActorOnDeath:
 	Buildable:
 		Queue: Aircraft
 		BuildAtProductionType: Plane
@@ -596,6 +641,18 @@ IRLOITER:
 		Weapon: IranLoiterImpact
 		LocalOffset: 0,0,-64
 		PauseOnCondition: !ammo
+	AmmoPool:
+		Armaments: primary
+		Ammo: 1
+		AmmoCondition: ammo
+	AttackAircraft:
+		Armaments: primary
+	GrantConditionOnAttack@PAYLOAD:
+		Condition: payload-released
+		ArmamentNames: primary
+		RevokeDelay: 1
+	KillsSelf@PAYLOAD:
+		RequiresCondition: payload-released
 	Aircraft:
 		CruiseAltitude: 1280
 		TurnSpeed: 13

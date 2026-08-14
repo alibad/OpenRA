@@ -161,13 +161,13 @@ namespace OpenRA
 						if (RuleDefinitions.Value != null)
 						{
 							var mapFiles = FieldLoader.GetValue<ImmutableArray<string>>("value", RuleDefinitions.Value);
-							files = files.Concat(mapFiles);
+							files = files.Concat(mapFiles.Where(f => !modData.Rules.Contains(f)));
 						}
 
 						var stringPool = new HashSet<string>(); // Reuse common strings in YAML
 						var sources =
 							modDataRules.Select(x => x.Where(IsLoadableRuleDefinition).ToList())
-							.Concat(files.Select(s => MiniYaml.FromStream(fileSystem.Open(s), s, stringPool: stringPool).Where(IsLoadableRuleDefinition).ToList()));
+							.Concat(files.Distinct().Select(s => MiniYaml.FromStream(fileSystem.Open(s), s, stringPool: stringPool).Where(IsLoadableRuleDefinition).ToList()));
 						if (RuleDefinitions.Nodes.Length > 0)
 							sources = sources.Append(RuleDefinitions.Nodes.Where(IsLoadableRuleDefinition).ToList());
 

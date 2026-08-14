@@ -143,6 +143,10 @@ Cursors:
 		ability-minimap:
 			Start: 214
 			Length: 8
+		ability-blocked:
+			Start: 9
+		ability-blocked-minimap:
+			Start: 33
 		joystick-all:
 			Start: 0
 			X: -16

@@ -50,12 +50,6 @@ PT:
 		Domain: navy
 		Provides: naval.screen, naval.missile-platform
 		Strategies: fleet-screen, saturation-attack
-CNHAIYING:
-	ReusableCapability@WW3NAVALPROFILE:
-		Id: naval-archetype-missile-corvette
-		Domain: navy
-		Provides: naval.screen, naval.missile-platform
-		Strategies: fleet-screen, saturation-attack
 
 LST:
 	ReusableCapability@WW3NAVALPROFILE:
@@ -63,22 +57,3 @@ LST:
 		Domain: navy
 		Provides: naval.transport, amphibious-unload
 		Strategies: amphibious-assault, evacuation
-DENIZKAPLAN:
-	ReusableCapability@WW3NAVALPROFILE:
-		Id: naval-archetype-landing-ship
-		Domain: navy
-		Provides: naval.transport, amphibious-unload
-		Strategies: amphibious-assault, evacuation
-CNKUNLUN:
-	ReusableCapability@WW3NAVALPROFILE:
-		Id: naval-archetype-landing-ship
-		Domain: navy
-		Provides: naval.transport, amphibious-unload
-		Strategies: amphibious-assault, evacuation
-
-CNHAIWANG:
-	ReusableCapability@WW3NAVALPROFILE:
-		Id: naval-archetype-carrier
-		Domain: navy
-		Provides: naval.carrier, wing.parent
-		Strategies: standoff-strike, fleet-screen

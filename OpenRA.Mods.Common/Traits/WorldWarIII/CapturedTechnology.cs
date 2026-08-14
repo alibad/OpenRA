@@ -112,7 +112,8 @@ namespace OpenRA.Mods.Common.Traits
 			if (oldOwner == null || newOwner == null || oldOwner == newOwner || oldOwner.NonCombatant)
 				return;
 
-			newOwner.PlayerActor.TraitOrDefault<CapturedTechnologyManager>()?.AddFaction(oldOwner.Faction.InternalName);
+			foreach (var manager in newOwner.PlayerActor.TraitsImplementing<CapturedTechnologyManager>())
+				manager.AddFaction(oldOwner.Faction.InternalName);
 		}
 	}
 }

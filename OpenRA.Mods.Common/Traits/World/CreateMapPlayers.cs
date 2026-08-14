@@ -67,7 +67,7 @@ namespace OpenRA.Mods.Common.Traits
 					Team = client.Team,
 					Handicap = client.Handicap,
 					SpawnPoint = resolvedSpawnPoint,
-					IsRandomFaction = clientFaction.RandomFactionMembers.Count > 0,
+					IsRandomFaction = Player.RandomFactionMembers(clientFaction, factions).Count > 0,
 					IsRandomSpawnPoint = client.SpawnPoint == 0,
 					Fingerprint = client.Fingerprint,
 				};

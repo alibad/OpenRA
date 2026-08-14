@@ -124,10 +124,43 @@ namespace OpenRA.Mods.Common.Experience
 			{
 				component.Rules, component.Weapons, component.Sequences, component.Cursors,
 				component.Chrome, component.Voices, component.Notifications, component.Music
-			}.SelectMany(x => x).Select(file => file.StartsWith(prefix, StringComparison.Ordinal) ? file[prefix.Length..] : file);
+			}.SelectMany(x => x).Concat(component.Faction == null ? [] : [component.Faction.Preview])
+				.Select(file => file.StartsWith(prefix, StringComparison.Ordinal) ? file[prefix.Length..] : file);
 			var missing = declared.FirstOrDefault(file => !files.Contains(file, StringComparer.OrdinalIgnoreCase));
 			if (missing != null)
 				throw new InvalidDataException($"Capability pack declares missing file `{missing}`.");
+
+			if (component.Faction != null)
+				ValidateFactionRules(component, prefix);
+		}
+
+		static void ValidateFactionRules(ExperienceComponent component, string prefix)
+		{
+			MiniYaml faction = null;
+			foreach (var mountedPath in component.Rules)
+			{
+				var relativePath = mountedPath.StartsWith(prefix, StringComparison.Ordinal) ?
+					mountedPath[prefix.Length..] : mountedPath;
+				var path = Path.Combine(component.PackagePath, relativePath.Replace('/', Path.DirectorySeparatorChar));
+				foreach (var world in MiniYaml.FromFile(path, false).Where(node => node.Key == "World"))
+					foreach (var trait in world.Value.Nodes.Where(node => node.Key.StartsWith("Faction@", StringComparison.Ordinal)))
+						if (ExperienceComponent.Value(trait.Value, "InternalName", null) == component.Faction.InternalName)
+							faction = trait.Value;
+			}
+
+			if (faction == null)
+				throw new InvalidDataException(
+					$"Faction pack `{component.Id}` rules do not register Faction@{component.Faction.InternalName} on World.");
+
+			var side = ExperienceComponent.Value(faction, "Side", null);
+			if (!component.Faction.Side.Equals(side, StringComparison.OrdinalIgnoreCase))
+				throw new InvalidDataException(
+					$"Faction pack `{component.Id}` metadata Side does not match its World faction rule.");
+
+			var randomPools = ExperienceComponent.ParseList(faction, "RandomFactionMemberOf");
+			if (!randomPools.Contains(component.Faction.RandomPool, StringComparer.OrdinalIgnoreCase))
+				throw new InvalidDataException(
+					$"Faction pack `{component.Id}` must register RandomFactionMemberOf `{component.Faction.RandomPool}`.");
 		}
 
 		string HashFiles(IEnumerable<string> files)

@@ -13,6 +13,157 @@ ExperienceCatalog:
 			Source: RA Plus, Combined Arms, Cameo, and Generals Alpha patterns synthesized for OpenRA AI
 			License: GPL-3.0-or-later code; no upstream presentation assets
 			Rules: ra|experiences/components/faction-doctrine-contract.yaml
+		red-sea-roster-content:
+			Title: Red Sea roster foundation
+			Description: Shared Saudi Arabian and Yemeni roster data used by their independently selectable faction packs.
+			Effects: Loads the common Red Sea actor, weapon, sequence, and naval definitions required by either country roster.
+			Tradeoffs: Internal dependency only; it is enabled and removed automatically with the faction packs that require it.
+			Scope: Shared faction-pack implementation data.
+			Category: Faction packs
+			Version: 1
+			Source: Original OpenRA AI faction work
+			License: GPL-3.0-or-later code; original project presentation
+			Kind: Internal
+			Hidden: true
+			Rules: ra|rules/red-sea.yaml, ra|rules/naval-systems.yaml
+			Weapons: ra|weapons/red-sea.yaml, ra|weapons/naval-systems.yaml
+			Sequences: ra|sequences/red-sea.yaml, ra|sequences/naval-systems.yaml
+		saudi-arabia-faction:
+			Title: Saudi Arabia
+			Description: Expeditionary combined arms built around high-quality armor, air power, layered defense, and modern Red Sea naval support.
+			Effects: Adds Saudi Arabia to the Allies lobby and random pool with a complete country roster, doctrine metadata, AI roles, and presentation preview.
+			Tradeoffs: Expensive advanced platforms reward coordination but make attrition and poor positioning costly.
+			Scope: Entire selectable faction; disabling this pack removes Saudi Arabia from faction selection and random assignment.
+			Category: Faction packs
+			Version: 1
+			Source: Original OpenRA AI faction work
+			License: GPL-3.0-or-later code; original project presentation generated with GPT Image
+			Kind: Faction
+			Dependencies: faction-and-subfaction-contract, red-sea-roster-content, naval-combat-archetypes
+			Rules: ra|experiences/factions/saudi-arabia.yaml
+			Faction:
+				InternalName: saudi
+				Side: Allies
+				RandomPool: RandomAllies
+				Doctrine: expeditionary
+				Preview: ra|uibits/faction-previews/saudi-arabia.png
+				Roster:
+					Infantry: SANG, SAJTAC, SAAT, FALCON1
+					Vehicles: M1A2S, SADS
+					Aircraft: F15SA, AH64SA
+					Navy: SA_FRGT, SA_INTC, SA_FSS
+					Buildings: FACT, WEAP, TENT, HPAD, SYRD
+					Defenses: PBOX, GUN, AGUN, SAM
+		yemen-faction:
+			Title: Yemen
+			Description: Terrain-led asymmetric defense using inexpensive infantry, mobile rockets, drones, concealed positions, and agile coastal forces.
+			Effects: Adds Yemen to the Soviet lobby and random pool with a complete country roster, doctrine metadata, AI roles, and presentation preview.
+			Tradeoffs: Light units and improvised systems depend on terrain, ambushes, dispersion, and careful preservation against heavy armor.
+			Scope: Entire selectable faction; disabling this pack removes Yemen from faction selection and random assignment.
+			Category: Faction packs
+			Version: 1
+			Source: Original OpenRA AI faction work
+			License: GPL-3.0-or-later code; original project presentation generated with GPT Image
+			Kind: Faction
+			Dependencies: faction-and-subfaction-contract, red-sea-roster-content, naval-combat-archetypes
+			Rules: ra|experiences/factions/yemen.yaml
+			Faction:
+				InternalName: yemen
+				Side: Soviet
+				RandomPool: RandomSoviet
+				Doctrine: asymmetric-defense
+				Preview: ra|uibits/faction-previews/yemen.png
+				Roster:
+					Infantry: YMR, YRPG, YSPOT, WADIGHOST
+					Vehicles: TECH, YMLR
+					Aircraft: SAMAD
+					Navy: YE_MSLC, YE_USV, YE_SURVE
+					Buildings: FACT, WEAP, BARR, AFLD, SPEN
+					Defenses: PBOX, FTUR, SAM
+		turkey-faction:
+			Title: Turkey
+			Description: Mobile defense and combined arms using indigenous armor, electronic warfare, reconnaissance drones, layered air defense, and a balanced fleet.
+			Effects: Adds Turkey to the Allies lobby and random pool with its complete roster, doctrine metadata, AI roles, weapons, sequences, and preview.
+			Tradeoffs: The force excels while moving as a connected formation but loses efficiency when its reconnaissance and support layers are isolated.
+			Scope: Entire selectable faction; disabling this pack unloads its gameplay files and removes Turkey from selection.
+			Category: Faction packs
+			Version: 1
+			Source: Original OpenRA AI faction work
+			License: GPL-3.0-or-later code; original project presentation generated with GPT Image
+			Kind: Faction
+			Dependencies: faction-and-subfaction-contract, naval-combat-archetypes
+			Rules: ra|rules/turkey.yaml, ra|experiences/factions/turkey.yaml
+			Weapons: ra|weapons/turkey.yaml
+			Sequences: ra|sequences/turkey.yaml
+			Faction:
+				InternalName: turkey
+				Side: Allies
+				RandomPool: RandomAllies
+				Doctrine: mobile-defense
+				Preview: ra|uibits/faction-previews/turkey.png
+				Roster:
+					Infantry: TRRIFLE, TRAT, TRDRONEOP, GREYWOLF
+					Vehicles: BOZKIR, ARAS8, YILDIRIM, GOKKALKAN, SANCAK, DENIZKAPLAN
+					Aircraft: KUZGUNM, TURNAAH, SAHINX
+					Navy: MARMARA, EGE, POYRAZ
+					Buildings: FACT, TENT, WEAP, HPAD, SYRD
+					Defenses: PBOX, GUN, AGUN, SAM
+		iran-faction:
+			Title: Iran
+			Description: Layered denial through long-range fires, mobile air defense, drones, sabotage, coastal missiles, and compact naval ambush forces.
+			Effects: Adds Iran to the Soviet lobby and random pool with its complete roster, doctrine metadata, AI roles, weapons, sequences, and preview.
+			Tradeoffs: Specialized systems create powerful overlapping zones but demand setup, scouting, and protection from concentrated breakthroughs.
+			Scope: Entire selectable faction; disabling this pack unloads its gameplay files and removes Iran from selection.
+			Category: Faction packs
+			Version: 1
+			Source: Original OpenRA AI faction work
+			License: GPL-3.0-or-later code; original project presentation generated with GPT Image
+			Kind: Faction
+			Dependencies: faction-and-subfaction-contract, naval-combat-archetypes
+			Rules: ra|rules/iran.yaml, ra|experiences/factions/iran.yaml
+			Weapons: ra|weapons/iran.yaml
+			Sequences: ra|sequences/iran.yaml
+			Faction:
+				InternalName: iran
+				Side: Soviet
+				RandomPool: RandomSoviet
+				Doctrine: layered-denial
+				Preview: ra|uibits/faction-previews/iran.png
+				Roster:
+					Infantry: IRBAS, IRATGM, IRDC, SHADOWONE
+					Vehicles: IRKARR, IRRAAD, IRFAJR, IRCOAST
+					Aircraft: IRAZAR, IRTOUFAN, IRMOHAJER, IRLOITER
+					Navy: IRPEY, IRGHADIR
+					Buildings: FACT, WEAP, BARR, AFLD, IRHPAD, SPEN
+					Defenses: PBOX, FTUR, TSLA, SAM
+		china-faction:
+			Title: China
+			Description: Networked combined arms coordinating armored formations, amphibious mobility, integrated air defense, aviation, drones, and blue-water naval support.
+			Effects: Adds China to the Allies lobby and random pool with its complete roster, doctrine metadata, AI roles, weapons, sequences, and preview.
+			Tradeoffs: Network bonuses and diverse assets reward combined formations, while disruption and fragmented engagements reduce their advantage.
+			Scope: Entire selectable faction; disabling this pack unloads its gameplay files and removes China from selection.
+			Category: Faction packs
+			Version: 1
+			Source: Original OpenRA AI faction work
+			License: GPL-3.0-or-later code; original project presentation generated with GPT Image
+			Kind: Faction
+			Dependencies: faction-and-subfaction-contract, naval-combat-archetypes
+			Rules: ra|rules/china.yaml, ra|experiences/factions/china.yaml
+			Weapons: ra|weapons/china.yaml
+			Sequences: ra|sequences/china.yaml
+			Faction:
+				InternalName: china
+				Side: Allies
+				RandomPool: RandomAllies
+				Doctrine: networked-combined-arms
+				Preview: ra|uibits/faction-previews/china.png
+				Roster:
+					Infantry: CNRIFLE, CNNETWORK, CNPORTABLE, REDSPEAR
+					Vehicles: CNQILIN, CNLYNX, CNZBD, CNPHL, CNMANTIS
+					Aircraft: CNSKYSPEAR, CNCLOUD, CNCRANE
+					Navy: CNLUYANG, CNHAIWANG, CNHAIYING, CNKUNLUN, CNJIAOLONG
+					Buildings: FACT, WEAP, TENT, HPAD, SYRD
+					Defenses: CNBASTION, CNSKYSHIELD, CNSPECTRUM
 		minefield-generator:
 			Title: Replenishing minefields
 			Description: Structures and mission proxies can maintain configurable defensive mine perimeters.
@@ -492,7 +643,7 @@ ExperienceCatalog:
 		world-war-iii:
 			Title: World War III
 			Description: The complete reusable capability portfolio with safe original presentation enabled.
-			Components: asset-import-audit-pipeline, faction-and-subfaction-contract, minefield-generator, mission-aware-minelayer-ai, supply-logistics-economy, point-defense-interception, building-garrisons, carrier-and-drone-wing, commander-promotions, unit-composition-doctrine-ai, targeted-unit-abilities, salvage-and-scrap-economy, campaign-objective-toolkit, convoy-and-evacuation-mission-pattern, status-and-thermal-system, weather-and-battlefield-lighting, teleport-network, advanced-projectile-library, air-attack-profiles, naval-combat-archetypes, ground-force-archetypes, base-and-defense-archetypes, capture-technology, mind-control-and-disguise, terrain-and-random-map-systems
+			Components: saudi-arabia-faction, turkey-faction, china-faction, yemen-faction, iran-faction, asset-import-audit-pipeline, faction-and-subfaction-contract, minefield-generator, mission-aware-minelayer-ai, supply-logistics-economy, point-defense-interception, building-garrisons, carrier-and-drone-wing, commander-promotions, unit-composition-doctrine-ai, targeted-unit-abilities, salvage-and-scrap-economy, campaign-objective-toolkit, convoy-and-evacuation-mission-pattern, status-and-thermal-system, weather-and-battlefield-lighting, teleport-network, advanced-projectile-library, air-attack-profiles, naval-combat-archetypes, ground-force-archetypes, base-and-defense-archetypes, capture-technology, mind-control-and-disguise, terrain-and-random-map-systems
 		layered-defense:
 			Title: Layered Defense
 			Description: Mine warfare, defensive AI, projectile interception, garrisons, status effects, and reusable base defenses.

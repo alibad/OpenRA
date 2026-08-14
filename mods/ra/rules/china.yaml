@@ -17,11 +17,11 @@
 
 World:
 	StartingUnits@mcvonly:
-		Factions: allies, england, france, germany, saudi, turkey, china, soviet, russia, ukraine, yemen, iran
+		Factions: allies, england, france, germany, china, soviet, russia, ukraine
 	StartingUnits@lightallies:
-		Factions: allies, england, france, germany, saudi, china
+		Factions: allies, england, france, germany, china
 	StartingUnits@heavyallies:
-		Factions: allies, england, france, germany, saudi, china
+		Factions: allies, england, france, germany, china
 
 FACT:
 	ProvidesPrerequisite@chinaalliedtree:
@@ -1472,23 +1472,23 @@ Player:
 			cnkunlun: 4
 			cnjiaolong: 10
 	SquadManagerBotModule@beginner:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa, kuzgunm, turnaah, sahinx, irazar, irtoufan, irmohajer, irloiter, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz, irpey, irghadir, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
 	SquadManagerBotModule@easy:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa, kuzgunm, turnaah, sahinx, irazar, irtoufan, irmohajer, irloiter, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz, irpey, irghadir, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
 	SquadManagerBotModule@medium:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa, kuzgunm, turnaah, sahinx, irazar, irtoufan, irmohajer, irloiter, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz, irpey, irghadir, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
 	SquadManagerBotModule@rush:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa, kuzgunm, turnaah, sahinx, irazar, irtoufan, irmohajer, irloiter, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz, irpey, irghadir, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
 	SquadManagerBotModule@normal:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa, kuzgunm, turnaah, sahinx, irazar, irtoufan, irmohajer, irloiter, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz, irpey, irghadir, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
 	SquadManagerBotModule@turtle:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa, kuzgunm, turnaah, sahinx, irazar, irtoufan, irmohajer, irloiter, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz, irpey, irghadir, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
 	SquadManagerBotModule@naval:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa, kuzgunm, turnaah, sahinx, irazar, irtoufan, irmohajer, irloiter, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz, irpey, irghadir, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong

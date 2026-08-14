@@ -402,14 +402,14 @@ namespace OpenRA.Mods.Common.Traits
 
 			foreach (var a in newUnits)
 			{
-				if (Info.AirUnitsTypes.Contains(a.Info.Name))
+				if (IsAirUnit(a.Info))
 				{
 					var air = GetSquadOfType(SquadType.Air);
 					air ??= RegisterNewSquad(bot, SquadType.Air);
 
 					air.Units.Add(a);
 				}
-				else if (Info.NavalUnitsTypes.Contains(a.Info.Name))
+				else if (IsNavalUnit(a.Info))
 				{
 					var ships = GetSquadOfType(SquadType.Naval);
 					ships ??= RegisterNewSquad(bot, SquadType.Naval);
@@ -478,8 +478,8 @@ namespace OpenRA.Mods.Common.Traits
 					World.FindActorsInCircle(enemyBaseBuilder.Actor.CenterPosition, WDist.FromCells(Info.RushAttackScanRadius))
 						.Where(unit =>
 							unit.Info.HasTraitInfo<AttackBaseInfo>()
-							&& !Info.AirUnitsTypes.Contains(unit.Info.Name)
-							&& !Info.NavalUnitsTypes.Contains(unit.Info.Name)),
+							&& !IsAirUnit(unit.Info)
+							&& !IsNavalUnit(unit.Info)),
 					randomAttackableUnit)
 					.ToList();
 
@@ -523,7 +523,7 @@ namespace OpenRA.Mods.Common.Traits
 			var unusedUnits = new List<Actor>();
 			foreach (var a in unitsHangingAroundTheBase)
 			{
-				if (a.Info.HasTraitInfo<AircraftInfo>() && !Info.AirUnitsTypes.Contains(a.Info.Name))
+				if (a.Info.HasTraitInfo<AircraftInfo>() && !IsAirUnit(a.Info))
 				{
 					protectSq.Units.Add(a);
 					continue;
@@ -548,6 +548,22 @@ namespace OpenRA.Mods.Common.Traits
 
 			if (protectSq.IsValid && !protectSq.IsTargetValid(protectSq.CenterUnit()))
 				protectSq.SetActorToTarget((attacker, WVec.Zero));
+		}
+
+		bool IsAirUnit(ActorInfo actor)
+		{
+			return Info.AirUnitsTypes.Contains(actor.Name) || HasStrategicDomain(actor, "air");
+		}
+
+		bool IsNavalUnit(ActorInfo actor)
+		{
+			return Info.NavalUnitsTypes.Contains(actor.Name) || HasStrategicDomain(actor, "naval");
+		}
+
+		static bool HasStrategicDomain(ActorInfo actor, string domain)
+		{
+			return actor.TraitInfos<StrategicRoleInfo>()
+				.Any(role => role.Domain.Equals(domain, StringComparison.OrdinalIgnoreCase));
 		}
 
 		void IBotPositionsUpdated.UpdatedBaseCenter(CPos newLocation)

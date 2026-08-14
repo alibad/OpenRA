@@ -101,6 +101,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		readonly LabelWidget componentDetailImpact;
 		readonly LabelWidget componentDetailScope;
 		readonly LabelWidget componentDetailSource;
+		readonly FactionPackPreviewWidget factionPreview;
+		readonly LabelWidget factionPreviewEmpty;
+		readonly LabelWidget componentKind;
 		readonly LabelWidget gameplayFingerprint;
 		readonly LabelWidget presentationFingerprint;
 		readonly LabelWidget packFolder;
@@ -179,6 +182,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			componentDetailImpact = widget.Get<LabelWidget>("COMPONENT_DETAIL_IMPACT");
 			componentDetailScope = widget.Get<LabelWidget>("COMPONENT_DETAIL_SCOPE");
 			componentDetailSource = widget.Get<LabelWidget>("COMPONENT_DETAIL_SOURCE");
+			factionPreview = widget.Get<FactionPackPreviewWidget>("FACTION_PREVIEW");
+			factionPreviewEmpty = widget.Get<LabelWidget>("FACTION_PREVIEW_EMPTY");
+			componentKind = widget.Get<LabelWidget>("COMPONENT_KIND");
 			gameplayFingerprint = widget.Get<LabelWidget>("GAMEPLAY_FINGERPRINT");
 			presentationFingerprint = widget.Get<LabelWidget>("PRESENTATION_FINGERPRINT");
 			packFolder = widget.Get<LabelWidget>("PACK_FOLDER");
@@ -287,8 +293,17 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			RefreshSummary();
 			_ = LoadAIStatusAsync();
 
-			// Opt-in deterministic review state for local visual regression capture.
-			if (Environment.GetEnvironmentVariable("OPENRA_AI_CAPTURE_EXPERIENCE_REVIEW") == "1")
+			// Opt-in deterministic states for local visual regression capture.
+			var captureFactionPack = Environment.GetEnvironmentVariable("OPENRA_AI_CAPTURE_FACTION_PACK");
+			if (!string.IsNullOrWhiteSpace(captureFactionPack) &&
+				catalog.Components.TryGetValue(captureFactionPack, out var capturedFaction) && capturedFaction.Faction != null)
+				Game.RunAfterDelay(750, () =>
+				{
+					selectedComponentId = capturedFaction.Id;
+					PopulateComponents();
+					Game.RunAfterDelay(750, Game.TakeScreenshot);
+				});
+			else if (Environment.GetEnvironmentVariable("OPENRA_AI_CAPTURE_EXPERIENCE_REVIEW") == "1")
 				Game.RunAfterDelay(750, () =>
 				{
 					workingComponents = catalog.ToggleComponent(workingComponents, "advanced-projectile-library", true);
@@ -349,7 +364,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		{
 			componentPanel.RemoveChildren();
 			var matchingComponents = catalog.Components.Values
-				.Where(ComponentMatchesFilter)
+				.Where(component => !component.Hidden && ComponentMatchesFilter(component))
 				.OrderBy(c => c.Category)
 				.ThenBy(c => c.Title)
 				.ToArray();
@@ -393,6 +408,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		bool ComponentMatchesFilter(ExperienceComponent component)
 		{
+			if (component.Hidden)
+				return false;
+
 			if (showEnabledComponentsOnly && !workingComponents.Contains(component.Id))
 				return false;
 
@@ -406,11 +424,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		void RefreshComponentSummary(int? visibleCount = null)
 		{
 			var loadout = workingCustomComponents ? "Custom loadout" : "Preset loadout";
-			var visible = visibleCount ?? catalog.Components.Values.Count(ComponentMatchesFilter);
+			var selectableComponents = catalog.Components.Values.Where(component => !component.Hidden).ToArray();
+			var enabled = workingComponents.Count(id => catalog.Components.TryGetValue(id, out var component) && !component.Hidden);
+			var visible = visibleCount ?? selectableComponents.Count(ComponentMatchesFilter);
 			var filtered = componentSearch.Text.Trim().Length > 0 || showEnabledComponentsOnly;
 			componentSummary.GetText = () => filtered ?
-				$"{loadout} - {workingComponents.Length} enabled - {visible} matching" :
-				$"{loadout} - {workingComponents.Length} of {catalog.Components.Count} enabled";
+				$"{loadout} - {enabled} enabled - {visible} matching" :
+				$"{loadout} - {enabled} of {selectableComponents.Length} enabled";
 		}
 
 		void PopulateParameters()
@@ -518,6 +538,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		{
 			if (selectedComponentId == null || !catalog.Components.TryGetValue(selectedComponentId, out var component))
 			{
+				factionPreview.Clear();
+				factionPreview.IsVisible = () => false;
+				factionPreviewEmpty.IsVisible = () => true;
+				factionPreviewEmpty.GetText = () => "SELECT A PACK";
+				componentKind.GetText = () => "";
 				componentDetailTitle.GetText = () => "Select a gameplay module";
 				componentDetailDescription.GetText = () => "Choose a module above to inspect its behavior and provenance.";
 				componentDetailImpact.GetText = () => "";
@@ -525,6 +550,14 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				componentDetailSource.GetText = () => "";
 				return;
 			}
+
+			var isFaction = component.Faction != null;
+			var previewLoaded = isFaction && factionPreview.Update(modData.DefaultFileSystem, component.Faction.Preview);
+			factionPreview.IsVisible = () => previewLoaded;
+			factionPreviewEmpty.IsVisible = () => !previewLoaded;
+			factionPreviewEmpty.GetText = () => isFaction ? "PREVIEW UNAVAILABLE" : "GAMEPLAY MODULE";
+			componentKind.GetText = () => isFaction ?
+				$"{component.Faction.Side.ToUpperInvariant()} FACTION PACK" : "REUSABLE CAPABILITY";
 
 			var enabled = workingComponents.Contains(component.Id) ? "Enabled" : "Disabled";
 			var dependencies = component.Dependencies.Length == 0 ? "No dependencies" :
@@ -543,8 +576,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			componentDetailTitle.GetText = () => component.Title;
 			componentDetailDescription.GetText = () => WidgetUtils.WrapText(component.Description,
 				componentDetailDescription.Bounds.Width, Game.Renderer.Fonts[componentDetailDescription.Font]);
+			var factionStatus = isFaction ?
+				$"{component.Faction.InternalName} | {component.Faction.Doctrine} | {component.Faction.ActorCount} roster actors\n" : "";
 			componentDetailImpact.GetText = () => WidgetUtils.WrapText(
-				$"{enabled} | {dependencies} | {conflicts}\nDOES: {component.Effects}\nTRADEOFF: {component.Tradeoffs}",
+				$"{enabled} | {dependencies} | {conflicts}\n{factionStatus}DOES: {component.Effects}",
 				componentDetailImpact.Bounds.Width, Game.Renderer.Fonts[componentDetailImpact.Font]);
 			componentDetailScope.GetText = () => WidgetUtils.WrapText($"WHERE: {component.Scope}",
 				componentDetailScope.Bounds.Width, Game.Renderer.Fonts[componentDetailScope.Font]);

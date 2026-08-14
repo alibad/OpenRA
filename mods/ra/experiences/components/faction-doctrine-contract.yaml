@@ -2,24 +2,9 @@ Player:
 	ProvidesFactionDoctrine@ALLIED:
 		Factions: allies, england, france, germany
 		Prerequisites: side.allies, doctrine.combined-arms
-	ProvidesFactionDoctrine@SAUDI:
-		Factions: saudi
-		Prerequisites: side.allies, country.saudi, doctrine.expeditionary
-	ProvidesFactionDoctrine@TURKEY:
-		Factions: turkey
-		Prerequisites: side.allies, country.turkey, doctrine.mobile-defense
-	ProvidesFactionDoctrine@CHINA:
-		Factions: china
-		Prerequisites: side.allies, country.china, doctrine.networked-combined-arms
 	ProvidesFactionDoctrine@SOVIET:
 		Factions: soviet, russia, ukraine
 		Prerequisites: side.soviet, doctrine.armored-assault
-	ProvidesFactionDoctrine@YEMEN:
-		Factions: yemen
-		Prerequisites: side.soviet, country.yemen, doctrine.asymmetric-defense
-	ProvidesFactionDoctrine@IRAN:
-		Factions: iran
-		Prerequisites: side.soviet, country.iran, doctrine.layered-denial
 
 ^RoleRifleInfantry:
 	StrategicRole:
@@ -184,113 +169,3 @@ SS:
 
 LST:
 	Inherits@WW3ROLE: ^RoleTransport
-
-# Current original faction rosters join the same role vocabulary.  New factions can
-# participate in doctrine AI by inheriting one of these contracts without editing bots.
-SANG:
-	Inherits@WW3ROLE: ^RoleRifleInfantry
-SAJTAC:
-	Inherits@WW3ROLE: ^RoleEngineer
-SAAT:
-	Inherits@WW3ROLE: ^RoleAntiArmorInfantry
-FALCON1:
-	Inherits@WW3ROLE: ^RoleAntiArmorInfantry
-YMR:
-	Inherits@WW3ROLE: ^RoleRifleInfantry
-YRPG:
-	Inherits@WW3ROLE: ^RoleAntiArmorInfantry
-YSPOT:
-	Inherits@WW3ROLE: ^RoleEngineer
-WADIGHOST:
-	Inherits@WW3ROLE: ^RoleAntiArmorInfantry
-M1A2S:
-SADS:
-TECH:
-YMLR:
-F15SA:
-	Inherits@WW3ROLE: ^RoleInterceptor
-AH64SA:
-	Inherits@WW3ROLE: ^RoleAttackAircraft
-SAMAD:
-	Inherits@WW3ROLE: ^RoleAttackAircraft
-
-TRRIFLE:
-TRAT:
-TRDRONEOP:
-	Inherits@WW3ROLE: ^RoleEngineer
-GREYWOLF:
-	Inherits@WW3ROLE: ^RoleAntiArmorInfantry
-BOZKIR:
-	Inherits@WW3ROLE: ^RoleTransport
-ARAS8:
-	Inherits@WW3ROLE: ^RoleArtillery
-YILDIRIM:
-	Inherits@WW3ROLE: ^RoleMainBattleTank
-GOKKALKAN:
-SANCAK:
-	Inherits@WW3ROLE: ^RoleScoutVehicle
-DENIZKAPLAN:
-	Inherits@WW3ROLE: ^RoleTransport
-KUZGUNM:
-	Inherits@WW3ROLE: ^RoleAttackAircraft
-TURNAAH:
-SAHINX:
-MARMARA:
-EGE:
-POYRAZ:
-	Inherits@WW3ROLE: ^RoleSubmarine
-
-IRBAS:
-IRATGM:
-IRDC:
-	Inherits@WW3ROLE: ^RoleEngineer
-SHADOWONE:
-	Inherits@WW3ROLE: ^RoleAntiArmorInfantry
-IRKARR:
-IRRAAD:
-	Inherits@WW3ROLE: ^RoleAntiAirVehicle
-IRFAJR:
-	Inherits@WW3ROLE: ^RoleArtillery
-IRCOAST:
-	Inherits@WW3ROLE: ^RoleScoutVehicle
-IRAZAR:
-IRTOUFAN:
-IRMOHAJER:
-	Inherits@WW3ROLE: ^RoleAttackAircraft
-IRLOITER:
-IRPEY:
-IRGHADIR:
-
-CNRIFLE:
-	Inherits@WW3ROLE: ^RoleRifleInfantry
-CNNETWORK:
-	Inherits@WW3ROLE: ^RoleEngineer
-CNPORTABLE:
-	Inherits@WW3ROLE: ^RoleAntiArmorInfantry
-REDSPEAR:
-	Inherits@WW3ROLE: ^RoleAntiArmorInfantry
-CNQILIN:
-	Inherits@WW3ROLE: ^RoleMainBattleTank
-CNLYNX:
-	Inherits@WW3ROLE: ^RoleScoutVehicle
-CNZBD:
-	Inherits@WW3ROLE: ^RoleTransport
-CNPHL:
-CNMANTIS:
-	Inherits@WW3ROLE: ^RoleAntiAirVehicle
-CNSKYSPEAR:
-	Inherits@WW3ROLE: ^RoleInterceptor
-CNCLOUD:
-	Inherits@WW3ROLE: ^RoleAttackAircraft
-CNCRANE:
-	Inherits@WW3ROLE: ^RoleTransport
-CNLUYANG:
-	Inherits@WW3ROLE: ^RoleDestroyer
-CNHAIWANG:
-	Inherits@WW3ROLE: ^RoleDestroyer
-CNHAIYING:
-	Inherits@WW3ROLE: ^RolePatrolCraft
-CNKUNLUN:
-	Inherits@WW3ROLE: ^RoleTransport
-CNJIAOLONG:
-	Inherits@WW3ROLE: ^RoleSubmarine

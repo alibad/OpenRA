@@ -572,18 +572,14 @@ Player:
 		ProtectionScanRadius: 12
 	NavalLogisticsBotModule:
 		RequiresCondition: enable-rush-ai || enable-normal-ai || enable-turtle-ai || enable-naval-ai
-		DefensiveShipTypes: sa_frgt
-		SupportShipTypes: sa_fss, ye_surve
-		EscortShipTypes: sa_frgt, sa_intc, ye_mslc, ye_surve
-		RadarShipTypes: sa_frgt, ye_surve
-		EnemyNavalTypes: ss, msub, dd, ca, lst, pt, sa_frgt, sa_intc, sa_fss, ye_mslc, ye_usv, ye_surve
+		EnemyNavalTypes: ss, msub, dd, ca, lst, pt
 		Interval: 75
 		RearmThreshold: 35
 		ThreatScanRange: 18c0
 	SquadManagerBotModule@rush:
 		RequiresCondition: enable-rush-ai
 		SquadSize: 20
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, sa_frgt, sa_intc, sa_fss, ye_mslc, ye_usv, ye_surve
+		NavalUnitsTypes: ss, msub, dd, ca, lst, pt
 		ExcludeFromSquadsTypes: harv, mcv, dog, badr.bomber, u2
 		ConstructionYardTypes: fact
 		AirUnitsTypes: mig, yak, heli, hind, mh60
@@ -724,12 +720,10 @@ Player:
 			harv: 8
 			jeep: 4
 			ftrk: 4
-			sa_fss: 2
-			ye_surve: 3
 	SquadManagerBotModule@normal:
 		RequiresCondition: enable-normal-ai
 		SquadSize: 40
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, sa_frgt, sa_intc, sa_fss, ye_mslc, ye_usv, ye_surve
+		NavalUnitsTypes: ss, msub, dd, ca, lst, pt
 		ExcludeFromSquadsTypes: harv, mcv, dog, badr.bomber, u2
 		ConstructionYardTypes: fact
 		NavalProductionTypes: spen, syrd
@@ -770,23 +764,15 @@ Player:
 			dd: 10
 			ca: 10
 			pt: 10
-			sa_frgt: 28
-			sa_intc: 22
-			sa_fss: 8
-			ye_mslc: 28
-			ye_usv: 18
-			ye_surve: 10
 		UnitLimits:
 			dog: 4
 			harv: 8
 			jeep: 4
 			ftrk: 4
-			sa_fss: 2
-			ye_surve: 3
 	SquadManagerBotModule@turtle:
 		RequiresCondition: enable-turtle-ai
 		SquadSize: 10
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, sa_frgt, sa_intc, sa_fss, ye_mslc, ye_usv, ye_surve
+		NavalUnitsTypes: ss, msub, dd, ca, lst, pt
 		ExcludeFromSquadsTypes: harv, mcv, dog, badr.bomber, u2, mnly
 		ConstructionYardTypes: fact
 		NavalProductionTypes: spen, syrd
@@ -830,20 +816,12 @@ Player:
 			ca: 10
 			pt: 10
 			mnly: 2
-			sa_frgt: 24
-			sa_intc: 18
-			sa_fss: 10
-			ye_mslc: 24
-			ye_usv: 15
-			ye_surve: 12
 		UnitLimits:
 			dog: 3
 			harv: 8
 			jeep: 2
 			ftrk: 4
 			mnly: 2
-			sa_fss: 2
-			ye_surve: 3
 	MinelayerBotModule@turtle:
 		RequiresCondition: enable-turtle-ai
 		MinelayingActorTypes: mnly
@@ -857,7 +835,7 @@ Player:
 		RequiresCondition: enable-naval-ai
 		SquadSize: 8
 		ExcludeFromSquadsTypes: harv, mcv, dog, badr.bomber, u2
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, sa_frgt, sa_intc, sa_fss, ye_mslc, ye_usv, ye_surve
+		NavalUnitsTypes: ss, msub, dd, ca, lst, pt
 		ConstructionYardTypes: fact
 		NavalProductionTypes: spen, syrd
 		AirUnitsTypes: mig, yak, heli, hind, mh60
@@ -881,19 +859,11 @@ Player:
 			dd: 30
 			ca: 20
 			pt: 10
-			sa_frgt: 34
-			sa_intc: 28
-			sa_fss: 12
-			ye_mslc: 34
-			ye_usv: 24
-			ye_surve: 14
 		UnitLimits:
 			harv: 4
 			ftrk: 3
 			arty: 1
 			v2rl: 1
 			jeep: 1
-			sa_fss: 2
-			ye_surve: 3
 		UnitDelays:
 			harv: 10000

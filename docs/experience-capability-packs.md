@@ -25,6 +25,9 @@ CapabilityPack:
 	Component:
 		Title: Example gameplay module
 		Description: Adds one reusable gameplay capability.
+		Effects: Adds the example capability to compatible actors.
+		Tradeoffs: Has no effect until an actor opts into its rules.
+		Scope: Compatible actors and authored maps only.
 		Category: Units and effects
 		Version: 1
 		Source: Original work
@@ -48,6 +51,70 @@ CapabilityPack:
 Paths inside the module must be relative to the package. References from one
 module file to another use the mounted name, for example
 `experience-packs/example-module/images/icon.png`.
+
+## First-class faction packs
+
+Set `Kind: Faction` to make a capability pack appear as a faction card in the
+Experience Builder. A faction pack is still data-only and removable, but it has
+a stricter contract so the engine can present, validate, randomize, and compose
+it without hard-coded country names.
+
+```yaml
+		Kind: Faction
+		Rules: rules.yaml
+		Weapons: weapons.yaml
+		Sequences: sequences.yaml
+		Dependencies: faction-and-subfaction-contract, naval-combat-archetypes
+		Faction:
+			InternalName: example-country
+			Side: Allies
+			RandomPool: RandomAllies
+			Doctrine: mobile-defense
+			Preview: preview.png
+			Roster:
+				Infantry: EXRIFLE, EXENGINEER
+				Vehicles: EXTANK, EXARTILLERY
+				Aircraft: EXFIGHTER
+				Navy: EXCORVETTE
+				Buildings: FACT, WEAP, TENT, HPAD, SYRD
+				Defenses: PBOX, GUN, AGUN
+```
+
+`Preview` must be a declared PNG inside the pack. The six roster categories are
+required and drive the card summary and validation; actor ids may refer to base
+actors or actors declared by the pack. The rules must register the matching
+faction and random-pool membership:
+
+```yaml
+World:
+	Faction@example-country:
+		Name: Example Country
+		InternalName: example-country
+		Side: Allies
+		Description: A mobile combined-arms faction.
+		RandomFactionMemberOf: RandomAllies
+
+Player:
+	ProvidesFactionDoctrine@EXAMPLE:
+		Factions: example-country
+		Prerequisites: side.allies, country.example-country, doctrine.mobile-defense
+	CapturedTechnologyManager@EXAMPLE:
+		Factions: example-country
+```
+
+`RandomFactionMemberOf` appends the faction to an existing random pool at
+runtime, so a pack never has to replace `RandomAllies` or `RandomSoviet`.
+Strategic AI classifies actors by `StrategicRole.Domain`, allowing new air and
+naval actors to work without editing central actor-id lists. If a pack integrates
+with captured technology, give it a namespaced `CapturedTechnologyManager`
+instance as shown above.
+
+Keep faction-specific actor hooks in the faction's own rules file. Generic air,
+naval, weapon, and mission modules should expose abstract contracts and must not
+name actors owned by an optional faction. Bundled maps that require a faction
+declare the faction's rule, weapon, and sequence files in the map package; the
+loader de-duplicates files that are already active through the current
+experience.
 
 ## Reusing another mod
 

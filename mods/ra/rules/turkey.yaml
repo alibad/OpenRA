@@ -34,11 +34,11 @@
 
 World:
 	StartingUnits@mcvonly:
-		Factions: allies, england, france, germany, saudi, turkey, soviet, russia, ukraine, yemen
+		Factions: allies, england, france, germany, turkey, soviet, russia, ukraine
 	StartingUnits@lightallies:
-		Factions: allies, england, france, germany, saudi
+		Factions: allies, england, france, germany
 	StartingUnits@heavyallies:
-		Factions: allies, england, france, germany, saudi
+		Factions: allies, england, france, germany
 	StartingUnits@lightturkey:
 		Class: light
 		ClassName: options-starting-units.light-support
@@ -58,7 +58,7 @@ World:
 
 FACT:
 	ProvidesPrerequisite@allies:
-		Factions: allies, england, france, germany, saudi, turkey
+		Factions: allies, england, france, germany, turkey
 		Prerequisite: structures.allies
 	ProvidesPrerequisite@turkey:
 		Factions: turkey
@@ -66,7 +66,7 @@ FACT:
 
 TENT:
 	ProvidesPrerequisite@allies:
-		Factions: allies, england, france, germany, saudi, turkey
+		Factions: allies, england, france, germany, turkey
 		Prerequisite: infantry.allies
 	ProvidesPrerequisite@turkey:
 		Factions: turkey
@@ -74,7 +74,7 @@ TENT:
 
 WEAP:
 	ProvidesPrerequisite@allies:
-		Factions: allies, england, france, germany, saudi, turkey
+		Factions: allies, england, france, germany, turkey
 		Prerequisite: vehicles.allies
 	ProvidesPrerequisite@turkey:
 		Factions: turkey
@@ -82,7 +82,7 @@ WEAP:
 
 HPAD:
 	ProvidesPrerequisite@allies:
-		Factions: allies, england, france, germany, saudi, turkey
+		Factions: allies, england, france, germany, turkey
 		Prerequisite: aircraft.allies
 	ProvidesPrerequisite@turkey:
 		Factions: turkey
@@ -90,7 +90,7 @@ HPAD:
 
 SYRD:
 	ProvidesPrerequisite@allies:
-		Factions: allies, england, france, germany, saudi, turkey
+		Factions: allies, england, france, germany, turkey
 		Prerequisite: ships.allies
 	ProvidesPrerequisite@turkey:
 		Factions: turkey
@@ -500,7 +500,11 @@ DENIZKAPLAN:
 		Image: denizkaplan
 
 KUZGUNM:
-	Inherits: F15SA
+	Inherits: MIG
+	-Armament:
+	-AmmoPool:
+	ReloadAmmoPool@ROADMAPRESUPPLY:
+		AmmoPool: aam
 	Buildable:
 		Queue: Aircraft
 		BuildAtProductionType: Helicopter
@@ -530,11 +534,17 @@ KUZGUNM:
 		LocalOffset: 0,-280,-32, 0,280,-32
 		PauseOnCondition: !gun-ammo
 	AmmoPool@AAM:
+		Name: aam
+		Armaments: aam
 		Ammo: 6
 		ReloadDelay: 16
+		AmmoCondition: aam-ammo
 	AmmoPool@GUN:
+		Name: gun
+		Armaments: cannon
 		Ammo: 2
 		ReloadDelay: 60
+		AmmoCondition: gun-ammo
 	RevealsShroud:
 		MinRange: 8c0
 		Range: 13c0
@@ -546,7 +556,9 @@ KUZGUNM:
 		Image: kuzgunm
 
 TURNAAH:
-	Inherits: AH64SA
+	Inherits: HIND
+	-Armament:
+	-AmmoPool:
 	Buildable:
 		Queue: Aircraft
 		BuildAtProductionType: Helicopter
@@ -564,8 +576,25 @@ TURNAAH:
 		Speed: 138
 	Armament@CANNON:
 		Weapon: TurkeyRotorCannon
+		LocalOffset: 384,0,-128
+		MuzzleSequence: air-muzzle
+		PauseOnCondition: !cannon-ammo
 	Armament@ROCKETS:
 		Weapon: TurkeyRotorMissile
+		LocalOffset: 0,-512,-64, 0,512,-64
+		PauseOnCondition: !rocket-ammo
+	AmmoPool@CANNON:
+		Name: cannon
+		Armaments: cannon
+		Ammo: 24
+		ReloadDelay: 4
+		AmmoCondition: cannon-ammo
+	AmmoPool@ROCKETS:
+		Name: rockets
+		Armaments: rockets
+		Ammo: 6
+		ReloadDelay: 18
+		AmmoCondition: rocket-ammo
 	SpawnActorOnDeath:
 		Actor: TURNAAH.Husk
 	Voiced:
@@ -574,7 +603,11 @@ TURNAAH:
 		Image: turnaah
 
 SAHINX:
-	Inherits: F15SA
+	Inherits: MIG
+	-Armament:
+	-AmmoPool:
+	ReloadAmmoPool@ROADMAPRESUPPLY:
+		AmmoPool: aam
 	Buildable:
 		Queue: Aircraft
 		BuildAtProductionType: Helicopter
@@ -591,9 +624,29 @@ SAHINX:
 		TurnSpeed: 20
 		Speed: 250
 	Armament@AAM:
+		Name: aam
 		Weapon: TurkeySahinAAM
+		LocalOffset: 0,-640,-64, 0,640,-64
+		LocalYaw: -32, 32
+		PauseOnCondition: !aam-ammo
 	Armament@CANNON:
+		Name: cannon
 		Weapon: TurkeySahinCannon
+		LocalOffset: 384,128,-64
+		MuzzleSequence: air-muzzle
+		PauseOnCondition: !gun-ammo
+	AmmoPool@AAM:
+		Name: aam
+		Armaments: aam
+		Ammo: 4
+		ReloadDelay: 28
+		AmmoCondition: aam-ammo
+	AmmoPool@GUN:
+		Name: gun
+		Armaments: cannon
+		Ammo: 12
+		ReloadDelay: 5
+		AmmoCondition: gun-ammo
 	SpawnActorOnDeath:
 		Actor: SAHINX.Husk
 	Voiced:
@@ -1150,17 +1203,17 @@ Player:
 			poyraz: 18
 			denizkaplan: 10
 	SquadManagerBotModule@medium:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa, kuzgunm, turnaah, sahinx
+		AirUnitsTypes: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
 		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
 	SquadManagerBotModule@rush:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa, kuzgunm, turnaah, sahinx
+		AirUnitsTypes: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
 		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
 	SquadManagerBotModule@normal:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa, kuzgunm, turnaah, sahinx
+		AirUnitsTypes: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
 		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
 	SquadManagerBotModule@turtle:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa, kuzgunm, turnaah, sahinx
+		AirUnitsTypes: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
 		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
 	SquadManagerBotModule@naval:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa, kuzgunm, turnaah, sahinx
+		AirUnitsTypes: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
 		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz

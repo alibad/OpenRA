@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using OpenRA.Mods.Common.Experience;
+using OpenRA.Traits;
 
 namespace OpenRA.Test
 {
@@ -145,6 +146,65 @@ namespace OpenRA.Test
 			}
 		}
 
+		[TestCase(TestName = "Faction packs require preview, roster, and registration metadata")]
+		public void LoadFactionCapabilityPack()
+		{
+			var root = CreateFactionCapabilityPack();
+			try
+			{
+				var pack = CapabilityPackDefinition.Load(root, "ra");
+				Assert.That(pack.Component.Kind, Is.EqualTo(ExperienceComponentKind.Faction));
+				Assert.That(pack.Component.Faction.InternalName, Is.EqualTo("test-faction"));
+				Assert.That(pack.Component.Faction.RandomPool, Is.EqualTo("RandomAllies"));
+				Assert.That(pack.Component.Faction.ActorCount, Is.EqualTo(6));
+				Assert.That(pack.Component.Faction.Preview,
+					Is.EqualTo("experience-packs/test-faction/preview.png"));
+			}
+			finally
+			{
+				if (Directory.Exists(root))
+					Directory.Delete(root, true);
+			}
+		}
+
+		[TestCase(TestName = "Faction packs reject incomplete roster metadata")]
+		public void RejectIncompleteFactionRoster()
+		{
+			Assert.Throws<InvalidDataException>(() => Component("""
+				Title: Incomplete faction
+				Description: Missing a navy roster.
+				Effects: Adds a test faction.
+				Tradeoffs: Test only.
+				Scope: Test only.
+				Category: Faction packs
+				Version: 1
+				Kind: Faction
+				Faction:
+					InternalName: incomplete
+					Side: Allies
+					RandomPool: RandomAllies
+					Doctrine: test
+					Preview: preview.png
+					Roster:
+						Infantry: TESTINF
+						Vehicles: TESTVEH
+						Aircraft: TESTAIR
+						Buildings: TESTBUILDING
+						Defenses: TESTDEFENSE
+				"""));
+		}
+
+		[TestCase(TestName = "Data-only factions extend random faction pools without replacing them")]
+		public void ExtendRandomFactionPool()
+		{
+			var randomAllies = Faction("RandomAllies", "england, france");
+			var turkey = Faction("turkey", randomFactionMemberOf: "RandomAllies");
+			var iran = Faction("iran", randomFactionMemberOf: "RandomSoviet");
+
+			Assert.That(Player.RandomFactionMembers(randomAllies, [randomAllies, turkey, iran]),
+				Is.EquivalentTo(new[] { "england", "france", "turkey" }));
+		}
+
 		static string CreateCapabilityPack(string rightsAcknowledged)
 		{
 			var root = Path.Combine(Path.GetTempPath(), "openra-capability-test-" + Guid.NewGuid().ToString("N"));
@@ -174,6 +234,71 @@ namespace OpenRA.Test
 						Rules: rules.yaml
 				""");
 			return root;
+		}
+
+		static string CreateFactionCapabilityPack()
+		{
+			var root = Path.Combine(Path.GetTempPath(), "openra-faction-pack-test-" + Guid.NewGuid().ToString("N"));
+			Directory.CreateDirectory(root);
+			File.WriteAllBytes(Path.Combine(root, "preview.png"), [137, 80, 78, 71]);
+			File.WriteAllText(Path.Combine(root, "rules.yaml"), """
+				World:
+					Faction@test-faction:
+						Name: Test Faction
+						InternalName: test-faction
+						Side: Allies
+						RandomFactionMemberOf: RandomAllies
+				""");
+			File.WriteAllText(Path.Combine(root, "pack.yaml"), """
+				CapabilityPack:
+					Id: test-faction
+					Title: Test Faction
+					Version: 1
+					Author: OpenRA Test
+					License: GPL-3.0-or-later
+					Source: Automated test fixture
+					TargetMod: ra
+					EngineApi: experience-v2
+					RightsAcknowledged: true
+					Component:
+						Title: Test Faction
+						Description: Test-only data faction.
+						Effects: Adds a complete test faction contract.
+						Tradeoffs: Exists only for automated validation.
+						Scope: Test fixtures only.
+						Category: Faction packs
+						Version: 1
+						Source: Automated test fixture
+						License: GPL-3.0-or-later
+						Kind: Faction
+						Rules: rules.yaml
+						Faction:
+							InternalName: test-faction
+							Side: Allies
+							RandomPool: RandomAllies
+							Doctrine: test-doctrine
+							Preview: preview.png
+							Roster:
+								Infantry: TESTINF
+								Vehicles: TESTVEH
+								Aircraft: TESTAIR
+								Navy: TESTSHIP
+								Buildings: TESTBUILDING
+								Defenses: TESTDEFENSE
+				""");
+			return root;
+		}
+
+		static FactionInfo Faction(string internalName, string randomFactionMembers = null,
+			string randomFactionMemberOf = null)
+		{
+			var nodes = new List<MiniYamlNode> { new("InternalName", internalName) };
+			if (randomFactionMembers != null)
+				nodes.Add(new("RandomFactionMembers", randomFactionMembers));
+			if (randomFactionMemberOf != null)
+				nodes.Add(new("RandomFactionMemberOf", randomFactionMemberOf));
+
+			return FieldLoader.Load<FactionInfo>(new MiniYaml("", nodes));
 		}
 
 		[TestCase(TestName = "Experience components require complete player-facing disclosure metadata")]

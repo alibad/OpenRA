@@ -20,6 +20,62 @@ using System.Text;
 namespace OpenRA.Mods.Common.Experience
 {
 	public enum ExperienceParameterType { Boolean, Integer, Choice }
+	public enum ExperienceComponentKind { Module, Faction, Internal }
+
+	public sealed class FactionPackMetadata
+	{
+		static readonly string[] RequiredRosterCategories =
+		[
+			"Infantry", "Vehicles", "Aircraft", "Navy", "Buildings", "Defenses"
+		];
+
+		public readonly string InternalName;
+		public readonly string Side;
+		public readonly string RandomPool;
+		public readonly string Doctrine;
+		public readonly string Preview;
+		public readonly IReadOnlyDictionary<string, ImmutableArray<string>> Roster;
+
+		public FactionPackMetadata(string componentId, MiniYaml yaml, string filePrefix)
+		{
+			InternalName = Required(yaml, "InternalName", componentId);
+			Side = Required(yaml, "Side", componentId);
+			RandomPool = Required(yaml, "RandomPool", componentId);
+			Doctrine = Required(yaml, "Doctrine", componentId);
+			Preview = ExperienceComponent.ParseFile(yaml, "Preview", filePrefix, required: true);
+
+			if (!InternalName.All(c => char.IsLetterOrDigit(c) || c is '-' or '_'))
+				throw new InvalidDataException($"Faction pack `{componentId}` has invalid InternalName `{InternalName}`.");
+
+			if (!Path.GetExtension(Preview).Equals(".png", StringComparison.OrdinalIgnoreCase))
+				throw new InvalidDataException($"Faction pack `{componentId}` preview must be a PNG image.");
+
+			var rosterNode = yaml.NodeWithKeyOrDefault("Roster")?.Value ??
+				throw new InvalidDataException($"Faction pack `{componentId}` requires a Roster node.");
+			var roster = new Dictionary<string, ImmutableArray<string>>(StringComparer.OrdinalIgnoreCase);
+			foreach (var category in RequiredRosterCategories)
+			{
+				var actors = ExperienceComponent.ParseList(rosterNode, category);
+				if (actors.Length == 0)
+					throw new InvalidDataException($"Faction pack `{componentId}` roster requires at least one {category} actor.");
+
+				roster.Add(category, actors);
+			}
+
+			Roster = roster;
+		}
+
+		public int ActorCount => Roster.Values.SelectMany(actors => actors).Distinct(StringComparer.OrdinalIgnoreCase).Count();
+
+		static string Required(MiniYaml yaml, string key, string componentId)
+		{
+			var value = ExperienceComponent.Value(yaml, key, null);
+			if (string.IsNullOrWhiteSpace(value))
+				throw new InvalidDataException($"Faction pack `{componentId}` requires `{key}`.");
+
+			return value.Trim();
+		}
+	}
 
 	public sealed class ExperienceParameter
 	{
@@ -121,6 +177,9 @@ namespace OpenRA.Mods.Common.Experience
 		public readonly string Version;
 		public readonly string Source;
 		public readonly string License;
+		public readonly ExperienceComponentKind Kind;
+		public readonly bool Hidden;
+		public readonly FactionPackMetadata Faction;
 		public readonly ImmutableArray<string> Dependencies;
 		public readonly ImmutableArray<string> Conflicts;
 		public readonly ImmutableArray<string> Rules;
@@ -150,6 +209,8 @@ namespace OpenRA.Mods.Common.Experience
 			Version = Required(yaml, "Version", id);
 			Source = Value(yaml, "Source", "OpenRA AI");
 			License = Value(yaml, "License", "GPL-3.0-or-later code; project asset policy");
+			Kind = FieldLoader.GetValue<ExperienceComponentKind>("Kind", Value(yaml, "Kind", "Module"));
+			Hidden = FieldLoader.GetValue<bool>("Hidden", Value(yaml, "Hidden", "false"));
 			Dependencies = ParseList(yaml, "Dependencies");
 			Conflicts = ParseList(yaml, "Conflicts");
 			Rules = ParseFiles(yaml, "Rules", filePrefix);
@@ -161,6 +222,13 @@ namespace OpenRA.Mods.Common.Experience
 			Notifications = ParseFiles(yaml, "Notifications", filePrefix);
 			Music = ParseFiles(yaml, "Music", filePrefix);
 			Parameters = ParseParameters(yaml.NodeWithKeyOrDefault("Parameters")?.Value);
+			var factionNode = yaml.NodeWithKeyOrDefault("Faction")?.Value;
+			Faction = Kind == ExperienceComponentKind.Faction ?
+				new FactionPackMetadata(id, factionNode ??
+					throw new InvalidDataException($"Faction component `{id}` requires a Faction node."), filePrefix) : null;
+			if (Kind != ExperienceComponentKind.Faction && factionNode != null)
+				throw new InvalidDataException($"Experience component `{id}` declares Faction metadata but Kind is `{Kind}`.");
+
 			IsExternal = packageId != null;
 			PackageId = packageId;
 			PackagePath = packagePath;
@@ -189,6 +257,18 @@ namespace OpenRA.Mods.Common.Experience
 				.Where(v => v.Length > 0)
 				.Distinct()
 				.ToImmutableArray();
+		}
+
+		internal static string ParseFile(MiniYaml yaml, string key, string prefix, bool required)
+		{
+			var files = ParseFiles(yaml, key, prefix);
+			if (files.Length > 1)
+				throw new InvalidDataException($"Experience component field `{key}` accepts only one file.");
+
+			if (required && files.Length == 0)
+				throw new InvalidDataException($"Experience component requires `{key}`.");
+
+			return files.FirstOrDefault();
 		}
 
 		static ImmutableArray<string> ParseFiles(MiniYaml yaml, string key, string prefix)
@@ -235,6 +315,7 @@ namespace OpenRA.Mods.Common.Experience
 		public readonly string Mod;
 		public readonly string DefaultProfileId;
 		public readonly IReadOnlyDictionary<string, ExperienceComponent> Components;
+		public readonly IReadOnlyDictionary<string, ExperienceComponent> FactionPacks;
 		public readonly IReadOnlyDictionary<string, ExperienceProfile> Profiles;
 		public readonly ExperienceProfile ActiveProfile;
 		public readonly ImmutableArray<string> ActiveComponentIds;
@@ -271,6 +352,8 @@ namespace OpenRA.Mods.Common.Experience
 			}
 
 			Components = components;
+			FactionPacks = components.Values.Where(component => component.Kind == ExperienceComponentKind.Faction)
+				.ToDictionary(component => component.Faction.InternalName, StringComparer.OrdinalIgnoreCase);
 			Profiles = ParseProfiles(RequiredNode(yaml, "Profiles"));
 
 			if (!Profiles.TryGetValue(DefaultProfileId, out var defaultProfile))
@@ -509,6 +592,12 @@ namespace OpenRA.Mods.Common.Experience
 
 		void ValidateGraph()
 		{
+			var duplicateFaction = Components.Values.Where(component => component.Faction != null)
+				.GroupBy(component => component.Faction.InternalName, StringComparer.OrdinalIgnoreCase)
+				.FirstOrDefault(group => group.Count() > 1);
+			if (duplicateFaction != null)
+				throw new InvalidDataException($"Multiple faction packs register `{duplicateFaction.Key}`.");
+
 			foreach (var component in Components.Values)
 			{
 				foreach (var dependency in component.Dependencies)

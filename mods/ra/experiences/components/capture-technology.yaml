@@ -6,7 +6,7 @@ Player:
 		Requires: faction.doctrine, capturable-tech-structure
 		Strategies: capture-technology, defend-technology
 	CapturedTechnologyManager:
-		Factions: allies, england, france, germany, saudi, turkey, china, soviet, russia, ukraine, yemen, iran
+		Factions: allies, england, france, germany, soviet, russia, ukraine
 
 ^ReusableCapturedTechnology:
 	ReusableCapability:

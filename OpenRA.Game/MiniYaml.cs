@@ -683,7 +683,7 @@ namespace OpenRA
 			}
 
 			var stringPool = new HashSet<string>(); // Reuse common strings in YAML
-			var yaml = files.Select(s => FromStream(fileSystem.Open(s), s, stringPool: stringPool));
+			var yaml = files.Distinct().Select(s => FromStream(fileSystem.Open(s), s, stringPool: stringPool));
 			if (mapRules != null && mapRules.Nodes.Length > 0)
 				yaml = yaml.Append(mapRules.Nodes);
 

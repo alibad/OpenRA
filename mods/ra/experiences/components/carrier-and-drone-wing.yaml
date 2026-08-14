@@ -31,19 +31,3 @@ World:
 		Domain: air
 		AIWeight: 45
 		TransportWeight: 0
-
-CNHAIWANG:
-	Inherits@WW3WINGPARENT: ^ReusableWingParent
-	CarrierWingSpawner@WW3DRONES:
-		Actor: WW3CARRIERDRONE
-		ReplenishInterval: 750
-
-WW3CARRIERDRONE:
-	Inherits: IRMOHAJER
-	Inherits@WW3WINGCHILD: ^ReusableWingChild
-	-Buildable:
-	-UpdatesPlayerStatistics:
-	Tooltip:
-		Name: actor-irmohajer.name
-	RenderSprites:
-		Image: irmohajer
