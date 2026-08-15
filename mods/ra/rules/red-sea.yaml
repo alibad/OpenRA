@@ -274,10 +274,27 @@ SANG:
 		HP: 7800
 	Mobile:
 		Speed: 58
+		PauseOnCondition: guard-braced
 	Armament@PRIMARY:
 		Weapon: RedSeaGuardRifle
 	Armament@GARRISONED:
 		Weapon: RedSeaGuardRifle
+	GrantConditionOnDeploy:
+		DeployedCondition: guard-braced
+		SkipMakeAnimation: True
+		UndeployOnMove: True
+	RangeMultiplier@BRACED:
+		Modifier: 118
+		RequiresCondition: guard-braced
+	ReloadDelayMultiplier@BRACED:
+		Modifier: 80
+		RequiresCondition: guard-braced
+	DamageMultiplier@BRACED:
+		Modifier: 72
+		RequiresCondition: guard-braced
+	WithColoredOverlay@BRACED:
+		Color: D8C48930
+		RequiresCondition: guard-braced
 	Voiced:
 		VoiceSet: SaudiInfantryVoice
 	RenderSprites:

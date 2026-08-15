@@ -126,8 +126,8 @@ TRRIFLE:
 	SpeedMultiplier@MECHANIZED:
 		Modifier: 112
 		RequiresCondition: turkey-mechanized
-	FirepowerMultiplier@COMMAND:
-		Modifier: 110
+	SpeedMultiplier@COMMAND:
+		Modifier: 115
 		RequiresCondition: turkey-command
 	ReloadDelayMultiplier@COMMAND:
 		Modifier: 90
@@ -168,8 +168,8 @@ TRAT:
 		ValidDamageStates: Critical
 	ExternalCondition@COMMAND:
 		Condition: turkey-command
-	FirepowerMultiplier@COMMAND:
-		Modifier: 110
+	SpeedMultiplier@COMMAND:
+		Modifier: 115
 		RequiresCondition: turkey-command
 	ReloadDelayMultiplier@COMMAND:
 		Modifier: 90
@@ -208,6 +208,9 @@ TRDRONEOP:
 	RenderDetectionCircle:
 	ExternalCondition@COMMAND:
 		Condition: turkey-command
+	SpeedMultiplier@COMMAND:
+		Modifier: 115
+		RequiresCondition: turkey-command
 	ReloadDelayMultiplier@COMMAND:
 		Modifier: 90
 		RequiresCondition: turkey-command
@@ -252,10 +255,11 @@ GREYWOLF:
 		Range: 5c0
 		ValidRelationships: Ally
 		Condition: turkey-command
+		AffectsParent: True
 	ExternalCondition@COMMAND:
 		Condition: turkey-command
-	FirepowerMultiplier@COMMAND:
-		Modifier: 110
+	SpeedMultiplier@COMMAND:
+		Modifier: 115
 		RequiresCondition: turkey-command
 	ReloadDelayMultiplier@COMMAND:
 		Modifier: 90

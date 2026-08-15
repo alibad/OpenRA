@@ -106,16 +106,16 @@ faction-iran =
 
 actor-cnrifle =
     .name = PLA Combined-Arms Rifleman
-    .description = Disciplined general-purpose infantry effective against infantry and light vehicles.
+    .description = Fires controlled two-round armor-piercing tracer bursts against infantry and light vehicles.
 actor-cnnetwork =
     .name = Battlefield Network Specialist
-    .description = Deploys a sensor and missile-jamming node. Immobile while the network is active.
+    .description = Fires a four-pulse carbine burst and deploys an immobile sensor and missile-jamming node.
 actor-cnportable =
     .name = Portable Missile Team
     .description = Deploy to toggle between anti-armor and anti-air missile roles.
 actor-redspear =
     .name = Red Spear
-    .description = Fictional command-network hero. Improves nearby Chinese units and uses a precision rifle.
+    .description = Fictional command-network hero. Double-taps priority targets and improves nearby Chinese firepower and reload speed.
 actor-cnqilin =
     .name = Qilin Main Battle Tank
     .description = Durable main battle tank with a precision 125 mm cannon.
@@ -240,7 +240,7 @@ actor-ah64sa-husk-name = Crashing AH-64E Apache
 actor-sang =
     .name = Saudi National Guard
     .description =
-    Durable rifle infantry with disciplined three-round bursts.
+    Durable rifle infantry with visible three-round tracer bursts. Deploy to brace for more range, faster fire and reduced incoming damage.
       Strong vs Infantry
       Weak vs Armor
 
@@ -261,7 +261,7 @@ actor-saat =
 actor-falcon1 =
     .name = Falcon One
     .description =
-    Fictional elite commando with a suppressed precision rifle, demolition charges and a precision-strike designator.
+    Fictional elite commando with a suppressed precision double-tap, demolition charges and a precision-strike designator.
       Build Limit: 1
       Strong vs Infantry and Structures
     .airstrikepower-precision-name = Falcon Precision Strike
@@ -271,7 +271,7 @@ actor-falcon1 =
 actor-ymr =
     .name = Yemeni Mountain Rifleman
     .description =
-    Inexpensive ambush infantry that camouflages while stationary.
+    Inexpensive ambush infantry with a dusty two-shot volley that camouflages while stationary.
       Strong in Numbers and Ambushes
       Weak vs Vehicles
 
@@ -285,14 +285,14 @@ actor-yrpg =
 actor-yspot =
     .name = Yemeni Drone Spotter
     .description =
-    Reconnaissance controller with exceptional sight and a guidance field for nearby launchers.
+    Reconnaissance controller with exceptional sight, a visible two-shot carbine and a guidance field for nearby launchers.
       Support: Improves RPG and Mobile Launcher Range/Reload
       Detects Cloaked Units
 
 actor-wadighost =
     .name = Wadi Ghost
     .description =
-    Fictional build-limit-one infiltrator with persistent camouflage, a suppressed carbine and delayed remote demolition.
+    Fictional build-limit-one infiltrator with persistent camouflage, a suppressed double-tap and delayed remote demolition.
       Build Limit: 1
       Strong vs Structures and Isolated Infantry
       Detectable at Close Range
@@ -1171,7 +1171,7 @@ faction-turkey =
 
 actor-trrifle =
     .name = Mechanized Rifleman
-    .description = General-purpose infantry.
+    .description = General-purpose infantry with a visible four-round tracer burst.
       Stronger, faster, and tougher near Aras-8 or Deniz Kaplan transports.
       Weak against vehicles and massed anti-infantry fire.
 
@@ -1190,7 +1190,7 @@ actor-trdroneop =
 actor-greywolf =
     .name = Grey Wolf
     .description = Fictional build-limit-one command commando.
-      Conceals while stationary and improves nearby Turkish infantry tempo.
+      Fires a tight three-round tracer burst; conceals while stationary and improves nearby Turkish movement and reload speed.
       No demolition ability; detectors, movement, and focus fire counter him.
 
 actor-bozkir =
@@ -1475,7 +1475,7 @@ actor-iratgm =
 
 actor-irdc =
     .name = Drone Controller
-    .description = Reconnaissance specialist with a visible signal-spike weapon that jams enemy reload systems.
+    .description = Reconnaissance specialist with a two-shot control carbine and visible signal spike that jams enemy reload systems.
      Detects cloaks and unlocks Simorgh loitering munitions while alive.
 
 actor-shadowone =

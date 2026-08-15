@@ -26,6 +26,9 @@
 	ReloadDelayMultiplier@IRANSUPPRESSED:
 		Modifier: 125
 		RequiresCondition: iran-suppressed
+	WithColoredOverlay@IRANSUPPRESSED:
+		Color: D8893040
+		RequiresCondition: iran-suppressed
 
 ^Vehicle:
 	ExternalCondition@IRANATGMTRACKED:
@@ -33,12 +36,18 @@
 	SpeedMultiplier@IRANATGMTRACKED:
 		Modifier: 65
 		RequiresCondition: iran-atgm-tracked
+	WithColoredOverlay@IRANATGMTRACKED:
+		Color: D8C48938
+		RequiresCondition: iran-atgm-tracked
 
 ^Building:
 	ExternalCondition@IRANSABOTAGED:
 		Condition: iran-sabotaged
 	ReloadDelayMultiplier@IRANSABOTAGED:
 		Modifier: 300
+		RequiresCondition: iran-sabotaged
+	WithColoredOverlay@IRANSABOTAGED:
+		Color: 5DC7DF38
 		RequiresCondition: iran-sabotaged
 
 World:

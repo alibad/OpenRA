@@ -1,24 +1,52 @@
 ChinaServiceRifle:
 	Inherits: M1Carbine
-	ReloadDelay: 25
+	ReloadDelay: 28
+	Burst: 2
+	BurstDelays: 3
 	Range: 4c256
 	Report: china-rifle.wav
+	Projectile: Bullet
+		Speed: 2560
+		Inaccuracy: 48
+		Blockable: true
+		ContrailLength: 4
+		ContrailDelay: 0
+		ContrailStartWidth: 18
+		ContrailEndWidth: 4
+		ContrailStartColor: E7D06A
+		ContrailEndColor: 526C68
+		ContrailStartColorAlpha: 210
+		ContrailEndColorAlpha: 0
 	Warhead@1Dam: SpreadDamage
-		Damage: 1500
+		Damage: 800
 		Versus:
 			None: 100
 			Wood: 22
-			Light: 42
+			Light: 50
 			Heavy: 12
 			Concrete: 8
 
 ChinaNetworkCarbine:
 	Inherits: M1Carbine
-	ReloadDelay: 32
+	ReloadDelay: 45
+	Burst: 4
+	BurstDelays: 2
 	Range: 4c0
 	Report: china-network-carbine.wav
+	Projectile: Bullet
+		Speed: 2304
+		Inaccuracy: 80
+		Blockable: true
+		ContrailLength: 3
+		ContrailDelay: 0
+		ContrailStartWidth: 14
+		ContrailEndWidth: 3
+		ContrailStartColor: 60E7DB
+		ContrailEndColor: 183F48
+		ContrailStartColorAlpha: 200
+		ContrailEndColorAlpha: 0
 	Warhead@1Dam: SpreadDamage
-		Damage: 1000
+		Damage: 260
 
 ChinaPortableAT:
 	Inherits: Dragon
@@ -64,12 +92,26 @@ ChinaPortableAA:
 
 ChinaRedSpearRifle:
 	Inherits: ^SnipeWeapon
-	ReloadDelay: 52
+	ReloadDelay: 68
+	Burst: 2
+	BurstDelays: 6
 	Range: 7c0
 	Report: china-redspear-rifle.wav
 	ValidTargets: Infantry, Vehicle
+	Projectile: Bullet
+		Speed: 3072
+		Inaccuracy: 0
+		Blockable: false
+		ContrailLength: 7
+		ContrailDelay: 0
+		ContrailStartWidth: 22
+		ContrailEndWidth: 3
+		ContrailStartColor: FF6655
+		ContrailEndColor: 55E0D0
+		ContrailStartColorAlpha: 235
+		ContrailEndColorAlpha: 0
 	Warhead@1Dam: SpreadDamage
-		Damage: 6200
+		Damage: 3300
 		ValidTargets: Infantry, Vehicle
 		Versus:
 			None: 125

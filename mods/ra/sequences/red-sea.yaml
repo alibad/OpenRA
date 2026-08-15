@@ -201,8 +201,8 @@ redsea_air_impact:
 		Tick: 2
 		ZOffset: 2047
 
-# Full native infantry contract shared by the eight original Red Sea roles.
-# The inherited groups only swap the body package and production cameo.
+# Full 713-frame infantry contract shared by the eight Red Sea roles. Each
+# actor supplies a distinct role-authored body package and production cameo.
 redsea_infantry:
 	Defaults:
 		Filename: sang.shp
@@ -215,67 +215,66 @@ redsea_infantry:
 		Start: 16
 		Length: 6
 		Facings: 8
-		Tick: 90
+		Tick: 100
 	shoot:
 		Start: 64
 		Length: 8
 		Facings: 8
-		Tick: 75
-	liedown:
-		Start: 128
-		Length: 2
-		Facings: 8
 	prone-stand:
-		Start: 144
-		Stride: 4
+		Start: 128
 		Facings: 8
 	prone-stand2:
-		Start: 144
-		Stride: 4
+		Start: 128
 		Facings: 8
 	prone-run:
-		Start: 144
+		Start: 136
 		Length: 4
 		Facings: 8
 		Tick: 100
+	liedown:
+		Start: 168
+		Length: 2
+		Facings: 8
 	standup:
-		Start: 176
+		Start: 184
 		Length: 2
 		Facings: 8
 	prone-shoot:
-		Start: 192
+		Start: 200
 		Length: 8
 		Facings: 8
-		Tick: 75
-	parachute:
-		Start: 0
 	idle1:
-		Start: 256
-		Length: 16
+		Start: 264
+		Length: 8
 		Tick: 120
 	idle2:
 		Start: 272
-		Length: 16
+		Length: 8
 		Tick: 120
 	die1:
-		Start: 288
+		Start: 280
 		Length: 8
+		Facings: 8
 		Tick: 80
 	die2:
-		Start: 296
+		Start: 344
 		Length: 8
+		Facings: 8
 		Tick: 80
 	die3:
-		Start: 304
+		Start: 408
 		Length: 8
+		Facings: 8
 		Tick: 80
 	die4:
-		Start: 312
+		Start: 472
 		Length: 12
+		Facings: 8
 		Tick: 80
 	die5:
-		Start: 324
+		Start: 568
 		Length: 18
+		Facings: 8
 		Tick: 80
 	die6:
 		Filename: electro.tem
@@ -291,6 +290,12 @@ redsea_infantry:
 		Length: 6
 		Tick: 1600
 		ZOffset: -511
+	parachute:
+		Start: 712
+	garrison-muzzle:
+		Filename: minigun.shp
+		Length: 6
+		Facings: 8
 	icon:
 		Filename: sangicon.shp
 

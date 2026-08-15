@@ -242,6 +242,18 @@ RedSeaGuardRifle:
 	ReloadDelay: 34
 	Range: 5c512
 	Report: redsea-guard-rifle.wav
+	Projectile: Bullet
+		Speed: 2304
+		Inaccuracy: 88
+		Blockable: true
+		ContrailLength: 4
+		ContrailDelay: 0
+		ContrailStartWidth: 17
+		ContrailEndWidth: 4
+		ContrailStartColor: E8CE7C
+		ContrailEndColor: 5A4730
+		ContrailStartColorAlpha: 210
+		ContrailEndColorAlpha: 0
 	Warhead@1Dam: SpreadDamage
 		Damage: 920
 		Versus:
@@ -253,11 +265,25 @@ RedSeaGuardRifle:
 
 RedSeaMountainRifle:
 	Inherits: M1Carbine
-	ReloadDelay: 31
+	ReloadDelay: 36
+	Burst: 2
+	BurstDelays: 5
 	Range: 5c0
 	Report: redsea-mountain-rifle.wav
+	Projectile: Bullet
+		Speed: 2048
+		Inaccuracy: 128
+		Blockable: true
+		ContrailLength: 3
+		ContrailDelay: 0
+		ContrailStartWidth: 14
+		ContrailEndWidth: 3
+		ContrailStartColor: D2A45D
+		ContrailEndColor: 563B28
+		ContrailStartColorAlpha: 190
+		ContrailEndColorAlpha: 0
 	Warhead@1Dam: SpreadDamage
-		Damage: 1050
+		Damage: 650
 		Versus:
 			None: 118
 			Wood: 24
@@ -343,31 +369,73 @@ RedSeaRPG:
 
 RedSeaFalconRifle:
 	Inherits: SilencedPPK
-	ReloadDelay: 24
+	ReloadDelay: 28
+	Burst: 2
+	BurstDelays: 8
 	Range: 7c0
 	Report: redsea-suppressed.wav
+	Projectile: Bullet
+		Speed: 2944
+		Inaccuracy: 12
+		Blockable: false
+		ContrailLength: 6
+		ContrailDelay: 0
+		ContrailStartWidth: 18
+		ContrailEndWidth: 2
+		ContrailStartColor: EEE5C7
+		ContrailEndColor: 766E5C
+		ContrailStartColorAlpha: 150
+		ContrailEndColorAlpha: 0
 	Warhead@1Dam: SpreadDamage
 		Spread: 36
-		Damage: 7200
+		Damage: 3900
 		ValidTargets: Infantry, Barrel
 
 RedSeaGhostCarbine:
 	Inherits: SilencedPPK
-	ReloadDelay: 38
+	ReloadDelay: 48
+	Burst: 2
+	BurstDelays: 5
 	Range: 5c512
 	Report: redsea-suppressed.wav
+	Projectile: Bullet
+		Speed: 2432
+		Inaccuracy: 36
+		Blockable: true
+		ContrailLength: 4
+		ContrailDelay: 0
+		ContrailStartWidth: 13
+		ContrailEndWidth: 2
+		ContrailStartColor: 56D4B5
+		ContrailEndColor: 17372F
+		ContrailStartColorAlpha: 140
+		ContrailEndColorAlpha: 0
 	Warhead@1Dam: SpreadDamage
 		Spread: 42
-		Damage: 5200
+		Damage: 2800
 		ValidTargets: Infantry, Barrel
 
 RedSeaSpotterCarbine:
 	Inherits: M1Carbine
-	ReloadDelay: 36
+	ReloadDelay: 46
+	Burst: 2
+	BurstDelays: 5
 	Range: 4c0
 	Report: redsea-mountain-rifle.wav
+	Projectile: Bullet
+		Speed: 2112
+		Inaccuracy: 144
+		Blockable: true
+		ContrailLength: 2
+		ContrailDelay: 0
+		ContrailStartWidth: 11
+		ContrailEndWidth: 2
+		ContrailStartColor: 5BD5C0
+		ContrailEndColor: 24443D
+		ContrailStartColorAlpha: 175
+		ContrailEndColorAlpha: 0
 	Warhead@1Dam: SpreadDamage
-		Damage: 650
+		Damage: 340
 
 RedSeaPrecisionBomb:
 	ReloadDelay: 10

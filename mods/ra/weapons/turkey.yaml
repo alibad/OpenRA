@@ -1,10 +1,24 @@
 TurkeyServiceRifle:
 	Inherits: M1Carbine
-	ReloadDelay: 21
+	ReloadDelay: 30
+	Burst: 4
+	BurstDelays: 2
 	Range: 4c256
 	Report: turkey-rifle.wav
+	Projectile: Bullet
+		Speed: 2432
+		Inaccuracy: 72
+		Blockable: true
+		ContrailLength: 4
+		ContrailDelay: 0
+		ContrailStartWidth: 16
+		ContrailEndWidth: 3
+		ContrailStartColor: F05B4F
+		ContrailEndColor: 542522
+		ContrailStartColorAlpha: 215
+		ContrailEndColorAlpha: 0
 	Warhead@1Dam: SpreadDamage
-		Damage: 1650
+		Damage: 480
 		Versus:
 			None: 110
 			Wood: 35
@@ -69,13 +83,25 @@ TurkeyDesignator:
 
 TurkeyGreyWolfCarbine:
 	Inherits: M1Carbine
-	ReloadDelay: 13
+	ReloadDelay: 18
 	Range: 5c0
 	Burst: 3
 	BurstDelays: 3
 	Report: turkey-greywolf-fire.wav
+	Projectile: Bullet
+		Speed: 2688
+		Inaccuracy: 36
+		Blockable: true
+		ContrailLength: 5
+		ContrailDelay: 0
+		ContrailStartWidth: 17
+		ContrailEndWidth: 3
+		ContrailStartColor: FF6655
+		ContrailEndColor: 321714
+		ContrailStartColorAlpha: 225
+		ContrailEndColorAlpha: 0
 	Warhead@1Dam: SpreadDamage
-		Damage: 2100
+		Damage: 750
 		Versus:
 			None: 125
 			Wood: 45

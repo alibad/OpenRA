@@ -72,11 +72,25 @@ IranATGM:
 
 IranControllerCarbine:
 	Inherits: M1Carbine
-	ReloadDelay: 46
+	ReloadDelay: 50
+	Burst: 2
+	BurstDelays: 4
 	Range: 4c0
 	Report: iran-suppressed.wav
+	Projectile: Bullet
+		Speed: 2176
+		Inaccuracy: 112
+		Blockable: true
+		ContrailLength: 3
+		ContrailDelay: 0
+		ContrailStartWidth: 12
+		ContrailEndWidth: 3
+		ContrailStartColor: 62DCA8
+		ContrailEndColor: 173E35
+		ContrailStartColorAlpha: 190
+		ContrailEndColorAlpha: 0
 	Warhead@1Dam: SpreadDamage
-		Damage: 650
+		Damage: 360
 
 IranSignalSpike:
 	ReloadDelay: 118
