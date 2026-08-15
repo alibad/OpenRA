@@ -124,7 +124,6 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var requestPending = false;
 			var actionRequestPending = false;
 			var autoRequestPending = false;
-			var autoActEnabled = false;
 
 			feedPanel.Get<LabelWidget>("FEED_TITLE").GetText = () => "AI TACTICAL FEED // COMMS LOG";
 			feedPanel.Get<LabelWidget>("LATEST_KICKER").GetText = () =>
@@ -220,11 +219,16 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				}
 			}
 
-			autoButton.GetText = () => autoRequestPending ? "AUTO: ..." : autoActEnabled ? "AUTO: ON" : "AUTO: OFF";
-			autoButton.IsHighlighted = () => autoActEnabled;
+			bool AutoActEnabled()
+			{
+				return CompanionBridge.TryGetAutoAct(out var enabled) && enabled;
+			}
+
+			autoButton.GetText = () => autoRequestPending ? "AUTO: ..." : AutoActEnabled() ? "AUTO: ON" : "AUTO: OFF";
+			autoButton.IsHighlighted = AutoActEnabled;
 			autoButton.IsDisabled = () => autoRequestPending ||
 				!CompanionBridge.TryGetStatus(out _, out _, out var enabled, out _) || !enabled;
-			autoButton.OnClick = () => _ = SetAutoActAsync(!autoActEnabled);
+			autoButton.OnClick = () => _ = SetAutoActAsync(!AutoActEnabled());
 
 			async Task SetAutoActAsync(bool enabled)
 			{
@@ -246,8 +250,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					using var response = await client.PostAsync(new Uri(uri, "v1/control"), content);
 					response.EnsureSuccessStatusCode();
 					using var result = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-					var applied = result.RootElement.GetProperty("auto_act").GetBoolean();
-					Game.RunAfterTick(() => autoActEnabled = applied);
+					_ = result.RootElement.GetProperty("auto_act").GetBoolean();
 				}
 				catch (Exception e)
 				{
@@ -260,31 +263,6 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					Game.RunAfterTick(() => autoRequestPending = false);
 				}
 			}
-
-			async Task RefreshAutoActAsync()
-			{
-				try
-				{
-					var configuredUrl = Environment.GetEnvironmentVariable("OPENRA_AI_CONSOLE_URL");
-					var baseUrl = string.IsNullOrWhiteSpace(configuredUrl) ? "http://127.0.0.1:8787/" : configuredUrl;
-					if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri) || !uri.IsLoopback)
-						return;
-
-					using var client = HttpClientFactory.Create();
-					client.Timeout = TimeSpan.FromSeconds(4);
-					using var response = await client.GetAsync(new Uri(uri, "v1/state"));
-					response.EnsureSuccessStatusCode();
-					using var result = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-					var applied = result.RootElement.GetProperty("auto_act_enabled").GetBoolean();
-					Game.RunAfterTick(() => autoActEnabled = applied);
-				}
-				catch (Exception e)
-				{
-					Log.Write("debug", $"Failed to read OpenRA AI auto mode: {e}");
-				}
-			}
-
-			_ = RefreshAutoActAsync();
 
 			voiceButton.GetText = () => requestPending
 				? FluentProvider.GetMessage(VoicePending)

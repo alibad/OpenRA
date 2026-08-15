@@ -374,19 +374,19 @@ namespace OpenRA.Mods.Common.Traits
 
 			var reservedBlastZoneNodes = reservedBlastZones
 				.Where(z => z.ExpiresAt > world.WorldTick)
-				.Select(z => new MiniYamlNode("BlastZone", "",
-				[
-					new("Center", FieldSaver.FormatValue(z.Center)),
-					new("Radius", FieldSaver.FormatValue(z.Radius)),
-					new("EvacuationPadding", FieldSaver.FormatValue(z.EvacuationPadding)),
-					new("RemainingTicks", FieldSaver.FormatValue(z.ExpiresAt - world.WorldTick))
-				])).ToList();
+				.Select(z => new MiniYamlNode("BlastZone", new MiniYaml("", new[]
+				{
+					new MiniYamlNode("Center", FieldSaver.FormatValue(z.Center)),
+					new MiniYamlNode("Radius", FieldSaver.FormatValue(z.Radius)),
+					new MiniYamlNode("EvacuationPadding", FieldSaver.FormatValue(z.EvacuationPadding)),
+					new MiniYamlNode("RemainingTicks", FieldSaver.FormatValue(z.ExpiresAt - world.WorldTick))
+				}))).ToList();
 
-			return
-			[
-				new("WaitingPowers", "", waitingPowersNodes),
-				new("ReservedBlastZones", "", reservedBlastZoneNodes)
-			];
+			return new List<MiniYamlNode>
+			{
+				new MiniYamlNode("WaitingPowers", new MiniYaml("", waitingPowersNodes)),
+				new MiniYamlNode("ReservedBlastZones", new MiniYaml("", reservedBlastZoneNodes))
+			};
 		}
 
 		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)

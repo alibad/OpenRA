@@ -72,7 +72,7 @@ install_data() (
 	install -d "${DEST_PATH}/mods"
 	cp -r "${SRC_PATH}/mods/common" "${DEST_PATH}/mods/"
 
-	while [ -n "${1}" ]; do
+	while [ "$#" -gt 0 ]; do
 		MOD_ID="${1}"
 		if [ "${MOD_ID}" = "ra" ] || [ "${MOD_ID}" = "cnc" ] || [ "${MOD_ID}" = "d2k" ]; then
 			echo "Installing mod ${MOD_ID} to ${DEST_PATH}"
@@ -162,7 +162,7 @@ set_mod_version() (
 
 	VERSION="${1}"
 	shift
-	while [ -n "${1}" ]; do
+	while [ "$#" -gt 0 ]; do
 		MOD_YAML_PATH="${1}"
 		awk -v v="${VERSION}" '{sub("Version:.*$", "Version: " v); print $0}' "${MOD_YAML_PATH}" > "${MOD_YAML_PATH}.tmp"
 		awk -v v="${VERSION}" '{sub("/[^/]*: User$", "/"v ": User"); print $0}' "${MOD_YAML_PATH}.tmp" > "${MOD_YAML_PATH}"
