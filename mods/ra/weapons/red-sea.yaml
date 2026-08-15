@@ -124,6 +124,30 @@ RedSeaF15AAM:
 		Explosions: impact
 		ValidTargets: Air, AirborneActor
 
+RedSeaF15Strike:
+	Inherits: Maverick
+	ReloadDelay: 58
+	Range: 8c0
+	MinRange: 2c0
+	Report: redsea-f15-missile.wav
+	Projectile: Missile
+		Speed: 430
+		HorizontalRateOfTurn: 70
+		RangeLimit: 12c0
+		Inaccuracy: 128
+	Warhead@1Dam: SpreadDamage
+		Damage: 6500
+		Versus:
+			None: 35
+			Wood: 85
+			Light: 105
+			Heavy: 100
+			Concrete: 70
+	Warhead@3Eff: CreateEffect
+		Image: redsea_air_impact
+		Explosions: impact
+		ValidTargets: Ground, GroundActor, WaterActor, Trees
+
 RedSeaF15Cannon:
 	Inherits: ChainGun.Yak
 	Burst: 4

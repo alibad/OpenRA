@@ -222,8 +222,8 @@ actor-samad-husk-name = Crashing Samad Drone
 actor-f15sa =
     .name = F-15SA Eagle
     .description =
-    High-speed air-superiority fighter with a limited cannon reserve.
-      Strong vs Aircraft
+    High-speed multirole fighter with air-to-air missiles, one precision strike salvo, and a limited cannon reserve.
+      Strong vs Aircraft, Vehicles
       Weak vs Long-range Air Defense
 
 actor-f15sa-husk-name = Crashing F-15SA Eagle

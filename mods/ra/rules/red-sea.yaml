@@ -748,6 +748,12 @@ F15SA:
 		LocalOffset: 0,-640,-64, 0,640,-64
 		LocalYaw: -32, 32
 		PauseOnCondition: !aam-ammo
+	Armament@STRIKE:
+		Name: strike
+		Weapon: RedSeaF15Strike
+		LocalOffset: 0,-448,-64, 0,448,-64
+		LocalYaw: -24, 24
+		PauseOnCondition: !strike-ammo
 	Armament@CANNON:
 		Name: cannon
 		Weapon: RedSeaF15Cannon
@@ -755,7 +761,7 @@ F15SA:
 		MuzzleSequence: air-muzzle
 		PauseOnCondition: !gun-ammo
 	AttackAircraft:
-		Armaments: aam, cannon
+		Armaments: aam, strike, cannon
 		FacingTolerance: 80
 		PersistentTargeting: false
 		OpportunityFire: False
@@ -774,6 +780,12 @@ F15SA:
 		Ammo: 4
 		ReloadDelay: 28
 		AmmoCondition: aam-ammo
+	AmmoPool@STRIKE:
+		Name: strike
+		Armaments: strike
+		Ammo: 2
+		ReloadDelay: 24
+		AmmoCondition: strike-ammo
 	AmmoPool@GUN:
 		Name: gun
 		Armaments: cannon
@@ -803,7 +815,7 @@ F15SA:
 		Prerequisites: aircraft.upgraded
 	Rearmable:
 		RearmActors: safld, afld, afld.ukraine
-		AmmoPools: aam, gun
+		AmmoPools: aam, strike, gun
 	WithAmmoPipsDecoration:
 		Position: BottomLeft
 		Margin: 4, 3
