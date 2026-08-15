@@ -42,16 +42,27 @@
 		RequiresCondition: iran-sabotaged
 
 World:
-	StartingUnits@mcvonly:
-		Factions: allies, england, france, germany, soviet, russia, ukraine, iran
-	StartingUnits@lightallies:
-		Factions: allies, england, france, germany
-	StartingUnits@lightsoviet:
-		Factions: soviet, russia, ukraine, iran
-	StartingUnits@heavyallies:
-		Factions: allies, england, france, germany
-	StartingUnits@heavysoviet:
-		Factions: soviet, russia, ukraine, iran
+	StartingUnits@mcvonlyiran:
+		Class: none
+		ClassName: options-starting-units.mcv-only
+		Factions: iran
+		BaseActor: mcv
+	StartingUnits@lightiran:
+		Class: light
+		ClassName: options-starting-units.light-support
+		Factions: iran
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e3,e3,apc,ftrk
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
+	StartingUnits@heavyiran:
+		Class: heavy
+		ClassName: options-starting-units.heavy-support
+		Factions: iran
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e3,e3,apc,ftrk,3tnk,3tnk
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
 
 FACT:
 	ProvidesPrerequisite@soviet:
@@ -870,8 +881,10 @@ Player:
 	# Every standard personality can construct Iran's land, air and naval
 	# production chain.  Invalid naval placement is naturally rejected inland.
 	BaseBuilderBotModule@beginner:
-		TechTypes: dome, stek, fix, irhpad
-		ProductionTypes: barr,weap,afld,irhpad,spen
+		AdditionalTechTypes:
+			iran: dome, stek, fix, irhpad
+		AdditionalProductionTypes:
+			iran: barr,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 1
@@ -885,8 +898,10 @@ Player:
 			irhpad: 1
 			spen: 3
 	BaseBuilderBotModule@easy:
-		TechTypes: dome, stek, fix, irhpad
-		ProductionTypes: barr,weap,afld,irhpad,spen
+		AdditionalTechTypes:
+			iran: dome, stek, fix, irhpad
+		AdditionalProductionTypes:
+			iran: barr,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 1
@@ -900,8 +915,10 @@ Player:
 			irhpad: 1
 			spen: 3
 	BaseBuilderBotModule@medium:
-		TechTypes: dome, atek, stek, fix, irhpad
-		ProductionTypes: barr,tent,weap,afld,irhpad,spen
+		AdditionalTechTypes:
+			iran: dome, atek, stek, fix, irhpad
+		AdditionalProductionTypes:
+			iran: barr,tent,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 1
@@ -915,8 +932,10 @@ Player:
 			irhpad: 1
 			spen: 3
 	BaseBuilderBotModule@rush:
-		TechTypes: mslo, dome, atek, stek, fix, irhpad
-		ProductionTypes: barr,tent,weap,afld,irhpad,spen
+		AdditionalTechTypes:
+			iran: mslo, dome, atek, stek, fix, irhpad
+		AdditionalProductionTypes:
+			iran: barr,tent,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 1
@@ -930,8 +949,10 @@ Player:
 			irhpad: 2
 			spen: 4
 	BaseBuilderBotModule@normal:
-		TechTypes: mslo, dome, atek, stek, fix, irhpad
-		ProductionTypes: barr,tent,weap,afld,irhpad,spen
+		AdditionalTechTypes:
+			iran: mslo, dome, atek, stek, fix, irhpad
+		AdditionalProductionTypes:
+			iran: barr,tent,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 2
@@ -945,8 +966,10 @@ Player:
 			irhpad: 2
 			spen: 4
 	BaseBuilderBotModule@turtle:
-		TechTypes: mslo, dome, atek, stek, fix, irhpad
-		ProductionTypes: barr,tent,weap,afld,irhpad,spen
+		AdditionalTechTypes:
+			iran: mslo, dome, atek, stek, fix, irhpad
+		AdditionalProductionTypes:
+			iran: barr,tent,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 2
@@ -960,8 +983,10 @@ Player:
 			irhpad: 1
 			spen: 6
 	BaseBuilderBotModule@naval:
-		TechTypes: mslo, dome, atek, stek, fix, irhpad
-		ProductionTypes: barr,weap,afld,irhpad,spen
+		AdditionalTechTypes:
+			iran: mslo, dome, atek, stek, fix, irhpad
+		AdditionalProductionTypes:
+			iran: barr,weap,afld,irhpad,spen
 		BuildingLimits:
 			barr: 1
 			weap: 2
@@ -1112,30 +1137,37 @@ Player:
 			irpey: 12
 			irghadir: 12
 	SquadManagerBotModule@beginner:
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, irpey, irghadir
-		NavalProductionTypes: spen, syrd
-		AirUnitsTypes: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter
+		AdditionalNavalUnitsTypes:
+			iran: ss, msub, dd, ca, lst, pt, irpey, irghadir
+		AdditionalAirUnitsTypes:
+			iran: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter
 	SquadManagerBotModule@easy:
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, irpey, irghadir
-		NavalProductionTypes: spen, syrd
-		AirUnitsTypes: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter
+		AdditionalNavalUnitsTypes:
+			iran: ss, msub, dd, ca, lst, pt, irpey, irghadir
+		AdditionalAirUnitsTypes:
+			iran: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter
 	SquadManagerBotModule@medium:
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, irpey, irghadir
-		NavalProductionTypes: spen, syrd
-		AirUnitsTypes: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter
+		AdditionalNavalUnitsTypes:
+			iran: ss, msub, dd, ca, lst, pt, irpey, irghadir
+		AdditionalAirUnitsTypes:
+			iran: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter
 	SquadManagerBotModule@rush:
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, irpey, irghadir
-		NavalProductionTypes: spen, syrd
-		AirUnitsTypes: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter
+		AdditionalNavalUnitsTypes:
+			iran: ss, msub, dd, ca, lst, pt, irpey, irghadir
+		AdditionalAirUnitsTypes:
+			iran: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter
 	SquadManagerBotModule@normal:
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, irpey, irghadir
-		NavalProductionTypes: spen, syrd
-		AirUnitsTypes: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter
+		AdditionalNavalUnitsTypes:
+			iran: ss, msub, dd, ca, lst, pt, irpey, irghadir
+		AdditionalAirUnitsTypes:
+			iran: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter
 	SquadManagerBotModule@turtle:
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, irpey, irghadir
-		NavalProductionTypes: spen, syrd
-		AirUnitsTypes: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter
+		AdditionalNavalUnitsTypes:
+			iran: ss, msub, dd, ca, lst, pt, irpey, irghadir
+		AdditionalAirUnitsTypes:
+			iran: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter
 	SquadManagerBotModule@naval:
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, irpey, irghadir
-		NavalProductionTypes: spen, syrd
-		AirUnitsTypes: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter
+		AdditionalNavalUnitsTypes:
+			iran: ss, msub, dd, ca, lst, pt, irpey, irghadir
+		AdditionalAirUnitsTypes:
+			iran: mig, yak, heli, hind, mh60, irazar, irtoufan, irmohajer, irloiter

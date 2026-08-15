@@ -53,7 +53,7 @@ namespace OpenRA.Mods.Common.Traits
 			resourceLayer = rl;
 			Category = category;
 			minimumExcessPower = baseBuilder.Info.MinimumExcessPower;
-			if (baseBuilder.Info.NavalProductionTypes.Count == 0)
+			if (baseBuilder.NavalProductionTypes.Count == 0)
 				waterState = WaterCheck.DontCheck;
 		}
 
@@ -194,7 +194,7 @@ namespace OpenRA.Mods.Common.Traits
 				else
 				{
 					// Check if Building is a defense and if we should place it towards the enemy or not.
-					if (baseBuilder.Info.DefenseTypes.Contains(actorInfo.Name) && world.LocalRandom.Next(100) < baseBuilder.Info.PlaceDefenseTowardsEnemyChance)
+					if (baseBuilder.DefenseTypes.Contains(actorInfo.Name) && world.LocalRandom.Next(100) < baseBuilder.Info.PlaceDefenseTowardsEnemyChance)
 						type = BuildingType.Defense;
 					else if (baseBuilder.Info.RefineryTypes.Contains(actorInfo.Name))
 						type = BuildingType.Refinery;
@@ -235,15 +235,15 @@ namespace OpenRA.Mods.Common.Traits
 
 					// After succesfuly placing a building, nudge BaseExpansionModules to expand.
 					// We want to avoid expanding too often, so we make a judgement by counting buildings.
-					if (baseBuilder.Info.ProductionTypes.Contains(currentBuilding.Item)
-						|| baseBuilder.Info.TechTypes.Contains(currentBuilding.Item) || baseBuilder.Info.RefineryTypes.Contains(currentBuilding.Item))
+					if (baseBuilder.ProductionTypes.Contains(currentBuilding.Item)
+						|| baseBuilder.TechTypes.Contains(currentBuilding.Item) || baseBuilder.Info.RefineryTypes.Contains(currentBuilding.Item))
 					{
 						var numRef = baseBuilder.RefineryBuildings.Actors.Count(a => !a.IsDead) + (baseBuilder.Info.RefineryTypes.Contains(currentBuilding.Item) ? 1 : 0);
 
-						var numProd = baseBuilder.ProductionBuildings.Actors.Count(a => !a.IsDead) + (baseBuilder.Info.ProductionTypes.Contains(currentBuilding.Item) ? 1 : 0);
+						var numProd = baseBuilder.ProductionBuildings.Actors.Count(a => !a.IsDead) + (baseBuilder.ProductionTypes.Contains(currentBuilding.Item) ? 1 : 0);
 
-						var numTech = playerBuildings.Count(a => baseBuilder.Info.TechTypes.Contains(a.Info.Name))
-							+ (baseBuilder.Info.TechTypes.Contains(currentBuilding.Item) ? 1 : 0);
+						var numTech = playerBuildings.Count(a => baseBuilder.TechTypes.Contains(a.Info.Name))
+							+ (baseBuilder.TechTypes.Contains(currentBuilding.Item) ? 1 : 0);
 
 						var tolerateOnCash = playerResources.GetCashAndResources() / Math.Max(baseBuilder.Info.PerExpansionTolerateOnCash, 1);
 
@@ -327,7 +327,7 @@ namespace OpenRA.Mods.Common.Traits
 			if (baseBuilder.Info.NewProductionCashThreshold > 0 && playerResources.GetCashAndResources() > baseBuilder.Info.NewProductionCashThreshold
 				&& world.LocalRandom.Next(100) < baseBuilder.Info.NewProductionChance)
 			{
-				var production = GetProducibleBuilding(baseBuilder.Info.ProductionTypes, buildableThings);
+				var production = GetProducibleBuilding(baseBuilder.ProductionTypes, buildableThings);
 				if (production != null && HasSufficientPowerForActor(production))
 				{
 					AIUtils.BotDebug("{0} decided to build {1}: Priority override (production)", queue.Actor.Owner, production.Name);
@@ -346,7 +346,7 @@ namespace OpenRA.Mods.Common.Traits
 				&& playerResources.GetCashAndResources() > baseBuilder.Info.NewProductionCashThreshold
 				&& AIUtils.IsAreaAvailable<GivesBuildableArea>(world, player, world.Map, baseBuilder.Info.CheckForWaterRadius, baseBuilder.Info.WaterTerrainTypes))
 			{
-				var navalproduction = GetProducibleBuilding(baseBuilder.Info.NavalProductionTypes, buildableThings);
+				var navalproduction = GetProducibleBuilding(baseBuilder.NavalProductionTypes, buildableThings);
 				if (navalproduction != null && HasSufficientPowerForActor(navalproduction))
 				{
 					AIUtils.BotDebug("{0} decided to build {1}: Priority override (navalproduction)", queue.Actor.Owner, navalproduction.Name);
@@ -411,7 +411,7 @@ namespace OpenRA.Mods.Common.Traits
 				// If we're considering to build a naval structure, check whether there is enough water inside the base perimeter
 				// and any structure providing buildable area close enough to that water.
 				// TODO: Extend this check to cover any naval structure, not just production.
-				if (baseBuilder.Info.NavalProductionTypes.Contains(name)
+				if (baseBuilder.NavalProductionTypes.Contains(name)
 					&& (waterState == WaterCheck.NotEnoughWater
 						|| !AIUtils.IsAreaAvailable<GivesBuildableArea>(world, player, world.Map, baseBuilder.Info.CheckForWaterRadius, baseBuilder.Info.WaterTerrainTypes)))
 					continue;

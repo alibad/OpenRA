@@ -33,12 +33,11 @@
 		RequiresCondition: turkey-designated
 
 World:
-	StartingUnits@mcvonly:
-		Factions: allies, england, france, germany, turkey, soviet, russia, ukraine
-	StartingUnits@lightallies:
-		Factions: allies, england, france, germany
-	StartingUnits@heavyallies:
-		Factions: allies, england, france, germany
+	StartingUnits@mcvonlyturkey:
+		Class: none
+		ClassName: options-starting-units.mcv-only
+		Factions: turkey
+		BaseActor: mcv
 	StartingUnits@lightturkey:
 		Class: light
 		ClassName: options-starting-units.light-support
@@ -987,9 +986,12 @@ LST:
 
 Player:
 	BaseBuilderBotModule@beginner:
-		TechTypes: dome, atek, fix, hpad
-		ProductionTypes: barr,tent,weap,hpad
-		NavalProductionTypes: syrd
+		AdditionalTechTypes:
+			turkey: dome, atek, fix, hpad
+		AdditionalProductionTypes:
+			turkey: barr,tent,weap,hpad
+		AdditionalNavalProductionTypes:
+			turkey: syrd
 		BuildingLimits:
 			weap: 1
 			hpad: 1
@@ -1003,9 +1005,12 @@ Player:
 			atek: 1
 			fix: 1
 	BaseBuilderBotModule@easy:
-		TechTypes: dome, atek, fix, hpad
-		ProductionTypes: barr,tent,weap,hpad
-		NavalProductionTypes: syrd
+		AdditionalTechTypes:
+			turkey: dome, atek, fix, hpad
+		AdditionalProductionTypes:
+			turkey: barr,tent,weap,hpad
+		AdditionalNavalProductionTypes:
+			turkey: syrd
 		BuildingLimits:
 			hpad: 2
 			syrd: 1
@@ -1015,11 +1020,15 @@ Player:
 			syrd: 1
 			atek: 1
 	BaseBuilderBotModule@normal:
-		TechTypes: dome, atek, stek, fix, afld, hpad
-		ProductionTypes: barr,tent,weap,afld,hpad
+		AdditionalTechTypes:
+			turkey: dome, atek, stek, fix, afld, hpad
+		AdditionalProductionTypes:
+			turkey: barr,tent,weap,afld,hpad
 	BaseBuilderBotModule@turtle:
-		TechTypes: dome, atek, stek, fix, afld, hpad
-		ProductionTypes: barr,tent,weap,afld,hpad
+		AdditionalTechTypes:
+			turkey: dome, atek, stek, fix, afld, hpad
+		AdditionalProductionTypes:
+			turkey: barr,tent,weap,afld,hpad
 	UnitBuilderBotModule@beginner:
 		UnitsToBuild:
 			trrifle: 80
@@ -1087,11 +1096,15 @@ Player:
 			ege: 3
 			poyraz: 5
 	SquadManagerBotModule@beginner:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
+		AdditionalAirUnitsTypes:
+			turkey: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
+		AdditionalNavalUnitsTypes:
+			turkey: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
 	SquadManagerBotModule@easy:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
+		AdditionalAirUnitsTypes:
+			turkey: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
+		AdditionalNavalUnitsTypes:
+			turkey: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
 	UnitBuilderBotModule@medium:
 		UnitsToBuild:
 			trrifle: 65
@@ -1203,17 +1216,27 @@ Player:
 			poyraz: 18
 			denizkaplan: 10
 	SquadManagerBotModule@medium:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
+		AdditionalAirUnitsTypes:
+			turkey: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
+		AdditionalNavalUnitsTypes:
+			turkey: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
 	SquadManagerBotModule@rush:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
+		AdditionalAirUnitsTypes:
+			turkey: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
+		AdditionalNavalUnitsTypes:
+			turkey: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
 	SquadManagerBotModule@normal:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
+		AdditionalAirUnitsTypes:
+			turkey: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
+		AdditionalNavalUnitsTypes:
+			turkey: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
 	SquadManagerBotModule@turtle:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
+		AdditionalAirUnitsTypes:
+			turkey: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
+		AdditionalNavalUnitsTypes:
+			turkey: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
 	SquadManagerBotModule@naval:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz
+		AdditionalAirUnitsTypes:
+			turkey: mig, yak, heli, hind, mh60, kuzgunm, turnaah, sahinx
+		AdditionalNavalUnitsTypes:
+			turkey: ss, msub, dd, ca, lst, pt, marmara, ege, poyraz

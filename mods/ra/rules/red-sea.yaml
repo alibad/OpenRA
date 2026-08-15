@@ -4,16 +4,48 @@
 # localized identity are all live gameplay rather than design-only metadata.
 
 World:
-	StartingUnits@mcvonly:
-		Factions: allies, england, france, germany, saudi, soviet, russia, ukraine, yemen
-	StartingUnits@lightallies:
-		Factions: allies, england, france, germany, saudi
-	StartingUnits@lightsoviet:
-		Factions: soviet, russia, ukraine, yemen
-	StartingUnits@heavyallies:
-		Factions: allies, england, france, germany, saudi
-	StartingUnits@heavysoviet:
-		Factions: soviet, russia, ukraine, yemen
+	StartingUnits@mcvonlysaudi:
+		Class: none
+		ClassName: options-starting-units.mcv-only
+		Factions: saudi
+		BaseActor: mcv
+	StartingUnits@lightsaudi:
+		Class: light
+		ClassName: options-starting-units.light-support
+		Factions: saudi
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e3,e3,jeep,1tnk
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
+	StartingUnits@heavysaudi:
+		Class: heavy
+		ClassName: options-starting-units.heavy-support
+		Factions: saudi
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e3,e3,jeep,1tnk,2tnk,2tnk,2tnk
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
+	StartingUnits@mcvonlyyemen:
+		Class: none
+		ClassName: options-starting-units.mcv-only
+		Factions: yemen
+		BaseActor: mcv
+	StartingUnits@lightyemen:
+		Class: light
+		ClassName: options-starting-units.light-support
+		Factions: yemen
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e3,e3,apc,ftrk
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
+	StartingUnits@heavyyemen:
+		Class: heavy
+		ClassName: options-starting-units.heavy-support
+		Factions: yemen
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e3,e3,apc,ftrk,3tnk,3tnk
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
 
 FACT:
 	ProvidesPrerequisite@allies:
@@ -1093,8 +1125,10 @@ Player:
 		RadarShipTypes: sa_frgt, ye_surve
 		EnemyNavalTypes: ss, msub, dd, ca, lst, pt, sa_frgt, sa_intc, sa_fss, ye_mslc, ye_usv, ye_surve
 	BaseBuilderBotModule@medium:
-		TechTypes: dome, atek, stek, fix, afld, hpad, safld
-		ProductionTypes: barr,tent,weap,afld,hpad,safld
+		AdditionalTechTypes:
+			red-sea: dome, atek, stek, fix, afld, hpad, safld
+		AdditionalProductionTypes:
+			red-sea: barr,tent,weap,afld,hpad,safld
 		BuildingLimits:
 			hpad: 2
 			afld: 2
@@ -1104,8 +1138,10 @@ Player:
 			afld: 1
 			safld: 1
 	BaseBuilderBotModule@rush:
-		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
-		ProductionTypes: barr,tent,weap,afld,hpad,safld
+		AdditionalTechTypes:
+			red-sea: mslo, dome, atek, stek, fix, afld, hpad, safld
+		AdditionalProductionTypes:
+			red-sea: barr,tent,weap,afld,hpad,safld
 		BuildingLimits:
 			hpad: 3
 			afld: 3
@@ -1115,22 +1151,28 @@ Player:
 			afld: 1
 			safld: 1
 	BaseBuilderBotModule@normal:
-		TechTypes: dome, atek, stek, fix, afld, hpad, safld
-		ProductionTypes: barr,tent,weap,afld,hpad,safld
+		AdditionalTechTypes:
+			red-sea: dome, atek, stek, fix, afld, hpad, safld
+		AdditionalProductionTypes:
+			red-sea: barr,tent,weap,afld,hpad,safld
 		BuildingLimits:
 			safld: 4
 		BuildingFractions:
 			safld: 1
 	BaseBuilderBotModule@turtle:
-		TechTypes: dome, atek, stek, fix, afld, hpad, safld
-		ProductionTypes: barr,tent,weap,afld,hpad,safld
+		AdditionalTechTypes:
+			red-sea: dome, atek, stek, fix, afld, hpad, safld
+		AdditionalProductionTypes:
+			red-sea: barr,tent,weap,afld,hpad,safld
 		BuildingLimits:
 			safld: 4
 		BuildingFractions:
 			safld: 1
 	BaseBuilderBotModule@naval:
-		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
-		ProductionTypes: barr,tent,weap,afld,hpad,safld
+		AdditionalTechTypes:
+			red-sea: mslo, dome, atek, stek, fix, afld, hpad, safld
+		AdditionalProductionTypes:
+			red-sea: barr,tent,weap,afld,hpad,safld
 		BuildingLimits:
 			safld: 8
 		BuildingFractions:
@@ -1333,12 +1375,17 @@ Player:
 			sa_fss: 2
 			ye_surve: 3
 	SquadManagerBotModule@medium:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
+		AdditionalAirUnitsTypes:
+			red-sea: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
 	SquadManagerBotModule@rush:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
+		AdditionalAirUnitsTypes:
+			red-sea: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
 	SquadManagerBotModule@normal:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
+		AdditionalAirUnitsTypes:
+			red-sea: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
 	SquadManagerBotModule@turtle:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
+		AdditionalAirUnitsTypes:
+			red-sea: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
 	SquadManagerBotModule@naval:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa
+		AdditionalAirUnitsTypes:
+			red-sea: mig, yak, heli, hind, mh60, samad, f15sa, ah64sa

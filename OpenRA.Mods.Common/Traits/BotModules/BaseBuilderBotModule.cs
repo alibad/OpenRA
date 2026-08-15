@@ -34,17 +34,37 @@ namespace OpenRA.Mods.Common.Traits
 		[Desc("Tells the AI what building types are considered production facilities.")]
 		public readonly FrozenSet<string> ProductionTypes = FrozenSet<string>.Empty;
 
+		[Desc("Additional production facility types grouped by a unique rules component identifier.",
+			"Use this instead of overriding ProductionTypes from composable rules files.")]
+		public readonly FrozenDictionary<string, ImmutableArray<string>> AdditionalProductionTypes =
+			FrozenDictionary<string, ImmutableArray<string>>.Empty;
+
 		[Desc("Tells the AI what building types are considered tech buildings.")]
 		public readonly FrozenSet<string> TechTypes = FrozenSet<string>.Empty;
 
+		[Desc("Additional tech building types grouped by a unique rules component identifier.",
+			"Use this instead of overriding TechTypes from composable rules files.")]
+		public readonly FrozenDictionary<string, ImmutableArray<string>> AdditionalTechTypes =
+			FrozenDictionary<string, ImmutableArray<string>>.Empty;
+
 		[Desc("Tells the AI what building types are considered naval production facilities.")]
 		public readonly FrozenSet<string> NavalProductionTypes = FrozenSet<string>.Empty;
+
+		[Desc("Additional naval production facility types grouped by a unique rules component identifier.",
+			"Use this instead of overriding NavalProductionTypes from composable rules files.")]
+		public readonly FrozenDictionary<string, ImmutableArray<string>> AdditionalNavalProductionTypes =
+			FrozenDictionary<string, ImmutableArray<string>>.Empty;
 
 		[Desc("Tells the AI what building types are considered silos (resource storage).")]
 		public readonly FrozenSet<string> SiloTypes = FrozenSet<string>.Empty;
 
 		[Desc("Tells the AI what building types are considered defenses.")]
 		public readonly FrozenSet<string> DefenseTypes = FrozenSet<string>.Empty;
+
+		[Desc("Additional defense types grouped by a unique rules component identifier.",
+			"Use this instead of overriding DefenseTypes from composable rules files.")]
+		public readonly FrozenDictionary<string, ImmutableArray<string>> AdditionalDefenseTypes =
+			FrozenDictionary<string, ImmutableArray<string>>.Empty;
 
 		[Desc("Production queues AI uses for buildings.")]
 		public readonly FrozenSet<string> BuildingQueues = new HashSet<string> { "Building" }.ToFrozenSet();
@@ -210,17 +230,31 @@ namespace OpenRA.Mods.Common.Traits
 		readonly ActorIndex.OwnerAndNamesAndTrait<BuildingInfo> powerBuildings;
 		public readonly ActorIndex.OwnerAndNamesAndTrait<BuildingInfo> ConstructionYardBuildings;
 		public readonly ActorIndex.OwnerAndNamesAndTrait<BuildingInfo> ProductionBuildings;
+		public readonly FrozenSet<string> ProductionTypes;
+		public readonly FrozenSet<string> TechTypes;
+		public readonly FrozenSet<string> NavalProductionTypes;
+		public readonly FrozenSet<string> DefenseTypes;
 
 		public BaseBuilderBotModule(Actor self, BaseBuilderBotModuleInfo info)
 			: base(info)
 		{
 			world = self.World;
 			player = self.Owner;
+			ProductionTypes = CombineTypes(info.ProductionTypes, info.AdditionalProductionTypes);
+			TechTypes = CombineTypes(info.TechTypes, info.AdditionalTechTypes);
+			NavalProductionTypes = CombineTypes(info.NavalProductionTypes, info.AdditionalNavalProductionTypes);
+			DefenseTypes = CombineTypes(info.DefenseTypes, info.AdditionalDefenseTypes);
 			builders = new BaseBuilderQueueManager[info.BuildingQueues.Count + info.DefenseQueues.Count];
 			RefineryBuildings = new ActorIndex.OwnerAndNamesAndTrait<BuildingInfo>(world, info.RefineryTypes, player);
 			powerBuildings = new ActorIndex.OwnerAndNamesAndTrait<BuildingInfo>(world, info.PowerTypes, player);
 			ConstructionYardBuildings = new ActorIndex.OwnerAndNamesAndTrait<BuildingInfo>(world, info.ConstructionYardTypes, player);
-			ProductionBuildings = new ActorIndex.OwnerAndNamesAndTrait<BuildingInfo>(world, info.ProductionTypes, player);
+			ProductionBuildings = new ActorIndex.OwnerAndNamesAndTrait<BuildingInfo>(world, ProductionTypes, player);
+		}
+
+		static FrozenSet<string> CombineTypes(
+			FrozenSet<string> types, FrozenDictionary<string, ImmutableArray<string>> additionalTypes)
+		{
+			return types.Concat(additionalTypes.Values.SelectMany(values => values)).ToFrozenSet();
 		}
 
 		protected override void Created(Actor self)

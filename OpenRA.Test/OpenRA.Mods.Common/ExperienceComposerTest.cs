@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using OpenRA.Mods.Common.Experience;
+using OpenRA.Mods.Common.Traits;
 using OpenRA.Traits;
 
 namespace OpenRA.Test
@@ -206,6 +207,63 @@ namespace OpenRA.Test
 
 			Assert.That(Player.RandomFactionMembers(randomAllies, [randomAllies, turkey, iran]),
 				Is.EquivalentTo(new[] { "england", "france", "turkey" }));
+		}
+
+		[TestCase(TestName = "Built-in faction packs compose complete starting-unit definitions")]
+		public void BuiltInFactionPacksComposeStartingUnits()
+		{
+			var rulesDirectory = Path.GetFullPath(Path.Combine(
+				TestContext.CurrentContext.TestDirectory, "..", "mods", "ra", "rules"));
+			var files = new[] { "world.yaml", "china.yaml", "iran.yaml", "red-sea.yaml", "turkey.yaml" };
+			var definitions = files.SelectMany(file =>
+			{
+				var path = Path.Combine(rulesDirectory, file);
+				return MiniYaml.FromFile(path, false)
+					.Where(node => node.Key == "World")
+					.SelectMany(node => node.Value.Nodes)
+					.Where(node => node.Key.StartsWith("StartingUnits@", StringComparison.Ordinal))
+					.Select(node => (node.Key, Info: FieldLoader.Load<StartingUnitsInfo>(node.Value), File: file));
+			}).ToArray();
+
+			var duplicateKeys = definitions.GroupBy(definition => definition.Key)
+				.Where(group => group.Count() > 1)
+				.Select(group => $"{group.Key} ({group.Select(definition => definition.File).JoinWith(", ")})")
+				.ToArray();
+			Assert.That(duplicateKeys, Is.Empty,
+				"Faction packs must not override starting-unit traits from another pack.");
+
+			foreach (var faction in new[] { "china", "iran", "saudi", "turkey", "yemen" })
+				foreach (var startingUnitsClass in new[] { "none", "light", "heavy" })
+					Assert.That(definitions.Count(definition => definition.Info.Class == startingUnitsClass &&
+						definition.Info.Factions.Contains(faction)), Is.EqualTo(1),
+						$"Faction `{faction}` must define exactly one `{startingUnitsClass}` starting-unit group.");
+		}
+
+		[TestCase(TestName = "Built-in faction packs compose AI type extensions without replacing each other")]
+		public void BuiltInFactionPacksComposeBotTypes()
+		{
+			var rulesDirectory = Path.GetFullPath(Path.Combine(
+				TestContext.CurrentContext.TestDirectory, "..", "mods", "ra", "rules"));
+			var files = new[] { "ai.yaml", "china.yaml", "iran.yaml", "red-sea.yaml", "turkey.yaml" };
+			var player = MiniYaml.Merge(files.Select(file =>
+				MiniYaml.FromFile(Path.Combine(rulesDirectory, file), false).Where(node => node.Key == "Player")))
+				.Single(node => node.Key == "Player");
+
+			var baseBuilder = FieldLoader.Load<BaseBuilderBotModuleInfo>(player.Value.Nodes
+				.Single(node => node.Key == "BaseBuilderBotModule@normal").Value);
+			Assert.That(baseBuilder.AdditionalProductionTypes.Keys,
+				Is.EquivalentTo(new[] { "china", "iran", "red-sea", "turkey" }));
+			Assert.That(baseBuilder.AdditionalProductionTypes.Values.SelectMany(types => types),
+				Does.Contain("irhpad").And.Contain("safld"));
+			Assert.That(baseBuilder.AdditionalDefenseTypes["china"],
+				Does.Contain("cnbastion").And.Contain("cnskyshield").And.Contain("cnspectrum"));
+
+			var squadManager = FieldLoader.Load<SquadManagerBotModuleInfo>(player.Value.Nodes
+				.Single(node => node.Key == "SquadManagerBotModule@normal").Value);
+			Assert.That(squadManager.AdditionalAirUnitsTypes.Keys,
+				Is.EquivalentTo(new[] { "china", "iran", "red-sea", "turkey" }));
+			Assert.That(squadManager.AdditionalNavalUnitsTypes.Keys,
+				Is.EquivalentTo(new[] { "china", "iran", "turkey" }));
 		}
 
 		static string CreateCapabilityPack(string rightsAcknowledged)

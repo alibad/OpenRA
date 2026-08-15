@@ -16,12 +16,27 @@
 			Water: 70
 
 World:
-	StartingUnits@mcvonly:
-		Factions: allies, england, france, germany, china, soviet, russia, ukraine
-	StartingUnits@lightallies:
-		Factions: allies, england, france, germany, china
-	StartingUnits@heavyallies:
-		Factions: allies, england, france, germany, china
+	StartingUnits@mcvonlychina:
+		Class: none
+		ClassName: options-starting-units.mcv-only
+		Factions: china
+		BaseActor: mcv
+	StartingUnits@lightchina:
+		Class: light
+		ClassName: options-starting-units.light-support
+		Factions: china
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e3,e3,jeep,1tnk
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
+	StartingUnits@heavychina:
+		Class: heavy
+		ClassName: options-starting-units.heavy-support
+		Factions: china
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e3,e3,jeep,1tnk,2tnk,2tnk,2tnk
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
 
 FACT:
 	ProvidesPrerequisite@chinaalliedtree:
@@ -1208,10 +1223,14 @@ CNJIAOLONG.Sinking:
 
 Player:
 	BaseBuilderBotModule@beginner:
-		TechTypes: dome, atek, stek, fix, afld, hpad, safld
-		ProductionTypes: barr,tent,weap,afld,hpad,safld
-		NavalProductionTypes: spen,syrd
-		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
+		AdditionalTechTypes:
+			china: dome, atek, stek, fix, afld, hpad, safld
+		AdditionalProductionTypes:
+			china: barr,tent,weap,afld,hpad,safld
+		AdditionalNavalProductionTypes:
+			china: spen,syrd
+		AdditionalDefenseTypes:
+			china: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
 		BuildingFractions:
 			hpad: 1
 			afld: 1
@@ -1221,10 +1240,14 @@ Player:
 			afld: 1
 			safld: 1
 	BaseBuilderBotModule@easy:
-		TechTypes: dome, atek, stek, fix, afld, hpad, safld
-		ProductionTypes: barr,tent,weap,afld,hpad,safld
-		NavalProductionTypes: spen,syrd
-		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
+		AdditionalTechTypes:
+			china: dome, atek, stek, fix, afld, hpad, safld
+		AdditionalProductionTypes:
+			china: barr,tent,weap,afld,hpad,safld
+		AdditionalNavalProductionTypes:
+			china: spen,syrd
+		AdditionalDefenseTypes:
+			china: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
 		BuildingFractions:
 			cnbastion: 4
 			cnskyshield: 3
@@ -1240,10 +1263,14 @@ Player:
 			afld: 1
 			safld: 1
 	BaseBuilderBotModule@medium:
-		TechTypes: dome, atek, stek, fix, afld, hpad, safld
-		ProductionTypes: barr,tent,weap,afld,hpad,safld
-		NavalProductionTypes: spen,syrd
-		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
+		AdditionalTechTypes:
+			china: dome, atek, stek, fix, afld, hpad, safld
+		AdditionalProductionTypes:
+			china: barr,tent,weap,afld,hpad,safld
+		AdditionalNavalProductionTypes:
+			china: spen,syrd
+		AdditionalDefenseTypes:
+			china: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
 		BuildingFractions:
 			cnbastion: 6
 			cnskyshield: 5
@@ -1259,10 +1286,14 @@ Player:
 			afld: 2
 			safld: 2
 	BaseBuilderBotModule@rush:
-		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
-		ProductionTypes: barr,tent,weap,afld,hpad,safld
-		NavalProductionTypes: spen,syrd
-		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
+		AdditionalTechTypes:
+			china: mslo, dome, atek, stek, fix, afld, hpad, safld
+		AdditionalProductionTypes:
+			china: barr,tent,weap,afld,hpad,safld
+		AdditionalNavalProductionTypes:
+			china: spen,syrd
+		AdditionalDefenseTypes:
+			china: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
 		BuildingFractions:
 			cnbastion: 7
 			cnskyshield: 6
@@ -1278,10 +1309,14 @@ Player:
 			afld: 3
 			safld: 3
 	BaseBuilderBotModule@normal:
-		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
-		ProductionTypes: barr,tent,weap,afld,hpad,safld
-		NavalProductionTypes: spen,syrd
-		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
+		AdditionalTechTypes:
+			china: mslo, dome, atek, stek, fix, afld, hpad, safld
+		AdditionalProductionTypes:
+			china: barr,tent,weap,afld,hpad,safld
+		AdditionalNavalProductionTypes:
+			china: spen,syrd
+		AdditionalDefenseTypes:
+			china: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
 		BuildingFractions:
 			cnbastion: 8
 			cnskyshield: 6
@@ -1297,10 +1332,14 @@ Player:
 			afld: 4
 			safld: 4
 	BaseBuilderBotModule@turtle:
-		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
-		ProductionTypes: barr,tent,weap,afld,hpad,safld
-		NavalProductionTypes: spen,syrd
-		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
+		AdditionalTechTypes:
+			china: mslo, dome, atek, stek, fix, afld, hpad, safld
+		AdditionalProductionTypes:
+			china: barr,tent,weap,afld,hpad,safld
+		AdditionalNavalProductionTypes:
+			china: spen,syrd
+		AdditionalDefenseTypes:
+			china: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
 		BuildingFractions:
 			cnbastion: 12
 			cnskyshield: 10
@@ -1316,10 +1355,14 @@ Player:
 			afld: 4
 			safld: 4
 	BaseBuilderBotModule@naval:
-		TechTypes: mslo, dome, atek, stek, fix, afld, hpad, safld
-		ProductionTypes: barr,tent,weap,afld,hpad,safld
-		NavalProductionTypes: spen,syrd
-		DefenseTypes: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
+		AdditionalTechTypes:
+			china: mslo, dome, atek, stek, fix, afld, hpad, safld
+		AdditionalProductionTypes:
+			china: barr,tent,weap,afld,hpad,safld
+		AdditionalNavalProductionTypes:
+			china: spen,syrd
+		AdditionalDefenseTypes:
+			china: hbox,pbox,gun,ftur,tsla,agun,sam,cnbastion,cnskyshield,cnspectrum
 		BuildingFractions:
 			cnbastion: 6
 			cnskyshield: 8
@@ -1472,23 +1515,37 @@ Player:
 			cnkunlun: 4
 			cnjiaolong: 10
 	SquadManagerBotModule@beginner:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AdditionalAirUnitsTypes:
+			china: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		AdditionalNavalUnitsTypes:
+			china: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
 	SquadManagerBotModule@easy:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AdditionalAirUnitsTypes:
+			china: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		AdditionalNavalUnitsTypes:
+			china: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
 	SquadManagerBotModule@medium:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AdditionalAirUnitsTypes:
+			china: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		AdditionalNavalUnitsTypes:
+			china: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
 	SquadManagerBotModule@rush:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AdditionalAirUnitsTypes:
+			china: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		AdditionalNavalUnitsTypes:
+			china: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
 	SquadManagerBotModule@normal:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AdditionalAirUnitsTypes:
+			china: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		AdditionalNavalUnitsTypes:
+			china: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
 	SquadManagerBotModule@turtle:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AdditionalAirUnitsTypes:
+			china: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		AdditionalNavalUnitsTypes:
+			china: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
 	SquadManagerBotModule@naval:
-		AirUnitsTypes: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
-		NavalUnitsTypes: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong
+		AdditionalAirUnitsTypes:
+			china: mig, yak, heli, hind, mh60, cncloud, cncrane, cnskyspear
+		AdditionalNavalUnitsTypes:
+			china: ss, msub, dd, ca, lst, pt, cnluyang, cnhaiwang, cnhaiying, cnkunlun, cnjiaolong

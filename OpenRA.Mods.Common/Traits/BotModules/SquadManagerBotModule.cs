@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using OpenRA.Mods.Common.Experience;
 using OpenRA.Mods.Common.Traits.BotModules.Squads;
@@ -29,8 +30,20 @@ namespace OpenRA.Mods.Common.Traits
 		public readonly FrozenSet<string> NavalUnitsTypes = FrozenSet<string>.Empty;
 
 		[ActorReference]
+		[Desc("Additional naval unit types grouped by a unique rules component identifier.",
+			"Use this instead of overriding NavalUnitsTypes from composable rules files.")]
+		public readonly FrozenDictionary<string, ImmutableArray<string>> AdditionalNavalUnitsTypes =
+			FrozenDictionary<string, ImmutableArray<string>>.Empty;
+
+		[ActorReference]
 		[Desc("Actor types that are excluded from ground attacks.")]
 		public readonly FrozenSet<string> AirUnitsTypes = FrozenSet<string>.Empty;
+
+		[ActorReference]
+		[Desc("Additional air unit types grouped by a unique rules component identifier.",
+			"Use this instead of overriding AirUnitsTypes from composable rules files.")]
+		public readonly FrozenDictionary<string, ImmutableArray<string>> AdditionalAirUnitsTypes =
+			FrozenDictionary<string, ImmutableArray<string>>.Empty;
 
 		[ActorReference]
 		[Desc("Actor types that should generally be excluded from attack squads.")]
@@ -127,6 +140,8 @@ namespace OpenRA.Mods.Common.Traits
 		public readonly Player Player;
 
 		readonly Predicate<Actor> unitCannotBeOrdered;
+		readonly FrozenSet<string> navalUnitTypes;
+		readonly FrozenSet<string> airUnitTypes;
 
 		// Units that the bot already knows about. Any unit not on this list needs to be given a role.
 		readonly HashSet<Actor> activeUnits = [];
@@ -156,6 +171,8 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			World = self.World;
 			Player = self.Owner;
+			navalUnitTypes = CombineTypes(info.NavalUnitsTypes, info.AdditionalNavalUnitsTypes);
+			airUnitTypes = CombineTypes(info.AirUnitsTypes, info.AdditionalAirUnitsTypes);
 			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
 			squadSize = !string.IsNullOrEmpty(info.ExperienceComponent) &&
 				experience?.IsComponentActive(info.ExperienceComponent) == true ?
@@ -164,6 +181,12 @@ namespace OpenRA.Mods.Common.Traits
 
 			unitCannotBeOrdered = a => a == null || a.Owner != Player || a.IsDead || !a.IsInWorld;
 			constructionYardBuildings = new ActorIndex.NamesAndTrait<BuildingInfo>(World, info.ConstructionYardTypes);
+		}
+
+		static FrozenSet<string> CombineTypes(
+			FrozenSet<string> types, FrozenDictionary<string, ImmutableArray<string>> additionalTypes)
+		{
+			return types.Concat(additionalTypes.Values.SelectMany(values => values)).ToFrozenSet();
 		}
 
 		// Use for proactive targeting.
@@ -552,12 +575,12 @@ namespace OpenRA.Mods.Common.Traits
 
 		bool IsAirUnit(ActorInfo actor)
 		{
-			return Info.AirUnitsTypes.Contains(actor.Name) || HasStrategicDomain(actor, "air");
+			return airUnitTypes.Contains(actor.Name) || HasStrategicDomain(actor, "air");
 		}
 
 		bool IsNavalUnit(ActorInfo actor)
 		{
-			return Info.NavalUnitsTypes.Contains(actor.Name) || HasStrategicDomain(actor, "naval");
+			return navalUnitTypes.Contains(actor.Name) || HasStrategicDomain(actor, "naval");
 		}
 
 		static bool HasStrategicDomain(ActorInfo actor, string domain)
