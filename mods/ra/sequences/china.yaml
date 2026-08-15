@@ -1,10 +1,8 @@
-# Infantry follows the native E1 family layout: 8 authored stand/stand2
-# facings, 6-frame run, 8-frame fire, lie-down/stand-up, 4-frame prone run,
-# 8-frame prone fire, two idles, five death families, and parachute.
+# China infantry uses the complete detailed custom-faction contract: eight
+# authored facings for every directional action, facing-specific deaths, and a
+# dedicated parachute frame. Each actor supplies role-specific 713-frame art.
 
-cnrifle:
-	Defaults:
-		Filename: cnrifle.shp
+^china-infantry:
 	stand:
 		Facings: 8
 	stand2:
@@ -20,57 +18,60 @@ cnrifle:
 		Length: 8
 		Facings: 8
 	prone-stand:
-		Start: 144
-		Stride: 4
+		Start: 128
 		Facings: 8
 	prone-stand2:
-		Start: 144
-		Stride: 4
+		Start: 128
 		Facings: 8
 	prone-run:
-		Start: 144
+		Start: 136
 		Length: 4
 		Facings: 8
 		Tick: 100
 	liedown:
-		Start: 128
+		Start: 168
 		Length: 2
 		Facings: 8
 	standup:
-		Start: 176
+		Start: 184
 		Length: 2
 		Facings: 8
 	prone-shoot:
-		Start: 192
+		Start: 200
 		Length: 8
 		Facings: 8
 	idle1:
-		Start: 256
-		Length: 16
+		Start: 264
+		Length: 8
 		Tick: 120
 	idle2:
 		Start: 272
-		Length: 16
+		Length: 8
 		Tick: 120
 	die1:
-		Start: 288
+		Start: 280
 		Length: 8
+		Facings: 8
 		Tick: 80
 	die2:
-		Start: 296
+		Start: 344
 		Length: 8
+		Facings: 8
 		Tick: 80
 	die3:
-		Start: 304
+		Start: 408
 		Length: 8
+		Facings: 8
 		Tick: 80
 	die4:
-		Start: 312
+		Start: 472
 		Length: 12
+		Facings: 8
 		Tick: 80
 	die5:
-		Start: 324
+		Start: 568
 		Length: 18
+		Facings: 8
 		Tick: 80
 	die6:
 		Filename: electro.tem
@@ -87,12 +88,21 @@ cnrifle:
 		Tick: 1600
 		ZOffset: -511
 	parachute:
-		Start: 377
+		Start: 712
+	garrison-muzzle:
+		Filename: minigun.shp
+		Length: 6
+		Facings: 8
+
+cnrifle:
+	Inherits: ^china-infantry
+	Defaults:
+		Filename: cnrifle.shp
 	icon:
 		Filename: cnrifleicon.shp
 
 cnnetwork:
-	Inherits: cnrifle
+	Inherits: ^china-infantry
 	Defaults:
 		Filename: cnnetwork.shp
 	network-pulse:
@@ -104,14 +114,14 @@ cnnetwork:
 		Filename: cnnetworkicon.shp
 
 cnportable:
-	Inherits: cnrifle
+	Inherits: ^china-infantry
 	Defaults:
 		Filename: cnportable.shp
 	icon:
 		Filename: cnportableicon.shp
 
 redspear:
-	Inherits: cnrifle
+	Inherits: ^china-infantry
 	Defaults:
 		Filename: redspear.shp
 	icon:

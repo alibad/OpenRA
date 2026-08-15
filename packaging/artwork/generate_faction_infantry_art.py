@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Normalize custom-faction infantry against the native Red Alert art contract.
+"""Rebuild custom-faction infantry against the native Red Alert art contract.
 
-The faction infantry were authored on three different sprite canvases. China
-and Turkey were exported too small for the game camera, while the Red Sea
-troops stood below the native ground pivot. This tool preserves their original
-uniforms, equipment, player-color indices, and full animation sets while
-normalizing them onto the native 50x39 infantry canvas.
+China and Turkey were originally authored as tiny low-detail silhouettes.
+Scaling those sheets corrected their footprint but magnified the missing human
+anatomy. Their world art is rebuilt from detailed, role-matched custom infantry
+bases with 713 frames per actor: eight facings for every directional action,
+complete prone transitions, facing-specific deaths, and a parachute frame.
+
+The Red Sea troops already have distinct articulated art, so this tool only
+normalizes their low ground pivot onto the native 50x39 infantry canvas.
 
 Turkey's original production portraits were also tiny world sprites placed on
 dark cards. They are rebuilt over role-matched native portrait bases while
@@ -34,19 +37,54 @@ class NormalizationProfile:
 	height: int
 	offset_x: int
 	offset_y: int
-	use_scale2x: bool = False
 
 
-# China was authored at roughly half native height. Scale2x preserves hard
-# palette edges while reconstructing diagonals more cleanly than a raw 2x
-# nearest-neighbour resize. Turkey needs a smaller proportional correction.
-# The Red Sea sprites are already detailed, but their baseline is five pixels
-# too low; a vertical-only normalization retains their distinctive equipment.
+@dataclass(frozen=True)
+class DetailedSourceProfile:
+	source_asset: str
+	faction: str
+
+
+# These custom Iran sheets are the project's complete articulated infantry
+# family. Each role has a readable human silhouette and appropriate equipment,
+# and each sheet supplies the same audited 713-frame action contract. China and
+# Turkey receive separate fixed-color accent treatments while preserving the
+# player-remap ramp (palette indices 80..95).
+DETAILED_SOURCE_PROFILES = {
+	"cnrifle": DetailedSourceProfile("irbas", "china"),
+	"cnnetwork": DetailedSourceProfile("irdc", "china"),
+	"cnportable": DetailedSourceProfile("iratgm", "china"),
+	"redspear": DetailedSourceProfile("shadowone", "china"),
+	"trrifle": DetailedSourceProfile("irbas", "turkey"),
+	"trat": DetailedSourceProfile("iratgm", "turkey"),
+	"trdroneop": DetailedSourceProfile("irdc", "turkey"),
+	"greywolf": DetailedSourceProfile("shadowone", "turkey"),
+}
+
+FACTION_ACCENT_REMAPS = {
+	# Replace fixed olive equipment shadows with dark blue-green technology
+	# accents. Player-color uniform pixels are deliberately not touched.
+	"china": {
+		154: 182,
+		155: 190,
+	},
+	# Replace fixed blue/cyan equipment highlights with Turkish red accents.
+	# The dark olive webbing remains intact and the uniform still remaps.
+	"turkey": {
+		168: 205,
+		169: 206,
+		170: 207,
+		182: 205,
+		190: 206,
+	},
+}
+
+EXPECTED_DETAILED_FRAME_COUNT = 713
+
+
+# The Red Sea sprites are already detailed, but their baseline was five pixels
+# too low. A vertical-only normalization retains their distinctive equipment.
 WORLD_PROFILES = {
-	"cnrifle": NormalizationProfile(48, 48, 1, -16, True),
-	"cnnetwork": NormalizationProfile(48, 48, 1, -16, True),
-	"cnportable": NormalizationProfile(48, 48, 1, -16, True),
-	"redspear": NormalizationProfile(48, 48, 1, -16, True),
 	"sang": NormalizationProfile(50, 32, 0, 0),
 	"sajtac": NormalizationProfile(50, 32, 0, 0),
 	"saat": NormalizationProfile(50, 32, 0, 0),
@@ -55,10 +93,6 @@ WORLD_PROFILES = {
 	"yrpg": NormalizationProfile(50, 32, 0, 0),
 	"yspot": NormalizationProfile(50, 32, 0, 0),
 	"wadighost": NormalizationProfile(50, 32, 0, 0),
-	"trrifle": NormalizationProfile(30, 30, 10, -4),
-	"trat": NormalizationProfile(30, 30, 10, -4),
-	"trdroneop": NormalizationProfile(30, 30, 10, -4),
-	"greywolf": NormalizationProfile(30, 30, 10, -4),
 }
 
 TURKEY_ICON_BASES = {
@@ -132,38 +166,6 @@ def save_indexed(image: Image.Image, path: Path) -> None:
 	image.save(path, **save_args)
 
 
-def scale2x(source: Image.Image) -> Image.Image:
-	"""Apply the Scale2x pixel-art transform without changing palette indices."""
-	if source.mode != "P":
-		raise RuntimeError("Scale2x requires an indexed image.")
-
-	width, height = source.size
-	output = Image.new("P", (width * 2, height * 2), 0)
-	preserve_indexed_metadata(source, output)
-	source_pixels = source.load()
-	output_pixels = output.load()
-
-	for y in range(height):
-		for x in range(width):
-			center = source_pixels[x, y]
-			up = source_pixels[x, y - 1] if y else center
-			left = source_pixels[x - 1, y] if x else center
-			right = source_pixels[x + 1, y] if x + 1 < width else center
-			down = source_pixels[x, y + 1] if y + 1 < height else center
-
-			top_left = left if left == up and left != down and up != right else center
-			top_right = right if up == right and up != left and right != down else center
-			bottom_left = left if left == down and left != up and down != right else center
-			bottom_right = right if down == right and left != down and up != right else center
-
-			output_pixels[x * 2, y * 2] = top_left
-			output_pixels[x * 2 + 1, y * 2] = top_right
-			output_pixels[x * 2, y * 2 + 1] = bottom_left
-			output_pixels[x * 2 + 1, y * 2 + 1] = bottom_right
-
-	return output
-
-
 def stand_bounds(paths: list[Path]) -> list[tuple[int, int, int, int]]:
 	bounds: list[tuple[int, int, int, int]] = []
 	for path in paths[:8]:
@@ -190,10 +192,7 @@ def normalize_frame(path: Path, profile: NormalizationProfile) -> None:
 		if source.mode != "P":
 			raise RuntimeError(f"Expected an indexed PNG: {path}")
 
-		if profile.use_scale2x:
-			scaled = scale2x(source)
-		else:
-			scaled = source.resize((profile.width, profile.height), Image.Resampling.NEAREST)
+		scaled = source.resize((profile.width, profile.height), Image.Resampling.NEAREST)
 
 		if scaled.size != (profile.width, profile.height):
 			raise RuntimeError(f"Unexpected scaled dimensions for {path}: {scaled.size}")
@@ -210,6 +209,33 @@ def normalize_frames(paths: list[Path], profile: NormalizationProfile) -> bool:
 	for path in paths:
 		normalize_frame(path, profile)
 	return True
+
+
+def remap_palette_indexes(path: Path, replacements: dict[int, int]) -> None:
+	with Image.open(path) as source_image:
+		source = source_image.copy()
+		if source.mode != "P" or source.size != TARGET_SIZE:
+			raise RuntimeError(f"Unexpected detailed source frame: {path}")
+
+		translation = bytes(replacements.get(index, index) for index in range(256))
+		output = Image.frombytes("P", source.size, source.tobytes().translate(translation))
+		preserve_indexed_metadata(source, output)
+		save_indexed(output, path)
+
+
+def rebuild_detailed_frames(paths: list[Path], faction: str) -> None:
+	if len(paths) != EXPECTED_DETAILED_FRAME_COUNT:
+		raise RuntimeError(
+			f"Expected {EXPECTED_DETAILED_FRAME_COUNT} detailed frames, found {len(paths)}."
+		)
+
+	replacements = FACTION_ACCENT_REMAPS[faction]
+	for path in paths:
+		remap_palette_indexes(path, replacements)
+
+	bounds = stand_bounds(paths)
+	if min(top for _, top, _, _ in bounds) > 6 or max(bottom for _, _, _, bottom in bounds) > 23:
+		raise RuntimeError(f"Detailed {faction} infantry does not match the native ground contract.")
 
 
 def compose_icon(custom_path: Path, native_path: Path, output_path: Path, icon: str) -> None:
@@ -245,8 +271,17 @@ def main() -> int:
 		raise RuntimeError("OpenRA.Utility, RA palette, or RA bits directory was not found.")
 
 	normalized: list[str] = []
+	rebuilt: list[str] = []
 	with tempfile.TemporaryDirectory(prefix="openra-faction-infantry-") as temporary:
 		workspace = Path(temporary)
+
+		for unit, profile in DETAILED_SOURCE_PROFILES.items():
+			unit_directory = workspace / unit
+			frames = extract_pngs(utility, engine_root, palette, profile.source_asset, unit_directory)
+			rebuild_detailed_frames(frames, profile.faction)
+			source_shp = pack_shp(utility, engine_root, unit_directory, profile.source_asset)
+			shutil.copy2(source_shp, bits / f"{unit}.shp")
+			rebuilt.append(unit)
 
 		for unit, profile in WORLD_PROFILES.items():
 			unit_directory = workspace / unit
@@ -263,7 +298,8 @@ def main() -> int:
 			compose_icon(custom_path, native_path, final_png, icon)
 			shutil.copy2(pack_shp(utility, engine_root, icon_directory, icon), bits / f"{icon}.shp")
 
-	print(f"Normalized {len(normalized)} infantry sheets: {', '.join(normalized) or 'already current'}.")
+	print(f"Rebuilt {len(rebuilt)} detailed 713-frame infantry sheets: {', '.join(rebuilt)}.")
+	print(f"Normalized {len(normalized)} Red Sea sheets: {', '.join(normalized) or 'already current'}.")
 	print("Rebuilt four Turkish production icons over role-matched native portrait bases.")
 	return 0
 
