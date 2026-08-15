@@ -867,6 +867,21 @@ namespace OpenRA.Mods.Common.Traits
 			return TryGetStatus(out state, out message, out _, out _);
 		}
 
+		internal static bool TryGetAutoAct(out bool autoActEnabled)
+		{
+			lock (CurrentLock)
+			{
+				if (current == null || !current.enabled)
+				{
+					autoActEnabled = false;
+					return false;
+				}
+
+				autoActEnabled = current.assistantAutoRequested;
+				return true;
+			}
+		}
+
 		internal static bool TryGetThreat(out int score, out string level, out string reason)
 		{
 			lock (CurrentLock)
