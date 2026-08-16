@@ -7,15 +7,14 @@ until the U.S. contract is reviewed. The blocking decisions in `docs/faction-spe
 have now been ruled, and the four that bind this faction are applied below rather than
 left as open questions:
 
-| Inherited ruling | Effect here |
-| --- | --- |
-| §8.9 airframe cap of two, second must differ in role | **`ILAH64` is cut** — the Apache family is closed at `HELI` + `AH64SA`. `ILF35` is confirmed as the second and final F-35 slot, in a strike-and-escort role distinct from `USF35`'s ground-strike-only role |
-| §8.10 mobile air defense needs a doctrine gate and a free niche | Israel gets **no** mobile air-defense vehicle. Its interception identity runs through the static `ILDOME` and the naval `ILCORV`, which is the more distinctive expression anyway |
-| §8.11 active protection, two owners | Israel owns the **hull-mounted carrier** version on `ILAPC`: smaller magazine, faster recharge, coverage extending to nearby friendly infantry. The U.S. owns the turret-mounted tank-only version |
-| §8.5 naming policy | Generic display names for buildings and defenses; real designations for vehicles, aircraft, and ships |
+**The roster in §2 is intact. Nothing has been removed from it.**
 
-Aircraft roster after the cut: `ILF35`, `ILUAV`, `ILUTIL` — three, within the roadmap's
-preferred range.
+| Item from `docs/faction-spec-usa.md` | Effect here |
+| --- | --- |
+| §8.11 active protection, two owners — **applied** | Israel owns the **hull-mounted carrier** version on `ILAPC`: smaller magazine, faster recharge, coverage extending to nearby friendly infantry. The U.S. owns the turret-mounted tank-only version. Removes nothing |
+| §8.5 naming policy — **applied** | Generic display names for buildings and defenses; real designations for vehicles, aircraft, and ships. Removes nothing |
+| §8.9 shared-airframe cap — **proposal only** | If approved, `ILAH64` would be cut and `ILF35` confirmed as the second and final F-35 slot. **`ILAH64` remains in the roster below** until you decide |
+| §8.10 mobile air-defense niche gate — **proposal only** | If approved, Israel would get no mobile air-defense vehicle and would express interception through `ILDOME` and `ILCORV`. No such vehicle was proposed here in the first place, so nothing changes either way |
 
 Sources accessed **2026-08-16**. Re-check at freeze time.
 
@@ -65,7 +64,7 @@ and is deliberately distinct from Iran's `IR`.
 | Aircraft | `ILF35` | Strike and escort fighter | F-35I |
 | Aircraft | `ILUAV` | Long-endurance UAS | Heron-class |
 | Aircraft | `ILUTIL` | Utility transport | Utility helicopter |
-| ~~Aircraft~~ | ~~`ILAH64`~~ | ~~Attack helicopter~~ | **CUT** by the §8.9 airframe cap. Id reserved, not reused |
+| Aircraft | `ILAH64` | Attack helicopter | AH-64 — **flagged** by the §8.9 proposal, still in the roster |
 | Navy | `ILCORV` | Corvette with point defense | Sa'ar 6-class with a shipborne interception layer |
 | Navy | `ILSUB` | Submarine | Dolphin-class |
 | Navy | `ILPATROL` | Patrol / landing craft | Coastal patrol |
@@ -75,12 +74,12 @@ and is deliberately distinct from Iran's `IR`.
 | Defenses | `ILWALL` | Protected anti-armor position | Hardened fighting position |
 
 Reserved husk and sink ids: `ILMBT.Husk`, `ILAPC.Husk`, `ILWHEEL.Husk`, `ILSPH.Husk`,
-`ILUGV.Husk`, `ILF35.Husk`, `ILUAV.Husk`, `ILUTIL.Husk`, `ILCORV.Sink`, `ILSUB.Sink`,
-`ILPATROL.Sink`.
+`ILUGV.Husk`, `ILF35.Husk`, `ILUAV.Husk`, `ILUTIL.Husk`, `ILAH64.Husk`, `ILCORV.Sink`,
+`ILSUB.Sink`, `ILPATROL.Sink`.
 
-Roster shape after the §4.1 cut: 4 infantry, 5 vehicles, **3** aircraft, 3 naval —
-matches the roadmap's preferred proportions. `ILWHEEL` is subject to the §4.4 wheeled
-carrier allocation and may yet be re-scoped or dropped, which would take vehicles to 4.
+Roster shape: 4 infantry, 5 vehicles, 4 aircraft, 3 naval — matches the roadmap's
+preferred proportions. Two actors carry open flags rather than cuts: `ILAH64` (§4.1) and
+`ILWHEEL` (§4.4).
 
 ---
 
@@ -119,10 +118,17 @@ Turkey packs. Items resolved by an inherited ruling are marked **RULED**; items 
 still need this document expanded before they can be answered honestly are marked
 **DEFERRED**, with the reason.
 
-### 4.1 Attack helicopter — **RULED: `ILAH64` cut**
+### 4.1 Attack helicopter — **FLAGGED, your call. `ILAH64` is still in the roster**
 
-The Apache family is closed at stock `HELI` plus Saudi's `AH64SA` under the §8.9 cap.
-The anti-armor air role moves to `ILUAV`. Aircraft roster is `ILF35`, `ILUAV`, `ILUTIL`.
+Saudi's `AH64SA` ships as "AH-64E Apache", stock Allies `HELI` is a Longbow Apache, and
+Turkey's `TURNAAH` is a third attack helicopter. `ILAH64` would be a fourth in that
+visual class.
+
+Recommendation: cut it, and move the anti-armor air role to `ILUAV`. But that is the
+§8.9 proposal, which is not approved, so **nothing has been removed** — the actor stays
+listed with its slot until you decide. If the softer "role-only, no cap" variant of §8.9
+is chosen instead, `ILAH64` keeps its place provided it has a distinct role and its own
+sprite set.
 
 ### 4.2 Active protection — **RULED: Israel owns the carrier-mounted version**
 
@@ -168,13 +174,16 @@ once it stood alone. Israel retains `ILAPC` either way, so it is not left carrie
 point-marker, a scout, or an EW disruptor — not a second area-network source. That is the
 constraint; the specific choice is part of this document's expansion.
 
-### 4.6 F-35 duplication — **RULED: `ILF35` is the second and final slot**
+### 4.6 F-35 duplication — **FLAGGED, depends on §8.9**
 
-Under the §8.9 cap the F-35 family gets two appearances. They are allocated to `usa`
-(ground strike only, accuracy gated on its network) and `israel` (strike and escort,
-paired with the interception layer). South Korea must pick a different fighter — see
-`docs/faction-spec-koreas.md`. Both F-35 actors ship their own sprite set; a palette-only
-variant is already forbidden by the roadmap and is forbidden again here.
+`ILF35`, `USF35`, and South Korea's `KRF35` are the same airframe family. All three are
+still listed in their own documents.
+
+If the §8.9 cap is approved at two, the slots go to `usa` (ground strike only, accuracy
+gated on its network) and `israel` (strike and escort, paired with the interception
+layer), and South Korea picks a different fighter. If the role-only variant is chosen
+instead, all three keep their slots provided each has a distinct role and its own sprite
+set. Either way a palette-only variant is forbidden by the roadmap.
 
 ---
 
@@ -202,15 +211,15 @@ and one is new.
 
 Done:
 
-- [x] Inherited rulings from `docs/faction-spec-usa.md` §8.5, §8.9, §8.10, §8.11 applied
-- [x] `ILAH64` cut; aircraft roster resolved to three
-- [x] Active protection precedent resolved
-- [x] Mobile air-defense vehicle resolved — Israel gets none
+- [x] Applied rulings from `docs/faction-spec-usa.md` §8.5 and §8.11 — neither removes anything
+- [x] Active protection precedent resolved — Israel owns the hull-mounted carrier version
 - [x] Actor-id collision audit run — zero collisions, `IL` prefix unused
 - [x] Source anchors gathered and link-checked
+- [x] Full roster preserved; `ILAH64` flagged rather than cut
 
 Remaining:
 
+- [ ] §8.9 shared-airframe proposal decided — determines whether `ILAH64` and `ILF35` both stay
 - [ ] §5.1 depiction posture agreed in writing
 - [ ] §5.2 wheeled carrier allocation settled between this document and the Bundeswehr one
 - [ ] §5.3 `ILUGV` scope chosen

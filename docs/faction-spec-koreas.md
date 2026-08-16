@@ -1,22 +1,25 @@
 # Paired faction contract: North Korea (`northkorea`) and South Korea (`southkorea`)
 
-Status: **sourced outline; inherited and local rulings applied.**
+Status: **sourced outline; configuration rulings applied, removal proposals awaiting
+approval.**
 
-Held at outline depth by the assignment governing this workstream. The blocking decisions
-in `docs/faction-spec-usa.md` have now been ruled, and the ones that bind this pair are
-applied below rather than left open:
+Held at outline depth by the assignment governing this workstream.
 
-| Ruling | Effect here |
+**The rosters in §2 are intact. Nothing has been removed from them.** Two actors were
+*added* — `KRFIGHT` and `KRHELI` — as alternatives, not replacements.
+
+| Item | Effect here |
 | --- | --- |
-| §8.9 airframe cap of two, second must differ in role | **`KRAH64` cut** (Apache family closed at `HELI` + `AH64SA`). **`KRTRAN` cut** (second Chinook in the same transport role). **`KRF35` cut** — the two F-35 slots go to `usa` and `israel`. South Korea instead fields **`KRFIGHT`**, a domestically produced fighter, which is more distinctive anyway |
-| §8.10 mobile air defense needs a doctrine gate and a free niche | **`KRSHORAD` cut** — South Korea expresses layered defense through the static `KRSAM`. **`KPAAA` admitted** for North Korea in the massed-light-gun-without-radar niche, which nothing else occupies and which is the faction's only air answer |
-| §8.5 naming policy | Generic display names for buildings and defenses; real designations for vehicles, aircraft, and ships |
-| Local: roster asymmetry | **Approved.** North Korea ships fewer aircraft and a weaker navy; that asymmetry *is* the design, not a gap to be filled |
+| `docs/faction-spec-usa.md` §8.5 naming policy — **applied** | Generic display names for buildings and defenses; real designations for vehicles, aircraft, and ships. Removes nothing |
+| Local: roster asymmetry — **applied** | North Korea ships fewer aircraft and a weaker navy; that asymmetry *is* the design, not a gap to be filled. Adds a constraint, removes nothing |
+| §8.9 shared-airframe cap — **proposal only** | If approved, `KRAH64`, `KRTRAN`, and `KRF35` would all be cut. **All three remain in the roster below** until you decide |
+| §8.10 mobile air-defense niche gate — **proposal only** | If approved, `KRSHORAD` would be cut and `KPAAA` admitted. **`KRSHORAD` remains in the roster below** |
 
-Aircraft rosters after the cuts: South Korea `KRFIGHT`, `KRHELI`, `KRUAV` — three, within
-the roadmap's preferred range. North Korea `KPFIGHT`, `KPUAV` — two, deliberately below
-it. `KRHELI` is new, added because cutting three South Korean aircraft would otherwise
-have left the faction with a single fighter and a drone; see §4.2.
+`KRFIGHT` (a domestically produced fighter) and `KRHELI` (a domestic light armed
+helicopter) are listed as **additions**, both collision-audited. If §8.9 is approved they
+become South Korea's air roster; if it is rejected they are optional extras, and the
+faction chooses between them and the F-35/Apache slots rather than being forced. Neither
+is sourced yet — see §4.2.
 
 These two factions are specified in one document because the roadmap requires them to be
 designed as a pair: "artillery pressure, fortification, reconnaissance, counterbattery
@@ -166,13 +169,13 @@ at tree state `a0f751b972`. **Zero collisions.** The `KP` and `KR` prefixes are 
 | Vehicles | `KRIFV` | Tracked IFV (K21 family) |
 | Vehicles | `KRSPH` | Self-propelled howitzer (K9 family) |
 | Vehicles | `KRMLRS` | Guided multiple rocket launcher (Chunmoo family) |
-| ~~Vehicles~~ | ~~`KRSHORAD`~~ | ~~Mobile air defense~~ — **CUT** by §8.10; `KRSAM` covers it |
-| Aircraft | `KRFIGHT` | Fighter — domestically produced programme, status-labelled at expansion |
-| Aircraft | `KRHELI` | Light armed / scout helicopter — domestic programme, **new**, see §4.2 |
+| Vehicles | `KRSHORAD` | Mobile air defense — **flagged** by the §8.10 proposal, still in the roster |
+| Aircraft | `KRF35` | Strike fighter — **flagged** by the §8.9 proposal, still in the roster |
+| Aircraft | `KRAH64` | Attack helicopter — **flagged** by the §8.9 proposal, still in the roster |
 | Aircraft | `KRUAV` | Reconnaissance UAS |
-| ~~Aircraft~~ | ~~`KRF35`~~ | ~~Strike fighter~~ — **CUT** by the §8.9 airframe cap |
-| ~~Aircraft~~ | ~~`KRAH64`~~ | ~~Attack helicopter~~ — **CUT**, Apache family closed |
-| ~~Aircraft~~ | ~~`KRTRAN`~~ | ~~Transport helicopter~~ — **CUT**, second Chinook in the same role |
+| Aircraft | `KRTRAN` | Transport helicopter — **flagged** by the §8.9 proposal, still in the roster |
+| Aircraft | `KRFIGHT` | Fighter, domestically produced programme — **added as an alternative**, see §4.2 |
+| Aircraft | `KRHELI` | Light armed / scout helicopter, domestic programme — **added as an alternative**, see §4.2 |
 | Navy | `KRDDG` | Aegis-equipped destroyer |
 | Navy | `KRSUB` | Submarine |
 | Navy | `KRPATROL` | Patrol craft |
@@ -182,15 +185,15 @@ at tree state `a0f751b972`. **Zero collisions.** The `KP` and `KR` prefixes are 
 | Defenses | `KRWALL` | Protected position |
 
 Reserved husk and sink ids follow the shipped convention for every vehicle, aircraft,
-and naval actor listed above. Cut ids (`KRF35`, `KRAH64`, `KRTRAN`, `KRSHORAD`) stay
-reserved rather than reused, so a reversal does not have to re-audit them.
+and naval actor listed above.
 
-`KRFIGHT` and `KRHELI` were added after the §8.9 cuts and were collision-audited on the
-same tree: **zero matches** for both.
+`KRFIGHT` and `KRHELI` were collision-audited on the same tree: **zero matches** for both.
 
-Roster shapes after the rulings: North Korea 4 infantry, 4 vehicles, 2 aircraft, 2 naval,
-3 defenses (deliberately air-poor and navy-poor). South Korea 4 infantry, 4 vehicles,
-3 aircraft, 3 naval, 3 defenses.
+Roster shapes as listed: North Korea 4 infantry, 4 vehicles, 2 aircraft, 2 naval,
+3 defenses (deliberately air-poor and navy-poor). South Korea 4 infantry, 5 vehicles,
+5 aircraft as listed, 3 naval, 3 defenses — five is above the roadmap's preferred range
+because `KRFIGHT` and `KRHELI` are listed alongside the flagged actors rather than
+instead of them. The §8.9 decision resolves that count one way or the other.
 
 **The asymmetric roster sizes are intentional and approved** — see §4.1.
 
@@ -262,40 +265,50 @@ Binding constraint: asymmetry in *breadth* is approved; asymmetry in *viability*
 North Korea must be able to win. The §1.3 counter-tables are the check, and they are
 re-examined after expansion.
 
-### 4.2 South Korean aircraft — **RULED, and one actor added**
+### 4.2 South Korean aircraft — **FLAGGED, your call. All four still in the roster**
 
-Three of the four proposed South Korean aircraft failed the §8.9 airframe cap:
+Three of the four proposed South Korean aircraft would be affected if the §8.9
+shared-airframe cap is approved:
 
-- `KRF35` — the two F-35 slots are allocated to `usa` and `israel`. **Cut.**
-- `KRAH64` — the Apache family is closed at stock `HELI` plus Saudi's `AH64SA`. **Cut.**
-- `KRTRAN` — a second Chinook in the same transport role as stock `TRAN`. **Cut.**
+- `KRF35` — the F-35 family would be capped at two, and `usa` and `israel` hold them.
+- `KRAH64` — the Apache family would be closed at stock `HELI` plus Saudi's `AH64SA`.
+- `KRTRAN` — a second Chinook in the same transport role as stock `TRAN`.
 
-That would have left the faction with `KRUAV` alone, which is not a roster. Rather than
-weaken the cap for one faction, the fix is to give South Korea aircraft it can actually
-own:
+**None of them has been removed.** All four are listed in §2.2 with their slots intact.
 
-- **`KRFIGHT`** — a domestically produced fighter programme. This is a *better* outcome
-  than a third F-35: it is a distinct twin-engine planform rather than a fourth
-  single-engine stealth silhouette, and it gives the faction an identity no other pack
-  can duplicate. **Status discipline is mandatory here** — a domestic fighter programme
-  moving through flight test and early production must be labelled by its actual status
-  at expansion, not presented as a mature fleet.
-- **`KRHELI`** — a light armed or scout helicopter from a domestic programme, filling the
-  rotary slot the Apache cut vacated without touching the Apache family.
+Because approving §8.9 would leave the faction with `KRUAV` alone, two alternatives have
+been **added** so the choice is not between a rule and an empty roster:
 
-Both need official ROK MND, DAPA, or manufacturer sourcing at expansion. Neither is
-sourced yet, and neither may be written up until it is.
+- **`KRFIGHT`** — a domestically produced fighter programme. Arguably a better outcome
+  than a third F-35 regardless of §8.9: a distinct twin-engine planform rather than a
+  fourth single-engine stealth silhouette, and an identity no other pack can duplicate.
+  **Status discipline is mandatory** — a domestic programme moving through flight test
+  and early production must be labelled by its actual status, not presented as a mature
+  fleet.
+- **`KRHELI`** — a light armed or scout helicopter from a domestic programme, covering
+  the rotary slot without touching the Apache family.
 
-### 4.3 Mobile air defense — **RULED**
+Neither is sourced yet. Both need official ROK MND, DAPA, or manufacturer citations
+before they can be written up, and that is the first research task at expansion.
 
-Under §8.10:
+Possible outcomes, all live:
 
-- **`KRSHORAD` cut.** South Korea's layered air and missile defense is doctrinally real,
-  but it is expressed through the static `KRSAM` battery and its naval Aegis hull. A
-  seventh mobile air-defense vehicle in the catalog is not.
-- **`KPAAA` admitted.** It occupies the massed-light-gun-without-radar niche, which
-  nothing else holds, and it is North Korea's only answer to South Korean and U.S. air
-  power. Cutting it would break the pairing.
+| §8.9 outcome | South Korean air roster |
+| --- | --- |
+| Cap at two | `KRFIGHT`, `KRHELI`, `KRUAV` |
+| Cap at three | `KRF35` or `KRAH64` returns alongside the domestic pair |
+| Role-only, no cap | Keep `KRF35`, `KRAH64`, `KRTRAN`, `KRUAV`, each with its own sprite set and a distinct role |
+| Grandfather drawn art only | Nothing here has art yet, so this behaves like the chosen cap |
+
+### 4.3 Mobile air defense — **`KRSHORAD` flagged, `KPAAA` unaffected**
+
+- **`KRSHORAD`** would be cut under the §8.10 proposal, on the grounds that South Korea's
+  layered air and missile defense is expressed through the static `KRSAM` battery and its
+  naval Aegis hull, and that a seventh mobile air-defense vehicle in the catalog is a lot.
+  **It has not been removed** — it is still listed in §2.2.
+- **`KPAAA`** survives under either outcome. It occupies the massed-light-gun-without-radar
+  niche that nothing else holds, and it is North Korea's only answer to South Korean and
+  U.S. air power. Cutting it would break the pairing, so it is not proposed for cutting.
 
 ### 4.4 North Korean artillery versus shipped rocket artillery — **Watch**
 
@@ -367,8 +380,9 @@ Five of the nine questions previously listed here have been ruled. What remains:
 
 Done:
 
-- [x] Inherited rulings from `docs/faction-spec-usa.md` §8.5, §8.9, §8.10 applied
-- [x] `KRF35`, `KRAH64`, `KRTRAN`, `KRSHORAD` cut; `KRFIGHT` and `KRHELI` added and collision-audited
+- [x] Applied ruling from `docs/faction-spec-usa.md` §8.5 — removes nothing
+- [x] Full rosters preserved; `KRF35`, `KRAH64`, `KRTRAN`, `KRSHORAD` flagged rather than cut
+- [x] `KRFIGHT` and `KRHELI` added as alternatives and collision-audited
 - [x] Roster asymmetry ruled — approved, with a viability constraint attached
 - [x] Tunnel mechanic ruled — reuse the existing Transit network module
 - [x] Counterbattery feasibility given a concrete starting pattern
@@ -377,6 +391,8 @@ Done:
 
 Remaining:
 
+- [ ] §8.9 shared-airframe proposal decided — determines whether `KRF35`, `KRAH64`, and `KRTRAN` stay
+- [ ] §8.10 mobile air-defense proposal decided — determines whether `KRSHORAD` stays
 - [ ] §5.1 §0.1 and §0.2 explicitly confirmed
 - [ ] §5.2 North Korean sourcing budget accepted, and a post-2021 second source identified
 - [ ] §5.3 `KRFIGHT` and `KRHELI` sourced with status labels

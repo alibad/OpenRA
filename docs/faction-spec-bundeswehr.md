@@ -6,17 +6,16 @@ Held at outline depth by the assignment governing this workstream. The blocking
 decisions in `docs/faction-spec-usa.md` have now been ruled, and this document's own
 configuration questions are ruled below rather than left open:
 
-| Ruling | Effect here |
-| --- | --- |
-| §8.9 airframe cap of two, second must differ in role | **`BWTRAN` is cut.** A CH-47F would be the second Chinook, which the cap permits — but in the *same* transport role as stock `TRAN`, which the second clause forbids. The faction uses stock `TRAN` |
-| §8.10 mobile air defense needs a doctrine gate and a free niche | **`BWSHORAD` is admitted** in the radar-directed gun-only niche, which nothing else occupies. Air defense is explicitly central to this faction's doctrine |
-| §8.5 naming policy | Generic display names for buildings and defenses; real designations for vehicles, aircraft, and ships |
-| Local: Leopard configuration | **2A7V (fielded)**, consistent with choosing the fielded M1A2 SEP v3 for the U.S. tank |
-| Local: artillery | **PzH 2000**, not RCH 155 — avoids a third Boxer-hulled vehicle in a six-vehicle roster |
-| Local: display language | German proper nouns with an English role gloss, matching Turkey's shipped practice |
+**The roster in §2 is intact. Nothing has been removed from it.**
 
-Aircraft roster after the cut: `BWEF`, `BWHELI`, `BWUAV` — three, within the roadmap's
-preferred range.
+| Item | Effect here |
+| --- | --- |
+| Local: Leopard configuration — **applied** | **2A7V (fielded)**, consistent with choosing the fielded M1A2 SEP v3 for the U.S. tank. A configuration choice, not a removal |
+| Local: artillery — **applied** | **PzH 2000**, not RCH 155 — avoids a third Boxer-hulled vehicle in a six-vehicle roster. A configuration choice between two candidates for one slot; the slot stays |
+| Local: display language — **applied** | German proper nouns with an English role gloss, matching Turkey's shipped practice |
+| `docs/faction-spec-usa.md` §8.5 naming policy — **applied** | Generic display names for buildings and defenses; real designations for vehicles, aircraft, and ships |
+| §8.9 shared-airframe cap — **proposal only** | If approved, `BWTRAN` would be cut as a second Chinook in the same transport role as stock `TRAN`. **`BWTRAN` remains in the roster below** until you decide |
+| §8.10 mobile air-defense niche gate — **proposal only** | Under it `BWSHORAD` would be admitted in the radar-directed gun-only niche. Either way it stays; air defense is explicitly central to this faction's doctrine |
 
 Sources accessed **2026-08-16**. Re-check at freeze time.
 
@@ -86,7 +85,7 @@ at tree state `a0f751b972`. **Zero collisions.** The `BW` prefix is unused.
 | Aircraft | `BWEF` | Multirole fighter | Eurofighter |
 | Aircraft | `BWHELI` | Light utility / armed helicopter | H145M |
 | Aircraft | `BWUAV` | Reconnaissance UAS | Reconnaissance drone |
-| ~~Aircraft~~ | ~~`BWTRAN`~~ | ~~Heavy transport helicopter~~ | **CUT** by the §8.9 second clause. Id reserved, not reused |
+| Aircraft | `BWTRAN` | Heavy transport helicopter | CH-47F — **flagged** by the §8.9 proposal, still in the roster |
 | Navy | `BWFRIG` | Frigate | F125 or F126-class |
 | Navy | `BWSUB` | Submarine | Type 212A |
 | Navy | `BWCORV` | Corvette | Braunschweig-class |
@@ -96,10 +95,11 @@ at tree state `a0f751b972`. **Zero collisions.** The `BW` prefix is unused.
 | Defenses | `BWBUNKER` | Protected anti-armor position | Hardened fighting position |
 
 Reserved husk and sink ids: `BWMBT.Husk`, `BWIFV.Husk`, `BWWHEEL.Husk`, `BWSPH.Husk`,
-`BWSHORAD.Husk`, `BWENG.Husk`, `BWEF.Husk`, `BWHELI.Husk`, `BWUAV.Husk`, `BWFRIG.Sink`,
-`BWSUB.Sink`, `BWCORV.Sink`.
+`BWSHORAD.Husk`, `BWENG.Husk`, `BWEF.Husk`, `BWHELI.Husk`, `BWUAV.Husk`, `BWTRAN.Husk`,
+`BWFRIG.Sink`, `BWSUB.Sink`, `BWCORV.Sink`.
 
-Roster shape after the `BWTRAN` cut: 4 infantry, 6 vehicles, **3** aircraft, 3 naval.
+Roster shape: 4 infantry, 6 vehicles, 4 aircraft, 3 naval. Two actors carry open flags
+rather than cuts: `BWTRAN` (§4.3) and `BWWHEEL` (§4.5).
 
 ---
 
@@ -160,23 +160,30 @@ A heavy tracked howitzer, not a wheeled turreted gun on a Boxer chassis. `BWWHEE
 roster would make half the faction one silhouette. The tracked/wheeled split is the
 cheapest possible way to keep the roster readable.
 
-### 4.3 `BWTRAN` — **RULED: cut**
+### 4.3 `BWTRAN` — **FLAGGED, your call. Still in the roster**
 
-Stock Allies `TRAN` is a tandem-rotor Chinook. Under §8.9 a second Chinook is within the
-family cap, but it must occupy a different tactical role, and a CH-47F transport is the
-same role. Cut. The faction uses stock `TRAN`, which it inherits as an Allies-side pack.
+Stock Allies `TRAN` is a tandem-rotor Chinook, so a CH-47F `BWTRAN` would be a second
+Chinook silhouette in the same transport role.
 
-Cost accepted: the faction has no faction-specific heavy lift. Given that `BWHELI` covers
-light utility and the roster is already vehicle-heavy, this is a cheap loss.
+Recommendation: cut it and let the faction use stock `TRAN`, which it inherits as an
+Allies-side pack. That is the §8.9 proposal, which is **not approved**, so the actor
+stays listed until you decide.
 
-### 4.4 Mobile air defense — **RULED: `BWSHORAD` admitted**
+Counter-argument worth weighing: German CH-47F procurement is real and recent, and a
+faction-specific heavy lift is a legitimate identity element. If §8.9 lands on the
+role-only variant, or on grandfathering, `BWTRAN` survives on the condition that it looks
+meaningfully different from stock `TRAN` at native scale — which for a tandem-rotor
+transport is a genuinely hard art problem and should be judged on the concept board
+rather than argued in text.
 
-Under §8.10 a faction gets a mobile air-defense vehicle only if air defense is central to
-its doctrine and the engagement niche is free. Both hold: air defense is named in this
-faction's doctrine, and the **radar-directed gun-only** niche is unoccupied. The four
-shipped systems (`GOKKALKAN`, `SADS`, `CNMANTIS`, `IRRAAD`) are all missile-only and that
-niche is now closed; `USSHORAD` holds gun-and-missile; North Korea's `KPAAA` holds massed
-light gun without radar.
+### 4.4 Mobile air defense — **`BWSHORAD` keeps its slot either way**
+
+Under the §8.10 proposal a faction gets a mobile air-defense vehicle only if air defense
+is central to its doctrine and the engagement niche is free. Both hold here: air defense
+is named in this faction's doctrine, and the **radar-directed gun-only** niche is
+unoccupied — the four shipped systems (`GOKKALKAN`, `SADS`, `CNMANTIS`, `IRRAAD`) are all
+missile-only. So `BWSHORAD` survives whether §8.10 is approved or not, and this section
+needs no decision from you.
 
 Skyranger 30's distinguishing read is the large rotating gun turret with a prominent
 radar panel on a wheeled hull. **Status discipline:** the Bundeswehr source describes an
@@ -231,17 +238,18 @@ Six of the seven questions previously listed here have been ruled. What remains:
 
 Done:
 
-- [x] Inherited rulings from `docs/faction-spec-usa.md` §8.5, §8.9, §8.10 applied
+- [x] Applied ruling from `docs/faction-spec-usa.md` §8.5 — removes nothing
 - [x] Leopard configuration ruled — 2A7V, fielded
 - [x] Artillery ruled — PzH 2000
-- [x] `BWTRAN` cut; aircraft roster resolved to three
-- [x] Mobile air defense ruled — `BWSHORAD` admitted in a free niche
 - [x] Display language ruled — German proper nouns with an English role gloss
+- [x] Mobile air defense — `BWSHORAD` keeps its slot under either outcome of §8.10
 - [x] Actor-id collision audit run — zero collisions, `BW` prefix unused
 - [x] Source anchors gathered and link-checked — all nine returned HTTP 200
+- [x] Full roster preserved; `BWTRAN` flagged rather than cut
 
 Remaining:
 
+- [ ] §8.9 shared-airframe proposal decided — determines whether `BWTRAN` stays
 - [ ] §5.1 lobby clarity text agreed
 - [ ] §5.2 wheeled carrier allocation settled between this document and the Israel one
 - [ ] §5.3 depiction posture agreed once, programme-wide
