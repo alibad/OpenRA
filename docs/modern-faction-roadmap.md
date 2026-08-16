@@ -10,6 +10,47 @@ live gameplay all agree. Actor ids and visual contracts are frozen before
 sprite production so research and implementation can proceed in parallel
 without creating incompatible assets.
 
+## Contract status
+
+Gate 1 (research and identity contract) has been delivered for all four production
+units. The contracts are the authority on rosters, actor ids, and visual landmarks;
+this roadmap remains the authority on sequencing and gates.
+
+| Faction | Contract | State |
+| --- | --- | --- |
+| United States (`usa`) | [`faction-spec-usa.md`](faction-spec-usa.md) | **Complete.** All decisions settled. One blocker before freeze: the source links that block automated retrieval must be opened and confirmed by a human (see its §9.1) |
+| Israel (`israel`) | [`faction-spec-israel.md`](faction-spec-israel.md) | Sourced outline. Cross-faction rulings applied; expands after the U.S. contract is frozen |
+| Germany (Modern) (`bundeswehr`) | [`faction-spec-bundeswehr.md`](faction-spec-bundeswehr.md) | Sourced outline. The only faction whose entire source set was directly retrievable |
+| The Koreas (`northkorea`, `southkorea`) | [`faction-spec-koreas.md`](faction-spec-koreas.md) | Sourced outline. Carries a two-source corroboration policy for every North Korean actor |
+
+No actor has been removed from any roster in this programme. Where a proposal would have
+cut one, it is recorded with its reasoning and the roster kept intact.
+
+## Programme-wide rules
+
+These bind every faction pack and were settled during the U.S. contract rather than
+being answered separately four times. Each is reversible, but reversing one that removes
+content requires product-owner approval.
+
+- **Shared airframes.** An airframe family may repeat across packs provided each
+  appearance has a **distinct tactical role** and ships its **own sprite set**.
+  Palette-only variants remain forbidden. **The rule never applies to art that already
+  exists or is in progress** — anything drawn is grandfathered permanently.
+- **Mobile air defense.** Any faction may field one. Distinctness is enforced on
+  **mechanics**, not by rationing the slot.
+- **Active protection.** The United States owns the turret-mounted, tank-only version;
+  Israel owns the hull-mounted carrier version with coverage extending to nearby
+  infantry. Different magazines, recharges, and mount points.
+- **Naming and trademarks.** Generic display names for buildings and defenses; real
+  designations for vehicles, aircraft, and ships. Real-world basis stays documented in
+  the contract regardless.
+- **Equipment status discipline.** Prototypes and procurement are labelled as such and
+  never presented as current inventory. This already applies to M1E3, XM30,
+  Skyranger 30, Chunmoo 3.0, and every proposed Korean domestic programme.
+- **Depiction.** Unit descriptions state gameplay function and do not editorialise. No
+  pack in this programme gets a fanatic, human-wave, or morale-suicide mechanic, and no
+  unit, name, or line references a real operation, place, or event.
+
 ## Current baseline
 
 - China, Iran, Saudi Arabia, Yemen, and Turkey already have distinct infantry
@@ -34,13 +75,20 @@ without creating incompatible assets.
    the catalog.
 2. **United States.** Add a new optional `usa` faction rather than repurposing
    the hidden Allies base. This is the first wholly new graphics set.
+   *Gate 1 complete — see `faction-spec-usa.md`. Doctrine is networked joint
+   fires built on one mechanic, fires-network coverage, which was verified
+   buildable from existing engine traits with no new code.*
 3. **Israel.** Build a defensive combined-arms faction around armored
    protection, reconnaissance, unmanned systems, and layered interception.
+   *Sourced outline delivered.*
 4. **Germany (Modern).** Add `bundeswehr` while retaining classic Germany.
    Emphasize protected mechanized teams, precision fires, and air defense.
+   *Sourced outline delivered.*
 5. **The Koreas as a pair.** Design North Korea and South Korea together so
    artillery pressure, fortification, reconnaissance, counterbattery fire, and
    missile defense have deliberate counters rather than one-sided gimmicks.
+   *Sourced outline delivered, with the heaviest remaining research burden of
+   the four — every North Korean actor needs two independent sources.*
 6. **Later candidates.** Taiwan and India/Pakistan are stronger faction-pair
    candidates than isolated additions. Ukraine, Russia, Sudan, Myanmar, the
    Sahel, and eastern DRC are better evaluated first as scenario or coalition
@@ -69,6 +117,13 @@ expensive frontline platforms and dependency on connected support units.
 The M1 decision is a required accuracy gate: use the fielded M1A2 if the pack
 represents the present day, or label the M1E3 and XM30 honestly as near-future
 systems. They must not silently appear as mature current inventory.
+
+**Resolved.** The pack uses the fielded **M1A2 SEP v3**, keeping the roster present-day
+and consistent with every shipped pack. M1E3 and XM30 are recorded as prototypes and are
+not in the roster. Because Saudi Arabia already ships `M1A2S`, the U.S. tank carries
+three mandatory visual deltas and a concept-board comparison gate; see
+`faction-spec-usa.md` §8.1. The frozen roster and actor ids live in that contract, not in
+the candidate table above.
 
 ### Israel (`israel`)
 
@@ -211,12 +266,20 @@ One integration owner accepts changes in that order. Global files such as
 `mods/ra/experiences.yaml`, shared sequence catalogs, and generator manifests
 are integration-owned even when another workstream proposes their contents.
 
+**Removals are product decisions, not workstream decisions.** A workstream may propose
+cutting a unit and must record the reasoning, but it does not act on that proposal.
+This applies to proposed content as much as to shipped content — the habit is what
+matters, because the cost of getting it wrong rises sharply once art exists.
+
 ## Planning checkpoints
 
 - **Checkpoint A:** existing optional factions have complete domain-wide art
-  audits and an explicit remaining-gap list.
+  audits and an explicit remaining-gap list. *Not started.*
 - **Checkpoint B:** the U.S. contract and concept board are approved; only then
-  generate the full U.S. sheets.
+  generate the full U.S. sheets. *Contract half delivered and settled; blocked
+  only on human source verification. Concept board not started, and it carries
+  two mandatory side-by-side comparisons: `USMBT` beside `M1A2S`, and `USICV`
+  beside Turkey's `ARAS8`, both at native scale on all three palettes.*
 - **Checkpoint C:** the U.S. faction passes live acceptance and becomes the
   quality bar for Israel and Germany (Modern).
 - **Checkpoint D:** Israel and Germany pass independently without altering the
@@ -228,6 +291,17 @@ are integration-owned even when another workstream proposes their contents.
 
 These links are starting points, not a substitute for the per-actor evidence
 table. Re-check them at contract freeze time because equipment status changes.
+
+**Verification caveat, learned the hard way.** `army.mil`, `af.mil`, `afsoc.af.mil`,
+`navy.mil`, `dia.mil`, `media.defense.gov`, `crsreports.congress.gov`, and `mod.gov.il`
+all return HTTP 403 to automated requests. Their URLs can be confirmed as well-formed and
+on the right domain, but the pages cannot be read that way. `bundeswehr.de`,
+`dapa.go.kr`, `mnd.go.kr`, `idf.il`, `dvidshub.net`, and `rtx.com` do respond.
+
+This is not a formality: the one manufacturer page that *could* be fetched during the
+U.S. research pass immediately contradicted a claim taken from a search summary, and the
+claim was retracted. Treat any citation that was never opened directly as unverified
+until a human opens it.
 
 - U.S. Army: [Army Transformation Initiative](https://www.army.mil/article-amp/285100/letter_to_the_force_army_transformation_initiative), [ground combat platforms](https://cpeground.army.mil/Combat-Platforms/), [M1E3 early prototype](https://www.army.mil/article-amp/290052/us_army_unveils_early_abrams_prototype_at_north_american_international_auto_show), and [Project ARIA](https://www.army.mil/article/290864/harnessing_ai_for_the_future_army_unveils_project_aria).
 - Bundeswehr: [Leopard 2](https://www.bundeswehr.de/de/ausruestung-technik-bundeswehr/landsysteme-bundeswehr/leopard-2), [Puma](https://www.bundeswehr.de/de/ausruestung-technik-bundeswehr/landsysteme-bundeswehr/schuetzenpanzer-puma), and [procurement overview](https://www.bundeswehr.de/de/beschaffung/beschaffung-planungsprozess).
