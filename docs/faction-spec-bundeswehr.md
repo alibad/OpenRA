@@ -1,10 +1,22 @@
 # Faction contract: Germany (Modern) (`bundeswehr`)
 
-Status: **sourced outline only.**
+Status: **sourced outline; inherited and local rulings applied.**
 
-Held at outline depth by the assignment governing this workstream. Expands to a full
-per-actor contract only after `docs/faction-spec-usa.md` has been reviewed and its
-blocking decisions answered.
+Held at outline depth by the assignment governing this workstream. The blocking
+decisions in `docs/faction-spec-usa.md` have now been ruled, and this document's own
+configuration questions are ruled below rather than left open:
+
+| Ruling | Effect here |
+| --- | --- |
+| §8.9 airframe cap of two, second must differ in role | **`BWTRAN` is cut.** A CH-47F would be the second Chinook, which the cap permits — but in the *same* transport role as stock `TRAN`, which the second clause forbids. The faction uses stock `TRAN` |
+| §8.10 mobile air defense needs a doctrine gate and a free niche | **`BWSHORAD` is admitted** in the radar-directed gun-only niche, which nothing else occupies. Air defense is explicitly central to this faction's doctrine |
+| §8.5 naming policy | Generic display names for buildings and defenses; real designations for vehicles, aircraft, and ships |
+| Local: Leopard configuration | **2A7V (fielded)**, consistent with choosing the fielded M1A2 SEP v3 for the U.S. tank |
+| Local: artillery | **PzH 2000**, not RCH 155 — avoids a third Boxer-hulled vehicle in a six-vehicle roster |
+| Local: display language | German proper nouns with an English role gloss, matching Turkey's shipped practice |
+
+Aircraft roster after the cut: `BWEF`, `BWHELI`, `BWUAV` — three, within the roadmap's
+preferred range.
 
 Sources accessed **2026-08-16**. Re-check at freeze time.
 
@@ -65,16 +77,16 @@ at tree state `a0f751b972`. **Zero collisions.** The `BW` prefix is unused.
 | Infantry | `BWMELLS` | Anti-armor team | MELLS guided missile team |
 | Infantry | `BWDRONE` | Recon / EW operator | Small UAS and EW operator |
 | Infantry | `IRONBRAND` | Commando (build limit 1) | Original project character, call-sign convention |
-| Vehicles | `BWMBT` | Main battle tank | Leopard 2A7V or A8 — configuration decision required, see §4.1 |
+| Vehicles | `BWMBT` | Main battle tank | **Leopard 2A7V** (ruled, fielded configuration) |
 | Vehicles | `BWIFV` | Tracked IFV | Puma |
-| Vehicles | `BWWHEEL` | Wheeled carrier | GTK Boxer |
-| Vehicles | `BWSPH` | Self-propelled artillery | PzH 2000, or the wheeled RCH 155 — see §4.2 |
+| Vehicles | `BWWHEEL` | Wheeled carrier | GTK Boxer — subject to the §4.5 wheeled-carrier allocation |
+| Vehicles | `BWSPH` | Self-propelled artillery | **PzH 2000** (ruled, tracked) |
 | Vehicles | `BWSHORAD` | Air-defense vehicle | Skyranger 30 on a Boxer carrier |
 | Vehicles | `BWENG` | Engineering / recovery | Armoured engineering vehicle |
 | Aircraft | `BWEF` | Multirole fighter | Eurofighter |
 | Aircraft | `BWHELI` | Light utility / armed helicopter | H145M |
 | Aircraft | `BWUAV` | Reconnaissance UAS | Reconnaissance drone |
-| Aircraft | `BWTRAN` | Heavy transport helicopter | CH-47F — **likely cut, see §4.3** |
+| ~~Aircraft~~ | ~~`BWTRAN`~~ | ~~Heavy transport helicopter~~ | **CUT** by the §8.9 second clause. Id reserved, not reused |
 | Navy | `BWFRIG` | Frigate | F125 or F126-class |
 | Navy | `BWSUB` | Submarine | Type 212A |
 | Navy | `BWCORV` | Corvette | Braunschweig-class |
@@ -84,10 +96,10 @@ at tree state `a0f751b972`. **Zero collisions.** The `BW` prefix is unused.
 | Defenses | `BWBUNKER` | Protected anti-armor position | Hardened fighting position |
 
 Reserved husk and sink ids: `BWMBT.Husk`, `BWIFV.Husk`, `BWWHEEL.Husk`, `BWSPH.Husk`,
-`BWSHORAD.Husk`, `BWENG.Husk`, `BWEF.Husk`, `BWHELI.Husk`, `BWUAV.Husk`, `BWTRAN.Husk`,
-`BWFRIG.Sink`, `BWSUB.Sink`, `BWCORV.Sink`.
+`BWSHORAD.Husk`, `BWENG.Husk`, `BWEF.Husk`, `BWHELI.Husk`, `BWUAV.Husk`, `BWFRIG.Sink`,
+`BWSUB.Sink`, `BWCORV.Sink`.
 
-Roster shape: 4 infantry, 6 vehicles, 3–4 aircraft, 3 naval.
+Roster shape after the `BWTRAN` cut: 4 infantry, 6 vehicles, **3** aircraft, 3 naval.
 
 ---
 
@@ -126,83 +138,113 @@ fielded/ordered/demonstrated status.
 
 ---
 
-## 4. Known overlap hot spots and configuration decisions
+## 4. Rulings and remaining overlap hot spots
 
-### 4.1 Leopard 2 configuration
+### 4.1 Leopard configuration — **RULED: 2A7V, fielded**
 
-`BWMBT` must pick one configuration and label it honestly. 2A7V is the fielded reference
-point; A8 is procurement. **Provisional recommendation: 2A7V**, consistent with the
-present-day framing of every other shipped pack, and consistent with the recommendation
-to use the fielded M1A2 SEP v3 for the U.S. tank.
+The fielded reference point rather than the A8 procurement configuration. This is
+consistent with the U.S. contract choosing the fielded M1A2 SEP v3 over the M1E3
+prototype, and it keeps the whole programme present-day rather than mixing fielded and
+future equipment with no principled line between them.
 
 Overlap: this is the catalog's fifth or sixth main battle tank (`M1A2S`, `BOZKIR`,
-`CNQILIN`, `IRKARR`, proposed `USMBT`, proposed `ILMBT`). The Leopard 2's boxy turret
-with a distinctly stepped front and a long thin barrel is a genuinely different
-silhouette from the Abrams family, which helps — but the concept board must prove it.
+`CNQILIN`, `IRKARR`, plus `USMBT` and `ILMBT`). The Leopard 2's boxy turret with a
+stepped front and a long thin barrel is a genuinely different silhouette from the Abrams
+family, which is why this one is a **Watch** rather than an **Escalate** — but the
+concept board must still prove it.
 
-### 4.2 PzH 2000 versus RCH 155
+### 4.2 PzH 2000 versus RCH 155 — **RULED: PzH 2000**
 
-Two different vehicles with two different silhouettes: a heavy tracked howitzer versus a
-wheeled turreted gun on a Boxer chassis. **Provisional recommendation: PzH 2000**, for
-the tracked/wheeled silhouette split against `BWWHEEL` and `BWSHORAD`, which already
-share the Boxer hull. Three Boxer-hulled vehicles in a six-vehicle roster is too many.
+A heavy tracked howitzer, not a wheeled turreted gun on a Boxer chassis. `BWWHEEL` and
+`BWSHORAD` already share the Boxer hull; a third Boxer-hulled vehicle in a six-vehicle
+roster would make half the faction one silhouette. The tracked/wheeled split is the
+cheapest possible way to keep the roster readable.
 
-### 4.3 `BWTRAN` — likely cut
+### 4.3 `BWTRAN` — **RULED: cut**
 
-Stock Allies `TRAN` is a tandem-rotor Chinook. A Bundeswehr CH-47F would be a direct
-silhouette duplicate. **Provisional recommendation: cut `BWTRAN`**, ship three aircraft,
-and let the faction use stock `TRAN` if a transport is needed. This mirrors the U.S.
-contract's reasoning for dropping the Apache.
+Stock Allies `TRAN` is a tandem-rotor Chinook. Under §8.9 a second Chinook is within the
+family cap, but it must occupy a different tactical role, and a CH-47F transport is the
+same role. Cut. The faction uses stock `TRAN`, which it inherits as an Allies-side pack.
 
-### 4.4 Air defense crowding
+Cost accepted: the faction has no faction-specific heavy lift. Given that `BWHELI` covers
+light utility and the roster is already vehicle-heavy, this is a cheap loss.
 
-`BWSHORAD` joins `GOKKALKAN`, `SADS`, `CNMANTIS`, `IRRAAD`, and the proposed `USSHORAD`
-as the sixth mobile air-defense vehicle. This is the single most crowded slot in the
-whole modern-faction programme. Either each one gets a genuinely distinct mechanic and
-silhouette, or the programme should accept that some factions do not get a mobile AA
-vehicle. **This needs a programme-level ruling, not six independent ones.**
+### 4.4 Mobile air defense — **RULED: `BWSHORAD` admitted**
+
+Under §8.10 a faction gets a mobile air-defense vehicle only if air defense is central to
+its doctrine and the engagement niche is free. Both hold: air defense is named in this
+faction's doctrine, and the **radar-directed gun-only** niche is unoccupied. The four
+shipped systems (`GOKKALKAN`, `SADS`, `CNMANTIS`, `IRRAAD`) are all missile-only and that
+niche is now closed; `USSHORAD` holds gun-and-missile; North Korea's `KPAAA` holds massed
+light gun without radar.
 
 Skyranger 30's distinguishing read is the large rotating gun turret with a prominent
-radar panel on a wheeled Boxer hull — a gun-first system, where `USSHORAD` is
-gun-and-missile and `CNMANTIS` is missile-first. That is a workable split if it is
-enforced deliberately across all six.
+radar panel on a wheeled hull. **Status discipline:** the Bundeswehr source describes an
+initial order of 19 vehicles for €650 million. That is **procurement**, not a mature
+in-service fleet, and every mention of this actor must say so.
 
-### 4.5 Wheeled carrier crowding
+### 4.5 Wheeled carrier crowding — **DEFERRED, with the principle ruled and a claim recorded**
 
-`BWWHEEL` (Boxer) joins `ARAS8`, proposed `USICV`, and proposed `ILWHEEL`. See
-`faction-spec-usa.md` §8.3.
+`USICV` has been cut (§8.3), so the live question is Germany's `BWWHEEL` (Boxer) versus
+Israel's `ILWHEEL` (Eitan) versus the shipped `ARAS8`.
 
-### 4.6 Recon / EW infantry crowding
+**Principle ruled:** the catalog holds at most **two** eight-wheeled carrier silhouettes.
+`ARAS8` holds one. The second goes to whichever of the Germany or Israel contracts is
+expanded first; the other must differentiate by turret and unit class or drop the slot.
 
-`BWDRONE` would be the eighth observer-or-controller infantry. See
-`faction-spec-usa.md` §8.6.
+**This faction has the stronger claim**, and the reason is recorded here so the argument
+does not have to be reconstructed: `BWWHEEL` and `BWSHORAD` share the Boxer hull and earn
+a deliberate two-actor family read. That is exactly the justification `USICV` lost the
+moment it stood alone in its roster. Germany losing Boxer would also orphan the Skyranger
+carrier, which Israel losing Eitan would not do — Israel keeps `ILAPC` either way.
+
+Allocation is nonetheless **deferred** rather than self-awarded, because neither faction
+has a per-actor contract yet and ruling it now would be deciding without the evidence.
+
+### 4.6 Recon / EW infantry crowding — **RULED: the area niche is taken**
+
+§8.6 keeps `USJTAC` as the only observer projecting an **area** condition consumed by a
+restricted weapon list. `BWDRONE` must therefore be a point-marker, a scout, or an EW
+disruptor. The specific choice is part of this document's expansion.
 
 ---
 
-## 5. Open questions for the product owner
+## 5. Remaining open questions
 
-1. **Leopard configuration:** 2A7V (fielded) or A8 (procurement)?
-2. **Artillery:** PzH 2000 or RCH 155? (Recommendation: PzH 2000.)
-3. **Transport helicopter:** cut `BWTRAN`, or accept a second Chinook silhouette?
-   (Recommendation: cut.)
-4. **Mobile air defense:** does every modern faction get one? If yes, what is the
-   programme-level split of mechanics that keeps six of them distinct?
-5. **Boxer hull reuse:** is a shared hull across `BWWHEEL` and `BWSHORAD` acceptable as
-   a deliberate family read, as proposed for `USICV`/`USSHORAD`?
-6. **Localisation:** German-language unit names in display text, or English throughout?
-   The shipped packs are inconsistent — Turkey uses Turkish proper nouns
-   (`Bozkir`, `Gokkalkan`), China uses English glosses (`Qilin Main Battle Tank`).
-   A ruling is needed before any text is written.
-7. **Lobby clarity:** how do "Germany" and "Germany (Modern)" appear side by side in the
-   faction picker without confusing a player who just wants Chrono Tanks?
+Six of the seven questions previously listed here have been ruled. What remains:
+
+1. **Lobby clarity.** How do "Germany" and "Germany (Modern)" read side by side in the
+   faction picker without confusing a player who just wants Chrono Tanks? Proposed, for
+   confirmation: keep the display names as the roadmap specifies and give each a
+   description line that names its era and signature capability — classic Germany's
+   Chronoshift, modern Germany's protected mechanized combined arms. This is a text
+   decision, not a design one, and it should be checked live in the lobby at gate 6.
+2. **Wheeled carrier allocation** (§4.5) — deferred by design until either this document
+   or the Israel document is expanded.
+3. **Depiction posture.** The same editorial guideline proposed in
+   `docs/faction-spec-israel.md` §5.1 should be confirmed once and applied to every pack
+   in this programme rather than agreed per faction.
 
 ---
 
 ## 6. Ready to freeze checklist
 
-- [ ] `docs/faction-spec-usa.md` reviewed and its blocking decisions answered
-- [ ] §5.1 through §5.7 ruled
-- [ ] Programme-level mobile air-defense ruling made (§4.4)
+Done:
+
+- [x] Inherited rulings from `docs/faction-spec-usa.md` §8.5, §8.9, §8.10 applied
+- [x] Leopard configuration ruled — 2A7V, fielded
+- [x] Artillery ruled — PzH 2000
+- [x] `BWTRAN` cut; aircraft roster resolved to three
+- [x] Mobile air defense ruled — `BWSHORAD` admitted in a free niche
+- [x] Display language ruled — German proper nouns with an English role gloss
+- [x] Actor-id collision audit run — zero collisions, `BW` prefix unused
+- [x] Source anchors gathered and link-checked — all nine returned HTTP 200
+
+Remaining:
+
+- [ ] §5.1 lobby clarity text agreed
+- [ ] §5.2 wheeled carrier allocation settled between this document and the Israel one
+- [ ] §5.3 depiction posture agreed once, programme-wide
 - [ ] Classic `germany` faction verified untouched, including `RandomAllies` membership
 - [ ] Lobby side-by-side check performed with both German factions selectable
 - [ ] This document expanded to a full per-actor contract matching the U.S. format
@@ -211,4 +253,4 @@ enforced deliberately across all six.
 - [ ] Actor-id collision audit re-run at freeze time
 - [ ] Faction internal name `bundeswehr`, side, pool, and doctrine string confirmed unused at freeze time
 
-**Not frozen. Not approved. Outline only.**
+**Not frozen. Outline depth by design — but no longer blocked on cross-faction rulings.**

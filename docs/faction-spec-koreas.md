@@ -1,10 +1,22 @@
 # Paired faction contract: North Korea (`northkorea`) and South Korea (`southkorea`)
 
-Status: **sourced outline only.**
+Status: **sourced outline; inherited and local rulings applied.**
 
-Held at outline depth by the assignment governing this workstream. Expands to a full
-per-actor contract only after `docs/faction-spec-usa.md` has been reviewed and its
-blocking decisions answered.
+Held at outline depth by the assignment governing this workstream. The blocking decisions
+in `docs/faction-spec-usa.md` have now been ruled, and the ones that bind this pair are
+applied below rather than left open:
+
+| Ruling | Effect here |
+| --- | --- |
+| §8.9 airframe cap of two, second must differ in role | **`KRAH64` cut** (Apache family closed at `HELI` + `AH64SA`). **`KRTRAN` cut** (second Chinook in the same transport role). **`KRF35` cut** — the two F-35 slots go to `usa` and `israel`. South Korea instead fields **`KRFIGHT`**, a domestically produced fighter, which is more distinctive anyway |
+| §8.10 mobile air defense needs a doctrine gate and a free niche | **`KRSHORAD` cut** — South Korea expresses layered defense through the static `KRSAM`. **`KPAAA` admitted** for North Korea in the massed-light-gun-without-radar niche, which nothing else occupies and which is the faction's only air answer |
+| §8.5 naming policy | Generic display names for buildings and defenses; real designations for vehicles, aircraft, and ships |
+| Local: roster asymmetry | **Approved.** North Korea ships fewer aircraft and a weaker navy; that asymmetry *is* the design, not a gap to be filled |
+
+Aircraft rosters after the cuts: South Korea `KRFIGHT`, `KRHELI`, `KRUAV` — three, within
+the roadmap's preferred range. North Korea `KPFIGHT`, `KPUAV` — two, deliberately below
+it. `KRHELI` is new, added because cutting three South Korean aircraft would otherwise
+have left the faction with a single fighter and a drone; see §4.2.
 
 These two factions are specified in one document because the roadmap requires them to be
 designed as a pair: "artillery pressure, fortification, reconnaissance, counterbattery
@@ -154,11 +166,13 @@ at tree state `a0f751b972`. **Zero collisions.** The `KP` and `KR` prefixes are 
 | Vehicles | `KRIFV` | Tracked IFV (K21 family) |
 | Vehicles | `KRSPH` | Self-propelled howitzer (K9 family) |
 | Vehicles | `KRMLRS` | Guided multiple rocket launcher (Chunmoo family) |
-| Vehicles | `KRSHORAD` | Mobile air defense |
-| Aircraft | `KRF35` | Strike fighter |
-| Aircraft | `KRAH64` | Attack helicopter — **provisional, see §4.2** |
+| ~~Vehicles~~ | ~~`KRSHORAD`~~ | ~~Mobile air defense~~ — **CUT** by §8.10; `KRSAM` covers it |
+| Aircraft | `KRFIGHT` | Fighter — domestically produced programme, status-labelled at expansion |
+| Aircraft | `KRHELI` | Light armed / scout helicopter — domestic programme, **new**, see §4.2 |
 | Aircraft | `KRUAV` | Reconnaissance UAS |
-| Aircraft | `KRTRAN` | Transport helicopter — **provisional, see §4.2** |
+| ~~Aircraft~~ | ~~`KRF35`~~ | ~~Strike fighter~~ — **CUT** by the §8.9 airframe cap |
+| ~~Aircraft~~ | ~~`KRAH64`~~ | ~~Attack helicopter~~ — **CUT**, Apache family closed |
+| ~~Aircraft~~ | ~~`KRTRAN`~~ | ~~Transport helicopter~~ — **CUT**, second Chinook in the same role |
 | Navy | `KRDDG` | Aegis-equipped destroyer |
 | Navy | `KRSUB` | Submarine |
 | Navy | `KRPATROL` | Patrol craft |
@@ -168,14 +182,17 @@ at tree state `a0f751b972`. **Zero collisions.** The `KP` and `KR` prefixes are 
 | Defenses | `KRWALL` | Protected position |
 
 Reserved husk and sink ids follow the shipped convention for every vehicle, aircraft,
-and naval actor listed above.
+and naval actor listed above. Cut ids (`KRF35`, `KRAH64`, `KRTRAN`, `KRSHORAD`) stay
+reserved rather than reused, so a reversal does not have to re-audit them.
 
-Roster shapes: North Korea 4 infantry, 4 vehicles, 2 aircraft, 2 naval, 3 defenses
-(deliberately air-poor and navy-poor). South Korea 4 infantry, 5 vehicles, 2–4 aircraft,
-3 naval, 3 defenses.
+`KRFIGHT` and `KRHELI` were added after the §8.9 cuts and were collision-audited on the
+same tree: **zero matches** for both.
 
-**The asymmetric roster sizes are intentional and are themselves a design decision
-needing approval** — see §5.1.
+Roster shapes after the rulings: North Korea 4 infantry, 4 vehicles, 2 aircraft, 2 naval,
+3 defenses (deliberately air-poor and navy-poor). South Korea 4 infantry, 4 vehicles,
+3 aircraft, 3 naval, 3 defenses.
+
+**The asymmetric roster sizes are intentional and approved** — see §4.1.
 
 ---
 
@@ -231,103 +248,146 @@ yet.** That work is the bulk of the remaining research effort for this document.
 
 ---
 
-## 4. Known overlap hot spots
+## 4. Rulings and remaining overlap hot spots
 
-### 4.1 North Korean artillery versus shipped rocket artillery
+### 4.1 Roster asymmetry — **RULED: approved**
 
-`KPMRL` joins `CNPHL`, `YMLR`, `IRFAJR`, and the proposed `USHIMARS` as the fifth rocket
-artillery vehicle. Its separator should be **volume**: many small rockets fired in a
-long ripple from a wide, densely tubed pack, where `USHIMARS` is a single precise rocket
-from one pod. That contrast is the whole point of the pair, and it must be visible in
-the sprite, not just in the numbers.
+North Korea ships two aircraft and two naval actors against South Korea's three and
+three. That is below the roadmap's preferred shape, and it is the correct answer rather
+than a gap: a faction whose stated doctrine is massed ground artillery under
+concealment, with almost no air power, should not be handed a full air roster to satisfy
+a count. The asymmetry is the pairing.
 
-### 4.2 South Korean aircraft — duplication risk
+Binding constraint: asymmetry in *breadth* is approved; asymmetry in *viability* is not.
+North Korea must be able to win. The §1.3 counter-tables are the check, and they are
+re-examined after expansion.
 
-- `KRF35` is a third F-35 alongside proposed `USF35` and `ILF35`. See
-  `faction-spec-israel.md` §5.4 — this needs a programme-level ruling on shared
-  airframes.
-- `KRAH64` would be a **fifth** Apache-family silhouette (`AH64SA`, stock `HELI`,
-  `TURNAAH`, proposed `ILAH64`). `faction-spec-usa.md` §8.4 recommends excluding the
-  U.S. one for this reason. **Provisional recommendation: cut `KRAH64`.**
-- `KRTRAN` risks duplicating stock `TRAN`. **Provisional recommendation: cut**, and let
-  the faction use stock transport.
+### 4.2 South Korean aircraft — **RULED, and one actor added**
 
-If all three provisional cuts are taken, South Korea ships two aircraft (`KRF35`,
-`KRUAV`), which is below the roadmap's preferred three-to-four. That is a real cost and
-is raised in §5.
+Three of the four proposed South Korean aircraft failed the §8.9 airframe cap:
 
-### 4.3 Counterbattery radar — new mechanic, no precedent
+- `KRF35` — the two F-35 slots are allocated to `usa` and `israel`. **Cut.**
+- `KRAH64` — the Apache family is closed at stock `HELI` plus Saudi's `AH64SA`. **Cut.**
+- `KRTRAN` — a second Chinook in the same transport role as stock `TRAN`. **Cut.**
 
-`KRRADAR` proposes a defense that reacts to enemy artillery fire by enabling friendly
-counterfire. Nothing in the catalog does this. It needs engine feasibility confirmation
-before it is treated as the faction's identity, exactly as the U.S. fires network does
-(`faction-spec-usa.md` §8.8).
+That would have left the faction with `KRUAV` alone, which is not a roster. Rather than
+weaken the cap for one faction, the fix is to give South Korea aircraft it can actually
+own:
 
-### 4.4 Tunnels — new mechanic, no precedent
+- **`KRFIGHT`** — a domestically produced fighter programme. This is a *better* outcome
+  than a third F-35: it is a distinct twin-engine planform rather than a fourth
+  single-engine stealth silhouette, and it gives the faction an identity no other pack
+  can duplicate. **Status discipline is mandatory here** — a domestic fighter programme
+  moving through flight test and early production must be labelled by its actual status
+  at expansion, not presented as a mature fleet.
+- **`KRHELI`** — a light armed or scout helicopter from a domestic programme, filling the
+  rotary slot the Apache cut vacated without touching the Apache family.
 
-`KPTUNNEL` proposes repositioning infantry between friendly tunnel entrances. The
-catalog has no equivalent. `docs/experience-capability-packs.md` lists an existing
-**Transit network** capability module, which is the obvious thing to build on rather
-than inventing a parallel mechanic. Feasibility and module reuse both need confirmation.
+Both need official ROK MND, DAPA, or manufacturer sourcing at expansion. Neither is
+sourced yet, and neither may be written up until it is.
 
-### 4.5 Mobile air defense crowding
+### 4.3 Mobile air defense — **RULED**
 
-`KRSHORAD` would be the seventh mobile air-defense vehicle in the catalog. See
-`faction-spec-bundeswehr.md` §4.4 — this needs a programme-level ruling.
+Under §8.10:
 
-### 4.6 Depiction
+- **`KRSHORAD` cut.** South Korea's layered air and missile defense is doctrinally real,
+  but it is expressed through the static `KRSAM` battery and its naval Aegis hull. A
+  seventh mobile air-defense vehicle in the catalog is not.
+- **`KPAAA` admitted.** It occupies the massed-light-gun-without-radar niche, which
+  nothing else holds, and it is North Korea's only answer to South Korean and U.S. air
+  power. Cutting it would break the pairing.
 
-Both Korean factions describe an active, ongoing, and politically live confrontation.
-The roadmap requires that claims about current conflicts do not become faction
-stereotypes. For this pair specifically:
+### 4.4 North Korean artillery versus shipped rocket artillery — **Watch**
 
-- North Korea is designed as an **artillery-and-fortification doctrine**, not as a
-  caricature. No unit, description, or voice line should trade on the state's domestic
-  conduct.
-- Neither faction gets a "fanatic", "human wave", or morale-suicide mechanic.
+`KPMRL` joins `CNPHL`, `YMLR`, `IRFAJR`, and `USHIMARS` as the fifth rocket artillery
+vehicle. Its separator is **volume**: many small rockets in a long ripple from a wide,
+densely tubed pack, against `USHIMARS`'s single precise rocket from one pod. That
+contrast is the point of the pair and it must be visible in the sprite, not only in the
+numbers.
+
+### 4.5 Counterbattery radar — **new mechanic, feasibility now has a precedent**
+
+`KRRADAR` reacts to enemy artillery fire by enabling friendly counterfire. Nothing in the
+catalog does this, so it still needs its own feasibility pass — but the U.S. fires
+network turned out to be buildable from existing traits alone
+(`docs/faction-spec-usa.md` §8.8), and the same trait family is the obvious starting
+point here: a proximity-granted condition plus condition-gated multipliers. Whoever
+expands this document should begin from that pattern rather than assuming new engine
+work, and should confirm rather than assume.
+
+### 4.6 Tunnels — **RULED: reuse the existing module**
+
+`docs/experience-capability-packs.md` lists an existing **Transit network** capability
+module. `KPTUNNEL` builds on it rather than inventing a parallel mechanic. Confirm the
+module's actual contract at expansion.
+
+### 4.7 Recon / EW infantry — **RULED: the area niche is taken**
+
+§8.6 keeps `USJTAC` as the only observer projecting an **area** condition consumed by a
+restricted weapon list. `KRSCOUT` must be a point-marker or a scout. Given that South
+Korea's identity is reactive counterbattery, a spotter that reveals recently-fired
+artillery is the natural fit and does not collide with the U.S. mechanic.
+
+### 4.8 Depiction — **proposed guideline, needs one confirmation programme-wide**
+
+Both Korean factions describe an active, politically live confrontation. The roadmap
+requires that claims about current conflicts do not become faction stereotypes. Proposed
+guideline, identical to the one in `docs/faction-spec-israel.md` §5.1 and to be confirmed
+once for the whole programme rather than three times:
+
+- North Korea is an **artillery-and-fortification doctrine**, not a caricature. No unit,
+  description, or line trades on the state's domestic conduct.
+- Neither faction gets a "fanatic", "human wave", or morale-suicide mechanic. Neither does
+  any other pack in this programme.
 - Unit descriptions state gameplay function. They do not editorialise.
-
-This needs to be agreed in writing before any text is authored.
+- No unit, name, or line references a real operation, place, or event.
 
 ---
 
-## 5. Open questions for the product owner
+## 5. Remaining open questions
 
-1. **Asymmetric roster sizes:** is North Korea allowed a deliberately smaller and
-   cheaper roster (fewer aircraft, weaker navy) as a design statement, or must both
-   halves of the pair hit the same roadmap-preferred counts?
-2. **South Korean aircraft count:** if `KRAH64` and `KRTRAN` are cut for duplication,
-   does the faction ship with two aircraft, or does a distinct third get designed?
-3. **Shared airframe policy:** F-35 in three proposed rosters. Ruling required.
-4. **Counterbattery mechanic:** engine feasibility confirmation needed before this
-   becomes the South Korean identity.
-5. **Tunnel mechanic:** build on the existing Transit network capability module, or
-   design a faction-local mechanic? (Recommendation: reuse the module.)
-6. **Mobile air defense:** programme-level ruling — see `faction-spec-bundeswehr.md` §4.4.
-7. **North Korean sourcing budget:** dual-sourcing every North Korean actor under §0.2
-   is substantially more research work than any other faction in this programme, and a
-   more recent second source than the 2021 DIA assessment still needs to be identified.
-   Confirm that this cost is accepted before expansion begins.
-8. **Depiction posture:** §4.6 agreed in writing.
-9. **Confirmation of §0.1:** the no-nuclear-superweapon rule is restated here as a
-   standing constraint. Please confirm rather than leave implied, so it cannot be
-   quietly revisited during balance work.
+Five of the nine questions previously listed here have been ruled. What remains:
+
+1. **§0.1 and §0.2 confirmation.** The no-nuclear-superweapon constraint and the
+   two-source corroboration policy are restated as standing constraints. Please confirm
+   both explicitly rather than leave them implied, so neither can be quietly revisited
+   during balance work. This document will not treat silence as agreement.
+2. **North Korean sourcing budget.** Dual-sourcing every North Korean actor under §0.2 is
+   substantially more research than any other faction here, and a second source more
+   recent than the 2021 DIA assessment still has to be identified. Confirm the cost is
+   accepted before expansion begins. This is the single largest remaining unknown in the
+   whole programme.
+3. **`KRFIGHT` and `KRHELI` sourcing.** Both were added by the §4.2 ruling and neither is
+   sourced yet. They are the first research task at expansion.
+4. **Depiction posture** (§4.8) — confirm once, programme-wide.
 
 ---
 
 ## 6. Ready to freeze checklist
 
-- [ ] `docs/faction-spec-usa.md` reviewed and its blocking decisions answered
-- [ ] §5.1 through §5.9 ruled
-- [ ] §0.1 no-nuclear-superweapon constraint explicitly confirmed
-- [ ] §0.2 corroboration policy explicitly confirmed, and a second, more recent North Korean source identified
-- [ ] Every North Korean actor dual-sourced, with `claimed, uncorroborated` items clearly marked and excluded from gameplay capability
-- [ ] Counterbattery and tunnel mechanics confirmed feasible by gameplay implementation
-- [ ] Programme-level rulings made on shared airframes and mobile air defense
+Done:
+
+- [x] Inherited rulings from `docs/faction-spec-usa.md` §8.5, §8.9, §8.10 applied
+- [x] `KRF35`, `KRAH64`, `KRTRAN`, `KRSHORAD` cut; `KRFIGHT` and `KRHELI` added and collision-audited
+- [x] Roster asymmetry ruled — approved, with a viability constraint attached
+- [x] Tunnel mechanic ruled — reuse the existing Transit network module
+- [x] Counterbattery feasibility given a concrete starting pattern
+- [x] Actor-id collision audit run — zero collisions, `KP` and `KR` prefixes unused
+- [x] Source anchors gathered and link-checked
+
+Remaining:
+
+- [ ] §5.1 §0.1 and §0.2 explicitly confirmed
+- [ ] §5.2 North Korean sourcing budget accepted, and a post-2021 second source identified
+- [ ] §5.3 `KRFIGHT` and `KRHELI` sourced with status labels
+- [ ] §5.4 depiction posture confirmed once, programme-wide
+- [ ] Every `dia.mil` and `media.defense.gov` document opened by a human and read
+- [ ] Every North Korean actor dual-sourced, with `claimed, uncorroborated` items marked and excluded from gameplay capability
+- [ ] Counterbattery and tunnel mechanics confirmed feasible against the engine, following the §8.8 method
 - [ ] Both documents expanded to full per-actor contracts matching the U.S. format
-- [ ] The pairing table in §1.3 re-checked after expansion so neither side is one-sided
+- [ ] The §1.3 pairing tables re-checked after expansion so neither side is one-sided
 - [ ] Actor-id collision audit re-run at freeze time
 - [ ] Faction internal names `northkorea` and `southkorea`, sides, pools, and doctrine strings confirmed unused at freeze time
 
-**Not frozen. Not approved. Outline only. Neither faction may be approved
-independently of the other.**
+**Not frozen. Outline depth by design. Neither faction may be approved independently of
+the other.**

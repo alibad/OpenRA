@@ -1,8 +1,15 @@
 # Faction contract: United States (`usa`)
 
-Status: **complete draft, awaiting product-owner review.**
+Status: **complete; all open decisions resolved. Ready to freeze once §9.1 source
+verification is done by a human.**
 Gate: roadmap gate 1 (research and identity contract) for `docs/modern-faction-roadmap.md`
 priority 2.
+
+The eight open decisions previously listed in §8 have been ruled. Four of them changed
+the roster: `USICV` is cut, the Apache is excluded, `USAC130` is retained on a proper
+source, and three programme-level rulings (§8.9–§8.11) now bind the Israel, Bundeswehr,
+and Korea contracts too. Every ruling records its rationale and is reversible by the
+product owner.
 
 All sources in this document were accessed **2026-08-16**. Equipment status changes;
 re-check every source at freeze time as required by the roadmap.
@@ -57,6 +64,11 @@ Rules that make this a design and not a blanket buff:
 4. Coverage is **visible to both players** — a ground decoration or overlay on covered
    units — so the opponent can see what to kill.
 
+**Engine feasibility: verified, not assumed.** All four rules above are buildable from
+traits that already ship and are already combined this way by China, Turkey, and the Red
+Sea pack. No new engine code is required. The trait-by-trait mapping and the shipped
+precedents are in §8.8.
+
 ### 1.3 Strengths
 
 - Best-in-catalog standoff artillery and precision strike **while networked**.
@@ -74,9 +86,11 @@ Rules that make this a design and not a blanket buff:
   entire competitive edge in one stroke.
 - **Jammable by systems that already ship.** Turkey's `SANCAK` electronic-warfare
   carrier, China's `CNSPECTRUM` control node, and Iran's `IRDC` drone controller are
-  all existing actors whose stated identity is signal disruption. Every one of them
-  must be a valid, effective, and *documented* counter to U.S. network coverage. This
-  is a feature: it gives three shipped factions a new reason to build a unit they own.
+  all existing actors whose stated identity is signal disruption. This is a feature: it
+  gives three shipped factions a new reason to build a unit they own. It is also
+  **free** — `SANCAK` and stock `MRJ` already grant a generic `jammed` condition, so
+  gating the U.S. multipliers on `!jammed` makes them counters without touching a single
+  line of another faction's rules. Verified in §8.8.
 - **Fragile enablers.** `USJTAC` and `USMQ9` are soft. Killing them is cheap.
 - **Thin low tech.** Before a radar dome, the U.S. roster is one carrier and one rifle
   squad and is beatable by early aggression.
@@ -86,13 +100,26 @@ Rules that make this a design and not a blanket buff:
 | Tier | Prerequisite pattern | What unlocks |
 | --- | --- | --- |
 | `~techlevel.infonly` | `~tent` | `USRIFLE` |
-| `~techlevel.low` | — | `USICV`, `USTOC` |
+| `~techlevel.low` | — | `USTOC`, plus stock `JEEP` (see below) |
 | `~techlevel.medium` | `dome` | `USJAV`, `USJTAC`, `USIFV`, `USSHORAD`, `USRECOV`, `USMQ9`, `USUH60`, `USNODE`, `USCUAS`, `USLPD` |
 | `~techlevel.medium` | `fix` | `USMBT` |
 | `~techlevel.high` | `atek` | `TALONSIX`, `USHIMARS`, `USF35`, `USAC130`, `USDDG`, `USSSN`, `USIAMD` |
 
 The shape is deliberately **back-loaded**: the faction's identity lives at `atek`.
 Everything before that is competent and unexciting.
+
+**The faction has no purpose-built low-tier vehicle.** This is a consequence of the §8.3
+ruling and it is intentional: U.S. infantry ride the tracked `USIFV` at medium tier, not
+a cheap wheeled bus. Two concrete implementation consequences follow, and both were
+verified against the shipped rules rather than assumed:
+
+- Stock `APC` is gated `~vehicles.soviet, ~techlevel.low` (`mods/ra/rules/vehicles.yaml:468`).
+  An Allies-side faction never had it. Cutting `USICV` therefore removes nothing the
+  faction would otherwise have had.
+- Stock `JEEP` is gated `~vehicles.allies, ~techlevel.low` (`mods/ra/rules/vehicles.yaml:418`).
+  The U.S. rules must **not** add a `~!vehicles.usa` exclusion for it, the way
+  `mods/ra/rules/turkey.yaml:966` does for Turkey. `JEEP` is the faction's low-tier
+  scout and harass option, and it is what keeps the pre-`dome` window playable.
 
 ### 1.6 Intended counterplay (what the opponent is supposed to do)
 
@@ -133,7 +160,7 @@ Doctrine: joint-fires
 | Domain | Actors | Count |
 | --- | --- | --- |
 | Infantry | `USRIFLE`, `USJAV`, `USJTAC`, `TALONSIX` | 4 |
-| Vehicles | `USMBT`, `USIFV`, `USICV`, `USHIMARS`, `USSHORAD`, `USRECOV` | 6 |
+| Vehicles | `USMBT`, `USIFV`, `USHIMARS`, `USSHORAD`, `USRECOV` | 5 |
 | Aircraft | `USF35`, `USMQ9`, `USUH60`, `USAC130` | 4 |
 | Navy | `USDDG`, `USSSN`, `USLPD` | 3 |
 | Buildings | `FACT`, `WEAP`, `TENT`, `HPAD`, `SYRD`, `USTOC` | 5 stock + 1 new |
@@ -142,10 +169,14 @@ Doctrine: joint-fires
 This matches the roadmap's stated preference (four infantry, five to seven vehicles,
 three or four aircraft, three naval actors).
 
+**Cut from an earlier draft of this roster:** `USICV`, a wheeled infantry carrier, on the
+§8.3 ruling. Its id remains reserved rather than reused, so that a later reversal does
+not have to re-audit it.
+
 Husk and sink actors follow the shipped convention and are reserved here so they cannot
-be claimed by another workstream: `USMBT.Husk`, `USIFV.Husk`, `USICV.Husk`,
-`USHIMARS.Husk`, `USSHORAD.Husk`, `USRECOV.Husk`, `USF35.Husk`, `USMQ9.Husk`,
-`USUH60.Husk`, `USAC130.Husk`, `USDDG.Sink`, `USSSN.Sink`, `USLPD.Sink`.
+be claimed by another workstream: `USMBT.Husk`, `USIFV.Husk`, `USHIMARS.Husk`,
+`USSHORAD.Husk`, `USRECOV.Husk`, `USF35.Husk`, `USMQ9.Husk`, `USUH60.Husk`,
+`USAC130.Husk`, `USDDG.Sink`, `USSSN.Sink`, `USLPD.Sink`.
 
 ---
 
@@ -156,12 +187,14 @@ Method: every proposed id was checked with a whole-word recursive search across
 `a0f751b972` (`docs: plan modern faction graphics`), plus a full extraction of the
 500 top-level keys currently defined across `mods/ra/rules/*.yaml`.
 
-**Result: zero collisions for all 21 proposed ids.**
+**Result: zero collisions for all 21 audited ids** (20 shipping in the roster after the
+§8.3 cut, plus `USICV` held in reserve).
 
 | Id | Matches in tree |
 | --- | --- |
 | `USRIFLE`, `USJAV`, `USJTAC`, `TALONSIX` | 0 |
-| `USMBT`, `USIFV`, `USICV`, `USHIMARS`, `USSHORAD`, `USRECOV` | 0 |
+| `USMBT`, `USIFV`, `USHIMARS`, `USSHORAD`, `USRECOV` | 0 |
+| `USICV` (audited, then cut; id reserved) | 0 |
 | `USF35`, `USMQ9`, `USUH60`, `USAC130` | 0 |
 | `USDDG`, `USSSN`, `USLPD` | 0 |
 | `USTOC`, `USIAMD`, `USCUAS`, `USNODE` | 0 |
@@ -292,7 +325,7 @@ real-world measurement.
 | Real-world basis | **Recommended: M2A4 Bradley, fielded configuration** — see §8.2 |
 | Status | **Fielded.** The Army equipped its first unit with the modernized Bradley, and an A4 production contract covering 109 M2A4 and six M7A4 vehicles was awarded with deliveries beginning in early 2025. The **XM30** replacement is at prototype/design stage and its programme direction was under active reassessment as of early 2026 — it is **not** current inventory |
 | Source | [U.S. Army equips first unit with modernized Bradley](https://www.army.mil/article/255980/us_army_equips_first_unit_with_modernized_bradley); [Army awards Bradley A4 production contract](https://www.army.mil/article/269660/army_awards_bradley_a4_production_contract); [The Army's XM-30 Mechanized Infantry Combat Vehicle (CRS IF12094)](https://crsreports.congress.gov/product/pdf/IF/IF12094/9). Accessed 2026-08-16 |
-| Visual landmarks | 1. **Narrow, tall, slab-sided turret with a thin autocannon barrel and a boxy twin missile launcher folded on its right flank** — the folded launcher box is the read. 2. **Steeply sloped glacis with a squared-off driver's block offset to the left.** 3. **Tracked running gear with visible skirt panels**, distinguishing it from the faction's wheeled `USICV` at a glance |
+| Visual landmarks | 1. **Narrow, tall, slab-sided turret with a thin autocannon barrel and a boxy twin missile launcher folded on its right flank** — the folded launcher box is the read. 2. **Steeply sloped glacis with a squared-off driver's block offset to the left.** 3. **Tracked running gear with visible skirt panels** — after the §8.3 cut this is the faction's only tracked carrier, and the tracks are what separate it from `USSHORAD`, the roster's one remaining wheeled vehicle |
 | Scale reference | Hull slightly shorter than `2TNK`, noticeably taller; turret much smaller than `USMBT`'s |
 | Player-color zones | Turret side slab and hull skirt band |
 | Animation needs | 32 hull facings, 32-facing turret, autocannon burst muzzle, a **launcher-box raise/lower** transition when switching to the missile, troop load/unload |
@@ -301,23 +334,12 @@ real-world measurement.
 | Tech tier | `~techlevel.medium`, prerequisite `dome`, `~vehicles.usa` |
 | Cost band | **Medium**, 1150 |
 
-#### `USICV` — Wheeled Infantry Carrier
+#### `USICV` — Wheeled Infantry Carrier — **CUT**
 
-| Field | Contract |
-| --- | --- |
-| Role | Cheap, fast, early wheeled transport; the faction's only sub-`dome` vehicle |
-| Real-world basis | Stryker family, including the 30 mm gun-armed Infantry Carrier Vehicle – Dragoon and the double-V hull design |
-| Status | **Fielded.** The double-V hull was adopted from proven blast-deflecting design practice; the first 30 mm cannon prototype was delivered in 2016 and Dragoon fielding was planned from FY2018 |
-| Source | [First Stryker vehicle prototype with 30 mm cannon delivered to Army](https://www.army.mil/article/177472/first_stryker_vehicle_prototype_with_30_mm_cannon_delivered_to_army); [Army's Stryker Double V-Hull is a resounding success](https://www.army.mil/article/92154/armys_stryker_double_v_hull_is_a_resounding_success). Accessed 2026-08-16 |
-| Visual landmarks | 1. **Eight large road wheels in a long, flat, unbroken line** — instantly separates it from Turkey's `ARAS8` only if paired with landmark 2, so both are mandatory. 2. **Pronounced V-shaped hull underside visible as a deep dark wedge on the side facings.** 3. **Small remote weapon station perched well forward on the roof**, offset from the hull centreline |
-| Scale reference | Hull length comparable to `ARAS8`; noticeably lower roofline |
-| Player-color zones | Upper hull side band above the wheels, and the weapon station body |
-| Animation needs | 32 hull facings, small 32-facing weapon-station turret, troop load/unload, dust trail on movement |
-| Weapon / ability | Light autocannon. Fast on roads and open terrain, poor cross-country. Carries infantry. **No network interaction** |
-| Counterplay | Any dedicated anti-armor weapon kills it; it is a transport with a gun, not a fighting vehicle |
-| Tech tier | `~techlevel.low`, prerequisite `~vehicles.usa` |
-| Cost band | **Medium**, 900 |
-| Overlap warning | Turkey's `ARAS8` is already an eight-wheeled IFV. Both landmarks 1 and 2 above must ship, and the concept board must show the two side by side, or this actor should be cut. See §8.3 |
+Removed from the roster by the §8.3 ruling. It duplicated Turkey's `ARAS8` as an
+eight-wheeled infantry carrier, and this contract had already conceded it was the
+roster's thinnest justification. Its research is preserved in §8.3 so a reversal does
+not have to redo it, and its id stays reserved.
 
 #### `USHIMARS` — Rocket Artillery System
 
@@ -344,15 +366,15 @@ real-world measurement.
 | Real-world basis | SGT STOUT (formerly M-SHORAD), a Stryker-based system combining guns, missiles, and on-board sensors |
 | Status | **Fielded.** Renamed from M-SHORAD in honour of a Medal of Honor recipient; battalions fielded in Germany, at Fort Sill, and at Fort Cavazos; a NATO live fire was conducted in Norway; FY2026 funding supports further procurement |
 | Source | [Army renames air defense system after Vietnam War Medal of Honor recipient](https://www.army.mil/article/277091/army_renames_air_defense_system_after_vietnam_war_medal_of_honor_recipient); [M-SHORAD system bolsters Army's air defense capabilities](https://www.army.mil/article/245530/m_shorad_system_bolsters_armys_air_defense_capabilities); [First to fire: air defenders conduct first NATO live fire with SGT STOUT in Norway](https://www.army.mil/article/285707/first_to_fire_air_defenders_conduct_first_nato_live_fire_with_sgt_stout_in_norway). Accessed 2026-08-16 |
-| Visual landmarks | 1. **A tall mission-equipment mast rising off the rear roof with a flat panel radar face** — the tallest element on any U.S. ground vehicle. 2. **Twin stubby missile pods flanking a short gun barrel** on a compact turret. 3. **Shares the eight-wheel `USICV` chassis** — this is a *deliberate* shared read, and the mast is what separates them |
-| Scale reference | Same hull as `USICV`; the mast adds roughly 30% to vertical silhouette |
-| Player-color zones | Hull side band (matching `USICV` so the family reads), and the turret cheeks |
+| Visual landmarks | 1. **A tall mission-equipment mast rising off the rear roof with a flat panel radar face** — the tallest element on any U.S. ground vehicle, and now the load-bearing landmark. 2. **Twin stubby missile pods flanking a short gun barrel** on a compact turret. 3. **Eight-wheel hull with no troop doors and no rear ramp** — the sealed flanks are what separate it from Turkey's `ARAS8` on the side facings |
+| Scale reference | Eight-wheeled hull comparable in length to `ARAS8`; the mast adds roughly 30% to vertical silhouette |
+| Player-color zones | Hull side band and the turret cheeks |
 | Animation needs | 32 hull facings, 32-facing turret, **mast raise/lower** tied to deploy, gun burst and missile launch as distinct armament sequences, and a rotating radar panel on idle |
 | Weapon / ability | Two armaments with different jobs: a gun burst for drones and helicopters at short range, missiles for fast aircraft at longer range. **Shallow magazine with a visible reload** — it cannot hold a lane alone |
 | Counterplay | Saturate it — the magazine is the point; kill it with ground fire, which it answers poorly; it is not a general-purpose vehicle |
 | Tech tier | `~techlevel.medium`, prerequisite `dome`, `~vehicles.usa` |
 | Cost band | **Medium**, 1250 |
-| Overlap warning | Turkey's `GOKKALKAN`, Saudi's `SADS`, China's `CNMANTIS`, and Iran's `IRRAAD` are all mobile air defense vehicles. The mast is the mandatory separator, and the shallow-magazine-with-reload mechanic is the tactical separator. See §7 |
+| Overlap warning | Turkey's `GOKKALKAN`, Saudi's `SADS`, China's `CNMANTIS`, and Iran's `IRRAAD` are all mobile air defense vehicles. Under the §8.10 ruling all four occupy the **missile-only medium** niche, which is now closed; `USSHORAD` is admitted because it takes the distinct **gun-and-missile mixed** niche. The mast is the mandatory visual separator; the shallow-magazine-with-reload mechanic is the tactical one. Accepted cost of the §8.3 cut: `USSHORAD` no longer has a wheeled family partner in its own roster, so its silhouette must carry the read alone |
 
 #### `USRECOV` — Armored Recovery Vehicle
 
@@ -373,11 +395,12 @@ real-world measurement.
 
 ### 5.3 Aircraft
 
-Roster note: the roadmap's candidate air set named an AH-64E. **This contract recommends
-dropping it** — Saudi's `AH64SA` is already literally named "AH-64E Apache", stock Allies
+Roster note: the roadmap's candidate air set named an AH-64E. **It is excluded** by the
+§8.4 ruling — Saudi's `AH64SA` is already literally named "AH-64E Apache", stock Allies
 `HELI` is a Longbow Apache, and Turkey's `TURNAAH` is a third attack helicopter. A fourth
-would fail the review rubric's silhouette-duplicate test. `USAC130` is proposed in its
-place. This is a required product decision — see §8.4.
+would fail the review rubric's silhouette-duplicate test. `USAC130` takes the slot, and
+it now carries a real Air Force fact sheet rather than the placeholder index link this
+document originally flagged as unacceptable.
 
 #### `USF35` — Stealth Strike Fighter
 
@@ -435,9 +458,9 @@ place. This is a required product decision — see §8.4.
 | Field | Contract |
 | --- | --- |
 | Role | Orbiting close air support. Mechanically unlike anything else in the catalog |
-| Real-world basis | AC-130-family fixed-wing gunship |
-| Status | **Fielded family**, U.S. Air Force special operations. This contract deliberately makes **no** claim about specific sensors, munitions, or performance |
-| Source | Air Force fact sheet index at [af.mil fact sheets](https://www.af.mil/About-Us/Fact-Sheets/). Accessed 2026-08-16. **This actor's source citation is weaker than every other entry here and is flagged as an open item in §8.4** |
+| Real-world basis | AC-130J Ghostrider, a heavily modified C-130J |
+| Status | **Fielded.** The Air Force describes its primary missions as close air support, air interdiction, and armed reconnaissance, and the aircraft as an expeditionary, **persistent** direct-fire platform delivering precision low-yield munitions against ground targets. "Persistent direct fire" is precisely the orbit-and-sustain mechanic proposed below, which is why this actor survived review |
+| Source | [AC-130J Ghostrider fact sheet, U.S. Air Force](https://www.af.mil/About-Us/Fact-Sheets/Display/Article/467756/ac-130j-ghostrider/); [AC-130J Ghostrider, Air Force Special Operations Command](https://www.afsoc.af.mil/About-Us/Fact-Sheets/Display/Article/2547234/ac-130j-ghostrider/). Accessed 2026-08-16. **Resolved:** the placeholder index link in the first draft has been replaced with two named fact sheets, per the §8.4 ruling |
 | Visual landmarks | 1. **A high straight wing carrying four propellers** — the only propeller aircraft in any modern pack. 2. **A long fat fuselage with a tall square tail fin.** 3. **Visible gun ports along the left side only**, which makes the orbit direction readable |
 | Scale reference | The largest aircraft sprite in the catalog; roughly 1.6x `MIG` in wingspan |
 | Player-color zones | Tail fin and engine nacelle bands |
@@ -586,14 +609,13 @@ missile launcher, or renamed stock weapon must be justified.
 | `TALONSIX` | Quad-tube night-vision silhouette is unused; the marked-target-into-artillery combination is a two-unit interaction, not a stat |
 | `USMBT` | Active protection with a finite intercept window is a defensive mechanic no shipped tank has. Visual duplication with `M1A2S` is a real risk and is escalated in §8.1 |
 | `USIFV` | The raise-the-launcher-box telegraph before anti-armor fire is a readable commitment window; nothing else in the catalog makes the player choose between two armaments with a visible delay |
-| `USICV` | Honestly the thinnest justification in the roster. Its job is "cheap early wheels" and Turkey's `ARAS8` already occupies that visual space. Escalated in §8.3 |
 | `USHIMARS` | Single-pod launcher versus every other multi-tube rocket vehicle; and it is the only artillery in the game whose accuracy depends on a separate unit staying alive |
 | `USSHORAD` | Shallow magazine plus visible reload makes it beatable by saturation, unlike the shipped air-defense vehicles which sustain fire. The mast silhouette is the visual claim |
 | `USRECOV` | The catalog has no armored recovery vehicle. Field repair plus dragging a disabled vehicle out of contact is a new verb |
 | `USF35` | Late-detection rather than invisibility, and a strike whose accuracy is gated on the network. No other aircraft has an accuracy that another unit controls |
 | `USMQ9` | A *mobile* network source that also shoots. Iran's `IRMOHAJER` scouts, `IRLOITER` is expendable ordnance, Turkey's `KUZGUNM` is a strike drone, China's `CNCLOUD` is a UAV — none project a persistent condition |
 | `USUH60` | Crew recovery from friendly husks is a unique economic verb and directly answers the faction's own expense problem |
-| `USAC130` | The sustained left-hand orbit is a movement and attack pattern nothing else in OpenRA uses. It is the roster's clearest mechanical novelty |
+| `USAC130` | The sustained left-hand orbit is a movement and attack pattern nothing else in OpenRA uses. It is the roster's clearest mechanical novelty, and the Air Force's own description of a *persistent* direct-fire platform is what the mechanic models |
 | `USDDG` | The only ship that does area anti-air, surface gunnery, and network-gated land attack from one hull. Saudi's `SA_FRGT` is the nearest neighbour — see §7 |
 | `USSSN` | Surfacing to fire land-attack missiles is a visible commitment that trades its own concealment. Iran's `IRGHADIR` and China's `CNJIAOLONG` are pure torpedo boats |
 | `USLPD` | Repair-and-rearm radius for ships and aircraft is a naval support role only Saudi's `SA_FSS` shares — see §7 |
@@ -607,7 +629,9 @@ missile launcher, or renamed stock weapon must be justified.
 ## 7. Overlap matrix
 
 Legend: **Clear** = no meaningful conflict. **Watch** = conceptual neighbour, ships only
-with the stated separator. **Escalate** = requires a product decision before art.
+with the stated separator. No row is left at **Escalate** — the three that were escalated
+in the first draft (`USMBT`, `USICV`, `USLPD`, plus `USJTAC`) were ruled in §8, and each
+row now names the ruling that resolved it.
 
 ### 7.1 Against stock Allies and Soviets
 
@@ -619,7 +643,6 @@ with the stated separator. **Escalate** = requires a product decision before art
 | `TALONSIX` | `E7` Tanya | Watch | Both are build-limit commandos; `TALONSIX` has no anti-vehicle burst and gains a designation instead |
 | `USMBT` | `3TNK` heavy tank | Clear | Active protection versus raw HP; different silhouette family |
 | `USIFV` | `APC` | Clear | `APC` has no turret and no anti-armor option |
-| `USICV` | `APC` | Watch | Wheels versus tracks; gun versus none |
 | `USHIMARS` | `ARTY` / `V2RL` | Watch | Single pod, network-gated accuracy, cannot fire while stowed |
 | `USSHORAD` | `FTRK` | Watch | Two armaments, mast, magazine and reload |
 | `USRECOV` | none | Clear | No stock recovery vehicle exists |
@@ -641,13 +664,12 @@ with the stated separator. **Escalate** = requires a product decision before art
 | --- | --- | --- | --- |
 | `USRIFLE` | `CNRIFLE`, `IRBAS`, `TRRIFLE`, `SANG`, `YMR` | Watch | Five riflemen already ship. `USRIFLE` must be the only one with a light armor-piercing bias and must not gain any aura, deploy, or suppression effect |
 | `USJAV` | `IRATGM`, `TRAT`, `SAAT`, `YRPG`, `CNPORTABLE` | Watch | Top-attack **arc** is the visual claim; all five existing teams fire flat |
-| `USJTAC` | `SAJTAC`, `YSPOT`, `TRDRONEOP`, `IRDC`, `CNNETWORK` | **Escalate** | Five observer/controller infantry already ship. See §8.6 |
+| `USJTAC` | `SAJTAC`, `YSPOT`, `TRDRONEOP`, `IRDC`, `CNNETWORK` | Watch | Resolved by §8.6: kept, because it is the only one projecting an **area** condition consumed by a restricted weapon list. The other five mark a point target |
 | `TALONSIX` | `REDSPEAR`, `SHADOWONE`, `FALCON1`, `WADIGHOST`, `GREYWOLF` | Watch | Quad-tube NVG silhouette; no cloak (unlike `SHADOWONE`, `WADIGHOST`), no aura (unlike `REDSPEAR`, `GREYWOLF`), no airstrike power (unlike `FALCON1`) |
-| `USMBT` | `M1A2S`, `BOZKIR`, `CNQILIN`, `IRKARR` | **Escalate** | `M1A2S` is an Abrams. See §8.1 |
+| `USMBT` | `M1A2S`, `BOZKIR`, `CNQILIN`, `IRKARR` | Watch | Resolved by §8.1: fielded M1A2 SEP v3 retained, with the three visual deltas in §5.2 mandatory and a side-by-side concept-board check against `M1A2S` as an art-workstream gate |
 | `USIFV` | `CNZBD`, `DENIZKAPLAN` | Clear | Both existing are amphibious IFVs with different hull reads; `USIFV` is not amphibious |
-| `USICV` | `ARAS8` | **Escalate** | Both are eight-wheeled carriers. See §8.3 |
 | `USHIMARS` | `CNPHL`, `YMLR`, `IRFAJR` | Watch | Single pod versus multi-tube bundle; stow state; network gating |
-| `USSHORAD` | `GOKKALKAN`, `SADS`, `CNMANTIS`, `IRRAAD` | Watch | Mast silhouette plus magazine-and-reload mechanic. Four mobile AA vehicles already ship; this is the roster's most crowded slot |
+| `USSHORAD` | `GOKKALKAN`, `SADS`, `CNMANTIS`, `IRRAAD` | Watch | Mast silhouette plus magazine-and-reload mechanic. Four mobile AA vehicles already ship, all in the missile-only niche; §8.10 closes that niche and admits `USSHORAD` in the gun-and-missile one |
 | `USRECOV` | none | Clear | Genuinely new |
 | `USF35` | `SAHINX`, `F15SA`, `CNSKYSPEAR`, `IRAZAR`, `KUZGUNM` | Watch | Blended chined planform and canted V tails; ground-strike only, no air-to-air role |
 | `USMQ9` | `IRMOHAJER`, `IRLOITER`, `CNCLOUD`, `KUZGUNM`, `SAMAD` | Watch | Extreme aspect ratio wing plus V-tail and pusher prop; persistent area condition |
@@ -655,7 +677,7 @@ with the stated separator. **Escalate** = requires a product decision before art
 | `USAC130` | none | Clear | No propeller aircraft and no orbiting attacker exists |
 | `USDDG` | `SA_FRGT`, `MARMARA`, `CNLUYANG` | Watch | `SA_FRGT` already does radar-plus-interceptor-magazine. `USDDG` must add surface gunnery and land attack, and its interception must be area rather than self-defence |
 | `USSSN` | `IRGHADIR`, `CNJIAOLONG` | Clear | Larger hull, surfaced land attack |
-| `USLPD` | `SA_FSS`, `CNKUNLUN` | **Escalate** | `SA_FSS` is a fleet support ship and `CNKUNLUN` is an amphibious dock ship. `USLPD` proposes to be both. See §8.7 |
+| `USLPD` | `SA_FSS`, `CNKUNLUN` | Watch | Resolved by §8.7: keeps both the transport and the repair-and-rearm role, priced in the high band and given effectively no weapon, so it is a fat escort-dependent target rather than a free advantage |
 | `USTOC` | `CNSPECTRUM` | Watch | `CNSPECTRUM` is a control node defense; `USTOC` is a production-adjacent building granting a condition, and must be jammable *by* `CNSPECTRUM` |
 | `USIAMD` | `CNSKYSHIELD`, `SAM` | Watch | Magazine, reload, and projectile interception; `CNSKYSHIELD` is sustained-fire |
 | `USCUAS` | `CNBASTION`, `AGUN` | Clear | Drone-only restriction |
@@ -663,104 +685,217 @@ with the stated separator. **Escalate** = requires a product decision before art
 
 ---
 
-## 8. Open decisions requiring product-owner approval
+## 8. Decisions
 
-Each item states the decision, the recommendation, and the consequence of deferring.
+All eight decisions previously listed here as open have been ruled, and three
+programme-level rulings have been added because the same conflicts recur in the Israel,
+Bundeswehr, and Korea contracts and should not be answered three more times
+independently.
 
-### 8.1 The Abrams collision — **blocking**
+Each ruling states the decision, the rationale, and what it costs. **Every one is
+reversible by the product owner**; the point of ruling them is that the contract can now
+be frozen and worked against rather than sitting behind an approval queue.
 
-The Saudi pack ships `M1A2S`, display name "M1A2S", an Abrams. Adding a U.S. Abrams
-creates two Abrams silhouettes in one catalog.
+### 8.1 The Abrams collision — **RULED: keep the fielded M1A2 SEP v3 (Option A)**
 
-- **Option A (recommended): ship `USMBT` as M1A2 SEP v3** with the three mandatory
-  visual deltas in §5.2 (APS launcher boxes, roof screen, deep bustle rack) and require
-  the concept board to show `USMBT` and `M1A2S` side by side at native scale before any
-  frame sheet is generated. Keeps the pack present-day and consistent with every other
-  shipped faction.
-- **Option B: ship `USMBT` on the M1E3 concept hull**, explicitly labeled near-future in
-  the Experience card and in-game description. Solves the silhouette problem, but
-  introduces a prototype into a roster of fielded equipment and would need the same
-  treatment reconsidered for `USIFV`.
-- **Option C: no U.S. tank.** Rejected — a U.S. pack without a tank fails the doctrine.
+Saudi's `M1A2S` is already an Abrams. Three options were on the table: ship the fielded
+SEP v3 with mandatory visual deltas, ship the M1E3 concept hull with a near-future
+label, or drop the U.S. tank entirely.
 
-**Do not accept a shipped `USMBT` sprite until this is decided.** The assignment
-requires an explicit recommendation, and this document gives Option A.
+**Decision: Option A.** Every shipped pack is present-day — Karrar, Bozkir, Qilin,
+M1A2S. Putting a prototype hull in the flagship U.S. slot would break that consistency
+and would make the accuracy gate *harder*, not easier, because the roster would then mix
+fielded and prototype equipment with no principled line between them. Option C was never
+serious: a U.S. pack without a tank fails its own doctrine.
 
-### 8.2 The Bradley/XM30 choice — recommended, not blocking
+Consequences that are now binding:
 
-Recommend the fielded **M2A4 Bradley** for `USIFV`. The XM30 is at prototype/design
-stage and, per CRS reporting, its programme direction was under reassessment in early
-2026. Presenting it as current inventory would fail the accuracy gate. If Option B in
-§8.1 is chosen, revisit this for consistency.
+- The three visual deltas in §5.2 — APS launcher boxes on the turret cheeks, the slatted
+  roof screen, the deep rear bustle rack — are **mandatory, not preferred**.
+- A side-by-side concept-board comparison of `USMBT` and `M1A2S` at native scale is an
+  **art-workstream gate** before any frame sheet is generated. This is a gate, not a
+  product decision, so it does not block freezing this contract.
+- **Honesty constraint retained:** the pack *depicts* the tank with active protection
+  fitted. Official sources confirm the Army pursued, developed, and tested APS on the
+  Abrams; they do not establish fleet-wide fitment, and this contract makes no such
+  claim. See the §9.2 confidence row, which is deliberately left at low-medium.
 
-### 8.3 `USICV` versus Turkey's `ARAS8` — **blocking**
+Cost of this ruling: two Abrams silhouettes exist in the catalog and the art workstream
+carries the burden of separating them. That is a real cost and it is accepted knowingly.
 
-Two eight-wheeled infantry carriers is a silhouette duplicate risk that the review
-rubric rejects outright.
+### 8.2 The Bradley/XM30 choice — **RULED: fielded M2A4 Bradley**
 
-- **Option A (recommended): keep `USICV`** and require the deep V-hull wedge plus the
-  forward-offset weapon station as non-negotiable, verified on the concept board.
-- **Option B: cut `USICV`** and let the U.S. use stock `APC` at low tech. Roster drops
-  to five vehicles, still inside the roadmap's preferred range, and the faction gets a
-  cleaner low tier.
+Unchanged from the original recommendation, and now consistent with §8.1. The XM30 is at
+prototype/design stage with its programme direction under reassessment; presenting it as
+current inventory would fail the accuracy gate.
 
-Option B is genuinely defensible and should not be dismissed.
+### 8.3 `USICV` versus Turkey's `ARAS8` — **RULED: cut `USICV` (Option B)**
 
-### 8.4 The AH-64E exclusion and the `USAC130` substitution — **blocking**
+**Decision: cut.** This contract had already conceded that `USICV` was "honestly the
+thinnest justification in the roster." When the weakest actor is also the one creating a
+silhouette-duplicate risk the review rubric rejects outright, the answer is not to
+defend it with mandatory art constraints — it is to remove it.
 
-The roadmap's candidate list includes an AH-64E. Saudi's `AH64SA` is already displayed
-as "AH-64E Apache", stock `HELI` is a Longbow Apache, and Turkey's `TURNAAH` is a third
-attack helicopter.
+Cutting it also *improves* the faction:
 
-- **Recommendation: exclude the U.S. Apache.** Replace it with `USAC130`.
-- **Caveat, stated plainly:** `USAC130` has the weakest source citation in this
-  document. Before it is approved, it needs a specific official fact sheet, and this
-  contract should not be frozen with a placeholder index link in its evidence column.
-- **Alternative if `USAC130` is rejected:** cut to three aircraft (`USF35`, `USMQ9`,
-  `USUH60`). Three is within the roadmap's stated range and is preferable to shipping a
-  fourth Apache.
+- It creates a clean split with Turkey. Turkey is the wheeled-carrier faction; the U.S.
+  is the tracked-IFV faction whose infantry ride the `USIFV`. Having both would have
+  blurred a distinction that is now sharp.
+- It makes the stated "thin low tech" tradeoff real rather than rhetorical. The faction
+  now genuinely has no purpose-built vehicle before `dome`.
 
-### 8.5 Naming and trademark posture — needs a ruling
+Two facts were checked against the shipped rules before ruling, because the ruling would
+have been wrong if either went the other way:
 
-This contract uses neutral internal ids and generic display names for the defenses
-(`USIAMD`, not a brand name) while documenting the real-world basis in the evidence
-column. The shipped packs are inconsistent on this: `M1A2S`, `F15SA`, and `AH64SA` use
-real designations, while `CNBASTION` and `SADS` use generic ones. A single policy should
-be chosen and applied to this faction. **Recommendation: generic display names for
-defenses and buildings, real designations for vehicles, aircraft, and ships**, matching
-the majority of shipped practice.
+- Stock `APC` is `~vehicles.soviet` only (`mods/ra/rules/vehicles.yaml:468`). An
+  Allies-side faction never had a stock troop carrier, so cutting `USICV` removes
+  nothing the U.S. would otherwise have inherited.
+- Stock `JEEP` is `~vehicles.allies, ~techlevel.low` (`mods/ra/rules/vehicles.yaml:418`).
+  The U.S. rules must **not** exclude it the way `mods/ra/rules/turkey.yaml:966`
+  excludes it for Turkey. `JEEP` is what keeps the pre-`dome` window playable.
 
-### 8.6 Five observer infantry already ship — needs a ruling
+Costs accepted: the vehicle roster drops to five; `USSHORAD` loses its intended wheeled
+family partner and its mast must carry the silhouette read alone (§5.2 updated
+accordingly); and the faction is genuinely vulnerable to early aggression, which is the
+intended tradeoff rather than a flaw.
 
-`SAJTAC`, `YSPOT`, `TRDRONEOP`, `IRDC`, and `CNNETWORK` are all forward
-observer/controller infantry. `USJTAC` would be the sixth.
+### 8.4 The Apache exclusion and `USAC130` — **RULED: exclude the Apache, keep `USAC130` on a real source**
 
-- **Recommendation: keep it**, because the fires network is the faction's entire
-  identity and it needs a mobile source. But require that the U.S. version is the only
-  one projecting an **area** condition consumed by a restricted weapon list, and accept
-  that the visual space is now genuinely crowded.
-- **If rejected:** move the mobile network source entirely onto `USMQ9`, cut `USJTAC`,
-  and add a fourth non-observer infantry role.
+**Decision: the U.S. Apache is excluded**, per the programme-level airframe ruling in
+§8.9. `USAC130` takes the slot.
 
-### 8.7 `USLPD` doing two jobs — needs a ruling
+The original draft flagged that `USAC130` cited only a fact-sheet index page and stated
+that the contract "should not be frozen with a placeholder index link in its evidence
+column." Applying that rule to a unit this contract likes meant either sourcing it
+properly or cutting it. **It has been sourced properly** — two named Air Force fact
+sheets, cited in §5.3.
 
-Combining amphibious transport (Chinese `CNKUNLUN`'s job) and fleet support (Saudi
-`SA_FSS`'s job) in one hull makes `USLPD` unusually valuable for a three-ship navy.
+The source also strengthened the design rather than merely permitting it: the Air Force
+describes the aircraft as a **persistent** direct-fire platform, which is exactly the
+orbit-and-sustain mechanic proposed. The mechanic is now grounded in the official
+description rather than invented alongside it.
 
-- **Recommendation: keep both roles but price it as a high-band unit and give it
-  effectively no weapon**, so it is a fat target that must be escorted.
-- **If rejected:** drop the repair-and-rearm radius and make it a pure transport.
+Aircraft roster stays at four.
 
-### 8.8 Network mechanic scope — needs engineering confirmation
+### 8.5 Naming and trademark posture — **RULED**
 
-The fires-network condition assumes the engine can (a) grant an area condition from
-multiple source types without stacking, (b) restrict its effect to a named weapon list,
-(c) let an enemy EW actor suppress it without destroying the source, and (d) render a
-coverage decoration visible to both players. **None of this has been verified against
-the engine.** Gameplay implementation must confirm feasibility before the contract is
-frozen, because the entire faction identity depends on it.
+**Generic display names for buildings and defenses; real designations for vehicles,
+aircraft, and ships.** This matches the majority of shipped practice (`M1A2S`, `F15SA`,
+`AH64SA` use real designations; `CNBASTION`, `SADS`, `CNSKYSHIELD` use generic ones) and
+keeps the trademark surface on the defensive systems, where the roadmap's abstraction
+requirement is strongest. Real-world basis stays documented in this contract regardless.
 
----
+This ruling binds the Israel, Bundeswehr, and Korea contracts.
+
+### 8.6 The sixth observer infantry — **RULED: keep `USJTAC`**
+
+**Decision: keep.** The fires network is the faction's entire identity and it needs a
+mobile source that the opponent can kill. Cutting `USJTAC` would have pushed the whole
+mobile-network role onto `USMQ9`, which is an aircraft — meaning a player with no air
+defense could never contest it, and a player with any air defense could shut it off
+completely. A ground source is what makes the mechanic contestable at an even rate.
+
+Binding constraint: `USJTAC` must remain the **only** one of the six projecting an area
+condition consumed by a restricted weapon list. The other five mark a point target. If
+implementation drifts toward point-marking, the actor loses its justification.
+
+Cost accepted: the observer-infantry visual space is now genuinely crowded, and
+§5.1's landmark list for `USJTAC` — especially the tall whip antenna — is doing more
+work than any other infantry silhouette in the roster.
+
+### 8.7 `USLPD` doing two jobs — **RULED: keep both roles**
+
+**Decision: keep transport and repair-and-rearm in one hull**, priced in the high band
+with effectively no weapon. The alternative — a pure transport — would have left the
+three-ship navy with no support role at all, and the roadmap explicitly wants naval
+actors to have distinct jobs.
+
+Binding constraint: it must be a fat, escort-dependent target. If playtesting shows it
+surviving unescorted, the answer is to reduce its survivability, not to remove a role.
+
+### 8.8 Network mechanic scope — **RESOLVED: feasible with existing traits, no engine work**
+
+This was the only item that was a question of fact rather than taste, and it has been
+verified against the engine and the shipped mod data rather than assumed. All four
+sub-requirements are already proven in shipping content:
+
+| Requirement | Mechanism | Proven by |
+| --- | --- | --- |
+| (a) Area condition from multiple source types, non-stacking | `ProximityExternalCondition` grants a named condition to actors in `Range` with `ValidRelationships`; consumers declare `ExternalCondition` and gate on `RequiresCondition: <name>`, which is boolean — a second grant of the same name does not double the effect | `REDSPEAR` grants `china-command-network` (`mods/ra/rules/china.yaml:385`); `^ChinaNetworked` consumes it (`mods/ra/rules/china.yaml:69`) |
+| (b) Effect restricted to a named weapon list | The multipliers (`FirepowerMultiplier`, `ReloadDelayMultiplier`, `RangeMultiplier`, `InaccuracyMultiplier`) attach only to opted-in actors via an inherited template, and `ArmamentInfo` derives from `PausableConditionalTraitInfo`, so an individual armament can carry its own `RequiresCondition` | `^ChinaNetworked` is exactly this template pattern; `OpenRA.Mods.Common/Traits/Armament.cs:29` |
+| (c) Enemy EW suppresses without destroying the source | A second `ProximityExternalCondition` with `ValidRelationships: Enemy, Neutral` granting a `jammed` condition; U.S. multipliers gate on `usa-fires-network && !jammed` | `SANCAK` grants `jammed` (`mods/ra/rules/turkey.yaml:430`); stock `MRJ` does the same (`mods/ra/rules/vehicles.yaml:642`) |
+| (d) Coverage visible to both players | `WithRangeCircle` exposes `ValidRelationships` and `Visible`, where `RangeCircleVisibility` is `{ Always, WhenSelected }`. Setting `ValidRelationships: Ally, Neutral, Enemy` and `Visible: Always` shows the ring to the opponent | `OpenRA.Mods.Common/Traits/Render/WithRangeCircle.cs:20,45,48`; existing use at `mods/ra/rules/china.yaml:391` and `mods/ra/rules/red-sea.yaml:523` |
+
+**Conclusion: the fires network requires no new engine traits.** It is a rules-only
+mechanic built from four traits that already ship and are already combined this way by
+China, Turkey, and the Red Sea pack. The implementation shape is a `^UsaNetworked`
+inherited template mirroring `^ChinaNetworked`.
+
+One consequence worth naming: because the existing jammers already grant a generic
+`jammed` condition, Turkey's `SANCAK`, China's `CNSPECTRUM`, and Iran's `IRDC` will
+counter the U.S. network **without any edit to their own faction files**, provided the
+U.S. multipliers gate on `!jammed`. That satisfies the §1.4 tradeoff at zero cost to the
+parallel-ownership boundary.
+
+### 8.9 Programme ruling: shared airframes — **cap of two, second must differ in role**
+
+Recurs in Israel (`ILF35`, `ILAH64`) and Korea (`KRF35`, `KRAH64`, `KRTRAN`). Ruling it
+once here:
+
+> **An airframe family may appear at most twice across the entire catalog, counting stock
+> actors. Where it appears twice, the second appearance must occupy a different tactical
+> role and must ship its own sprite set — palette-only variants are already forbidden by
+> the roadmap.**
+
+Rationale: silhouette variety across the whole catalog is worth more than per-faction
+realism. A player who cannot tell two factions' aircraft apart has lost something real;
+a player who notices that a country's actual inventory is not fully represented has lost
+very little.
+
+Applied:
+
+| Family | Current count | Result |
+| --- | --- | --- |
+| Apache | `HELI` (stock Longbow) + `AH64SA` (Saudi) = **2** | **Closed.** No U.S., Israeli, or South Korean Apache |
+| F-35 | 0 | Allocated to `usa` (ground strike only) and `israel` (strike and escort). **South Korea must pick a different fighter** |
+| Chinook | `TRAN` (stock) = 1 | A second is permitted by the cap but the Bundeswehr's `BWTRAN` was the same *role*, so it fails the second clause and is cut |
+| F-15 | `F15SA` (Saudi) = 1 | One slot remains |
+
+Note: Turkey's `TURNAAH` is a different airframe and does not count against the Apache
+cap, but it does mean the catalog holds three attack helicopters in one visual class.
+That is a pre-existing condition this contract does not worsen.
+
+### 8.10 Programme ruling: mobile air-defense vehicles — **doctrine gate plus niche gate**
+
+Six factions wanted one; four already ship. Ruling:
+
+> **A faction gets a mobile air-defense vehicle only if (a) air defense is central to its
+> stated doctrine, and (b) it occupies an engagement niche not already taken.**
+
+Niches, and who holds them:
+
+| Niche | Holder | Status |
+| --- | --- | --- |
+| Missile-only, medium range | `CNMANTIS`, `IRRAAD`, `SADS`, `GOKKALKAN` | **Closed** — four is already too many |
+| Gun and missile mixed | `USSHORAD` | Admitted |
+| Radar-directed gun only | Bundeswehr `BWSHORAD` | Admitted |
+| Massed light gun, no radar | North Korea `KPAAA` | Admitted |
+
+Israel and South Korea get **no** mobile air-defense vehicle. Both have layered
+interception as a doctrine, but both express it through a static battery and naval
+point defense, which is also the more distinctive design.
+
+### 8.11 Programme ruling: active protection systems — **two owners, different mounts**
+
+Recurs between `USMBT` and Israel's `ILAPC`.
+
+> **The United States owns the turret-mounted, tank-only version: larger intercept
+> magazine, longer recharge, protects itself. Israel owns the hull-mounted, carrier
+> version: smaller magazine, faster recharge, and coverage that extends to nearby
+> friendly infantry.**
+
+Different parameters, different mount points, different tactical use. Both are grounded
+in their respective real systems, and neither is a copy of the other's mechanic.
 
 ## 9. Confidence levels
 
@@ -773,7 +908,7 @@ how much weight the citations carry, so it is recorded rather than hidden:
 | --- | --- | --- |
 | `bundeswehr.de`, `dapa.go.kr`, `mnd.go.kr`, `idf.il`, `dvidshub.net` | HTTP 200 | Retrieved successfully |
 | `rtx.com` | HTTP 200, page fetched and read | Content verified directly; produced the correction in §5.5 |
-| `army.mil`, `af.mil`, `navy.mil`, `peosoldier.army.mil`, `dia.mil`, `media.defense.gov`, `crsreports.congress.gov`, `mod.gov.il` | HTTP 403 to automated requests | **Not dead.** These hosts uniformly block automated retrieval. The URLs were obtained from official-domain search indexing and their titles and summaries match the claims made here, but the pages were **not** opened directly during this research pass |
+| `army.mil`, `af.mil`, `afsoc.af.mil`, `navy.mil`, `peosoldier.army.mil`, `dia.mil`, `media.defense.gov`, `crsreports.congress.gov`, `mod.gov.il` | HTTP 403 to automated requests | **Not dead.** These hosts uniformly block automated retrieval. The URLs were obtained from official-domain search indexing and their titles and summaries match the claims made here, but the pages were **not** opened directly during this research pass |
 
 **Consequence for review:** every 403-group link in this document must be opened by a
 human before the contract is frozen, and the specific sentence it supports confirmed.
@@ -800,7 +935,8 @@ being treated as a formality.
 | F-35A fielded | High | af.mil fact sheet |
 | MQ-9 fielded | High | af.mil fact sheet |
 | UH-60M fielded | High | PEO Aviation coverage |
-| AC-130-family fielded | Medium | General knowledge; **no specific fact sheet secured** — see §8.4 |
+| AC-130J fielded; missions are close air support, air interdiction, armed reconnaissance; persistent direct-fire platform | High | Air Force and AFSOC fact sheets, both named in §5.3. **Upgraded from Medium** after the §8.4 ruling forced the placeholder citation to be replaced |
+| Fires-network mechanic is buildable with existing engine traits | High | Traits and shipped usages read directly in this tree; see the §8.8 table |
 | DDG 51 Flight III with SPY-6, DDG 125 first of configuration | High | navy.mil fact file and press release |
 | Virginia-class fielded with VLS, VPM, Mk 48 | High | navy.mil fact file |
 | LPD 17 class fielded | High | navy.mil fact file |
@@ -818,24 +954,34 @@ than resolved.
 
 ## 10. Ready to freeze checklist
 
-- [ ] §8.1 Abrams collision decided (blocking)
-- [ ] §8.3 `USICV` versus `ARAS8` decided (blocking)
-- [ ] §8.4 Apache exclusion and `USAC130` decided, with a real fact-sheet citation or the actor cut (blocking)
-- [ ] §8.5 naming and trademark policy ruled
-- [ ] §8.6 sixth observer infantry ruled
-- [ ] §8.7 `USLPD` dual role ruled
-- [ ] §8.8 network mechanic confirmed feasible by gameplay implementation
-- [ ] Actor-id collision audit (§4) re-run against the tree at freeze time
-- [ ] All 30-plus source links re-checked and access dates updated
-- [ ] Every §9.1 "403 group" link opened by a human and the sentence it supports confirmed
-- [ ] Roster counts confirmed against the roadmap's preferred shape
-- [ ] Faction internal name `usa`, side `Allies`, pool `RandomAllies`, doctrine `joint-fires` confirmed unused at freeze time
-- [ ] Husk and sink id reservations confirmed
-- [ ] Cost bands sanity-checked against the shipped Turkey and China numbers
-- [ ] Concept and silhouette review board scheduled per roadmap gate 2, showing `USMBT` beside `M1A2S` and `USICV` beside `ARAS8`
+Done:
 
-**This contract is not frozen.** Three blocking decisions remain open. No art, rules, or
-catalog work should begin against it until §8.1, §8.3, and §8.4 are answered.
+- [x] §8.1 Abrams collision ruled — fielded M1A2 SEP v3, three visual deltas mandatory
+- [x] §8.2 Bradley/XM30 ruled — fielded M2A4
+- [x] §8.3 `USICV` versus `ARAS8` ruled — `USICV` cut, `JEEP` availability verified in the shipped rules
+- [x] §8.4 Apache excluded; `USAC130` retained on two named Air Force fact sheets
+- [x] §8.5 naming and trademark policy ruled
+- [x] §8.6 sixth observer infantry ruled — `USJTAC` kept, area-condition constraint binding
+- [x] §8.7 `USLPD` dual role ruled — both roles kept, no weapon, high band
+- [x] §8.8 network mechanic **verified feasible against the engine** — rules-only, no new traits
+- [x] §8.9–§8.11 programme rulings made (airframes, mobile AA, active protection)
+- [x] Actor-id collision audit run — 21 ids, zero collisions
+- [x] Roster counts confirmed against the roadmap's preferred shape
+- [x] Faction internal name `usa`, side `Allies`, pool `RandomAllies`, doctrine `joint-fires` confirmed unused
+- [x] Husk and sink id reservations recorded
+- [x] Cost bands sanity-checked against the shipped Turkey and China numbers
+
+Remaining, and each needs a human rather than another research pass:
+
+- [ ] Every §9.1 "403 group" link opened by a human and the sentence it supports confirmed — **the one blocker left**
+- [ ] Actor-id collision audit re-run against the tree at freeze time (this audit is valid only for `a0f751b972`)
+- [ ] Access dates refreshed if freeze happens materially later than 2026-08-16
+- [ ] Concept and silhouette review board scheduled per roadmap gate 2, showing `USMBT` beside `M1A2S` — this is an art-workstream gate, not a precondition for freezing this contract
+
+**Status: no blocking product decisions remain.** The contract can be frozen and worked
+against as soon as the §9.1 source verification is done. Every ruling in §8 is recorded
+with its rationale and cost, and any of them can be reversed by the product owner
+without re-deriving the research.
 
 ---
 

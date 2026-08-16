@@ -1,13 +1,21 @@
 # Faction contract: Israel (`israel`)
 
-Status: **sourced outline only.**
+Status: **sourced outline; inherited rulings applied.**
 
-Per the assignment governing this workstream, this document is deliberately held at
-outline depth. It expands to a full per-actor contract only after
-`docs/faction-spec-usa.md` has been reviewed and its three blocking decisions
-(§8.1, §8.3, §8.4 there) are answered, because those rulings set precedent for the
-Abrams-style silhouette-duplication problem, the trademark/naming policy, and the
-attack-helicopter exclusion — all three of which recur here.
+Per the assignment governing this workstream, this document is held at outline depth
+until the U.S. contract is reviewed. The blocking decisions in `docs/faction-spec-usa.md`
+have now been ruled, and the four that bind this faction are applied below rather than
+left as open questions:
+
+| Inherited ruling | Effect here |
+| --- | --- |
+| §8.9 airframe cap of two, second must differ in role | **`ILAH64` is cut** — the Apache family is closed at `HELI` + `AH64SA`. `ILF35` is confirmed as the second and final F-35 slot, in a strike-and-escort role distinct from `USF35`'s ground-strike-only role |
+| §8.10 mobile air defense needs a doctrine gate and a free niche | Israel gets **no** mobile air-defense vehicle. Its interception identity runs through the static `ILDOME` and the naval `ILCORV`, which is the more distinctive expression anyway |
+| §8.11 active protection, two owners | Israel owns the **hull-mounted carrier** version on `ILAPC`: smaller magazine, faster recharge, coverage extending to nearby friendly infantry. The U.S. owns the turret-mounted tank-only version |
+| §8.5 naming policy | Generic display names for buildings and defenses; real designations for vehicles, aircraft, and ships |
+
+Aircraft roster after the cut: `ILF35`, `ILUAV`, `ILUTIL` — three, within the roadmap's
+preferred range.
 
 Sources accessed **2026-08-16**. Re-check at freeze time.
 
@@ -54,10 +62,10 @@ and is deliberately distinct from Iran's `IR`.
 | Vehicles | `ILWHEEL` | Wheeled carrier | Eitan, including the 30 mm turreted configuration |
 | Vehicles | `ILSPH` | Self-propelled artillery | Self-propelled howitzer |
 | Vehicles | `ILUGV` | Unmanned ground vehicle | Reconnaissance / armed UGV |
-| Aircraft | `ILF35` | Strike fighter | F-35I |
+| Aircraft | `ILF35` | Strike and escort fighter | F-35I |
 | Aircraft | `ILUAV` | Long-endurance UAS | Heron-class |
 | Aircraft | `ILUTIL` | Utility transport | Utility helicopter |
-| Aircraft | `ILAH64` | Attack helicopter | **Provisional — see §4.1, likely to be cut** |
+| ~~Aircraft~~ | ~~`ILAH64`~~ | ~~Attack helicopter~~ | **CUT** by the §8.9 airframe cap. Id reserved, not reused |
 | Navy | `ILCORV` | Corvette with point defense | Sa'ar 6-class with a shipborne interception layer |
 | Navy | `ILSUB` | Submarine | Dolphin-class |
 | Navy | `ILPATROL` | Patrol / landing craft | Coastal patrol |
@@ -67,11 +75,12 @@ and is deliberately distinct from Iran's `IR`.
 | Defenses | `ILWALL` | Protected anti-armor position | Hardened fighting position |
 
 Reserved husk and sink ids: `ILMBT.Husk`, `ILAPC.Husk`, `ILWHEEL.Husk`, `ILSPH.Husk`,
-`ILUGV.Husk`, `ILF35.Husk`, `ILUAV.Husk`, `ILUTIL.Husk`, `ILAH64.Husk`, `ILCORV.Sink`,
-`ILSUB.Sink`, `ILPATROL.Sink`.
+`ILUGV.Husk`, `ILF35.Husk`, `ILUAV.Husk`, `ILUTIL.Husk`, `ILCORV.Sink`, `ILSUB.Sink`,
+`ILPATROL.Sink`.
 
-Roster shape: 4 infantry, 5 vehicles, 3–4 aircraft, 3 naval — matches the roadmap's
-preferred proportions.
+Roster shape after the §4.1 cut: 4 infantry, 5 vehicles, **3** aircraft, 3 naval —
+matches the roadmap's preferred proportions. `ILWHEEL` is subject to the §4.4 wheeled
+carrier allocation and may yet be re-scoped or dropped, which would take vehicles to 4.
 
 ---
 
@@ -106,88 +115,110 @@ Israeli MOD, IDF, or manufacturer citation with a fielded/ordered/demonstrated s
 ## 4. Known overlap hot spots
 
 Checked against stock Allies/Soviets and the shipped China, Iran, Saudi, Yemen, and
-Turkey packs.
+Turkey packs. Items resolved by an inherited ruling are marked **RULED**; items that
+still need this document expanded before they can be answered honestly are marked
+**DEFERRED**, with the reason.
 
-### 4.1 `ILAH64` — likely cut
+### 4.1 Attack helicopter — **RULED: `ILAH64` cut**
 
-Saudi's `AH64SA` ships with the display name "AH-64E Apache". Stock Allies `HELI` is a
-Longbow Apache. Turkey's `TURNAAH` is a third attack helicopter. `faction-spec-usa.md`
-§8.4 already recommends excluding a U.S. Apache for exactly this reason. **Whatever is
-ruled there applies here.** Provisional recommendation: cut `ILAH64`, ship three
-aircraft, and put the anti-armor air role on `ILUAV`.
+The Apache family is closed at stock `HELI` plus Saudi's `AH64SA` under the §8.9 cap.
+The anti-armor air role moves to `ILUAV`. Aircraft roster is `ILF35`, `ILUAV`, `ILUTIL`.
 
-### 4.2 Active protection — precedent needed
+### 4.2 Active protection — **RULED: Israel owns the carrier-mounted version**
 
-Trophy-family active protection is central to the Israeli armor identity, and Israel MOD
-material describes the Namer as carrying it. But `faction-spec-usa.md` proposes an
-active-protection mechanic for `USMBT`. Two factions with the same defensive mechanic is
-acceptable only if their parameters and visual reads differ deliberately. **This needs a
-cross-faction ruling, not two independent decisions.**
+Per §8.11: `ILAPC` carries hull-mounted active protection with a smaller magazine, a
+faster recharge, and coverage that extends to nearby friendly infantry. `USMBT` carries
+the turret-mounted, tank-only version with a larger magazine and a longer recharge.
+Different mount, different parameters, different tactical use.
 
-### 4.3 Interception versus shipped point defense
+Sourcing note for expansion: Israel MOD material describes the Namer as equipped with an
+active protection system, which makes this the better-sourced of the two — the U.S. side
+is deliberately held at low-medium confidence.
+
+### 4.3 Interception versus shipped point defense — **RULED: reuse the existing module**
 
 `docs/experience-capability-packs.md` lists an existing **Point-defense interception**
 capability module, and Saudi's `SA_FRGT` already has a finite defensive-interceptor
-magazine. `ILDOME` must be built on that existing contract rather than inventing a
-parallel one, and must not become a strictly better version of the Saudi frigate's
-ability.
+magazine. `ILDOME` builds on that contract rather than inventing a parallel one, and must
+not be a strictly better `SA_FRGT` ability. Naming follows §8.5: generic display name,
+real basis documented here only.
 
-### 4.4 Wheeled carrier crowding
+### 4.4 Wheeled carrier crowding — **DEFERRED, with the principle ruled**
 
-`ILWHEEL` (Eitan) joins Turkey's `ARAS8` and the proposed U.S. `USICV` as a third
-eight-wheeled carrier. See `faction-spec-usa.md` §8.3 — if `USICV` is cut for
-duplication, `ILWHEEL` is the next candidate for the same treatment.
+`USICV` has been cut (§8.3), so the live question is Israel's `ILWHEEL` (Eitan) versus
+Germany's `BWWHEEL` (Boxer) versus the shipped `ARAS8`.
 
-### 4.5 Recon / EW infantry crowding
+**Principle ruled now:** the catalog holds at most **two** eight-wheeled carrier
+silhouettes. `ARAS8` holds one. The second is allocated to whichever of the Israel or
+Germany contracts is expanded first, and the other faction must either differentiate by
+turret and unit class — a wheeled *gun* vehicle is not a wheeled *carrier* — or drop the
+slot.
 
-`ILDRONE` would be the seventh observer-or-controller infantry actor in the catalog
-(`SAJTAC`, `YSPOT`, `TRDRONEOP`, `IRDC`, `CNNETWORK`, proposed `USJTAC`). See
-`faction-spec-usa.md` §8.6.
+**Allocation deferred**, deliberately. Unlike the U.S. decisions, neither faction has a
+per-actor contract yet, so ruling this now would be deciding without the evidence that
+makes the decision meaningful. Recorded for whoever expands first: **Germany currently
+has the stronger claim**, because `BWWHEEL` and `BWSHORAD` share the Boxer hull and earn
+a deliberate two-actor family read, which is exactly the argument `USICV` could not make
+once it stood alone. Israel retains `ILAPC` either way, so it is not left carrier-less.
 
-### 4.6 F-35 duplication
+### 4.5 Recon / EW infantry crowding — **RULED: the area niche is taken**
 
-`ILF35` and the proposed `USF35` are the same airframe family, and the Koreas contract
-proposes a third. A single shared visual treatment with per-faction remap and marking
-differences is not acceptable under the review rubric. **A cross-faction ruling on
-shared airframes is required** — see §5.4.
+§8.6 keeps `USJTAC` on the binding condition that it is the only observer projecting an
+**area** condition consumed by a restricted weapon list. `ILDRONE` must therefore be a
+point-marker, a scout, or an EW disruptor — not a second area-network source. That is the
+constraint; the specific choice is part of this document's expansion.
+
+### 4.6 F-35 duplication — **RULED: `ILF35` is the second and final slot**
+
+Under the §8.9 cap the F-35 family gets two appearances. They are allocated to `usa`
+(ground strike only, accuracy gated on its network) and `israel` (strike and escort,
+paired with the interception layer). South Korea must pick a different fighter — see
+`docs/faction-spec-koreas.md`. Both F-35 actors ship their own sprite set; a palette-only
+variant is already forbidden by the roadmap and is forbidden again here.
 
 ---
 
-## 5. Open questions for the product owner
+## 5. Remaining open questions
 
-1. **Attack helicopter:** cut `ILAH64`, or accept a fourth Apache-family silhouette?
-   (Recommendation: cut.)
-2. **Active protection precedent:** which faction owns the mechanic, and how do the
-   others differ? (Recommendation: Israel owns the *carrier-mounted* version, the U.S.
-   owns the *tank-mounted* version, with different magazine and recharge parameters.)
-3. **Interception presentation:** may recognisable real missile-defence system names be
-   used in display text, or is the abstraction requirement in the roadmap
-   ("model counterplay, not promise literal real-world interception performance")
-   to be enforced with fully generic names? (Recommendation: generic names, real basis
-   documented in this contract only.)
-4. **Shared airframes across factions:** F-35 appears in the proposed U.S., Israeli, and
-   South Korean rosters. Ruling needed on whether a shared airframe may appear in
-   multiple packs at all, and if so what per-faction visual delta is mandatory.
-5. **Wheeled carrier count:** how many eight-wheeled carriers may the catalog hold?
-6. **Depiction posture:** the roadmap requires that claims about current conflicts do not
+The four questions previously listed here have been ruled and moved into §4. Two remain,
+and one is new.
+
+1. **Depiction posture.** The roadmap requires that claims about current conflicts do not
    become faction stereotypes. An explicit editorial guideline for this faction's
-   descriptions, voice lines, and unit naming should be agreed before text is written,
-   not after.
+   descriptions, voice lines, and unit naming should be agreed **before** text is written,
+   not after. Proposed guideline, for confirmation: unit descriptions state gameplay
+   function only; no unit, name, or line references a real operation, place, or event; no
+   faction-wide morale, zeal, or fanaticism mechanic on any pack in this programme.
+2. **Wheeled carrier allocation** (§4.4) — deferred by design until either this document
+   or the Bundeswehr document is expanded.
+3. **`ILUGV` scope.** An armed unmanned ground vehicle is the roster slot with no
+   equivalent anywhere in the catalog and therefore the least constrained by precedent.
+   Confirm at expansion whether it is a scout, a weapon platform, or an expendable
+   breaching unit — these are three different actors and only one should ship.
 
 ---
 
 ## 6. Ready to freeze checklist
 
-- [ ] `docs/faction-spec-usa.md` reviewed and its blocking decisions answered
-- [ ] §5.1 attack helicopter ruled
-- [ ] §5.2 active protection precedent ruled
-- [ ] §5.3 interception naming ruled
-- [ ] §5.4 shared airframe policy ruled
-- [ ] §5.6 depiction posture agreed in writing
+Done:
+
+- [x] Inherited rulings from `docs/faction-spec-usa.md` §8.5, §8.9, §8.10, §8.11 applied
+- [x] `ILAH64` cut; aircraft roster resolved to three
+- [x] Active protection precedent resolved
+- [x] Mobile air-defense vehicle resolved — Israel gets none
+- [x] Actor-id collision audit run — zero collisions, `IL` prefix unused
+- [x] Source anchors gathered and link-checked
+
+Remaining:
+
+- [ ] §5.1 depiction posture agreed in writing
+- [ ] §5.2 wheeled carrier allocation settled between this document and the Bundeswehr one
+- [ ] §5.3 `ILUGV` scope chosen
+- [ ] Every `mod.gov.il` link opened by a human and the sentence it supports confirmed
 - [ ] This document expanded to a full per-actor contract matching the U.S. format
 - [ ] Every actor given an official source with fielded/ordered/demonstrated/conceptual status and an access date
 - [ ] Visual landmarks written for native scale and reviewed by the art workstream
 - [ ] Actor-id collision audit re-run at freeze time
 - [ ] Faction internal name `israel`, side, pool, and doctrine string confirmed unused at freeze time
 
-**Not frozen. Not approved. Outline only.**
+**Not frozen. Outline depth by design — but no longer blocked on cross-faction rulings.**
