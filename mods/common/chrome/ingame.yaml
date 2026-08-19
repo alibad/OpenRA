@@ -2,7 +2,7 @@ Container@INGAME_ROOT:
 	Logic: LoadIngamePlayerOrObserverUILogic
 	Children:
 		LogicKeyListener@GLOBAL_KEYHANDLER:
-			Logic: MusicHotkeyLogic, ScreenshotHotkeyLogic, MuteHotkeyLogic, AIHotkeyLogic
+			Logic: MusicHotkeyLogic, ScreenshotHotkeyLogic, MuteHotkeyLogic, AIHotkeyLogic, DisableUIKeyLogic, DisableAllUIKeyLogic
 				StopMusicKey: StopMusic
 				PauseMusicKey: PauseMusic
 				PrevMusicKey: PrevMusic
@@ -14,6 +14,8 @@ Container@INGAME_ROOT:
 				RejectKey: AIReject
 				ToggleAutoKey: AIToggleAuto
 				ToggleVoiceKey: AIToggleVoice
+				DisableUIKey: DisableUserInterface
+				DisableAllUIKey: DisableAllUserInterface
 		LogicKeyListener@WORLD_KEYHANDLER:
 			Logic: CycleBasesHotkeyLogic, CycleProductionActorsHotkeyLogic, CycleHarvestersHotkeyLogic, JumpToLastEventHotkeyLogic, JumpToSelectedActorsHotkeyLogic, ResetZoomHotkeyLogic, TogglePlayerStanceColorHotkeyLogic, CycleStatusBarsHotkeyLogic, PauseHotkeyLogic, SelectUnitsByTypeHotkeyLogic, SelectAllUnitsHotkeyLogic
 				CycleBasesKey: CycleBase

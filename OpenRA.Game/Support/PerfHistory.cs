@@ -49,11 +49,11 @@ namespace OpenRA.Support
 				Items[item].Val += x;
 		}
 
-		public static void Tick()
+		public static void Tick(bool gameIsActive = true)
 		{
 			foreach (var item in Items.Values)
 				if (item.HasNormalTick)
-					item.Tick();
+					item.Tick(gameIsActive);
 		}
 
 		public static void Reset()

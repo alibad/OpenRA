@@ -30,6 +30,7 @@ notification-silos-needed = Silos needed.
 checkbox-dynamic-environment =
     .label = Dynamic Environment
     .description = Enables global weather, lighting, visibility, and handling events
+notification-game-saved = Game saved.
 
 options-starting-units =
     .mcv-only = MCV Only
@@ -404,7 +405,9 @@ meta-crate =
     .name = Crate
     .generic-name = Crate
 
-meta-mine-name = Mine
+meta-mine =
+    .name = Mine
+    .generic-name = Mine
 
 ## fakes.yaml
 actor-fpwr =

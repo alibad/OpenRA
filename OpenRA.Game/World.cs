@@ -588,7 +588,7 @@ namespace OpenRA
 			}
 		}
 
-		public void RequestGameSave(string filename)
+		public void RequestGameSave(string filename, bool isAutosave)
 		{
 			// Allow traits to save arbitrary data that will be passed back via IGameSaveTraitData.ResolveTraitData
 			// at the end of the save restoration
@@ -606,7 +606,8 @@ namespace OpenRA
 				i++;
 			}
 
-			IssueOrder(Order.FromTargetString("CreateGameSave", filename, true));
+			var extraData = isAutosave ? 1u : 0u;
+			IssueOrder(Order.FromTargetString("CreateGameSave", filename, true, extraData));
 		}
 
 		public bool Disposing;

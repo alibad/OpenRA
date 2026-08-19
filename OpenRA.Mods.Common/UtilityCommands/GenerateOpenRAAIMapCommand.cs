@@ -139,7 +139,7 @@ namespace OpenRA.Mods.Common.UtilityCommands
 		{
 			var config = Configuration.Parse(args, true);
 			var modData = Game.ModData = utility.ModData;
-			if (!modData.DefaultTerrainInfo.TryGetValue(config.Tileset, out var terrainInfo))
+			if (!modData.DefaultTerrainInfo.ContainsKey(config.Tileset))
 				throw new ArgumentException($"Unknown tileset `{config.Tileset}`");
 
 			var generator = modData.DefaultRules.Actors[SystemActors.EditorWorld]
@@ -153,16 +153,22 @@ namespace OpenRA.Mods.Common.UtilityCommands
 				var actualSeed = config.Seed + attempt;
 				try
 				{
-					var settings = generator.GetSettings();
 					var optionValues = new Dictionary<string, string>(config.Options, StringComparer.OrdinalIgnoreCase)
 					{
 						["Seed"] = actualSeed.ToString(System.Globalization.CultureInfo.InvariantCulture),
 					};
 
-					ApplyOptions(settings, optionValues);
-					var generationArgs = settings.Compile(terrainInfo, new Size(config.Size, config.Size));
-					generationArgs.Title = config.Title.Replace('\n', ' ').Replace('\r', ' ').Trim();
-					generationArgs.Author = "OpenRA AI / OpenRA Classic Generator";
+					ValidateOptions(generator, optionValues);
+					var generationArgs = new MapGenerationArgs
+					{
+						Generator = generator.Type,
+						Tileset = config.Tileset,
+						Size = new Size(config.Size, config.Size),
+						Options = optionValues,
+						Title = config.Title.Replace('\n', ' ').Replace('\r', ' ').Trim(),
+						Author = "OpenRA AI / OpenRA Classic Generator",
+					};
+
 					var map = generator.Generate(modData, generationArgs);
 					var passability = ValidateTrackedPassability(map);
 					if (!passability.Valid)
@@ -212,34 +218,15 @@ namespace OpenRA.Mods.Common.UtilityCommands
 			throw new InvalidDataException($"Native map generation failed after {config.Attempts} attempts", lastError);
 		}
 
-		static void ApplyOptions(IMapGeneratorSettings settings, Dictionary<string, string> optionValues)
+		// Upstream made MapGeneratorOption immutable: option values are no longer assigned
+		// onto the option objects, they are carried as strings in MapGenerationArgs.Options
+		// and converted by the generator. This only has to reject ids the generator lacks.
+		static void ValidateOptions(IEditorMapGeneratorInfo generator, Dictionary<string, string> optionValues)
 		{
-			foreach (var option in settings.Options)
-			{
-				if (!optionValues.TryGetValue(option.Id, out var value))
-					continue;
-
-				switch (option)
-				{
-					case MapGeneratorBooleanOption booleanOption:
-						booleanOption.Value = FieldLoader.GetValue<bool>(option.Id, value);
-						break;
-					case MapGeneratorIntegerOption integerOption:
-						integerOption.Value = FieldLoader.GetValue<int>(option.Id, value);
-						break;
-					case MapGeneratorMultiIntegerChoiceOption integerChoiceOption:
-						integerChoiceOption.Value = FieldLoader.GetValue<int>(option.Id, value);
-						break;
-					case MapGeneratorMultiChoiceOption choiceOption:
-						choiceOption.Value = value;
-						break;
-				}
-
-				optionValues.Remove(option.Id);
-			}
-
-			if (optionValues.Count != 0)
-				throw new ArgumentException($"Unknown map generator options: {string.Join(", ", optionValues.Keys)}");
+			var known = generator.Options.Select(o => o.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+			var unknown = optionValues.Keys.Where(k => !known.Contains(k)).ToList();
+			if (unknown.Count != 0)
+				throw new ArgumentException($"Unknown map generator options: {string.Join(", ", unknown)}");
 		}
 
 		static PassabilityReport ValidateTrackedPassability(Map map)

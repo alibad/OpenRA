@@ -31,6 +31,7 @@ namespace OpenRA.Traits
 		WorldRenderer worldRenderer;
 		readonly List<ShakeEffect> shakeEffects = [];
 		int ticks = 0;
+		float2 previousOffset = float2.Zero;
 
 		public ScreenShaker(ScreenShakerInfo info)
 		{
@@ -41,12 +42,17 @@ namespace OpenRA.Traits
 
 		void ITick.Tick(Actor self)
 		{
-			if (shakeEffects.Count > 0)
-			{
-				if (worldRenderer != null)
-					worldRenderer.Viewport.Scroll(GetScrollOffset(), true);
+			shakeEffects.RemoveAll(t => t.ExpiryTime == ticks);
 
-				shakeEffects.RemoveAll(t => t.ExpiryTime == ticks);
+			var newOffset = shakeEffects.Count > 0 ? GetScrollOffset() : float2.Zero;
+			if (newOffset != previousOffset)
+			{
+				// Null guard retained from this fork: worldRenderer is null under the
+				// headless OpenRA.Platforms.Null platform used for RL and dedicated runs.
+				if (worldRenderer != null)
+					worldRenderer.Viewport.Scroll(newOffset - previousOffset, true);
+
+				previousOffset = newOffset;
 			}
 
 			ticks++;

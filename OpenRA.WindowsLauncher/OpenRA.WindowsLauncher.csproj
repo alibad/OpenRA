@@ -26,7 +26,7 @@
 		</AssemblyAttribute>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="OpenRA-SDL2-CS" Version="1.0.42" />
+		<PackageReference Include="OpenRA-SDL2-CS" Version="1.0.44" />
 	</ItemGroup>
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />

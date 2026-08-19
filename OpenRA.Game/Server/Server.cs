@@ -52,9 +52,6 @@ namespace OpenRA.Server
 		const string CustomRules = "notification-custom-rules";
 
 		[FluentReference]
-		const string BotsDisabled = "notification-map-bots-disabled";
-
-		[FluentReference]
 		const string TwoHumansRequired = "notification-two-humans-required";
 
 		[FluentReference]
@@ -123,6 +120,7 @@ namespace OpenRA.Server
 
 		public readonly List<Connection> Conns = [];
 
+		public readonly Lock LobbyInfoLock = new();
 		public Session LobbyInfo;
 		public ServerSettings Settings;
 		public ModData ModData;
@@ -231,7 +229,7 @@ namespace OpenRA.Server
 
 		void MapStatusChanged(string uid, Session.MapStatus status)
 		{
-			lock (LobbyInfo)
+			lock (LobbyInfoLock)
 			{
 				if (LobbyInfo.GlobalSettings.Map == uid)
 					LobbyInfo.GlobalSettings.MapStatus = status;
@@ -558,7 +556,7 @@ namespace OpenRA.Server
 
 				void CompleteConnection()
 				{
-					lock (LobbyInfo)
+					lock (LobbyInfoLock)
 					{
 						client.Slot = LobbyInfo.FirstEmptySlot();
 						client.IsAdmin = !LobbyInfo.Clients.Any(c => c.IsAdmin);
@@ -599,7 +597,8 @@ namespace OpenRA.Server
 
 						Log.Write("server", $"{client.Name} ({newConn.EndPoint}) has joined the game.");
 
-						SendFluentMessage(Joined, "player", client.Name);
+						var otherConns = Conns.Where(c => c != newConn).ToArray();
+						SendFluentMessage(otherConns.AsSpan(), Joined, "player", client.Name);
 
 						if (Type == ServerType.Dedicated)
 						{
@@ -610,15 +609,13 @@ namespace OpenRA.Server
 							var motd = File.ReadAllText(motdFile);
 							if (!string.IsNullOrEmpty(motd))
 								SendOrderTo(newConn, "Message", motd);
+
+							if (!LobbyInfo.GlobalSettings.EnableSingleplayer)
+								SendFluentMessageTo(newConn, TwoHumansRequired);
 						}
 
-						if ((LobbyInfo.GlobalSettings.MapStatus & Session.MapStatus.UnsafeCustomRules) != 0)
+						if (Type != ServerType.Local && (LobbyInfo.GlobalSettings.MapStatus & Session.MapStatus.UnsafeCustomRules) != 0)
 							SendFluentMessageTo(newConn, CustomRules);
-
-						if (!LobbyInfo.GlobalSettings.EnableSingleplayer)
-							SendFluentMessageTo(newConn, TwoHumansRequired);
-						else if (Map.Players.Players.Where(p => p.Value.Playable).All(p => !p.Value.AllowBots))
-							SendFluentMessageTo(newConn, BotsDisabled);
 					}
 				}
 
@@ -905,6 +902,17 @@ namespace OpenRA.Server
 			RecordOrder(frame, data, From);
 		}
 
+		public void DispatchServerOrdersToClients(ReadOnlySpan<Connection> conns, byte[] data, int frame = 0)
+		{
+			const int From = 0;
+			var frameData = CreateFrame(From, frame, data);
+			foreach (var c in conns)
+				if (c.Validated)
+					DispatchFrameToClient(c, From, frameData);
+
+			RecordOrder(frame, data, From);
+		}
+
 		public void ReceiveOrders(Connection conn, int frame, byte[] data)
 		{
 			// Make sure we don't accidentally forward on orders from clients who we have just dropped
@@ -965,8 +973,14 @@ namespace OpenRA.Server
 
 		public void SendFluentMessage(string key, params object[] args)
 		{
+			var conns = Conns.ToArray();
+			SendFluentMessage(conns, key, args);
+		}
+
+		public void SendFluentMessage(ReadOnlySpan<Connection> conns, string key, params object[] args)
+		{
 			var text = FluentMessage.Serialize(key, args);
-			DispatchServerOrdersToClients(Order.FromTargetString("FluentMessage", text, true));
+			DispatchServerOrdersToClients(conns, Order.FromTargetString("FluentMessage", text, true).Serialize());
 
 			if (Type == ServerType.Dedicated)
 				WriteLineWithTimeStamp(FluentProvider.GetMessage(key, args));
@@ -985,7 +999,7 @@ namespace OpenRA.Server
 
 		void InterpretServerOrder(Connection conn, Order o)
 		{
-			lock (LobbyInfo)
+			lock (LobbyInfoLock)
 			{
 				// Only accept handshake responses from unvalidated clients
 				// Anything else may be an attempt to exploit the server
@@ -1055,7 +1069,7 @@ namespace OpenRA.Server
 								Directory.CreateDirectory(baseSavePath);
 
 							GameSave.Save(Path.Combine(baseSavePath, filename));
-							DispatchServerOrdersToClients(Order.FromTargetString("GameSaved", filename, true));
+							DispatchServerOrdersToClients(Order.FromTargetString("GameSaved", filename, true, o.ExtraData));
 						}
 
 						break;
@@ -1171,7 +1185,7 @@ namespace OpenRA.Server
 				latency < 360 ? Session.ConnectionQuality.Moderate :
 				Session.ConnectionQuality.Poor;
 
-			lock (LobbyInfo)
+			lock (LobbyInfoLock)
 			{
 				foreach (var c in LobbyInfo.Clients)
 					if (c.Index == conn.PlayerIndex || (c.Bot != null && c.BotControllerClientIndex == conn.PlayerIndex))
@@ -1204,7 +1218,7 @@ namespace OpenRA.Server
 
 		public void DropClient(Connection toDrop)
 		{
-			lock (LobbyInfo)
+			lock (LobbyInfoLock)
 			{
 				orderBuffer?.RemovePlayer(toDrop.PlayerIndex);
 				Conns.Remove(toDrop);
@@ -1273,7 +1287,7 @@ namespace OpenRA.Server
 
 		public void SyncLobbyInfo()
 		{
-			lock (LobbyInfo)
+			lock (LobbyInfoLock)
 			{
 				if (State == ServerState.WaitingPlayers) // Don't do this while the game is running, it breaks things!
 					DispatchServerOrdersToClients(Order.FromTargetString("SyncInfo", LobbyInfo.Serialize(), true));
@@ -1288,7 +1302,7 @@ namespace OpenRA.Server
 			if (State != ServerState.WaitingPlayers)
 				return;
 
-			lock (LobbyInfo)
+			lock (LobbyInfoLock)
 			{
 				// TODO: Only need to sync the specific client that has changed to avoid conflicts!
 				var clientData = LobbyInfo.Clients.ConvertAll(client => client.Serialize());
@@ -1309,7 +1323,7 @@ namespace OpenRA.Server
 			if (State != ServerState.WaitingPlayers)
 				return;
 
-			lock (LobbyInfo)
+			lock (LobbyInfoLock)
 			{
 				// TODO: Don't sync all the slots if just one changed!
 				var slotData = LobbyInfo.Slots.Select(slot => slot.Value.Serialize()).ToList();
@@ -1326,7 +1340,7 @@ namespace OpenRA.Server
 			if (State != ServerState.WaitingPlayers)
 				return;
 
-			lock (LobbyInfo)
+			lock (LobbyInfoLock)
 			{
 				var sessionData = new List<MiniYamlNode> { LobbyInfo.GlobalSettings.Serialize() };
 
@@ -1339,7 +1353,7 @@ namespace OpenRA.Server
 
 		public void StartGame()
 		{
-			lock (LobbyInfo)
+			lock (LobbyInfoLock)
 			{
 				WriteLineWithTimeStamp(FluentProvider.GetMessage(GameStarted));
 
@@ -1396,6 +1410,8 @@ namespace OpenRA.Server
 
 				if (IsMultiplayer)
 					OrderLatency = gameSpeed.OrderLatency;
+
+				LobbyInfo.GlobalSettings.GameTimestep = gameSpeed.Timestep;
 
 				if (GameSave == null && LobbyInfo.GlobalSettings.EnableGameSaves)
 					GameSave = new GameSave();
