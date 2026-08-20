@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<IsPublishable Condition="'$(CopyRA2Dll)' == 'False'">false</IsPublishable>
+	</PropertyGroup>
+
+	<!--
+		Asset-import code from the upstream ra2 mod is kept in the tree for reference but is
+		not compiled. It only exists to read retail Red Alert 2 containers (.bag audio) and to
+		convert retail RA2 maps, neither of which this project ships or needs: the RA2 mechanics
+		are fused onto the existing ra mod and its own assets. These two files also carry almost
+		all of the API drift against the current engine (72 of 80 initial build errors), so
+		excluding them keeps the gameplay port clean. Re-enable and port them if retail RA2
+		asset import is ever wanted.
+	-->
+	<ItemGroup>
+		<Compile Remove="FileSystem/BagFile.cs" />
+		<Compile Remove="UtilityCommands/ImportRA2MapCommand.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\OpenRA.Game\OpenRA.Game.csproj">
+			<Private>False</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\OpenRA.Mods.Common\OpenRA.Mods.Common.csproj">
+			<Private>False</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\OpenRA.Mods.Cnc\OpenRA.Mods.Cnc.csproj">
+			<Private>False</Private>
+		</ProjectReference>
+	</ItemGroup>
+</Project>
