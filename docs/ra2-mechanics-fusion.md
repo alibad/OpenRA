@@ -92,6 +92,32 @@ selection, because `turkey-faction` and `china-faction` pull them in:
 Enable those two in **Settings > Experience**, or pick the **World War III**
 profile, which enables everything.
 
+### Checking each one by hand
+
+**Mind control.** Skirmish as **Turkey**. Build a barracks, then a drone operator
+(`TRDRONEOP`, 550, needs a radar dome). Force-fire it at an enemy *vehicle* —
+vehicles only, infantry and buildings are not valid targets. Expect a cyan arc
+from the operator to the vehicle, the vehicle turning your colour with a purple
+tint, and capacity pips under the operator when selected. It holds two at once;
+taking a third releases the oldest. Kill the operator and the vehicles revert.
+
+**Carrier.** Skirmish as **China**. Build a shipyard plus a tech centre, then the
+Haiwang (`CNHAIWANG`, 2800). Order it to attack something within 14 cells: it
+launches drones that fly out, strike, and come back to the ship to rearm. The
+pips under the ship show how many are docked. The ship itself no longer fires a
+missile — the drones are the weapon now.
+
+**Radiation.** Any faction. Fire the atom bomb superweapon. The crater keeps a
+green tint that fades over roughly 200 ticks, and infantry that walk through it
+take damage. Vehicles are unaffected.
+
+**Chrono harvester** (needs `teleport-network`). Watch any harvester finish a
+load. Instead of driving the last stretch back, it warps to the refinery when the
+delivery cell is free, with the chrono sound.
+
+**Building survivors** (needs `salvage-and-scrap-economy`). Destroy any structure.
+Two riflemen walk out, owned by whoever owned the building.
+
 ## Validating
 
 ```
