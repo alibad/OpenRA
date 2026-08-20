@@ -1,3 +1,16 @@
+﻿TurkeySeizeLink:
+	ReloadDelay: 90
+	Range: 6c0
+	TargetActorCenter: true
+	ValidTargets: Vehicle
+	Report: beepy3.aud
+	Projectile: ArcLaserZap
+		Width: 24
+		Color: 40D0FFB0
+		Duration: 20
+		TrackTarget: true
+		ZOffset: 1023
+
 TurkeyServiceRifle:
 	Inherits: M1Carbine
 	ReloadDelay: 30

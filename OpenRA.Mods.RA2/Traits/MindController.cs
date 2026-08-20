@@ -1,4 +1,4 @@
-#region Copyright & License Information
+﻿#region Copyright & License Information
 /*
  * Copyright (c) The OpenRA Developers and Contributors
  * This file is part of OpenRA, which is free software. It is made
@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using OpenRA.Mods.Common.Experience;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Traits;
 
@@ -49,8 +50,18 @@ namespace OpenRA.Mods.RA2.Traits
 
 		public IEnumerable<Actor> Slaves => slaves;
 
+		// FORK: capacity follows the mind-control-and-disguise experience component when the
+		// player has tuned it, and falls back to the actor's own yaml value otherwise. Without
+		// this the component's Control capacity slider would silently stop governing anything
+		// once real RA2 mind control replaced the placeholder MindControlCapacity ledger.
+		readonly int capacity;
+
 		public MindController(MindControllerInfo info)
-			: base(info) { }
+			: base(info)
+		{
+			var catalog = Game.ModData.GetOrNull<ExperienceCatalog>();
+			capacity = catalog?.GetIntegerParameter("mind-control-and-disguise", "capacity", info.Capacity) ?? info.Capacity;
+		}
 
 		void StackControllingCondition(Actor self, string condition)
 		{
@@ -95,16 +106,21 @@ namespace OpenRA.Mods.RA2.Traits
 
 			var mindControllable = target.Actor.TraitOrDefault<MindControllable>();
 
+			// FORK: upstream throws here. This mod fuses mind control into rosters that the
+			// upstream ra2 mod never saw, so a controller can legitimately be pointed at an actor
+			// that was never given MindControllable. Log it and decline the shot rather than
+			// killing the game: a missing trait is a rules bug, not a reason to crash a match.
 			if (mindControllable == null)
 			{
-				throw new InvalidOperationException(
-					$"`{self.Info.Name}` tried to mindcontrol `{target.Actor.Info.Name}`, but the latter does not have the necessary trait!");
+				Log.Write("debug",
+					$"`{self.Info.Name}` tried to mindcontrol `{target.Actor.Info.Name}`, which has no MindControllable trait.");
+				return;
 			}
 
 			if (mindControllable.IsTraitDisabled || mindControllable.IsTraitPaused)
 				return;
 
-			if (Info.Capacity > 0 && !Info.DiscardOldest && slaves.Count >= Info.Capacity)
+			if (capacity > 0 && !Info.DiscardOldest && slaves.Count >= capacity)
 				return;
 
 			slaves.Add(target.Actor);
@@ -114,7 +130,7 @@ namespace OpenRA.Mods.RA2.Traits
 			if (Info.Sounds.Length != 0)
 				Game.Sound.Play(SoundType.World, Info.Sounds.Random(self.World.SharedRandom), self.CenterPosition);
 
-			if (Info.Capacity > 0 && Info.DiscardOldest && slaves.Count > Info.Capacity)
+			if (capacity > 0 && Info.DiscardOldest && slaves.Count > capacity)
 				slaves[0].Trait<MindControllable>().RevokeMindControl(slaves[0]);
 		}
 

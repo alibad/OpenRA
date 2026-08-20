@@ -1,4 +1,4 @@
-World:
+﻿World:
 	ReusableCapability@STATUSTHERMAL:
 		Id: status-and-thermal-system
 		Domain: effects-and-sensors
@@ -32,6 +32,9 @@ World:
 
 ^Infantry:
 	Inherits@WW3STATUS: ^ReusableStatusReceiver
+	SpeedMultiplier@WW3HEAT:
+		Modifier: 90
+		RequiresCondition: status-heat
 	SpeedMultiplier@WW3SUPPRESSED:
 		Modifier: 65
 		RequiresCondition: status-suppressed
@@ -47,6 +50,9 @@ World:
 
 ^Vehicle:
 	Inherits@WW3STATUS: ^ReusableStatusReceiver
+	ReloadDelayMultiplier@WW3SUPPRESSED:
+		Modifier: 130
+		RequiresCondition: status-suppressed
 	SpeedMultiplier@WW3HEAT:
 		Modifier: 75
 		RequiresCondition: status-heat
@@ -59,6 +65,12 @@ World:
 
 ^Ship:
 	Inherits@WW3STATUS: ^ReusableStatusReceiver
+	ReloadDelayMultiplier@WW3SUPPRESSED:
+		Modifier: 130
+		RequiresCondition: status-suppressed
+	ReloadDelayMultiplier@WW3WEAPONLOCK:
+		Modifier: 300
+		RequiresCondition: status-weapon-locked
 	SpeedMultiplier@WW3HEAT:
 		Modifier: 80
 		RequiresCondition: status-heat
@@ -68,6 +80,12 @@ World:
 
 ^Plane:
 	Inherits@WW3STATUS: ^ReusableStatusReceiver
+	ReloadDelayMultiplier@WW3SUPPRESSED:
+		Modifier: 130
+		RequiresCondition: status-suppressed
+	ReloadDelayMultiplier@WW3WEAPONLOCK:
+		Modifier: 300
+		RequiresCondition: status-weapon-locked
 	SpeedMultiplier@WW3HEAT:
 		Modifier: 80
 		RequiresCondition: status-heat

@@ -1,4 +1,4 @@
-ExperienceCatalog:
+﻿ExperienceCatalog:
 	Mod: ra
 	DefaultProfile: ai-assistant-only
 	Components:
@@ -92,7 +92,7 @@ ExperienceCatalog:
 			Source: Original OpenRA AI faction work
 			License: GPL-3.0-or-later code; original project presentation generated with GPT Image
 			Kind: Faction
-			Dependencies: faction-and-subfaction-contract, naval-combat-archetypes
+			Dependencies: faction-and-subfaction-contract, naval-combat-archetypes, mind-control-and-disguise
 			Rules: ra|rules/turkey.yaml, ra|experiences/factions/turkey.yaml
 			Weapons: ra|weapons/turkey.yaml
 			Sequences: ra|sequences/turkey.yaml
@@ -555,7 +555,7 @@ ExperienceCatalog:
 			Version: 1
 			Source: Combined Arms, Cameo, Shattered Paradise, and OpenHV patterns
 			License: GPL-3.0-or-later code; original effects and audio required
-			Dependencies: point-defense-interception
+			Dependencies: point-defense-interception, status-and-thermal-system
 			Rules: ra|experiences/components/advanced-projectile-library.yaml
 			Weapons: ra|experiences/weapons/reusable-abilities.yaml
 		air-attack-profiles:

@@ -1,4 +1,4 @@
-World:
+﻿World:
 	ReusableCapability@COUNTERINTELLIGENCE:
 		Id: mind-control-and-disguise
 		Domain: special-units
@@ -38,3 +38,10 @@ SPY:
 
 ^Vehicle:
 	TemporaryOwnerManager:
+	MindControllable:
+		Condition: mind-controlled
+		RevokeControlSounds: beepy6.aud
+		FallbackOwner: Creeps
+	WithColoredOverlay@MINDCONTROL:
+		Color: 60A040D0
+		RequiresCondition: mind-controlled

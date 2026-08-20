@@ -1,4 +1,4 @@
-World:
+﻿World:
 	Faction@turkey:
 		Name: faction-turkey.name
 		InternalName: turkey
@@ -19,6 +19,29 @@ TRAT:
 	Inherits@WW3ROLE: ^RoleAntiArmorInfantry
 TRDRONEOP:
 	Inherits@WW3ROLE: ^RoleEngineer
+	Inherits@WW3MINDCONTROLLER: ^ReusableMindController
+	Armament@SEIZE:
+		Name: seize
+		Weapon: TurkeySeizeLink
+		LocalOffset: 0,0,555
+	MindController:
+		ArmamentNames: seize
+		Capacity: 2
+		DiscardOldest: true
+		ControllingCondition: turkey-seizing
+		Sounds: beepy3.aud
+	SpeedMultiplier@SEIZING:
+		Modifier: 85
+		RequiresCondition: turkey-seizing
+	WithMindControlArc:
+		UsePlayerColor: true
+		Transparency: 190
+		Offset: 0,0,555
+	WithMindControllerPipsDecoration:
+		Position: BottomLeft
+		Margin: 4, 3
+		RequiresSelection: true
+		Palette: chrome
 GREYWOLF:
 	Inherits@WW3ROLE: ^RoleAntiArmorInfantry
 BOZKIR:
