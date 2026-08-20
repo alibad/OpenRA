@@ -1,4 +1,4 @@
-World:
+﻿World:
 	ReusableCapability@TRANSITNETWORK:
 		Id: teleport-network
 		Domain: buildings-and-support-powers
@@ -37,3 +37,12 @@ APC:
 		RequiresForceFire: true
 		Cursor: ability
 		BlockedCursor: ability-blocked
+
+# RA2's chrono miner: once the transit network exists, harvesters returning to a
+# refinery jump the last leg instead of driving it, when the delivery cell is free.
+HARV:
+	Inherits@WW3TRANSIT: ^ReusableTransitEntrance
+	ChronoResourceDelivery:
+		CheckTeleportDelay: 10
+		WarpInSound: chrotnk1.aud
+		WarpOutSound: chrotnk1.aud

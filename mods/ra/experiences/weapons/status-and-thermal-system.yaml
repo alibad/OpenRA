@@ -1,0 +1,10 @@
+# Fallout for the Atomic superweapon. Component-gated because the radioactivity
+# layer it writes into only exists while status-and-thermal-system is enabled.
+Atomic:
+	Warhead@8Rad_fallout: CreateTintedCells
+		LayerName: radioactivity
+		Level: 260
+		MaxLevel: 500
+		Spread: 1c0
+		Falloff: 100, 60, 30, 10, 0
+		ValidTargets: Ground, Water

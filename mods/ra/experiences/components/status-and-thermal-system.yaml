@@ -92,3 +92,24 @@
 	RangeMultiplier@WW3SENSORJAM:
 		Modifier: 75
 		RequiresCondition: status-sensor-jammed
+
+# RA2's radiation model: contaminated ground is a decaying per-cell level that
+# damages whoever stands in it, rather than a one-off blast. Vehicles are sealed;
+# infantry are not.
+World:
+	TintedCellsLayer@RADIOACTIVITY:
+		Name: radioactivity
+		Color: 30FF30
+		MaxLevel: 500
+		Darkest: 6
+		Brightest: 56
+		FadeoutDelay: 200
+		FadeoutType: Logarithmic
+
+^Infantry:
+	DamagedByTintedCells@RADIOACTIVITY:
+		LayerName: radioactivity
+		Damage: 400
+		DamageLevel: 100
+		DamageInterval: 16
+		DamageTypes: Prone50Percent, FireDeath

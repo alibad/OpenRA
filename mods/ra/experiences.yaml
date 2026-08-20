@@ -508,6 +508,7 @@
 			Source: Combined Arms and Cameo condition patterns
 			License: GPL-3.0-or-later code; original overlays required
 			Rules: ra|experiences/components/status-and-thermal-system.yaml
+			Weapons: ra|experiences/weapons/status-and-thermal-system.yaml
 		weather-and-battlefield-lighting:
 			Title: Weather and battlefield lighting
 			Description: Mission-triggered deterministic sandstorm overlay plus rain, night-lighting, and visibility extension contracts.
