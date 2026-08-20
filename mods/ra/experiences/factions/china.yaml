@@ -1,4 +1,4 @@
-World:
+﻿World:
 	Faction@china:
 		Name: faction-china.name
 		InternalName: china
@@ -57,9 +57,28 @@ CNLUYANG:
 CNHAIWANG:
 	Inherits@WW3ROLE: ^RoleDestroyer
 	Inherits@WW3WINGPARENT: ^ReusableWingParent
-	CarrierWingSpawner@WW3DRONES:
-		Actor: CNHAIWANGDRONE
-		ReplenishInterval: 750
+	Armament@DRONES:
+		Name: drones
+		Weapon: ChinaHaiwangDroneLaunch
+		RequiresCondition: drones-loaded
+		PauseOnCondition: launching-drones
+	CarrierParent@WW3DRONES:
+		Actors: CNHAIWANGDRONE, CNHAIWANGDRONE, CNHAIWANGDRONE, CNHAIWANGDRONE
+		ArmamentNames: drones
+		InitialActorCount: -1
+		RespawnTicks: 750
+		RearmTicks: 150
+		InstantRepair: true
+		LaunchingCondition: launching-drones
+		LaunchingTicks: 15
+		LoadedCondition: drones-loaded
+		ChildDisposalOnKill: KillChildren
+		ChildDisposalOnOwnerChange: GiveChildrenToAttacker
+	WithCarrierParentPipsDecoration@WW3DRONES:
+		Position: BottomLeft
+		Margin: 4, 3
+		RequiresSelection: true
+		Palette: chrome
 	ReusableCapability@WW3NAVALPROFILE:
 		Id: naval-archetype-carrier
 		Domain: navy
@@ -87,6 +106,13 @@ CNHAIWANGDRONE:
 	Inherits@WW3WINGCHILD: ^ReusableWingChild
 	-Buildable:
 	-UpdatesPlayerStatistics:
+	-Rearmable:
+	CarrierChild:
+		LandingDistance: 5c0
+		AllowOwnerChange: false
+	AutoTarget:
+		InitialStance: AttackAnything
+		InitialStanceAI: AttackAnything
 	Tooltip:
 		Name: actor-cncloud.name
 	RenderSprites:

@@ -1,4 +1,4 @@
-ChinaServiceRifle:
+﻿ChinaServiceRifle:
 	Inherits: M1Carbine
 	ReloadDelay: 28
 	Burst: 2
@@ -357,6 +357,14 @@ ChinaNavalGun:
 	Report: china-naval-gun.wav
 	Warhead@1Dam: SpreadDamage
 		Damage: 3300
+
+ChinaHaiwangDroneLaunch:
+	ReloadDelay: 145
+	Range: 14c0
+	MinRange: 5c0
+	Report: china-carrier-launch.wav
+	ValidTargets: GroundActor, WaterActor, Structure
+	Projectile: InstantHit
 
 ChinaHaiwangDroneStrike:
 	ReloadDelay: 145
