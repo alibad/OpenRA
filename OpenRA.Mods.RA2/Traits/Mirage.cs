@@ -1,4 +1,4 @@
-#region Copyright & License Information
+﻿#region Copyright & License Information
 /*
  * Copyright (c) The OpenRA Developers and Contributors
  * This file is part of OpenRA, which is free software. It is made
@@ -95,7 +95,7 @@ namespace OpenRA.Mods.RA2.Traits
 	}
 
 	public class Mirage : PausableConditionalTrait<MirageInfo>, INotifyDamage, IEffectiveOwner, INotifyDemolition, INotifyInfiltration,
-		INotifyAttack, ITick, INotifyCreated
+		INotifyAttack, ITick, INotifyCreated, ISync
 	{
 		readonly Actor self;
 
