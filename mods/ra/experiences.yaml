@@ -272,7 +272,7 @@
 			Description: Destroyed vehicles can leave recoverable value for scavenger forces and mission objectives.
 			Effects: Eligible destroyed actors can drop collectible salvage that awards a configurable percentage of their sell value.
 			Tradeoffs: Creates contested post-battle income and can amplify a winning force if wreck sites are not denied; drop chance, value, and eligible faction are configurable.
-			Scope: Concrete only for actors marked ReusableSalvageable and compatible collectors or mission logic; ordinary deaths remain unchanged otherwise.
+			Scope: Concrete for actors marked ReusableSalvageable, plus every structure, which now ejects surviving crew on destruction.
 			Category: Economy and missions
 			Preview: ra|uibits/experience-previews/salvage-and-scrap-economy.png
 			Version: 1
@@ -369,7 +369,7 @@
 					Unit: infantry
 		carrier-and-drone-wing:
 			Title: Carrier and drone wings
-			Description: Normalized parent, child, sortie, recall, command-link, and replenishment contracts for carriers and unmanned systems.
+			Description: Normalized parent, child, sortie, recall, command-link, and replenishment contracts for carriers and unmanned systems, implemented with RA2's carrier logic.
 			Effects: Publishes carrier-parent and wing-child roles for launching, recalling, replenishing, and directing compatible aircraft or drones.
 			Tradeoffs: Wing platforms concentrate reusable striking power in a valuable parent and reward destroying or isolating that command link.
 			Scope: Framework for compatible carriers and drones; it does not create a carrier or attach a wing to every ship automatically.
@@ -499,9 +499,9 @@
 		status-and-thermal-system:
 			Title: Status and thermal system
 			Description: Shared heat, suppression, sensor-jam, weapon-lock, visibility, emitter, and receiver contracts.
-			Effects: Enables compatible actors to receive heat, suppression, sensor-jam, and weapon-lock conditions and exposes matching emitter roles.
+			Effects: Enables compatible actors to receive heat, suppression, sensor-jam, and weapon-lock conditions, exposes matching emitter roles, and adds RA2's radioactivity layer with the fallout the Atomic superweapon leaves behind.
 			Tradeoffs: Temporary disabling and visibility pressure reward combined arms, while condition duration and application remain defined by each concrete weapon or aura.
-			Scope: Framework for actors and weapons that inherit the receiver or emitter contracts; existing weapons do not gain status effects automatically.
+			Scope: Framework for actors and weapons that inherit the receiver or emitter contracts. Existing weapons do not gain status effects automatically, but infantry take damage from contaminated ground.
 			Category: Effects and sensors
 			Preview: ra|uibits/experience-previews/status-and-thermal-system.png
 			Version: 1
@@ -537,7 +537,7 @@
 			Description: Generalized entrance, exit, routing, placement validation, and AI contracts for tunnels or rapid transit.
 			Effects: Publishes synchronized entrance, exit, routing, placement, and AI contracts for tunnel or rapid-transit networks.
 			Tradeoffs: Fast redeployment depends on valid, vulnerable endpoints and safe exit placement; losing the network removes the mobility advantage.
-			Scope: Framework for factions or missions that implement transit structures; no tunnel is added to stock build menus by this module alone.
+			Scope: Framework for transit structures, plus RA2's chrono miner: harvesters jump the last leg of a delivery run. No tunnel is added to stock build menus.
 			Category: Buildings and support powers
 			Preview: ra|uibits/experience-previews/teleport-network.png
 			Version: 1
@@ -627,9 +627,9 @@
 		mind-control-and-disguise:
 			Title: Mind control and disguise
 			Description: Disguise, detection, effective ownership, control capacity, release policy, and counterplay contracts.
-			Effects: Publishes disguise, infiltration, detection, ownership-transfer, control-capacity, and release-policy roles for special units.
-			Tradeoffs: Detection, limited capacity, legal targets, and release rules provide counterplay to identity deception or temporary control.
-			Scope: Special-unit framework and metadata for the Spy; it does not grant mind control or disguise orders without a concrete unit implementation.
+			Effects: Publishes disguise, infiltration, detection, ownership-transfer, control-capacity, and release-policy roles, and grants RA2 mind control to the units that implement them.
+			Tradeoffs: Capacity limits, vehicle-only targets, a visible control arc, and release on the controller's death provide counterplay. Holding a link slows the operator.
+			Scope: Special-unit framework plus the concrete implementation: every vehicle becomes mind-controllable, and Turkey's drone operator can seize them.
 			Category: Special units
 			Preview: ra|uibits/experience-previews/mind-control-and-disguise.png
 			Version: 1
