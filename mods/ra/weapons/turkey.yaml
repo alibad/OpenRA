@@ -2,14 +2,18 @@
 	ReloadDelay: 90
 	Range: 6c0
 	TargetActorCenter: true
-	ValidTargets: Vehicle
+	ValidTargets: MindControl
 	Report: beepy3.aud
 	Projectile: ArcLaserZap
+		UsePlayerColor: true
 		Width: 24
-		Color: 40D0FFB0
 		Duration: 20
 		TrackTarget: true
 		ZOffset: 1023
+	# A weapon with no warhead is never valid against anything, so the armament
+	# would never fire and MindController would never see the attack.
+	Warhead@1Dam: TargetDamage
+		Damage: 0
 
 TurkeyServiceRifle:
 	Inherits: M1Carbine

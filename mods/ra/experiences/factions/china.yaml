@@ -57,14 +57,17 @@ CNLUYANG:
 CNHAIWANG:
 	Inherits@WW3ROLE: ^RoleDestroyer
 	Inherits@WW3WINGPARENT: ^ReusableWingParent
+	# Named secondary because AttackBase only selects armaments called primary or
+	# secondary; a custom name is never fired, so no drone would ever launch.
+	# The ship's own defence armament stays primary.
 	Armament@DRONES:
-		Name: drones
+		Name: secondary
 		Weapon: ChinaHaiwangDroneLaunch
 		RequiresCondition: drones-loaded
 		PauseOnCondition: launching-drones
 	CarrierParent@WW3DRONES:
 		Actors: CNHAIWANGDRONE, CNHAIWANGDRONE, CNHAIWANGDRONE, CNHAIWANGDRONE
-		ArmamentNames: drones
+		ArmamentNames: secondary
 		InitialActorCount: -1
 		RespawnTicks: 750
 		RearmTicks: 150

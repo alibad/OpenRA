@@ -42,6 +42,11 @@ SPY:
 		Condition: mind-controlled
 		RevokeControlSounds: beepy6.aud
 		FallbackOwner: Creeps
+	Targetable@MINDCONTROL:
+		TargetTypes: MindControl
+	WithMindControlArc@MINDCONTROL:
+		UsePlayerColor: true
+		Transparency: 190
 	WithColoredOverlay@MINDCONTROL:
 		Color: 60A040D0
 		RequiresCondition: mind-controlled

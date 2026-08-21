@@ -29,6 +29,22 @@ Two files carried most of the drift and are excluded from compilation in
 `UtilityCommands/ImportRA2MapCommand.cs`. Both only read retail RA2 containers
 and maps. Re-enable and port them if RA2 asset import is ever wanted.
 
+## The armament naming constraint
+
+`AttackBase.Armaments` defaults to `["primary", "secondary"]` and
+`InitializeGetArmaments` filters an actor's armaments to that list. Both
+`MindController` and `CarrierParent` hook `INotifyAttack.Attacking` and gate on
+`ArmamentNames.Contains(a.Info.Name)`, so an armament with any other name is
+never fired, the trait never sees an attack, and the mechanic is silently dead.
+
+Both were initially wired with descriptive names (`seize`, `drones`). Every trait
+resolved correctly under `--resolved-rules` and every lint passed, but neither
+mechanic did anything. Both now use `secondary`, leaving each unit's original
+weapon on `primary`.
+
+This is only catchable by running the game, which is why the mechanics were
+verified in a live headless match rather than by rules resolution alone.
+
 Two deliberate fork changes are marked `// FORK:` in the vendored source:
 
 - `MindController` logs and declines the shot when a target has no
@@ -95,8 +111,9 @@ profile, which enables everything.
 ### Checking each one by hand
 
 **Mind control.** Skirmish as **Turkey**. Build a barracks, then a drone operator
-(`TRDRONEOP`, 550, needs a radar dome). Force-fire it at an enemy *vehicle* —
-vehicles only, infantry and buildings are not valid targets. Expect a cyan arc
+(`TRDRONEOP`, 550, needs a radar dome). Order it to attack an enemy *vehicle* —
+vehicles only, infantry and buildings are not valid targets. It will also seize
+on its own when an enemy vehicle wanders into range. Expect a cyan arc
 from the operator to the vehicle, the vehicle turning your colour with a purple
 tint, and capacity pips under the operator when selected. It holds two at once;
 taking a third releases the oldest. Kill the operator and the vehicles revert.

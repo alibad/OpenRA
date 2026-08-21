@@ -20,12 +20,14 @@ TRAT:
 TRDRONEOP:
 	Inherits@WW3ROLE: ^RoleEngineer
 	Inherits@WW3MINDCONTROLLER: ^ReusableMindController
+	# Named secondary because AttackBase only selects armaments called primary or
+	# secondary; a custom name is never fired, so the controller never sees the attack.
 	Armament@SEIZE:
-		Name: seize
+		Name: secondary
 		Weapon: TurkeySeizeLink
 		LocalOffset: 0,0,555
 	MindController:
-		ArmamentNames: seize
+		ArmamentNames: secondary
 		Capacity: 2
 		DiscardOldest: true
 		ControllingCondition: turkey-seizing

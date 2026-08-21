@@ -8,3 +8,15 @@ Atomic:
 		Spread: 1c0
 		Falloff: 100, 60, 30, 10, 0
 		ValidTargets: Ground, Water
+
+# The MAD Tank detonates its own reactor. Contaminating the ground it dies on is
+# the natural reading, and gives the radiation layer a unit-scale source rather
+# than only a superweapon one.
+MADTankDetonate:
+	Warhead@4Rad_fallout: CreateTintedCells
+		LayerName: radioactivity
+		Level: 200
+		MaxLevel: 420
+		Spread: 1c512
+		Falloff: 100, 55, 25, 8, 0
+		ValidTargets: Ground, Water
