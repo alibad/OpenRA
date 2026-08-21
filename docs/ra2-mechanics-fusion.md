@@ -96,6 +96,25 @@ consumed suppression, and `^Ship`/`^Plane` consumed neither suppression nor
 weapon-lock. Each template now consumes every condition it is granted:
 suppression and weapon-lock degrade rate of fire, heat degrades speed.
 
+## Verified behaviour
+
+Every mechanic was confirmed firing in a live headless match, not just resolved
+in the rules. Rules resolution proved nothing here: mind control and the carrier
+both resolved perfectly while being completely inert.
+
+| Mechanic | Observed |
+| --- | --- |
+| Mind control | 3 drone operators each seized a harvester |
+| Carrier | `CarrierParent`'s launch path executed 36 times |
+| Chrono harvester | 55 teleports, each a short hop onto the refinery cell |
+| Building survivors | 5 spawns, from destroyed silos and a construction yard |
+| Radiation | 39 damage ticks, contamination decaying 300 → 180 → 75 |
+
+One upstream quirk worth knowing: `DamagedByTintedCells` computes
+`level / DamageLevel * Damage` with integer division, so contamination below
+`DamageLevel` (100 by default) inflicts nothing. Light residue is harmless; that
+is the donor's arithmetic, left as-is.
+
 ## Seeing it in game
 
 Three of the five mechanics are live under the currently saved component
