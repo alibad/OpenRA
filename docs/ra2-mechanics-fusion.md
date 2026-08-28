@@ -102,10 +102,14 @@ Every mechanic was confirmed firing in a live headless match, not just resolved
 in the rules. Rules resolution proved nothing here: mind control and the carrier
 both resolved perfectly while being completely inert.
 
+The carrier was verified on the real CNHAIWANG at sea, not on a proxy. Finding
+water without parsing terrain is easy: seed a grid of ships across a generated
+Continents map and let the ones on land fail to place.
+
 | Mechanic | Observed |
 | --- | --- |
 | Mind control | 3 drone operators each seized a harvester |
-| Carrier | `CarrierParent`'s launch path executed 36 times |
+| Carrier | 64 CNHAIWANG afloat, 299 launches, every one via the `secondary` armament |
 | Chrono harvester | 55 teleports, each a short hop onto the refinery cell |
 | Building survivors | 5 spawns, from destroyed silos and a construction yard |
 | Radiation | 39 damage ticks, contamination decaying 300 → 180 → 75 |
