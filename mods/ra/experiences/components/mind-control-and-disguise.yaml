@@ -48,5 +48,7 @@ SPY:
 		UsePlayerColor: true
 		Transparency: 190
 	WithColoredOverlay@MINDCONTROL:
-		Color: 60A040D0
+		# RRGGBBAA. The alpha is deliberately low: this is a tint to show who owns
+		# the unit now, not a repaint. At high alpha it smothers the sprite.
+		Color: A040D040
 		RequiresCondition: mind-controlled
