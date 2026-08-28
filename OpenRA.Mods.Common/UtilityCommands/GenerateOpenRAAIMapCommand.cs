@@ -1,4 +1,4 @@
-#region Copyright & License Information
+﻿#region Copyright & License Information
 /*
  * Copyright (c) The OpenRA Developers and Contributors
  * This file is part of OpenRA, which is free software. It is made
@@ -147,16 +147,16 @@ namespace OpenRA.Mods.Common.UtilityCommands
 				.FirstOrDefault(info => info.Type == "classic")
 				?? throw new ArgumentException("The classic OpenRA map generator is not available");
 
+			var terrainInfo = modData.DefaultTerrainInfo[config.Tileset];
+
 			Exception lastError = null;
 			for (var attempt = 0; attempt < config.Attempts; attempt++)
 			{
 				var actualSeed = config.Seed + attempt;
 				try
 				{
-					var optionValues = new Dictionary<string, string>(config.Options, StringComparer.OrdinalIgnoreCase)
-					{
-						["Seed"] = actualSeed.ToString(System.Globalization.CultureInfo.InvariantCulture),
-					};
+					var optionValues = BuildOptionValues(generator, terrainInfo, config.Options);
+					optionValues["Seed"] = actualSeed.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
 					ValidateOptions(generator, optionValues);
 					var generationArgs = new MapGenerationArgs
@@ -221,6 +221,60 @@ namespace OpenRA.Mods.Common.UtilityCommands
 		// Upstream made MapGeneratorOption immutable: option values are no longer assigned
 		// onto the option objects, they are carried as strings in MapGenerationArgs.Options
 		// and converted by the generator. This only has to reject ids the generator lacks.
+		/// <summary>
+		/// Produces the generator's full option set, then layers this command's own preferences on top.
+		/// GenerateParameterYaml silently skips any option missing from the dictionary, so an option set
+		/// assembled purely from command line arguments omits everything the caller did not name. That
+		/// includes the hidden_defaults option, whose only job is to emit the generator's baseline
+		/// parameters, so leaving it out produces a parameter block missing roughly thirty required
+		/// fields, including Mirror.
+		/// </summary>
+		static Dictionary<string, string> BuildOptionValues(
+			IEditorMapGeneratorInfo generator, ITerrainInfo terrainInfo, Dictionary<string, string> overrides)
+		{
+			var trueString = FieldSaver.FormatValue(true);
+			var falseString = FieldSaver.FormatValue(false);
+
+			// Some multi-choice defaults depend on the player count, so resolve that from the
+			// overrides first and fall back to the generator's own default when it is not given.
+			var playerCount = 0;
+			if (overrides.TryGetValue("Players", out var playersOverride))
+				Exts.TryParseInt32Invariant(playersOverride, out playerCount);
+			else
+				foreach (var o in generator.Options)
+					if (o.Id == "Players" && o is MapGeneratorMultiIntegerChoiceOption pio && pio.Default != null)
+						playerCount = pio.Default.Value;
+
+			var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+			foreach (var o in generator.Options)
+			{
+				// Seed is set per attempt by the caller.
+				if (o.Id == "Seed")
+					continue;
+
+				switch (o)
+				{
+					case MapGeneratorBooleanOption bo:
+						values[o.Id] = bo.Default ? trueString : falseString;
+						break;
+					case MapGeneratorIntegerOption io:
+						values[o.Id] = FieldSaver.FormatValue(io.Default);
+						break;
+					case MapGeneratorMultiIntegerChoiceOption mio:
+						values[o.Id] = FieldSaver.FormatValue(mio.Default);
+						break;
+					case MapGeneratorMultiChoiceOption mo:
+						values[o.Id] = mo.DefaultFor(terrainInfo, playerCount);
+						break;
+				}
+			}
+
+			foreach (var kv in overrides)
+				values[kv.Key] = kv.Value;
+
+			return values;
+		}
+
 		static void ValidateOptions(IEditorMapGeneratorInfo generator, Dictionary<string, string> optionValues)
 		{
 			var known = generator.Options.Select(o => o.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
