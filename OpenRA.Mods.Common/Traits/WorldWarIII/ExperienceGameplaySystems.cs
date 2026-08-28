@@ -1,4 +1,4 @@
-#region Copyright & License Information
+﻿#region Copyright & License Information
 /*
  * Copyright (c) The OpenRA Developers and Contributors
  * This file is part of OpenRA, which is free software. It is made
@@ -84,70 +84,6 @@ namespace OpenRA.Mods.Common.Traits
 
 			level = newLevel;
 			techTree.ActorChanged(self);
-		}
-	}
-
-	[Desc("Maintains a replenishing group of real aircraft around a carrier or drone mothership.")]
-	public sealed class CarrierWingSpawnerInfo : ConditionalTraitInfo, IRulesetLoaded
-	{
-		[ActorReference]
-		[FieldLoader.Require]
-		public readonly string Actor = null;
-
-		public readonly int ReplenishInterval = 750;
-
-		public override object Create(ActorInitializer init) { return new CarrierWingSpawner(this); }
-
-		public override void RulesetLoaded(Ruleset rules, ActorInfo ai)
-		{
-			base.RulesetLoaded(rules, ai);
-			if (!rules.Actors.ContainsKey(Actor.ToLowerInvariant()))
-				throw new YamlException($"Carrier wing actor `{Actor}` does not exist.");
-		}
-	}
-
-	public sealed class CarrierWingSpawner : ConditionalTrait<CarrierWingSpawnerInfo>, ITick, INotifyOwnerChanged
-	{
-		readonly List<Actor> children = [];
-		readonly int wingSize;
-		int replenish;
-
-		public CarrierWingSpawner(CarrierWingSpawnerInfo info)
-			: base(info)
-		{
-			var catalog = Game.ModData.GetOrNull<ExperienceCatalog>();
-			wingSize = Math.Max(1, catalog?.GetIntegerParameter("carrier-and-drone-wing", "wing-size", 4) ?? 4);
-		}
-
-		void ITick.Tick(Actor self)
-		{
-			children.RemoveAll(child => child.Disposed || child.IsDead || !child.IsInWorld);
-			if (IsTraitDisabled || children.Count >= wingSize || --replenish > 0)
-				return;
-
-			replenish = Math.Max(1, Info.ReplenishInterval);
-			self.World.AddFrameEndTask(world =>
-			{
-				if (self.IsDead || !self.IsInWorld)
-					return;
-
-				var actorInfo = world.Map.Rules.Actors[Info.Actor.ToLowerInvariant()];
-				var altitude = actorInfo.TraitInfoOrDefault<AircraftInfo>()?.CruiseAltitude.Length ?? 0;
-				var child = world.CreateActor(Info.Actor,
-				[
-					new OwnerInit(self.Owner),
-					new ParentActorInit(self),
-					new CenterPositionInit(self.CenterPosition + new WVec(0, 0, altitude)),
-					new FacingInit(self.Orientation.Yaw)
-				]);
-				children.Add(child);
-			});
-		}
-
-		void INotifyOwnerChanged.OnOwnerChanged(Actor self, Player oldOwner, Player newOwner)
-		{
-			foreach (var child in children.Where(child => !child.Disposed && child.IsInWorld))
-				child.ChangeOwner(newOwner);
 		}
 	}
 

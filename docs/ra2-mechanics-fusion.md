@@ -81,9 +81,10 @@ so the drones deal the damage rather than the ship double-dipping with a missile
 The armament requires `drones-loaded` and pauses on `launching-drones`.
 `CNHAIWANGDRONE` lost `Rearmable`: it rearms at the carrier, not at a helipad.
 
-The older `CarrierWingSpawner` trait in
-`OpenRA.Mods.Common/Traits/WorldWarIII/ExperienceGameplaySystems.cs` is now
-unreferenced and can be removed.
+The older `CarrierWingSpawner` trait has been removed from
+`OpenRA.Mods.Common/Traits/WorldWarIII/ExperienceGameplaySystems.cs`. It spawned
+decorative aircraft around the ship on a timer, with no launch, return, rearm or
+docking behaviour, so `CarrierParent` supersedes it entirely.
 
 ## A pre-existing bug this surfaced
 
