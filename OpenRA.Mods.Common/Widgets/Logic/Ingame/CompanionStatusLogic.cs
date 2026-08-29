@@ -129,7 +129,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			feedPanel.Get<LabelWidget>("LATEST_KICKER").GetText = () =>
 				showOnlyPlayer ? "YOUR TRANSMISSIONS" : "LAST TRANSMISSION";
 			feedPanel.Get<LabelWidget>("FEED_FOOTER").GetText = () =>
-				$"{Binding("AIAsk").ToUpperInvariant()} // COMMAND CHANNEL     CLICK AI STRIP // COMMAND DRAWER";
+				$"OPENRA AI {modData.Manifest.Metadata.Version.ToUpperInvariant()}     " +
+				$"{Binding("AIAsk").ToUpperInvariant()} // COMMAND CHANNEL";
 			feedEmptyLabel.GetText = () => showOnlyPlayer
 				? $"NO VOICE TRANSMISSIONS YET // HOLD {Binding("AIAsk").ToUpperInvariant()}"
 				: $"NO SIGNALS YET // HOLD {Binding("AIAsk").ToUpperInvariant()} TO OPEN COMMS";

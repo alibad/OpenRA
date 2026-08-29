@@ -9,9 +9,11 @@
  */
 #endregion
 
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
+using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.Common.Widgets.Logic;
 
 namespace OpenRA.Test
@@ -58,6 +60,26 @@ namespace OpenRA.Test
 			Assert.That(logic, Does.Contain("v1/voice/start"));
 			Assert.That(logic, Does.Contain("v1/voice/stop"));
 			Assert.That(logic, Does.Contain("askKey.IsActivatedBy(e)"));
+		}
+
+		[TestCase(TestName = "Verified launcher state removes the companion startup gap")]
+		public void CompanionUsesVerifiedLauncherStateImmediately()
+		{
+			var environment = new Dictionary<string, string>
+			{
+				{ "OPENRA_AI_COMPANION_READY", "1" },
+				{ "OPENRA_AI_STARTUP_ENABLED", "true" },
+				{ "OPENRA_AI_STARTUP_MUTED", "0" },
+				{ "OPENRA_AI_STARTUP_AUTO_ACT", "yes" },
+				{ "OPENRA_AI_STARTUP_STRATEGY", "adaptive" }
+			};
+			var startup = CompanionBridge.StartupState(name => environment.GetValueOrDefault(name));
+
+			Assert.That(startup.Ready, Is.True);
+			Assert.That(startup.Enabled, Is.True);
+			Assert.That(startup.Muted, Is.False);
+			Assert.That(startup.AutoAct, Is.True);
+			Assert.That(startup.Strategy, Is.EqualTo("adaptive"));
 		}
 
 		static void AssertHotkey(Hotkey actual, Keycode key, Modifiers modifiers)

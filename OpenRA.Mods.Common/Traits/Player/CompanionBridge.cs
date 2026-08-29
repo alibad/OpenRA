@@ -124,11 +124,17 @@ namespace OpenRA.Mods.Common.Traits
 			if (!enabled)
 				return;
 
+			var startup = StartupState(Environment.GetEnvironmentVariable);
+
 			lock (CurrentLock)
 			{
 				current = this;
-				companionStatusAcknowledged = false;
-				companionStatus = ReadyStatus();
+				companionStatusAcknowledged = startup.Ready;
+				assistantAutoRequested = startup.Ready && startup.Enabled && startup.AutoAct;
+				assistantStrategyRequested = NormalizeAssistantStrategy(startup.Strategy);
+				companionStatus = startup.Ready
+					? StartupStatus(startup.Enabled, startup.Muted, assistantAutoRequested, assistantStrategyRequested)
+					: ReadyStatus();
 				companionThreat = CalmThreat();
 				companionStatusUpdatedAt = Environment.TickCount64;
 			}
@@ -183,6 +189,26 @@ namespace OpenRA.Mods.Common.Traits
 				"adaptive" => "normal",
 				_ => "normal"
 			};
+		}
+
+		public static (bool Ready, bool Enabled, bool Muted, bool AutoAct, string Strategy) StartupState(
+			Func<string, string> readEnvironment)
+		{
+			static bool Flag(Func<string, string> read, string name, bool fallback)
+			{
+				var value = read(name);
+				if (string.IsNullOrWhiteSpace(value))
+					return fallback;
+
+				return value.Trim().ToLowerInvariant() is "1" or "true" or "yes" or "on";
+			}
+
+			return (
+				Flag(readEnvironment, "OPENRA_AI_COMPANION_READY", false),
+				Flag(readEnvironment, "OPENRA_AI_STARTUP_ENABLED", true),
+				Flag(readEnvironment, "OPENRA_AI_STARTUP_MUTED", false),
+				Flag(readEnvironment, "OPENRA_AI_STARTUP_AUTO_ACT", false),
+				readEnvironment("OPENRA_AI_STARTUP_STRATEGY") ?? "normal");
 		}
 
 		void UpdateAssistantRequest(string state)
@@ -746,6 +772,20 @@ namespace OpenRA.Mods.Common.Traits
 		static RLProto.CompanionStatus ReadyStatus()
 		{
 			return IdleStatus(true, false);
+		}
+
+		static RLProto.CompanionStatus StartupStatus(bool enabled, bool muted, bool autoAct, string strategy)
+		{
+			if (!enabled || !autoAct)
+				return IdleStatus(enabled, muted);
+
+			return new RLProto.CompanionStatus
+			{
+				State = $"auto-active:{strategy}",
+				Message = $"AUTO ASSISTANT ON  •  {strategy.ToUpperInvariant()} NATIVE BRAIN",
+				Enabled = true,
+				Muted = muted
+			};
 		}
 
 		static RLProto.CompanionThreat CalmThreat()
