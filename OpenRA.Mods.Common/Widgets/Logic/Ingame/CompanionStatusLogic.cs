@@ -224,9 +224,14 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				return CompanionBridge.TryGetAutoAct(out var enabled) && enabled;
 			}
 
-			autoButton.GetText = () => autoRequestPending ? "AUTO: ..." : AutoActEnabled() ? "AUTO: ON" : "AUTO: OFF";
-			autoButton.IsHighlighted = AutoActEnabled;
+			autoButton.GetText = () =>
+			{
+				var available = CompanionBridge.TryGetAutoAct(out var enabled);
+				return AIControlDisplay.AutoButtonText(autoRequestPending, available, enabled);
+			};
+			autoButton.IsHighlighted = () => CompanionBridge.TryGetAutoAct(out var enabled) && enabled;
 			autoButton.IsDisabled = () => autoRequestPending ||
+				!CompanionBridge.TryGetAutoAct(out _) ||
 				!CompanionBridge.TryGetStatus(out _, out _, out var enabled, out _) || !enabled;
 			autoButton.OnClick = () => _ = SetAutoActAsync(!AutoActEnabled());
 

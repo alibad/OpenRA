@@ -62,6 +62,8 @@ AIAsk: SPACE Ctrl
 	Description: hotkey-description-ai-ask
 	Types: AIAssistant
 	Contexts: player, spectator
+	Platform:
+		OSX: SPACE Alt
 
 AIAccept: RETURN Ctrl
 	Description: hotkey-description-ai-accept

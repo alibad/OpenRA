@@ -92,6 +92,7 @@ namespace OpenRA.Mods.Common.Traits
 		int assistantConditionToken = Actor.InvalidConditionToken;
 		string activeAssistantStrategy = "";
 		bool assistantAutoRequested;
+		bool companionStatusAcknowledged;
 		string assistantStrategyRequested = "normal";
 		RLProto.GameObservation latestObservation;
 		RLProto.GameState latestState;
@@ -126,6 +127,7 @@ namespace OpenRA.Mods.Common.Traits
 			lock (CurrentLock)
 			{
 				current = this;
+				companionStatusAcknowledged = false;
 				companionStatus = ReadyStatus();
 				companionThreat = CalmThreat();
 				companionStatusUpdatedAt = Environment.TickCount64;
@@ -778,6 +780,7 @@ namespace OpenRA.Mods.Common.Traits
 
 				companionStatus = status.Clone();
 				companionStatusUpdatedAt = Environment.TickCount64;
+				current.companionStatusAcknowledged = true;
 				current.UpdateAssistantRequest(status.State);
 				return true;
 			}
@@ -871,7 +874,7 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			lock (CurrentLock)
 			{
-				if (current == null || !current.enabled)
+				if (current == null || !current.enabled || !current.companionStatusAcknowledged)
 				{
 					autoActEnabled = false;
 					return false;
