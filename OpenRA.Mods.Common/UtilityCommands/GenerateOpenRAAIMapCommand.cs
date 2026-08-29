@@ -153,11 +153,9 @@ namespace OpenRA.Mods.Common.UtilityCommands
 				var actualSeed = config.Seed + attempt;
 				try
 				{
-					var optionValues = new Dictionary<string, string>(config.Options, StringComparer.OrdinalIgnoreCase)
-					{
-						["Seed"] = actualSeed.ToString(System.Globalization.CultureInfo.InvariantCulture),
-					};
-
+					var terrainInfo = modData.DefaultTerrainInfo[config.Tileset];
+					var optionValues = CompileOptions(generator, terrainInfo, config.Options);
+					optionValues["Seed"] = actualSeed.ToString(System.Globalization.CultureInfo.InvariantCulture);
 					ValidateOptions(generator, optionValues);
 					var generationArgs = new MapGenerationArgs
 					{
@@ -216,6 +214,36 @@ namespace OpenRA.Mods.Common.UtilityCommands
 			}
 
 			throw new InvalidDataException($"Native map generation failed after {config.Attempts} attempts", lastError);
+		}
+
+		// MapGeneratorBase expects a value for every option, including the hidden
+		// defaults and tileset overrides that the editor UI normally supplies.
+		static Dictionary<string, string> CompileOptions(
+			IEditorMapGeneratorInfo generator,
+			ITerrainInfo terrainInfo,
+			Dictionary<string, string> configuredOptions)
+		{
+			var optionValues = new Dictionary<string, string>(configuredOptions, StringComparer.OrdinalIgnoreCase);
+			var playerCount = optionValues.TryGetValue("Players", out var players)
+				? FieldLoader.GetValue<int>("Players", players)
+				: 0;
+
+			foreach (var option in generator.Options)
+			{
+				if (optionValues.ContainsKey(option.Id))
+					continue;
+
+				optionValues[option.Id] = option switch
+				{
+					MapGeneratorBooleanOption booleanOption => FieldSaver.FormatValue(booleanOption.Default),
+					MapGeneratorIntegerOption integerOption => FieldSaver.FormatValue(integerOption.Default),
+					MapGeneratorMultiIntegerChoiceOption integerChoiceOption => FieldSaver.FormatValue(integerChoiceOption.Default),
+					MapGeneratorMultiChoiceOption choiceOption => choiceOption.DefaultFor(terrainInfo, playerCount),
+					_ => throw new ArgumentException($"Unsupported map generator option `{option.Id}`"),
+				};
+			}
+
+			return optionValues;
 		}
 
 		// Upstream made MapGeneratorOption immutable: option values are no longer assigned
