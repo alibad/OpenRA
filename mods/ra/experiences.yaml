@@ -1,6 +1,6 @@
 ExperienceCatalog:
 	Mod: ra
-	DefaultProfile: ai-assistant-only
+	DefaultProfile: world-war-iii
 	Components:
 		faction-and-subfaction-contract:
 			Title: Faction and doctrine contract

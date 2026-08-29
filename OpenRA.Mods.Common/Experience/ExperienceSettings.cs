@@ -14,7 +14,7 @@ namespace OpenRA.Mods.Common.Experience
 	[SettingsModule.YamlNode("Experience", shared: false)]
 	public sealed class ExperienceSettings : SettingsModule
 	{
-		public string Profile = "ai-assistant-only";
+		public string Profile = "world-war-iii";
 		public bool UseCustomComponents = false;
 		public string EnabledComponents = "";
 		public string ParameterValues = "";

@@ -23,11 +23,11 @@ namespace OpenRA.Test
 	[TestFixture]
 	sealed class ExperienceComposerTest
 	{
-		[TestCase(TestName = "The default experience keeps optional modules disabled")]
-		public void DefaultExperienceIsAssistantOnly()
+		[TestCase(TestName = "The default experience enables the complete World War III portfolio")]
+		public void DefaultExperienceIsWorldWarThree()
 		{
 			var settings = new ExperienceSettings();
-			Assert.That(settings.Profile, Is.EqualTo("ai-assistant-only"));
+			Assert.That(settings.Profile, Is.EqualTo("world-war-iii"));
 			Assert.That(settings.UseCustomComponents, Is.False);
 			Assert.That(settings.EnabledComponents, Is.Empty);
 			Assert.That(settings.PresentationPack, Is.EqualTo(PresentationPackDefinition.Default.Id));
