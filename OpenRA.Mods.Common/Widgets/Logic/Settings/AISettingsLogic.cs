@@ -17,6 +17,21 @@ using OpenRA.Widgets;
 
 namespace OpenRA.Mods.Common.Widgets.Logic
 {
+	public static class AISettingsDisplay
+	{
+		public static string AskShortcut(string binding)
+		{
+			return $"HOLD {binding.ToUpperInvariant()} TO TALK";
+		}
+
+		public static string DiagnosticFailure(bool localSelected, bool localReady)
+		{
+			return localSelected && !localReady
+				? "Local AI is not installed yet. Open Models and select Install Local AI."
+				: "The selected AI service is unavailable. Check Models, then retry the diagnostic.";
+		}
+	}
+
 	public class AISettingsLogic : ChromeLogic
 	{
 		const string DefaultAILayerUrl = "http://127.0.0.1:4000";
@@ -93,7 +108,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		bool companionEnabled = true;
 		bool voiceEnabled = true;
 		bool busy;
-		bool catalogueAvailable = true;
+		bool localInstallBusy;
+		bool catalogueAvailable;
+		bool localSetupSupported;
+		bool localSetupInstalled;
+		string localSetupState = "not_installed";
+		string localSetupDetail = "Checking Local AI Pack…";
+		int localSetupProgress;
 		string provider = "local";
 		string pace = "calm";
 		string voicePriority = "critical";
@@ -117,10 +138,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		LabelWidget statusLabel;
 		LabelWidget providerStatusLabel;
 		LabelWidget costAssumptionsLabel;
+		LabelWidget localSetupStatusLabel;
+		readonly ModData modData;
 
 		[ObjectCreator.UseCtor]
-		public AISettingsLogic(SettingsLogic settingsLogic, string panelID, string label)
+		public AISettingsLogic(ModData modData, SettingsLogic settingsLogic, string panelID, string label)
 		{
+			this.modData = modData;
 			settingsLogic.RegisterSettingsPanel(panelID, label, InitPanel, ResetPanel);
 		}
 
@@ -138,10 +162,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				"STRATEGY_BRAIN_ROW", "SHORTCUTS_HINT_ROW"
 			})
 				panel.Get(id).IsVisible = () => selectedTab == "assistant";
-			foreach (var id in new[] { "VOICE_SECTION_HEADER", "VOICE_ENABLED_ROW", "VOICE_PRIORITY_ROW", "VOICE_ROUTES_ROW" })
+			foreach (var id in new[] { "VOICE_SECTION_HEADER", "VOICE_SHORTCUT_ROW", "VOICE_ENABLED_ROW", "VOICE_PRIORITY_ROW", "VOICE_ROUTES_ROW" })
 				panel.Get(id).IsVisible = () => selectedTab == "voice";
-			foreach (var id in new[] { "MODEL_SECTION_HEADER", "MODEL_PICKER_ROW" })
+			foreach (var id in new[] { "MODEL_SECTION_HEADER", "LOCAL_SETUP_ROW", "MODEL_PICKER_ROW" })
 				panel.Get(id).IsVisible = () => selectedTab == "models";
+			panel.Get("LOCAL_SETUP_ROW").IsVisible = () => selectedTab == "models" && provider == "local";
 			foreach (var id in new[] { "COST_SECTION_HEADER", "COST_ROW" })
 				panel.Get(id).IsVisible = () => selectedTab == "usage";
 
@@ -177,6 +202,17 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			customVisionModel = panel.Get<TextFieldWidget>("CUSTOM_VISION_MODEL");
 			panel.Get("CUSTOM_ENDPOINT_ROW").IsVisible = () => selectedTab == "models" && provider == "custom";
 			panel.Get("CUSTOM_MODELS_ROW").IsVisible = () => selectedTab == "models" && provider == "custom";
+			panel.Get<LabelWidget>("ASK_SHORTCUT").GetText = () => AISettingsDisplay.AskShortcut(Binding("AIAsk"));
+			panel.Get<LabelWidget>("ASK_SHORTCUT_HINT").GetText = () =>
+				"Release to send. Remap under Settings > Hotkeys > AI Assistant.";
+			panel.Get<LabelWidget>("SHORTCUTS_HINT").GetText = () =>
+				$"Ask: {Binding("AIAsk")}  |  AUTO: {Binding("AIToggleAuto")}  |  Voice: {Binding("AIToggleVoice")}  |  Remap under Hotkeys > AI Assistant.";
+			localSetupStatusLabel = panel.Get<LabelWidget>("LOCAL_SETUP_STATUS");
+			localSetupStatusLabel.GetText = LocalSetupStatus;
+			var installLocal = panel.Get<ButtonWidget>("INSTALL_LOCAL_AI");
+			installLocal.GetText = LocalSetupButtonText;
+			installLocal.IsDisabled = () => busy || localInstallBusy || !localSetupSupported || localSetupState == "running";
+			installLocal.OnClick = () => _ = InstallLocalAIAsync();
 
 			providerStatusLabel = panel.Get<LabelWidget>("PROVIDER_STATUS");
 			providerStatusLabel.GetText = ProviderStatus;
@@ -191,7 +227,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			apply.IsDisabled = () => busy;
 			apply.OnClick = () => _ = ApplyAsync();
 			var test = panel.Get<ButtonWidget>("TEST");
-			test.IsDisabled = () => busy;
+			test.IsDisabled = () => busy || (provider == "local" && localSetupState != "running");
 			test.OnClick = () => _ = TestAsync();
 			var refresh = panel.Get<ButtonWidget>("REFRESH_USAGE");
 			refresh.IsDisabled = () => busy;
@@ -303,11 +339,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			if (provider == "custom")
 				message = "Custom OpenAI-compatible endpoint. You control the URL and model IDs.";
 			else if (provider == "local")
-				message = "Local models are registered with the AI layer. No manual URL is needed.";
+				message = localSetupState == "running"
+					? "Local models are installed and ready. Voice and answers stay on this computer."
+					: localSetupDetail;
 			else
 				message = "Credentials and routing are managed by the AI layer. No endpoint URL is needed.";
-			if (!catalogueAvailable)
-				message = "AI layer catalogue is offline. Showing safe fallback choices.";
+			if (!catalogueAvailable && provider != "local")
+				message = "The selected AI service is offline. Configure a reachable endpoint before testing.";
 			return WidgetUtils.TruncateText(message, providerStatusLabel.Bounds.Width,
 				Game.Renderer.Fonts[providerStatusLabel.Font]);
 		}
@@ -333,7 +371,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				{
 					if (hasCatalogue)
 						ApplyCatalogue(catalogue);
-					ApplyState(state, "AI layer connected. Models and usage are current.");
+					ApplyState(state, localSetupState == "running"
+						? "AI and voice models are ready."
+						: "Companion ready. Open Models to finish Local AI setup.");
 				});
 			}
 			catch (Exception e)
@@ -378,9 +418,54 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					_ = RefreshUsageAsync();
 				});
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
-				Game.RunAfterTick(() => SetIdle($"Diagnostic failed: {e.Message}"));
+				Game.RunAfterTick(() => SetIdle(AISettingsDisplay.DiagnosticFailure(
+					provider == "local", localSetupState == "running")));
+			}
+		}
+
+		async System.Threading.Tasks.Task InstallLocalAIAsync()
+		{
+			localInstallBusy = true;
+			SetStatus("Starting the verified Local AI Pack download…");
+			try
+			{
+				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_CONSOLE_URL", "http://127.0.0.1:8787/");
+				var route = localSetupState == "error" ? "v1/local-ai/retry" : "v1/local-ai/install";
+				using (var response = await OpenRAAILocalClient.PostAsync(baseUri, route, new { }))
+				{
+					var initial = response.RootElement.Clone();
+					Game.RunAfterTick(() => ApplyLocalSetup(initial));
+				}
+
+				for (var attempt = 0; attempt < 3600; attempt++)
+				{
+					await System.Threading.Tasks.Task.Delay(1000);
+					using var response = await OpenRAAILocalClient.GetAsync(baseUri, "v1/local-ai");
+					var snapshot = response.RootElement.Clone();
+					var state = snapshot.GetProperty("state").GetString() ?? "error";
+					Game.RunAfterTick(() => ApplyLocalSetup(snapshot));
+					if (state is not ("installing" or "starting" or "ready"))
+					{
+						if (state == "running")
+							_ = LoadAsync();
+						break;
+					}
+				}
+			}
+			catch (Exception)
+			{
+				Game.RunAfterTick(() =>
+				{
+					localSetupState = "error";
+					localSetupDetail = "Local AI setup could not continue. Select Retry to resume safely.";
+					SetStatus(localSetupDetail);
+				});
+			}
+			finally
+			{
+				Game.RunAfterTick(() => localInstallBusy = false);
 			}
 		}
 
@@ -419,6 +504,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		void ApplyCatalogue(JsonElement root)
 		{
 			catalogueAvailable = root.TryGetProperty("router_available", out var available) && available.GetBoolean();
+			if (root.TryGetProperty("local_setup", out var localSetup))
+				ApplyLocalSetup(localSetup);
 			providerLabels.Clear();
 			foreach (var value in root.GetProperty("providers").EnumerateArray())
 				providerLabels[value.GetProperty("id").GetString()] = value.GetProperty("label").GetString();
@@ -439,6 +526,50 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			foreach (var value in root.GetProperty("voices").EnumerateArray())
 				voiceLabels[value.GetProperty("id").GetString()] = value.GetProperty("label").GetString();
 			SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
+		}
+
+		void ApplyLocalSetup(JsonElement root)
+		{
+			localSetupSupported = root.TryGetProperty("supported", out var supported) && supported.GetBoolean();
+			localSetupInstalled = root.TryGetProperty("installed", out var installed) && installed.GetBoolean();
+			localSetupState = root.TryGetProperty("state", out var state)
+				? state.GetString() ?? "not_installed"
+				: "not_installed";
+			localSetupDetail = root.TryGetProperty("detail", out var detail)
+				? detail.GetString() ?? "Local AI setup status unavailable."
+				: "Local AI setup status unavailable.";
+			localSetupProgress = root.TryGetProperty("progress_percent", out var progress) ? progress.GetInt32() : 0;
+			if (localSetupState is "installing" or "starting")
+				SetStatus(LocalSetupStatus());
+			SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
+		}
+
+		string LocalSetupStatus()
+		{
+			var message = localSetupState == "installing"
+				? $"Downloading and verifying Local AI Pack… {localSetupProgress}%"
+				: localSetupDetail;
+			return WidgetUtils.WrapText(message, localSetupStatusLabel.Bounds.Width,
+				Game.Renderer.Fonts[localSetupStatusLabel.Font]);
+		}
+
+		string LocalSetupButtonText()
+		{
+			return localSetupState switch
+			{
+				"installing" => $"INSTALLING… {localSetupProgress}%",
+				"starting" => "LOADING MODELS…",
+				"running" => "LOCAL AI READY",
+				"error" => "RETRY LOCAL AI",
+				_ when localSetupInstalled => "START LOCAL AI",
+				_ => "INSTALL 1.8 GB PACK"
+			};
+		}
+
+		string Binding(string name)
+		{
+			var key = modData.Hotkeys[name].GetValue();
+			return key.IsValid() ? key.DisplayString() : "Unbound";
 		}
 
 		void ApplyState(JsonElement root, string message)

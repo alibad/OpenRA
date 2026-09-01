@@ -891,6 +891,7 @@ label-ai-strategy-brain-description = Chooses the complete OpenRA AI profile use
 label-ai-shortcuts-title = AI shortcuts
 label-ai-shortcuts-hint = Remap Ask, Accept, Reject, AUTO, and Voice under Settings > Hotkeys > AI Assistant.
 label-ai-model-section = Choose Your AI
+label-ai-local-setup-title = Local AI Pack
 label-ai-provider = AI provider:
 label-ai-text-model = Companion model:
 label-ai-vision-model = Map understanding model:

@@ -125,6 +125,21 @@ Container@AI_PANEL:
 							Font: TinyBold
 							Align: Center
 							Text: label-ai-voice-section
+				Container@VOICE_SHORTCUT_ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 48
+					Children:
+						Label@ASK_SHORTCUT:
+							X: 10
+							Width: PARENT_WIDTH - 20
+							Height: 22
+							Font: Bold
+						Label@ASK_SHORTCUT_HINT:
+							X: 10
+							Y: 24
+							Width: PARENT_WIDTH - 20
+							Height: 20
+							Font: Tiny
 				Container@VOICE_ENABLED_ROW:
 					Width: PARENT_WIDTH - 24
 					Height: 22
@@ -201,6 +216,27 @@ Container@AI_PANEL:
 							Font: TinyBold
 							Align: Center
 							Text: label-ai-model-section
+				Container@LOCAL_SETUP_ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 76
+					Children:
+						Label@LOCAL_SETUP_TITLE:
+							X: 10
+							Width: PARENT_WIDTH - 190
+							Height: 20
+							Font: Bold
+							Text: label-ai-local-setup-title
+						Button@INSTALL_LOCAL_AI:
+							X: PARENT_WIDTH - 175
+							Width: 165
+							Height: 25
+							Font: Bold
+						Label@LOCAL_SETUP_STATUS:
+							X: 10
+							Y: 30
+							Width: PARENT_WIDTH - 20
+							Height: 38
+							Font: Tiny
 				Container@MODEL_PICKER_ROW:
 					Width: PARENT_WIDTH - 24
 					Height: 50

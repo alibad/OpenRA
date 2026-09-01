@@ -62,6 +62,20 @@ namespace OpenRA.Test
 			Assert.That(logic, Does.Contain("askKey.IsActivatedBy(e)"));
 		}
 
+		[TestCase(TestName = "AI settings show the configured Ask binding and a setup action")]
+		public void AISettingsExposeVoiceShortcutAndLocalSetup()
+		{
+			Assert.That(AISettingsDisplay.AskShortcut("Option + Space"), Is.EqualTo("HOLD OPTION + SPACE TO TALK"));
+			Assert.That(AISettingsDisplay.DiagnosticFailure(true, false),
+				Is.EqualTo("Local AI is not installed yet. Open Models and select Install Local AI."));
+
+			var chromePath = Path.GetFullPath(Path.Combine(
+				TestContext.CurrentContext.TestDirectory, "..", "mods", "common", "chrome", "settings-ai.yaml"));
+			var chrome = File.ReadAllText(chromePath);
+			Assert.That(chrome, Does.Contain("Container@VOICE_SHORTCUT_ROW"));
+			Assert.That(chrome, Does.Contain("Button@INSTALL_LOCAL_AI"));
+		}
+
 		[TestCase(TestName = "Verified launcher state removes the companion startup gap")]
 		public void CompanionUsesVerifiedLauncherStateImmediately()
 		{
