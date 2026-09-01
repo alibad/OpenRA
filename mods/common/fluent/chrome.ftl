@@ -907,6 +907,32 @@ button-ai-apply = Apply Now
 button-ai-test = Test AI + Voice
 button-ai-refresh-costs = Refresh Costs
 
+dialog-ai-voice-setup-title = Set Up Voice Input
+dialog-ai-voice-setup-install =
+    Hold-to-talk uses private on-device transcription. Install the optional { $size } Local AI Pack now?
+    The download continues in the background. Follow progress under Settings > AI > Models.
+dialog-ai-voice-setup-retry =
+    The Local AI Pack needs attention before voice input can start. Retry setup now?
+    Follow progress under Settings > AI > Models.
+dialog-ai-voice-setup-progress =
+    The Local AI Pack is downloading ({ $progress }%). You can keep playing and follow progress under Settings > AI > Models.
+    Try { $shortcut } again when setup is complete.
+dialog-ai-voice-setup-start =
+    The Local AI Pack is installed, but its voice models still need to start.
+    Start them now, then try { $shortcut } again in a moment.
+dialog-ai-voice-setup-starting =
+    Voice models are starting. You can keep playing while they load.
+    Try { $shortcut } again in a moment.
+dialog-ai-voice-setup-unsupported =
+    Local voice input is unavailable in this build.
+    Choose a cloud listening model under Settings > AI > Voice.
+dialog-ai-voice-setup-unavailable = Voice is still starting. Try { $shortcut } again in a moment.
+dialog-ai-voice-setup-install-button = Install Local AI Pack
+dialog-ai-voice-setup-start-button = Start Voice
+dialog-ai-voice-setup-retry-button = Retry Setup
+dialog-ai-voice-setup-not-now-button = Not Now
+dialog-ai-voice-setup-ok-button = OK
+
 hotkey-description-ai-ask = Hold to ask the AI
 hotkey-description-ai-accept = Accept the pending AI action
 hotkey-description-ai-reject = Reject the pending AI action

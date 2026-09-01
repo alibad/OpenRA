@@ -50,16 +50,26 @@ namespace OpenRA.Test
 			AssertHotkey(definitions["AIToggleVoice"].Default, Keycode.M, Modifiers.Ctrl | Modifiers.Shift);
 		}
 
-		[TestCase(TestName = "The Ask hotkey sends the companion voice press and release lifecycle")]
+		[TestCase(TestName = "The Ask hotkey checks setup before sending the voice press and release lifecycle")]
 		public void AskHotkeyTargetsCompanionVoiceEndpoints()
 		{
 			var logicPath = Path.GetFullPath(Path.Combine(
 				TestContext.CurrentContext.TestDirectory, "..", "OpenRA.Mods.Common", "Widgets", "Logic", "Ingame", "AIHotkeyLogic.cs"));
 			var logic = File.ReadAllText(logicPath);
 
+			Assert.That(logic, Does.Contain("v1/voice/readiness"));
 			Assert.That(logic, Does.Contain("v1/voice/start"));
 			Assert.That(logic, Does.Contain("v1/voice/stop"));
+			Assert.That(logic, Does.Contain("v1/local-ai/{operation}"));
+			Assert.That(logic, Does.Contain("ConfirmationDialogs.ButtonPrompt"));
 			Assert.That(logic, Does.Contain("askKey.IsActivatedBy(e)"));
+
+			var fluentPath = Path.GetFullPath(Path.Combine(
+				TestContext.CurrentContext.TestDirectory, "..", "mods", "common", "fluent", "chrome.ftl"));
+			var fluent = File.ReadAllText(fluentPath);
+			Assert.That(fluent, Does.Contain("dialog-ai-voice-setup-install ="));
+			Assert.That(fluent, Does.Contain("Install Local AI Pack"));
+			Assert.That(fluent, Does.Contain("Settings > AI > Models"));
 		}
 
 		[TestCase(TestName = "AI settings show the configured Ask binding and a setup action")]
