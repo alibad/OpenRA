@@ -32,6 +32,19 @@ namespace OpenRA.Test
 		}
 
 		[Test]
+		public void ObservationsSupportMultipleConditionalAttackModes()
+		{
+			var root = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, ".."));
+			var observation = File.ReadAllText(Path.Combine(root, "OpenRA.Mods.Common/Traits/Player/ObservationSerializer.cs"));
+			Assert.That(observation, Does.Not.Contain("TraitOrDefault<AttackBase>"));
+			Assert.That(observation, Does.Not.Contain("TraitOrDefault<AttackFollow>"));
+			Assert.That(observation, Does.Contain("foreach (var attack in actor.TraitsImplementing<AttackBase>())"));
+			Assert.That(observation, Does.Contain("if (attack.IsTraitDisabled)"));
+			Assert.That(observation, Does.Contain("maximum = Math.Max(maximum, range)"));
+			Assert.That(observation, Does.Contain("minimum = Math.Min(minimum, attack.GetMinimumRange().Length)"));
+		}
+
+		[Test]
 		public void GameSelectionIsAboveTheInputBlockingMenuBackground()
 		{
 			var root = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, ".."));

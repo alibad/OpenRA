@@ -447,12 +447,9 @@ namespace OpenRA.Mods.Common.Traits
 
 			// Attack capability and range
 			unit.CanAttack = actor.Info.HasTraitInfo<AttackBaseInfo>();
-			var attack = actor.TraitOrDefault<AttackBase>();
-			if (attack != null)
-			{
-				unit.AttackRange = attack.GetMaximumRange().Length;
-				unit.MinimumAttackRange = attack.GetMinimumRange().Length;
-			}
+			var ranges = GetAttackRanges(actor);
+			unit.AttackRange = ranges.Maximum;
+			unit.MinimumAttackRange = ranges.Minimum;
 			var armament = actor.TraitsImplementing<Armament>().FirstOrDefault(value => !value.IsTraitDisabled);
 			if (armament != null)
 			{
@@ -464,8 +461,9 @@ namespace OpenRA.Mods.Common.Traits
 				unit.CanTargetGround = armament.Weapon.ValidTargets.Contains("Ground");
 			}
 
-			var attackFollow = actor.TraitOrDefault<AttackFollow>();
-			if (attackFollow != null && attackFollow.RequestedTarget.Type == TargetType.Actor)
+			var attackFollow = actor.TraitsImplementing<AttackFollow>()
+				.FirstOrDefault(attack => !attack.IsTraitDisabled && attack.RequestedTarget.Type == TargetType.Actor);
+			if (attackFollow != null)
 				unit.CurrentTargetActorId = attackFollow.RequestedTarget.Actor.ActorID;
 
 			// Ammo
@@ -518,14 +516,31 @@ namespace OpenRA.Mods.Common.Traits
 			return unit;
 		}
 
+		static (int Minimum, int Maximum) GetAttackRanges(Actor actor)
+		{
+			var minimum = int.MaxValue;
+			var maximum = 0;
+			foreach (var attack in actor.TraitsImplementing<AttackBase>())
+			{
+				if (attack.IsTraitDisabled)
+					continue;
+
+				var range = attack.GetMaximumRange().Length;
+				if (range <= 0)
+					continue;
+
+				maximum = Math.Max(maximum, range);
+				minimum = Math.Min(minimum, attack.GetMinimumRange().Length);
+			}
+
+			return (minimum == int.MaxValue ? 0 : minimum, maximum);
+		}
+
 		static void SerializeBuildingWeapon(Actor actor, RLProto.RlBuildingInfo building)
 		{
-			var attack = actor.TraitOrDefault<AttackBase>();
-			if (attack != null)
-			{
-				building.AttackRange = attack.GetMaximumRange().Length;
-				building.MinimumAttackRange = attack.GetMinimumRange().Length;
-			}
+			var ranges = GetAttackRanges(actor);
+			building.AttackRange = ranges.Maximum;
+			building.MinimumAttackRange = ranges.Minimum;
 
 			var armament = actor.TraitsImplementing<Armament>().FirstOrDefault(value => !value.IsTraitDisabled);
 			if (armament == null)
@@ -536,8 +551,9 @@ namespace OpenRA.Mods.Common.Traits
 			building.Burst = armament.Weapon.Burst;
 			building.CanTargetAir = armament.Weapon.ValidTargets.Contains("Air");
 			building.CanTargetGround = armament.Weapon.ValidTargets.Contains("Ground");
-			var attackFollow = actor.TraitOrDefault<AttackFollow>();
-			if (attackFollow != null && attackFollow.RequestedTarget.Type == TargetType.Actor)
+			var attackFollow = actor.TraitsImplementing<AttackFollow>()
+				.FirstOrDefault(attack => !attack.IsTraitDisabled && attack.RequestedTarget.Type == TargetType.Actor);
+			if (attackFollow != null)
 				building.CurrentTargetActorId = attackFollow.RequestedTarget.Actor.ActorID;
 		}
 
@@ -705,11 +721,13 @@ namespace OpenRA.Mods.Common.Traits
 						enemyUnitDensity[idx]++;
 				}
 
-				var attack = actor.TraitOrDefault<AttackBase>();
-				if (attack == null || (actor.Owner != player &&
-					(player.RelationshipWith(actor.Owner) != PlayerRelationship.Enemy || !shroud.IsVisible(actor.CenterPosition))))
+				if (actor.Owner != player &&
+					(player.RelationshipWith(actor.Owner) != PlayerRelationship.Enemy || !shroud.IsVisible(actor.CenterPosition)))
 					continue;
-				var range = Math.Max(0, (attack.GetMaximumRange().Length + 1023) / 1024);
+				var maximumRange = GetAttackRanges(actor).Maximum;
+				if (maximumRange <= 0)
+					continue;
+				var range = (maximumRange + 1023) / 1024;
 				var coverage = actor.Owner == player ? friendlyCoverage : enemyThreat;
 				for (var cy = Math.Max(0, actorCell.V - range * 2); cy <= Math.Min(height - 1, actorCell.V + range * 2); cy++)
 				{
