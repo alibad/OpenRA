@@ -91,6 +91,8 @@ message GameObservation {
   string mission_briefing = 23;
   bool mission_mode = 24;
   repeated RlSupportPowerInfo support_powers = 25;
+  string mod_id = 26;
+  map<string, string> actor_names = 27;
 }
 
 message RlObjective {
@@ -139,8 +141,8 @@ message RlUnitInfo {
   string type = 2;          // e.g. "e1", "1tnk", "harv"
   int32 pos_x = 3;          // WPos X
   int32 pos_y = 4;          // WPos Y
-  int32 cell_x = 5;         // CPos X (grid)
-  int32 cell_y = 6;         // CPos Y (grid)
+  int32 cell_x = 5;         // MPos U (map storage grid)
+  int32 cell_y = 6;         // MPos V (map storage grid)
   float hp_percent = 7;     // 0.0 - 1.0
   bool is_idle = 8;
   string current_activity = 9;
@@ -248,8 +250,8 @@ message Command {
   ActionType action = 1;
   uint32 actor_id = 2;        // Subject actor (for unit commands)
   uint32 target_actor_id = 3; // Target actor (for attack, enter, etc.)
-  int32 target_x = 4;         // Target CPos X (for move, deploy, etc.)
-  int32 target_y = 5;         // Target CPos Y
+  int32 target_x = 4;         // Target MPos U (for move, deploy, etc.)
+  int32 target_y = 5;         // Target MPos V
   string item_type = 6;       // For build/train: actor type to produce
   bool queued = 7;             // Queue after current activity vs interrupt
   int32 ticks = 8;             // For FAST_ADVANCE: number of ticks to fast-forward

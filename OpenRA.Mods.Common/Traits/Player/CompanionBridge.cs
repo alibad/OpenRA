@@ -621,7 +621,7 @@ namespace OpenRA.Mods.Common.Traits
 				|| (command.Action is RLProto.ActionType.Harvest or RLProto.ActionType.PlaceBuilding
 					&& (command.TargetX != 0 || command.TargetY != 0)))
 			{
-				if (!world.Map.Contains(new CPos(command.TargetX, command.TargetY)))
+				if (!world.Map.Contains(new MPos(command.TargetX, command.TargetY).ToCPos(world.Map)))
 				{
 					detail = "the target cell is outside the playable map.";
 					return false;
@@ -630,7 +630,7 @@ namespace OpenRA.Mods.Common.Traits
 
 			if (command.Action == RLProto.ActionType.UseSupportPower)
 			{
-				var cell = new CPos(command.TargetX, command.TargetY);
+				var cell = new MPos(command.TargetX, command.TargetY).ToCPos(world.Map);
 				var manager = world.LocalPlayer.PlayerActor.TraitOrDefault<SupportPowerManager>();
 				var power = manager?.Powers.FirstOrDefault(pair =>
 					pair.Key.Equals(command.ItemType, StringComparison.OrdinalIgnoreCase));

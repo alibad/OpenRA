@@ -1,3 +1,10 @@
+button-ai-companion-voice-on = VOICE: ON
+button-ai-companion-voice-off = VOICE: OFF
+button-ai-companion-voice-pending = VOICE: ...
+button-ai-companion-voice-toggle =
+    .tooltip = Toggle AI Voice
+    .tooltipdesc = Silence or restore the companion's spoken audio. Text insights remain visible. Remap it under Settings > Hotkeys > AI Assistant.
+
 ## assetbrowser.yaml
 dropdownbutton-assetbrowser-source-selector = Folders
 dropdownbutton-assetbrowser-asset-types-dropdown = Asset types
@@ -1011,3 +1018,10 @@ label-game-admin = Game Admin
 label-gamesave-loading-screen-title = Loading Saved Game
 label-gamesave-loading-screen-desc = Press Escape to cancel loading and return to the main menu
 button-main-menu-experience = Factions & Capabilities
+label-base-game = Game experience · AI assistant shared across both
+button-base-game-ww3 = World War III
+button-base-game-ra2 = Red Alert 2
+dialog-ra2-content-title = Use your Red Alert 2 game files
+dialog-ra2-content-required = Red Alert 2 needs files from your owned copy. Import from Steam or the existing RA2 Preview? Your files stay on this computer. No purchase or compatibility trial is needed.
+button-ra2-import = Import my game files
+dialog-ra2-import-failed = Import could not finish: { $message }

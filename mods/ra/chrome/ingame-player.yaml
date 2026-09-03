@@ -11,6 +11,14 @@ Container@PLAYER_WIDGETS:
 			Background: dialog4
 			ClickThrough: false
 			Children:
+				Label@ASK_SHORTCUT:
+					X: 8
+					Y: 30
+					Width: PARENT_WIDTH - 16
+					Height: 18
+					Align: Center
+					Font: TinyBold
+					Contrast: true
 				Label@THREAT_LABEL:
 					X: 8
 					Y: 3

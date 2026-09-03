@@ -110,6 +110,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var threatTrack = widget.Get<ColorBlockWidget>("THREAT_TRACK");
 			var threatFill = widget.Get<ColorBlockWidget>("THREAT_FILL");
 			var voiceButton = widget.Get<ButtonWidget>("VOICE_TOGGLE");
+			var askShortcut = widget.GetOrNull<LabelWidget>("ASK_SHORTCUT");
+			if (askShortcut != null)
+				askShortcut.GetText = () => $"Hold {Binding("AIAsk")} to ask AI";
 			feedPanel = widget.Get<BackgroundWidget>("FEED_PANEL");
 			historyPanel = feedPanel.Get<ScrollPanelWidget>("FEED_HISTORY");
 			historyTemplate = historyPanel.Get<ContainerWidget>("FEED_ITEM_TEMPLATE");
@@ -354,7 +357,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 				displayMessage = FitToTwoLines(message, statusButton.Bounds.Width, font);
 				var height = Math.Max(30, font.Measure(displayMessage).Y + VerticalPadding);
-				widget.Bounds.Height = height;
+				widget.Bounds.Height = height + (askShortcut == null ? 0 : 18);
+				if (askShortcut != null)
+				{
+					askShortcut.Bounds.Y = height;
+					askShortcut.Bounds.Width = width - 16;
+				}
 				statusButton.Bounds.Height = height;
 				voiceButton.Bounds.Y = (height - voiceButton.Bounds.Height) / 2;
 				autoButton.Bounds.Y = (height - autoButton.Bounds.Height) / 2;
@@ -369,7 +377,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 				var feedWidth = Math.Clamp(FeedPanelTargetWidth, minimumWidth, maximumWidth);
 				feedPanel.Bounds.X = (width - feedWidth) / 2;
-				feedPanel.Bounds.Y = height + 6;
+				feedPanel.Bounds.Y = widget.Bounds.Height + 6;
 				feedPanel.Bounds.Width = feedWidth;
 				feedPanel.Bounds.Height = FeedPanelHeight;
 				LayoutFeed(feedWidth);

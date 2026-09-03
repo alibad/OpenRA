@@ -15,6 +15,31 @@ Container@MAINMENU:
 			Y: 0 - 15
 			Width: WINDOW_WIDTH + 30
 			Height: WINDOW_HEIGHT + 30
+		Container@GAME_SELECTION:
+			X: (WINDOW_WIDTH - WIDTH) / 2
+			Y: 110
+			Width: 420
+			Height: 54
+			Children:
+				Label@TITLE:
+					Width: PARENT_WIDTH
+					Height: 20
+					Text: label-base-game
+					Align: Center
+					Font: Bold
+				Button@WORLD_WAR_III:
+					Y: 24
+					Width: 205
+					Height: 30
+					Text: button-base-game-ww3
+					Font: Bold
+				Button@RED_ALERT_2:
+					X: 215
+					Y: 24
+					Width: 205
+					Height: 30
+					Text: button-base-game-ra2
+					Font: Bold
 		Image@LOGO:
 			X: WINDOW_WIDTH - 296
 			Y: 30

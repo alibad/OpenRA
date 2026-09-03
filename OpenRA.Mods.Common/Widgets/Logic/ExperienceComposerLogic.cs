@@ -931,7 +931,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			settings.PresentationPack = workingPresentationPackId;
 			settings.Save();
 
-			if (Game.ExternalMods.TryGetValue(ExternalMod.MakeKey(modData.Manifest), out var external))
+			if (Environment.GetEnvironmentVariable("OPENRA_AI_COMPANION") == "1")
+				Game.RunAfterTick(() => Game.InitializeMod(Game.Mods[modData.Manifest.Id], new Arguments()));
+			else if (Game.ExternalMods.TryGetValue(ExternalMod.MakeKey(modData.Manifest), out var external))
 				Game.SwitchToExternalMod(external, null, Close);
 			else
 				Close();

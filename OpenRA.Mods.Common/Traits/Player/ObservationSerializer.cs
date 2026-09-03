@@ -62,6 +62,7 @@ namespace OpenRA.Mods.Common.Traits
 			{
 				Tick = tick,
 				EpisodeId = episodeId,
+				ModId = Game.ModData.Manifest.Id,
 				Economy = SerializeEconomy(),
 				Military = SerializeMilitary(),
 				MapInfo = SerializeMapInfo(),
@@ -82,6 +83,16 @@ namespace OpenRA.Mods.Common.Traits
 			SerializeMissionContext(obs);
 			SerializeSupportPowers(obs);
 			SerializeSpatialMap(obs);
+			var knownTypes = obs.Units.Select(a => a.Type).Concat(obs.Buildings.Select(a => a.Type))
+				.Concat(obs.VisibleEnemies.Select(a => a.Type)).Concat(obs.VisibleEnemyBuildings.Select(a => a.Type))
+				.Concat(obs.RememberedEnemyBuildings.Select(a => a.Type)).Concat(obs.AvailableProduction)
+				.Concat(obs.Production.Select(a => a.Item)).Distinct();
+			foreach (var type in knownTypes)
+				if (world.Map.Rules.Actors.TryGetValue(type, out var info))
+				{
+					var name = info.TraitInfos<TooltipInfo>().FirstOrDefault()?.Name;
+					obs.ActorNames[type] = string.IsNullOrEmpty(name) ? type : FluentProvider.GetMessage(name);
+				}
 
 			return obs;
 		}
@@ -146,7 +157,7 @@ namespace OpenRA.Mods.Common.Traits
 					!frozen.Info.HasTraitInfo<BuildingInfo>())
 					continue;
 
-				var cell = world.Map.CellContaining(frozen.CenterPosition);
+				var cell = world.Map.CellContaining(frozen.CenterPosition).ToMPos(world.Map);
 				var healthInfo = frozen.Info.TraitInfoOrDefault<HealthInfo>();
 				var hpPercent = healthInfo != null && healthInfo.HP > 0
 					? (float)frozen.HP / healthInfo.HP
@@ -158,8 +169,8 @@ namespace OpenRA.Mods.Common.Traits
 					Type = frozen.Info.Name,
 					PosX = frozen.CenterPosition.X,
 					PosY = frozen.CenterPosition.Y,
-					CellX = cell.X,
-					CellY = cell.Y,
+					CellX = cell.U,
+					CellY = cell.V,
 					HpPercent = hpPercent,
 					Owner = frozen.Owner.InternalName,
 					LastSeenTick = enemyLastSeenTicks.TryGetValue(frozen.ID, out var lastSeenTick) ? lastSeenTick : 0,
@@ -343,9 +354,9 @@ namespace OpenRA.Mods.Common.Traits
 			SerializeBuildingWeapon(actor, bldg);
 
 			// Cell position
-			var bldgCell = world.Map.CellContaining(actor.CenterPosition);
-			bldg.CellX = bldgCell.X;
-			bldg.CellY = bldgCell.Y;
+			var bldgCell = world.Map.CellContaining(actor.CenterPosition).ToMPos(world.Map);
+			bldg.CellX = bldgCell.U;
+			bldg.CellY = bldgCell.V;
 
 			// Power
 			var powerTrait = actor.TraitOrDefault<Power>();
@@ -367,8 +378,9 @@ namespace OpenRA.Mods.Common.Traits
 			var rally = actor.TraitOrDefault<RallyPoint>();
 			if (rally != null && rally.Path.Count > 0)
 			{
-				bldg.RallyX = rally.Path[0].X;
-				bldg.RallyY = rally.Path[0].Y;
+				var rallyCell = rally.Path[0].ToMPos(world.Map);
+				bldg.RallyX = rallyCell.U;
+				bldg.RallyY = rallyCell.V;
 			}
 			else
 			{
@@ -424,9 +436,9 @@ namespace OpenRA.Mods.Common.Traits
 				unit.Cost = actorValue.Cost;
 
 			// Cell position
-			var cell = world.Map.CellContaining(actor.CenterPosition);
-			unit.CellX = cell.X;
-			unit.CellY = cell.Y;
+			var cell = world.Map.CellContaining(actor.CenterPosition).ToMPos(world.Map);
+			unit.CellX = cell.U;
+			unit.CellY = cell.V;
 
 			// Current activity
 			var activity = actor.CurrentActivity;
@@ -483,8 +495,9 @@ namespace OpenRA.Mods.Common.Traits
 			var mobile = actor.TraitOrDefault<Mobile>();
 			if (mobile != null)
 			{
-				unit.MoveTargetX = mobile.ToCell.X;
-				unit.MoveTargetY = mobile.ToCell.Y;
+				var destination = mobile.ToCell.ToMPos(world.Map);
+				unit.MoveTargetX = destination.U;
+				unit.MoveTargetY = destination.V;
 			}
 
 			// Cargo
@@ -662,20 +675,20 @@ namespace OpenRA.Mods.Common.Traits
 				if (actor.Owner.NonCombatant)
 					continue;
 
-				CPos actorCell;
+				MPos actorCell;
 				try
 				{
-					actorCell = map.CellContaining(actor.CenterPosition);
+					actorCell = map.CellContaining(actor.CenterPosition).ToMPos(map);
 				}
 				catch (NullReferenceException)
 				{
 					continue;
 				}
 
-				if (actorCell.X < 0 || actorCell.X >= width || actorCell.Y < 0 || actorCell.Y >= height)
+				if (actorCell.U < 0 || actorCell.U >= width || actorCell.V < 0 || actorCell.V >= height)
 					continue;
 
-				var idx = actorCell.Y * width + actorCell.X;
+				var idx = actorCell.V * width + actorCell.U;
 
 				if (actor.Owner == player)
 				{
@@ -698,13 +711,12 @@ namespace OpenRA.Mods.Common.Traits
 					continue;
 				var range = Math.Max(0, (attack.GetMaximumRange().Length + 1023) / 1024);
 				var coverage = actor.Owner == player ? friendlyCoverage : enemyThreat;
-				for (var cy = Math.Max(0, actorCell.Y - range); cy <= Math.Min(height - 1, actorCell.Y + range); cy++)
+				for (var cy = Math.Max(0, actorCell.V - range * 2); cy <= Math.Min(height - 1, actorCell.V + range * 2); cy++)
 				{
-					for (var cx = Math.Max(0, actorCell.X - range); cx <= Math.Min(width - 1, actorCell.X + range); cx++)
+					for (var cx = Math.Max(0, actorCell.U - range * 2); cx <= Math.Min(width - 1, actorCell.U + range * 2); cx++)
 					{
-						var dx = cx - actorCell.X;
-						var dy = cy - actorCell.Y;
-						if (dx * dx + dy * dy <= range * range)
+						var offset = new MPos(cx, cy).ToCPos(map) - actorCell.ToCPos(map);
+						if (offset.LengthSquared <= range * range)
 							coverage[cy * width + cx] += 1f;
 					}
 				}
@@ -713,8 +725,9 @@ namespace OpenRA.Mods.Common.Traits
 			// Fill per-cell data
 			foreach (var cell in map.AllCells)
 			{
-				var x = cell.X;
-				var y = cell.Y;
+				var mapCell = cell.ToMPos(map);
+				var x = mapCell.U;
+				var y = mapCell.V;
 				if (x < 0 || x >= width || y < 0 || y >= height)
 					continue;
 

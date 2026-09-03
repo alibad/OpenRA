@@ -37,6 +37,18 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[FluentReference("author", "datetime")]
 		const string AuthorDateTime = "label-author-datetime";
 
+		[FluentReference]
+		const string Ra2ContentTitle = "dialog-ra2-content-title";
+
+		[FluentReference]
+		const string Ra2ContentRequired = "dialog-ra2-content-required";
+
+		[FluentReference("message")]
+		const string Ra2ImportFailed = "dialog-ra2-import-failed";
+
+		[FluentReference]
+		const string Ra2Import = "button-ra2-import";
+
 		protected enum MenuType { Main, Singleplayer, Extras, MapEditor, Workshop, StartupPrompts, None }
 
 		protected enum MenuPanel { None, Missions, Skirmish, Multiplayer, MapEditor, Replays, GameSaves }
@@ -55,6 +67,37 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		protected static MenuPanel lastGameState = MenuPanel.None;
 
 		bool newsOpen;
+		bool importingContent;
+
+		void SelectBaseGame(string target)
+		{
+			File.WriteAllText(Path.Combine(Platform.SupportDir, "openra-ai-game.txt"), target);
+			lastGameState = MenuPanel.None;
+			Game.RunAfterTick(() => Game.InitializeMod(Game.Mods[target], new Arguments()));
+		}
+
+		async Task ImportRa2Content()
+		{
+			if (importingContent)
+				return;
+			importingContent = true;
+			try
+			{
+				var uri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_CONSOLE_URL", "http://127.0.0.1:8787/");
+				using var result = await OpenRAAILocalClient.PostAsync(uri, "v1/content/ra2/import", new { });
+				Game.RunAfterTick(() => SelectBaseGame("ra2"));
+			}
+			catch (Exception error)
+			{
+				Game.RunAfterTick(() => ConfirmationDialogs.ButtonPrompt(modData,
+					title: Ra2ContentTitle, text: Ra2ImportFailed,
+					textArguments: ["message", error.Message], confirmText: "button-ok", onConfirm: () => { }));
+			}
+			finally
+			{
+				importingContent = false;
+			}
+		}
 
 		void SwitchMenu(MenuType type)
 		{
@@ -72,6 +115,32 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			this.modData = modData;
 
 			rootMenu = widget;
+			var gameSelection = widget.GetOrNull("GAME_SELECTION");
+			if (gameSelection != null)
+			{
+				gameSelection.IsVisible = () => menuType == MenuType.Main && Game.Mods.ContainsKey("ra") && Game.Mods.ContainsKey("ra2");
+				foreach (var id in new[] { "ra", "ra2" })
+				{
+					var target = id;
+					var button = gameSelection.Get<ButtonWidget>(id == "ra" ? "WORLD_WAR_III" : "RED_ALERT_2");
+					button.IsHighlighted = () => modData.Manifest.Id == target;
+					button.IsDisabled = () => importingContent;
+					button.OnClick = () =>
+					{
+						if (modData.Manifest.Id == target)
+							return;
+						if (target == "ra2" && !new[] { "ra2.mix", "language.mix" }.All(name =>
+							File.Exists(Path.Combine(Platform.SupportDir, "Content", "ra2", name))))
+						{
+							ConfirmationDialogs.ButtonPrompt(modData, title: Ra2ContentTitle,
+								text: Ra2ContentRequired, confirmText: Ra2Import,
+								onConfirm: () => _ = ImportRa2Content(), cancelText: "button-cancel", onCancel: () => { });
+							return;
+						}
+						SelectBaseGame(target);
+					};
+				}
+			}
 
 			// Menu buttons
 			var mainMenu = widget.Get("MAIN_MENU");
@@ -102,7 +171,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					var title = experienceStatus.Get<LabelWidget>("ACTIVE_EXPERIENCE_TITLE");
 					title.GetText = () => $"Experience: {experienceCatalog.ActiveProfile.Title}";
 					var detail = experienceStatus.Get<LabelWidget>("ACTIVE_EXPERIENCE_DETAIL");
-					var text = active.Length == 0 ? "Classic gameplay — optional capabilities are off."
+					var text = active.Length == 0 ? (modData.Manifest.Id == "ra2"
+						? "Shared AI included · 9 RA2 countries.\nCustom faction packs remain in World War III."
+						: "Classic gameplay — optional capabilities are off.")
 						: $"{active.Length} capabilities enabled\n{string.Join(", ", factions)}";
 					detail.GetText = () => WidgetUtils.WrapText(text, detail.Bounds.Width, Game.Renderer.Fonts[detail.Font]);
 					experienceStatus.Get<ButtonWidget>("CHANGE_EXPERIENCE").OnClick = () =>
