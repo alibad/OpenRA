@@ -216,6 +216,29 @@ Container@AI_PANEL:
 							Font: TinyBold
 							Align: Center
 							Text: label-ai-model-section
+				Container@AUTO_PROFILE_ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 93
+					Children:
+						DropDownButton@MODEL_SELECTION:
+							X: 10
+							Width: PARENT_WIDTH - 20
+							Height: 25
+						Label@MODEL_SELECTION_SUMMARY:
+							X: 10
+							Y: 32
+							Width: PARENT_WIDTH - 20
+							Height: 60
+							Font: Tiny
+				Container@MODEL_READINESS_ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 42
+					Children:
+						Label@MODEL_READINESS:
+							X: 10
+							Width: PARENT_WIDTH - 20
+							Height: 40
+							Font: Tiny
 				Container@LOCAL_SETUP_ROW:
 					Width: PARENT_WIDTH - 24
 					Height: 76
@@ -237,6 +260,24 @@ Container@AI_PANEL:
 							Width: PARENT_WIDTH - 20
 							Height: 38
 							Font: Tiny
+				Container@ADVANCED_MODELS_ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 30
+					Children:
+						Button@ADVANCED_MODELS:
+							X: 10
+							Width: PARENT_WIDTH - 20
+							Height: 25
+							Font: TinyBold
+				Container@LM_STUDIO_ROW:
+					Width: PARENT_WIDTH - 24
+					Height: 30
+					Children:
+						Button@DISCOVER_LM_STUDIO:
+							X: 10
+							Width: PARENT_WIDTH - 20
+							Height: 25
+							Font: TinyBold
 				Container@MODEL_PICKER_ROW:
 					Width: PARENT_WIDTH - 24
 					Height: 50

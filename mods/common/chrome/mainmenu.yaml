@@ -29,6 +29,31 @@ Container@MAINMENU:
 			Align: Center
 			Font: Regular
 			Shadow: true
+		Background@ACTIVE_EXPERIENCE:
+			X: WINDOW_WIDTH - 380
+			Y: WINDOW_HEIGHT - 160
+			Width: 350
+			Height: 130
+			Children:
+				Label@ACTIVE_EXPERIENCE_TITLE:
+					X: 12
+					Y: 10
+					Width: PARENT_WIDTH - 24
+					Height: 22
+					Font: Bold
+				Label@ACTIVE_EXPERIENCE_DETAIL:
+					X: 12
+					Y: 35
+					Width: PARENT_WIDTH - 24
+					Height: 48
+					Font: Tiny
+				Button@CHANGE_EXPERIENCE:
+					X: 12
+					Y: 92
+					Width: PARENT_WIDTH - 24
+					Height: 25
+					Text: button-main-menu-experience
+					Font: Bold
 		Container@MENUS:
 			X: 13 + (WINDOW_WIDTH - 522) / 4 - WIDTH / 2
 			Y: WINDOW_HEIGHT / 2 - HEIGHT / 2

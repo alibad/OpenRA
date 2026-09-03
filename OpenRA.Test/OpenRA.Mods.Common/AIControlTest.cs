@@ -21,6 +21,13 @@ namespace OpenRA.Test
 	[TestFixture]
 	sealed class AIControlTest
 	{
+		[Test]
+		public void ModelDownloadSizeFollowsTheSelectedProfile()
+		{
+			Assert.That(AISettingsDisplay.DownloadButton(1821003048), Does.Contain("1.8"));
+			Assert.That(AISettingsDisplay.DownloadButton(1375949832), Does.Contain("1.4"));
+		}
+
 		[TestCase(TestName = "AUTO reports startup until the companion acknowledges its state")]
 		public void AutoButtonShowsStartupState()
 		{

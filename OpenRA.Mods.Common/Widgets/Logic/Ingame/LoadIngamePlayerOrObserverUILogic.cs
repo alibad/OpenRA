@@ -9,6 +9,8 @@
  */
 #endregion
 
+using System.Linq;
+using OpenRA.Mods.Common.Experience;
 using OpenRA.Mods.Common.Scripting;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Widgets;
@@ -55,6 +57,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			Game.LoadWidget(world, "DEBUG_WIDGETS", worldRoot, []);
 			Game.LoadWidget(world, "TRANSIENTS_PANEL", worldRoot, []);
+			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
+			if (experience != null && world.LocalPlayer != null)
+			{
+				var factionCount = experience.ActiveComponentIds.Count(id => experience.Components[id].Faction != null);
+				TextNotificationsManager.AddSystemLine("Experience", $"{experience.ActiveProfile.Title}: {factionCount} modern factions and {experience.ActiveComponentIds.Length} capabilities enabled.");
+			}
 
 			world.GameOver += () =>
 			{

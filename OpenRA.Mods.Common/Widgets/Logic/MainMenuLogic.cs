@@ -91,6 +91,30 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			mainMenu.Get<ButtonWidget>("MULTIPLAYER_BUTTON").OnClick = OpenMultiplayerPanel;
 
 			var experienceCatalog = modData.GetOrNull<ExperienceCatalog>();
+			var experienceStatus = widget.GetOrNull("ACTIVE_EXPERIENCE");
+			if (experienceStatus != null)
+			{
+				experienceStatus.IsVisible = () => experienceCatalog != null && menuType is MenuType.Main or MenuType.Singleplayer;
+				if (experienceCatalog != null)
+				{
+					var active = experienceCatalog.ActiveComponentIds.Select(id => experienceCatalog.Components[id]).ToArray();
+					var factions = active.Where(component => component.Faction != null).Select(component => component.Title);
+					var title = experienceStatus.Get<LabelWidget>("ACTIVE_EXPERIENCE_TITLE");
+					title.GetText = () => $"Experience: {experienceCatalog.ActiveProfile.Title}";
+					var detail = experienceStatus.Get<LabelWidget>("ACTIVE_EXPERIENCE_DETAIL");
+					var text = active.Length == 0 ? "Classic gameplay — optional capabilities are off."
+						: $"{active.Length} capabilities enabled\n{string.Join(", ", factions)}";
+					detail.GetText = () => WidgetUtils.WrapText(text, detail.Bounds.Width, Game.Renderer.Fonts[detail.Font]);
+					experienceStatus.Get<ButtonWidget>("CHANGE_EXPERIENCE").OnClick = () =>
+					{
+						SwitchMenu(MenuType.None);
+						Game.OpenWindow("EXPERIENCE_COMPOSER_PANEL", new WidgetArgs
+						{
+							{ "onExit", () => SwitchMenu(MenuType.Main) }
+						});
+					};
+				}
+			}
 			var worldToolsButton = mainMenu.GetOrNull<ButtonWidget>("WORLD_TOOLS_BUTTON");
 			if (worldToolsButton != null)
 				worldToolsButton.OnClick = () => SwitchMenu(MenuType.Workshop);

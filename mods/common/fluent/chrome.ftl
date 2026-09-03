@@ -1010,3 +1010,4 @@ label-game-admin = Game Admin
 ## gamesave-loading.yaml
 label-gamesave-loading-screen-title = Loading Saved Game
 label-gamesave-loading-screen-desc = Press Escape to cancel loading and return to the main menu
+button-main-menu-experience = Factions & Capabilities

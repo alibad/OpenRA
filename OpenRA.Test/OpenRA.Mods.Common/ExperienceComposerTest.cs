@@ -23,6 +23,21 @@ namespace OpenRA.Test
 	[TestFixture]
 	sealed class ExperienceComposerTest
 	{
+		[Test]
+		public void ShippedDefaultIncludesModernFactionsAndEnhancedMechanics()
+		{
+			var path = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory,
+				"..", "mods", "ra", "experiences.yaml"));
+			var catalog = MiniYaml.FromFile(path, false).Single().Value;
+			Assert.That(catalog.Nodes.Single(n => n.Key == "DefaultProfile").Value.Value, Is.EqualTo("world-war-iii"));
+			var profiles = catalog.Nodes.Single(n => n.Key == "Profiles").Value;
+			var components = profiles.Nodes.Single(n => n.Key == "world-war-iii").Value.Nodes
+				.Single(n => n.Key == "Components").Value.Value.Split(',').Select(id => id.Trim()).ToArray();
+			foreach (var id in new[] { "saudi-arabia-faction", "turkey-faction", "china-faction", "yemen-faction", "iran-faction",
+				"building-garrisons", "teleport-network", "commander-promotions", "point-defense-interception" })
+				Assert.That(components, Does.Contain(id));
+		}
+
 		[TestCase(TestName = "The default experience enables the complete World War III portfolio")]
 		public void DefaultExperienceIsWorldWarThree()
 		{
