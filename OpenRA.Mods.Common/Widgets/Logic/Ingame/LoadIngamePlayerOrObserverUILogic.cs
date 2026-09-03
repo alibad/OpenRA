@@ -13,6 +13,7 @@ using System.Linq;
 using OpenRA.Mods.Common.Experience;
 using OpenRA.Mods.Common.Scripting;
 using OpenRA.Mods.Common.Traits;
+using OpenRA.Traits;
 using OpenRA.Widgets;
 
 namespace OpenRA.Mods.Common.Widgets.Logic
@@ -61,7 +62,14 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			if (experience != null && world.LocalPlayer != null)
 			{
 				var factionCount = experience.ActiveComponentIds.Count(id => experience.Components[id].Faction != null);
-				TextNotificationsManager.AddSystemLine("Experience", $"{experience.ActiveProfile.Title}: {factionCount} modern factions and {experience.ActiveComponentIds.Length} capabilities enabled.");
+				var summary = $"{experience.ActiveProfile.Title}: {factionCount} modern factions and {experience.ActiveComponentIds.Length} capabilities enabled.";
+				if (Game.ModData.Manifest.Id == "ra2" && experience.ActiveComponentIds.Length == 0)
+				{
+					var countries = world.WorldActor.Info.TraitInfos<FactionInfo>().Count(faction => faction.Selectable && faction.RandomFactionMembers.Count == 0);
+					summary = $"Red Alert 2: {countries} countries. Shared AI controls included; custom faction packs are in World War III.";
+				}
+
+				TextNotificationsManager.AddSystemLine("Experience", summary);
 			}
 
 			world.GameOver += () =>

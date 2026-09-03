@@ -45,6 +45,15 @@ namespace OpenRA.Test
 		}
 
 		[Test]
+		public void BaseRA2DoesNotReportTheSharedAssistantAsZeroCapabilities()
+		{
+			var root = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, ".."));
+			var logic = File.ReadAllText(Path.Combine(root, "OpenRA.Mods.Common/Widgets/Logic/Ingame/LoadIngamePlayerOrObserverUILogic.cs"));
+			Assert.That(logic, Does.Contain("Game.ModData.Manifest.Id == \"ra2\""));
+			Assert.That(logic, Does.Contain("Shared AI controls included; custom faction packs are in World War III."));
+		}
+
+		[Test]
 		public void GameSelectionIsAboveTheInputBlockingMenuBackground()
 		{
 			var root = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, ".."));
