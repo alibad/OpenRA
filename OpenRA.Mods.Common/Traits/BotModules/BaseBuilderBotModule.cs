@@ -146,6 +146,11 @@ namespace OpenRA.Mods.Common.Traits
 		[Desc("What buildings to the AI should build.", "What integer percentage of the total base must be this type of building.")]
 		public readonly FrozenDictionary<string, int> BuildingFractions = null;
 
+		[ActorReference]
+		[Desc("Optional opening build order: construct one of each eligible missing building before discretionary economy/defense expansion.",
+			"Unavailable faction/prerequisite entries are skipped. Empty preserves the existing AI behavior.")]
+		public readonly ImmutableArray<string> InitialBuildOrder = [];
+
 		[Desc("What buildings should the AI have a maximum limit to build.")]
 		public readonly FrozenDictionary<string, int> BuildingLimits = null;
 
@@ -239,6 +244,13 @@ namespace OpenRA.Mods.Common.Traits
 		public readonly FrozenSet<string> TechTypes;
 		public readonly FrozenSet<string> NavalProductionTypes;
 		public readonly FrozenSet<string> DefenseTypes;
+
+		public static string NextInitialBuilding(IEnumerable<string> priorities, IEnumerable<string> buildable, IEnumerable<string> owned)
+		{
+			var available = buildable.ToHashSet(StringComparer.Ordinal);
+			var existing = owned.ToHashSet(StringComparer.Ordinal);
+			return priorities.FirstOrDefault(name => available.Contains(name) && !existing.Contains(name));
+		}
 
 		public BaseBuilderBotModule(Actor self, BaseBuilderBotModuleInfo info)
 			: base(info)

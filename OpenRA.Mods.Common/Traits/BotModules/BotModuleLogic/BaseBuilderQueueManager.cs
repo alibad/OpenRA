@@ -312,6 +312,21 @@ namespace OpenRA.Mods.Common.Traits
 				return power;
 			}
 
+			// An opt-in opening prevents random discretionary choices from starving
+			// the first production facility. Low-power recovery still takes priority.
+			var initial = BaseBuilderBotModule.NextInitialBuilding(baseBuilder.Info.InitialBuildOrder,
+				buildableThings.Where(a => !baseBuilder.Info.BuildingLimits.TryGetValue(a.Name, out var limit) || limit > 0).Select(a => a.Name),
+				playerBuildings.Select(a => a.Info.Name).Concat(baseBuilder.BuildingsBeingProduced.Where(p => p.Value > 0).Select(p => p.Key)));
+			if (initial != null)
+			{
+				var actor = world.Map.Rules.Actors[initial];
+				if (HasSufficientPowerForActor(actor))
+					return actor;
+
+				if (power != null)
+					return power;
+			}
+
 			// Next is to build up a strong economy
 			if (baseBuilder.RequestedRefineries.Count > 0 || !baseBuilder.HasAdequateRefineryCount())
 			{
