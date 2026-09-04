@@ -50,7 +50,16 @@ namespace OpenRA.Test
 			var root = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, ".."));
 			var logic = File.ReadAllText(Path.Combine(root, "OpenRA.Mods.Common/Widgets/Logic/Ingame/LoadIngamePlayerOrObserverUILogic.cs"));
 			Assert.That(logic, Does.Contain("Game.ModData.Manifest.Id == \"ra2\""));
-			Assert.That(logic, Does.Contain("Shared AI controls included; custom faction packs are in World War III."));
+			Assert.That(logic, Does.Contain("Shared AI controls included; modern faction packs are disabled in this experience."));
+			Assert.That(logic, Does.Not.Contain("custom faction packs are in World War III"));
+		}
+
+		[Test]
+		public void VoxelPlayerPaletteIsValidatedAsPlayerPalette()
+		{
+			var root = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, ".."));
+			var render = File.ReadAllText(Path.Combine(root, "OpenRA.Mods.Cnc/Traits/Render/RenderVoxels.cs"));
+			Assert.That(render, Does.Contain("[PaletteReference(true)]\n\t\t[Desc(\"Custom PlayerColorPalette: BaseName\")]"));
 		}
 
 		[Test]

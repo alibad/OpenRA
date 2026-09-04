@@ -66,7 +66,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				if (Game.ModData.Manifest.Id == "ra2" && experience.ActiveComponentIds.Length == 0)
 				{
 					var countries = world.WorldActor.Info.TraitInfos<FactionInfo>().Count(faction => faction.Selectable && faction.RandomFactionMembers.Count == 0);
-					summary = $"Red Alert 2: {countries} countries. Shared AI controls included; custom faction packs are in World War III.";
+					summary = $"Red Alert 2: {countries} original countries. Shared AI controls included; modern faction packs are disabled in this experience.";
 				}
 
 				TextNotificationsManager.AddSystemLine("Experience", summary);

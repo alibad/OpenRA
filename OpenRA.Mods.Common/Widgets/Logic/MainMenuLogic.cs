@@ -172,7 +172,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					title.GetText = () => $"Experience: {experienceCatalog.ActiveProfile.Title}";
 					var detail = experienceStatus.Get<LabelWidget>("ACTIVE_EXPERIENCE_DETAIL");
 					var text = active.Length == 0 ? (modData.Manifest.Id == "ra2"
-						? "Shared AI included · 9 RA2 countries.\nCustom faction packs remain in World War III."
+						? "Shared AI included · 9 original RA2 countries.\nEnable modern countries in Change Experience."
 						: "Classic gameplay — optional capabilities are off.")
 						: $"{active.Length} capabilities enabled\n{string.Join(", ", factions)}";
 					detail.GetText = () => WidgetUtils.WrapText(text, detail.Bounds.Width, Game.Renderer.Fonts[detail.Font]);
