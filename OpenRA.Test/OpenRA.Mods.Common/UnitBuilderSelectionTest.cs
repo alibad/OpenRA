@@ -9,6 +9,7 @@
  */
 #endregion
 
+using System.Linq;
 using NUnit.Framework;
 using OpenRA.Mods.Common.Traits;
 
@@ -53,6 +54,74 @@ namespace OpenRA.Test
 				Unit("deployed-tank", "anti-air", null)
 			};
 			Assert.That(info.GetUnitTypesToTrack(actors), Is.EquivalentTo(new[] { "mobile-aa", "deployed-tank" }));
+		}
+
+		[Test]
+		public void OtherProductionQueuesCannotStarveVehicleBuiltAircraft()
+		{
+			var info = Info("""
+				RoleShares:
+					main-battle-tank: 26
+					anti-air: 12
+					artillery: 12
+					strike-aircraft: 6
+					line-infantry: 24
+					naval-screen: 8
+				""");
+			var tank = Unit("tank", "main-battle-tank");
+			var antiAir = Unit("anti-air", "anti-air");
+			var artillery = Unit("artillery", "artillery");
+			var drone = Unit("drone", "strike-aircraft");
+			ActorInfo[] factoryArmy = [.. Enumerable.Repeat(tank, 13), .. Enumerable.Repeat(antiAir, 3),
+				.. Enumerable.Repeat(artillery, 4)];
+			ActorInfo[] combinedArmy = [.. factoryArmy,
+				.. Enumerable.Repeat(Unit("rifle", "line-infantry", "Infantry"), 25),
+				.. Enumerable.Repeat(Unit("ship", "naval-screen", "Ship"), 25)];
+			Assert.That(UnitBuilderBotModule.ChooseUnitToBuild(info, [tank, antiAir, artillery, drone], factoryArmy,
+				100, _ => true, "Vehicle"), Is.SameAs(drone));
+			Assert.That(UnitBuilderBotModule.ChooseUnitToBuild(info, [tank, antiAir, artillery, drone], combinedArmy,
+				100, _ => true, "Vehicle"), Is.SameAs(drone));
+		}
+
+		[Test]
+		public void RoleWeightsAreRelativeAndExcludeUnavailableRoles()
+		{
+			var smallWeights = Info("""
+				RoleShares:
+					armor: 2
+					strike-aircraft: 1
+					artillery: 100
+				""");
+			var largeWeights = Info("""
+				RoleShares:
+					armor: 200
+					strike-aircraft: 100
+					artillery: 10000
+				""");
+			var tank = Unit("tank", "armor");
+			var drone = Unit("drone", "strike-aircraft");
+			var artillery = Unit("artillery", "artillery");
+			ActorInfo[] owned = [tank, .. Enumerable.Repeat(artillery, 100)];
+			foreach (var info in new[] { smallWeights, largeWeights })
+				Assert.That(UnitBuilderBotModule.ChooseUnitToBuild(info, [tank, drone, artillery], owned,
+					100, unit => unit != artillery, "Vehicle"), Is.SameAs(drone));
+		}
+
+		[Test]
+		public void MultiQueueActorsCountOnceAndCappedAlternativeStillCountsForItsRole()
+		{
+			var info = Info("""
+				RoleShares:
+					armor: 1
+					strike-aircraft: 1
+				UnitLimits:
+					limited-drone: 1
+				""");
+			var tank = Unit("tank", "armor");
+			var limited = Unit("limited-drone", "strike-aircraft", "Vehicle, Aircraft");
+			var alternate = Unit("alternate-drone", "strike-aircraft");
+			Assert.That(UnitBuilderBotModule.ChooseUnitToBuild(info, [alternate, limited, tank], [limited],
+				100, _ => true, "Vehicle"), Is.SameAs(tank));
 		}
 
 		[Test]

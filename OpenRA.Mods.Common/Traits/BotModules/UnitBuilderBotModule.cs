@@ -37,7 +37,8 @@ namespace OpenRA.Mods.Common.Traits
 		public readonly FrozenDictionary<string, int> UnitsToBuild = FrozenDictionary<string, int>.Empty;
 
 		[Desc("Optional strategic-role shares used before actor-specific shares.",
-			"Roles are supplied by StrategicRole traits and let new faction actors join doctrine AI without editing this list.")]
+			"Roles are supplied by StrategicRole traits and let new faction actors join doctrine AI without editing this list.",
+			"Composition is balanced within each production queue so unrelated queues cannot starve specialist roles.")]
 		public readonly FrozenDictionary<string, int> RoleShares = FrozenDictionary<string, int>.Empty;
 
 		[Desc("What units should the AI have a maximum limit to train.")]
@@ -197,11 +198,11 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			var buildableThings = queue.BuildableItems().Shuffle(world.LocalRandom).ToArray();
 			var allUnits = unitsToBuild.Actors.Where(a => !a.IsDead).Select(actor => actor.Info).ToArray();
-			return ChooseUnitToBuild(Info, buildableThings, allUnits, world.WorldTick, HasAdequateAirUnitReloadBuildings);
+			return ChooseUnitToBuild(Info, buildableThings, allUnits, world.WorldTick, HasAdequateAirUnitReloadBuildings, queue.Info.Type);
 		}
 
 		public static ActorInfo ChooseUnitToBuild(UnitBuilderBotModuleInfo info, ActorInfo[] candidates,
-			ActorInfo[] allUnits, int currentTick, Func<ActorInfo, bool> isAvailable)
+			ActorInfo[] allUnits, int currentTick, Func<ActorInfo, bool> isAvailable, string productionQueue = null)
 		{
 			// Reject blocked candidates before ranking. A preferred aircraft without
 			// a rearm slot must not starve another usable aircraft in the same queue.
@@ -209,7 +210,7 @@ namespace OpenRA.Mods.Common.Traits
 				(info.UnitDelays == null || !info.UnitDelays.TryGetValue(unit.Name, out var delay) || delay <= currentTick) &&
 				(info.UnitLimits == null || !info.UnitLimits.TryGetValue(unit.Name, out var limit) ||
 					allUnits.Count(owned => owned.Name == unit.Name) < limit) && isAvailable(unit)).ToArray();
-			var roleUnit = ChooseRoleUnitToBuild(info, buildableThings, allUnits);
+			var roleUnit = ChooseRoleUnitToBuild(info, buildableThings, allUnits, productionQueue);
 			if (roleUnit != null)
 				return roleUnit;
 
@@ -235,26 +236,46 @@ namespace OpenRA.Mods.Common.Traits
 			return desiredUnit;
 		}
 
-		static ActorInfo ChooseRoleUnitToBuild(UnitBuilderBotModuleInfo info, ActorInfo[] buildableThings, ActorInfo[] allUnits)
+		static ActorInfo ChooseRoleUnitToBuild(UnitBuilderBotModuleInfo info, ActorInfo[] buildableThings, ActorInfo[] allUnits,
+			string productionQueue)
 		{
 			if (info.RoleShares.Count == 0)
 				return null;
 
-			var taggedUnits = allUnits.Where(a => a.TraitInfos<StrategicRoleInfo>()
-				.Any(role => role.Roles.Any(id => info.RoleShares.TryGetValue(id, out var share) && share > 0))).ToArray();
-			var desiredError = int.MaxValue;
+			// Limits, delays and rearm requirements have already removed candidates
+			// we cannot recruit. Normalize only the roles still available in this
+			// queue, deduplicating roles shared by several alternative actors.
+			var availableRoles = buildableThings.SelectMany(a => a.TraitInfos<StrategicRoleInfo>())
+				.SelectMany(role => role.Roles).Distinct()
+				.Where(role => info.RoleShares.TryGetValue(role, out var share) && share > 0)
+				.ToDictionary(role => role, role => info.RoleShares[role]);
+			if (availableRoles.Count == 0)
+				return null;
+
+			// Independent queues fill at different rates. Comparing a factory's tank,
+			// artillery and drone roles with a rapidly growing infantry/naval army can
+			// leave tanks permanently deficient and prevent the first drone forever.
+			// Keep explicitly tracked transformed actors without Buildable metadata.
+			var taggedUnits = allUnits.Where(a => (productionQueue == null ||
+				!a.HasTraitInfo<BuildableInfo>() || a.TraitInfo<BuildableInfo>().Queue.Contains(productionQueue)) &&
+				a.TraitInfos<StrategicRoleInfo>()
+				.Any(role => role.Roles.Any(availableRoles.ContainsKey))).ToArray();
+			var totalShare = availableRoles.Values.Sum(share => (long)share);
+			var desiredError = long.MaxValue;
 			ActorInfo desiredUnit = null;
 
 			foreach (var unit in buildableThings)
 			{
 				foreach (var role in unit.TraitInfos<StrategicRoleInfo>().SelectMany(roleInfo => roleInfo.Roles).Distinct())
 				{
-					if (!info.RoleShares.TryGetValue(role, out var share) || share <= 0)
+					if (!availableRoles.TryGetValue(role, out var share))
 						continue;
 
 					var roleCount = taggedUnits.Count(a => a.TraitInfos<StrategicRoleInfo>()
 						.Any(roleInfo => roleInfo.Roles.Contains(role)));
-					var error = taggedUnits.Length > 0 ? roleCount * 100 / taggedUnits.Length - share : -share;
+					// Cross-multiply normalized shares: no floating point or percentage
+					// rounding, and multiplying every configured weight changes nothing.
+					var error = taggedUnits.Length > 0 ? roleCount * totalShare - (long)share * taggedUnits.Length : -share;
 					if (error < desiredError)
 					{
 						desiredError = error;
