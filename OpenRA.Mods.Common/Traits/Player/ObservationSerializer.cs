@@ -28,6 +28,7 @@ namespace OpenRA.Mods.Common.Traits
 		readonly World world;
 		readonly Player player;
 		readonly string episodeId;
+		readonly ObservationWeaponTargets weaponTargets;
 
 		// Cached trait references for spatial map (resolved lazily)
 		IResourceLayer resourceLayer;
@@ -41,6 +42,9 @@ namespace OpenRA.Mods.Common.Traits
 			this.world = world;
 			this.player = player;
 			this.episodeId = episodeId;
+			weaponTargets = new ObservationWeaponTargets(world.Map.Rules.Actors.Values
+				.Where(info => !info.Name.StartsWith('^'))
+				.SelectMany(info => info.TraitInfos<ITargetableInfo>()).Select(info => info.GetTargetTypes()));
 		}
 
 		void EnsureTraitsCached()
@@ -446,19 +450,21 @@ namespace OpenRA.Mods.Common.Traits
 				unit.CurrentActivity = activity.GetType().Name;
 
 			// Attack capability and range
-			unit.CanAttack = actor.Info.HasTraitInfo<AttackBaseInfo>();
+			var armaments = GetActiveArmaments(actor).ToArray();
+			unit.CanAttack = armaments.Length > 0;
 			var ranges = GetAttackRanges(actor);
 			unit.AttackRange = ranges.Maximum;
 			unit.MinimumAttackRange = ranges.Minimum;
-			var armament = actor.TraitsImplementing<Armament>().FirstOrDefault(value => !value.IsTraitDisabled);
+			var targets = weaponTargets.Summarize(armaments.Select(armament => armament.Weapon));
+			unit.CanTargetAir = targets.Air;
+			unit.CanTargetGround = targets.Ground;
+			var armament = armaments.FirstOrDefault();
 			if (armament != null)
 			{
 				unit.ReloadRemainingTicks = armament.FireDelay;
 				unit.ReloadTotalTicks = armament.Weapon.ReloadDelay;
 				unit.Weapon = armament.Info.Weapon ?? "";
 				unit.Burst = armament.Weapon.Burst;
-				unit.CanTargetAir = armament.Weapon.ValidTargets.Contains("Air");
-				unit.CanTargetGround = armament.Weapon.ValidTargets.Contains("Ground");
 			}
 
 			var attackFollow = actor.TraitsImplementing<AttackFollow>()
@@ -522,7 +528,7 @@ namespace OpenRA.Mods.Common.Traits
 			var maximum = 0;
 			foreach (var attack in actor.TraitsImplementing<AttackBase>())
 			{
-				if (attack.IsTraitDisabled)
+				if (attack.IsTraitDisabled || attack.IsTraitPaused)
 					continue;
 
 				var range = attack.GetMaximumRange().Length;
@@ -536,21 +542,35 @@ namespace OpenRA.Mods.Common.Traits
 			return (minimum == int.MaxValue ? 0 : minimum, maximum);
 		}
 
-		static void SerializeBuildingWeapon(Actor actor, RLProto.RlBuildingInfo building)
+		static IEnumerable<Armament> GetActiveArmaments(Actor actor)
+		{
+			// Attack modes may select different armaments even when the armament itself
+			// has no condition (e.g. deployed infantry). Include secondary weapons and
+			// passenger weapons only when their owning attack mode can use them.
+			return actor.TraitsImplementing<AttackBase>()
+				.Where(attack => !attack.IsTraitDisabled && !attack.IsTraitPaused)
+				.SelectMany(attack => attack.Armaments)
+				.Where(armament => !armament.IsTraitDisabled && !armament.IsTraitPaused)
+				.Distinct();
+		}
+
+		void SerializeBuildingWeapon(Actor actor, RLProto.RlBuildingInfo building)
 		{
 			var ranges = GetAttackRanges(actor);
 			building.AttackRange = ranges.Maximum;
 			building.MinimumAttackRange = ranges.Minimum;
 
-			var armament = actor.TraitsImplementing<Armament>().FirstOrDefault(value => !value.IsTraitDisabled);
+			var armaments = GetActiveArmaments(actor).ToArray();
+			var targets = weaponTargets.Summarize(armaments.Select(armament => armament.Weapon));
+			building.CanTargetAir = targets.Air;
+			building.CanTargetGround = targets.Ground;
+			var armament = armaments.FirstOrDefault();
 			if (armament == null)
 				return;
 			building.ReloadRemainingTicks = armament.FireDelay;
 			building.ReloadTotalTicks = armament.Weapon.ReloadDelay;
 			building.Weapon = armament.Info.Weapon ?? "";
 			building.Burst = armament.Weapon.Burst;
-			building.CanTargetAir = armament.Weapon.ValidTargets.Contains("Air");
-			building.CanTargetGround = armament.Weapon.ValidTargets.Contains("Ground");
 			var attackFollow = actor.TraitsImplementing<AttackFollow>()
 				.FirstOrDefault(attack => !attack.IsTraitDisabled && attack.RequestedTarget.Type == TargetType.Actor);
 			if (attackFollow != null)

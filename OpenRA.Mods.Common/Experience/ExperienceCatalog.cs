@@ -20,7 +20,7 @@ using System.Text;
 namespace OpenRA.Mods.Common.Experience
 {
 	public enum ExperienceParameterType { Boolean, Integer, Choice }
-	public enum ExperienceComponentKind { Module, Faction, Internal }
+	public enum ExperienceComponentKind { Module, Faction, Internal, Authoring }
 
 	public sealed class FactionPackMetadata
 	{
@@ -196,6 +196,8 @@ namespace OpenRA.Mods.Common.Experience
 		public readonly string PackageId;
 		public readonly string PackagePath;
 		public readonly string ContentFingerprint;
+		public bool IsSelectable => !Hidden && Kind != ExperienceComponentKind.Internal;
+		public bool IsGameplayCapability => IsSelectable && Kind == ExperienceComponentKind.Module;
 
 		public ExperienceComponent(string id, MiniYaml yaml, string filePrefix = null,
 			string packageId = null, string packagePath = null, string contentFingerprint = null)
@@ -328,9 +330,17 @@ namespace OpenRA.Mods.Common.Experience
 		public readonly IReadOnlyDictionary<string, ExperienceComponent> FactionPacks;
 		public readonly IReadOnlyDictionary<string, ExperienceProfile> Profiles;
 		public readonly ExperienceProfile ActiveProfile;
+		public readonly bool UsesCustomComponents;
+		public string ActiveTitle => UsesCustomComponents ? "Custom experience" : ActiveProfile.Title;
 		public readonly ImmutableArray<string> ActiveComponentIds;
 		public readonly PresentationPackDefinition ActivePresentationPack;
 		public readonly IReadOnlyDictionary<string, string> ActiveParameterValues;
+		readonly ExperienceSelection selection;
+
+		public int ActiveFactionCount => ActiveComponentIds.Count(id => Components[id].Kind == ExperienceComponentKind.Faction);
+		public int ActiveCapabilityCount => ActiveComponentIds.Count(id => Components[id].IsGameplayCapability);
+		public int ActiveAuthoringCount => ActiveComponentIds.Count(id => Components[id].IsSelectable &&
+			Components[id].Kind == ExperienceComponentKind.Authoring);
 
 		readonly ImmutableArray<string> managedRules;
 		readonly ImmutableArray<string> activeRules;
@@ -350,18 +360,31 @@ namespace OpenRA.Mods.Common.Experience
 		readonly ImmutableArray<string> activeMusic;
 
 		public ExperienceCatalog(MiniYaml yaml)
+			: this(yaml, Game.Settings.GetOrCreate<ExperienceSettings>(null, RequiredValue(yaml, "Mod")),
+				CapabilityPackRegistry.Discover(RequiredValue(yaml, "Mod")).Values,
+				null, Environment.GetEnvironmentVariable("OPENRA_UTILITY_EXPERIENCE_PROFILE")) { }
+
+		public ExperienceCatalog(MiniYaml yaml, ExperienceSettings settings,
+			IEnumerable<CapabilityPackDefinition> capabilityPacks, PresentationPackDefinition presentationPack,
+			string utilityProfile = null)
 		{
 			Mod = RequiredValue(yaml, "Mod");
 			DefaultProfileId = RequiredValue(yaml, "DefaultProfile");
 			var builtInComponents = ParseComponents(RequiredNode(yaml, "Components"));
 			var components = new Dictionary<string, ExperienceComponent>(builtInComponents, StringComparer.OrdinalIgnoreCase);
-			foreach (var pack in CapabilityPackRegistry.Discover(Mod).Values)
+			foreach (var pack in capabilityPacks)
 			{
 				if (!components.TryAdd(pack.Component.Id, pack.Component))
 					throw new InvalidDataException($"Capability pack `{pack.Id}` duplicates experience component `{pack.Component.Id}`.");
 			}
 
 			Components = components;
+			var duplicateFaction = components.Values.Where(component => component.Faction != null)
+				.GroupBy(component => component.Faction.InternalName, StringComparer.OrdinalIgnoreCase)
+				.FirstOrDefault(group => group.Count() > 1);
+			if (duplicateFaction != null)
+				throw new InvalidDataException($"Multiple faction packs register `{duplicateFaction.Key}`.");
+
 			FactionPacks = components.Values.Where(component => component.Kind == ExperienceComponentKind.Faction)
 				.ToDictionary(component => component.Faction.InternalName, StringComparer.OrdinalIgnoreCase);
 			Profiles = ParseProfiles(RequiredNode(yaml, "Profiles"));
@@ -369,20 +392,20 @@ namespace OpenRA.Mods.Common.Experience
 			if (!Profiles.TryGetValue(DefaultProfileId, out var defaultProfile))
 				throw new InvalidDataException($"Experience default profile `{DefaultProfileId}` does not exist.");
 
-			ValidateGraph();
+			selection = new ExperienceSelection(Components);
 			foreach (var profile in Profiles.Values)
-				Resolve(profile.Components, strictConflicts: true);
+				selection.Resolve(profile.Components, strictConflicts: true);
 
-			var settings = Game.Settings.GetOrCreate<ExperienceSettings>(null, Mod);
-			var utilityProfile = Environment.GetEnvironmentVariable("OPENRA_UTILITY_EXPERIENCE_PROFILE");
 			var selectedProfileId = string.IsNullOrWhiteSpace(utilityProfile) ? settings.Profile : utilityProfile;
 			ActiveProfile = Profiles.TryGetValue(selectedProfileId, out var selectedProfile) ? selectedProfile : defaultProfile;
-			var requested = settings.UseCustomComponents ? ParseSettingsList(settings.EnabledComponents) : ActiveProfile.Components;
-			ActiveComponentIds = Resolve(requested, strictConflicts: false).Order().ToImmutableArray();
+			UsesCustomComponents = string.IsNullOrWhiteSpace(utilityProfile) && settings.UseCustomComponents;
+			var requested = UsesCustomComponents ?
+				ParseSettingsList(settings.EnabledComponents) : ActiveProfile.Components;
+			ActiveComponentIds = selection.Resolve(requested, strictConflicts: false);
 			ActiveParameterValues = ParseParameterSettings(settings.ParameterValues);
-			ActivePresentationPack = PresentationPackRegistry.Find(Mod, settings.PresentationPack);
+			ActivePresentationPack = presentationPack ?? PresentationPackRegistry.Find(Mod, settings.PresentationPack);
 
-			var activeComponents = ActiveComponentIds.Select(id => Components[id]).ToArray();
+			var activeComponents = selection.DependencyOrder(ActiveComponentIds).Select(id => Components[id]).ToArray();
 			managedRules = AllFiles(c => c.Rules);
 			activeRules = ActiveFiles(activeComponents, c => c.Rules);
 			managedWeapons = AllFiles(c => c.Weapons);
@@ -426,36 +449,12 @@ namespace OpenRA.Mods.Common.Experience
 		public ImmutableArray<string> ComponentsForProfile(string profileId)
 		{
 			var profile = Profiles.TryGetValue(profileId, out var value) ? value : Profiles[DefaultProfileId];
-			return Resolve(profile.Components, strictConflicts: true).Order().ToImmutableArray();
+			return selection.Resolve(profile.Components, strictConflicts: true);
 		}
 
 		public ImmutableArray<string> ToggleComponent(IEnumerable<string> current, string componentId, bool enabled)
 		{
-			if (!Components.ContainsKey(componentId))
-				throw new InvalidDataException($"Unknown experience component `{componentId}`.");
-
-			var selected = current.Where(Components.ContainsKey).ToHashSet();
-			if (enabled)
-			{
-				foreach (var conflict in Components[componentId].Conflicts)
-					selected.Remove(conflict);
-
-				EnableWithDependencies(componentId, selected, []);
-			}
-			else
-			{
-				selected.Remove(componentId);
-				var changed = true;
-				while (changed)
-				{
-					changed = false;
-					foreach (var selectedId in selected.ToArray())
-						if (Components[selectedId].Dependencies.Any(d => !selected.Contains(d)))
-							changed |= selected.Remove(selectedId);
-				}
-			}
-
-			return selected.Order().ToImmutableArray();
+			return selection.Toggle(current, componentId, enabled);
 		}
 
 		public IReadOnlyDictionary<string, string> DefaultParameterValues()
@@ -500,19 +499,20 @@ namespace OpenRA.Mods.Common.Experience
 
 		public int GetIntegerParameter(string componentId, string parameterId, int fallback)
 		{
-			return ActiveParameterValues.TryGetValue(ParameterKey(componentId, parameterId), out var value) &&
+			return IsComponentActive(componentId) && ActiveParameterValues.TryGetValue(ParameterKey(componentId, parameterId), out var value) &&
 				int.TryParse(value, out var integer) ? integer : fallback;
 		}
 
 		public bool GetBooleanParameter(string componentId, string parameterId, bool fallback)
 		{
-			return ActiveParameterValues.TryGetValue(ParameterKey(componentId, parameterId), out var value) &&
+			return IsComponentActive(componentId) && ActiveParameterValues.TryGetValue(ParameterKey(componentId, parameterId), out var value) &&
 				bool.TryParse(value, out var boolean) ? boolean : fallback;
 		}
 
 		public string GetChoiceParameter(string componentId, string parameterId, string fallback)
 		{
-			return ActiveParameterValues.TryGetValue(ParameterKey(componentId, parameterId), out var value) ? value : fallback;
+			return IsComponentActive(componentId) && ActiveParameterValues.TryGetValue(ParameterKey(componentId, parameterId), out var value) ?
+				value : fallback;
 		}
 
 		public bool IsComponentActive(string componentId)
@@ -562,66 +562,6 @@ namespace OpenRA.Mods.Common.Experience
 
 			parameter = null;
 			return false;
-		}
-
-		ImmutableArray<string> Resolve(IEnumerable<string> requested, bool strictConflicts)
-		{
-			var selected = new HashSet<string>();
-			foreach (var id in requested)
-			{
-				if (!Components.ContainsKey(id))
-				{
-					if (strictConflicts)
-						throw new InvalidDataException($"Experience profile references unknown component `{id}`.");
-
-					continue;
-				}
-
-				var conflicts = Components[id].Conflicts.Where(selected.Contains).ToArray();
-				if (strictConflicts && conflicts.Length > 0)
-					throw new InvalidDataException($"Experience component `{id}` conflicts with {conflicts.JoinWith(", ")}.");
-
-				foreach (var conflict in conflicts)
-					selected.Remove(conflict);
-
-				EnableWithDependencies(id, selected, []);
-			}
-
-			return selected.Order().ToImmutableArray();
-		}
-
-		void EnableWithDependencies(string id, HashSet<string> selected, HashSet<string> stack)
-		{
-			if (!stack.Add(id))
-				throw new InvalidDataException($"Experience component dependency cycle includes `{id}`.");
-
-			foreach (var dependency in Components[id].Dependencies)
-				EnableWithDependencies(dependency, selected, stack);
-
-			stack.Remove(id);
-			selected.Add(id);
-		}
-
-		void ValidateGraph()
-		{
-			var duplicateFaction = Components.Values.Where(component => component.Faction != null)
-				.GroupBy(component => component.Faction.InternalName, StringComparer.OrdinalIgnoreCase)
-				.FirstOrDefault(group => group.Count() > 1);
-			if (duplicateFaction != null)
-				throw new InvalidDataException($"Multiple faction packs register `{duplicateFaction.Key}`.");
-
-			foreach (var component in Components.Values)
-			{
-				foreach (var dependency in component.Dependencies)
-					if (!Components.ContainsKey(dependency))
-						throw new InvalidDataException($"Experience component `{component.Id}` depends on unknown `{dependency}`.");
-
-				foreach (var conflict in component.Conflicts)
-					if (!Components.ContainsKey(conflict))
-						throw new InvalidDataException($"Experience component `{component.Id}` conflicts with unknown `{conflict}`.");
-
-				EnableWithDependencies(component.Id, [], []);
-			}
 		}
 
 		ImmutableArray<string> AllFiles(Func<ExperienceComponent, ImmutableArray<string>> selector)

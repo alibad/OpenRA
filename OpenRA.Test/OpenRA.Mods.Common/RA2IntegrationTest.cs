@@ -39,9 +39,12 @@ namespace OpenRA.Test
 			Assert.That(observation, Does.Not.Contain("TraitOrDefault<AttackBase>"));
 			Assert.That(observation, Does.Not.Contain("TraitOrDefault<AttackFollow>"));
 			Assert.That(observation, Does.Contain("foreach (var attack in actor.TraitsImplementing<AttackBase>())"));
-			Assert.That(observation, Does.Contain("if (attack.IsTraitDisabled)"));
+			Assert.That(observation, Does.Contain("if (attack.IsTraitDisabled || attack.IsTraitPaused)"));
 			Assert.That(observation, Does.Contain("maximum = Math.Max(maximum, range)"));
 			Assert.That(observation, Does.Contain("minimum = Math.Min(minimum, attack.GetMinimumRange().Length)"));
+			Assert.That(observation, Does.Contain(".SelectMany(attack => attack.Armaments)"));
+			Assert.That(observation, Does.Contain(".Where(armament => !armament.IsTraitDisabled && !armament.IsTraitPaused)"));
+			Assert.That(observation, Does.Not.Contain("actor.TraitsImplementing<Armament>().FirstOrDefault"));
 		}
 
 		[Test]

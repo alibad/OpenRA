@@ -9,6 +9,7 @@
  */
 #endregion
 
+using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -33,7 +34,7 @@ namespace OpenRA.Mods.Common.Traits
 		public readonly ImmutableArray<string> UnitQueues = ["Vehicle", "Infantry", "Plane", "Ship", "Aircraft"];
 
 		[Desc("What units to the AI should build.", "What relative share of the total army must be this type of unit.")]
-		public readonly FrozenDictionary<string, int> UnitsToBuild = null;
+		public readonly FrozenDictionary<string, int> UnitsToBuild = FrozenDictionary<string, int>.Empty;
 
 		[Desc("Optional strategic-role shares used before actor-specific shares.",
 			"Roles are supplied by StrategicRole traits and let new faction actors join doctrine AI without editing this list.")]
@@ -47,6 +48,14 @@ namespace OpenRA.Mods.Common.Traits
 
 		[Desc("Only queue construction of a new unit when above this requirement.")]
 		public readonly int ProductionMinCashRequirement = 500;
+
+		public IReadOnlyCollection<string> GetUnitTypesToTrack(IEnumerable<ActorInfo> actors)
+		{
+			return UnitsToBuild.Keys.Concat(actors.Where(actor => !actor.Name.StartsWith('^') &&
+				actor.TraitInfoOrDefault<BuildableInfo>() is { } buildable && buildable.Queue.Any(UnitQueues.Contains) &&
+				actor.TraitInfos<StrategicRoleInfo>().Any(role => role.Roles.Any(id =>
+					RoleShares.TryGetValue(id, out var share) && share > 0))).Select(actor => actor.Name)).Distinct().ToArray();
+		}
 
 		public override object Create(ActorInitializer init) { return new UnitBuilderBotModule(init.Self, this); }
 	}
@@ -74,7 +83,7 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			world = self.World;
 			player = self.Owner;
-			unitsToBuild = new ActorIndex.OwnerAndNames(world, info.UnitsToBuild.Keys, player);
+			unitsToBuild = new ActorIndex.OwnerAndNames(world, info.GetUnitTypesToTrack(world.Map.Rules.Actors.Values), player);
 		}
 
 		protected override void Created(Actor self)
@@ -142,7 +151,7 @@ namespace OpenRA.Mods.Common.Traits
 
 		void BuildRandomUnit(IBot bot, ProductionQueue[] queues)
 		{
-			if (Info.UnitsToBuild.Count == 0)
+			if (Info.UnitsToBuild.Count == 0 && Info.RoleShares.Count == 0)
 				return;
 
 			// Pick a free queue
@@ -187,29 +196,34 @@ namespace OpenRA.Mods.Common.Traits
 		ActorInfo ChooseRandomUnitToBuild(ProductionQueue queue)
 		{
 			var buildableThings = queue.BuildableItems().Shuffle(world.LocalRandom).ToArray();
-			if (buildableThings.Length == 0)
-				return null;
+			var allUnits = unitsToBuild.Actors.Where(a => !a.IsDead).Select(actor => actor.Info).ToArray();
+			return ChooseUnitToBuild(Info, buildableThings, allUnits, world.WorldTick, HasAdequateAirUnitReloadBuildings);
+		}
 
-			var allUnits = unitsToBuild.Actors.Where(a => !a.IsDead).ToArray();
-			var roleUnit = ChooseRoleUnitToBuild(buildableThings, allUnits);
+		public static ActorInfo ChooseUnitToBuild(UnitBuilderBotModuleInfo info, ActorInfo[] candidates,
+			ActorInfo[] allUnits, int currentTick, Func<ActorInfo, bool> isAvailable)
+		{
+			// Reject blocked candidates before ranking. A preferred aircraft without
+			// a rearm slot must not starve another usable aircraft in the same queue.
+			var buildableThings = candidates.Where(unit =>
+				(info.UnitDelays == null || !info.UnitDelays.TryGetValue(unit.Name, out var delay) || delay <= currentTick) &&
+				(info.UnitLimits == null || !info.UnitLimits.TryGetValue(unit.Name, out var limit) ||
+					allUnits.Count(owned => owned.Name == unit.Name) < limit) && isAvailable(unit)).ToArray();
+			var roleUnit = ChooseRoleUnitToBuild(info, buildableThings, allUnits);
 			if (roleUnit != null)
-				return HasAdequateAirUnitReloadBuildings(roleUnit) ? roleUnit : null;
+				return roleUnit;
 
 			ActorInfo desiredUnit = null;
 			var desiredError = int.MaxValue;
 			foreach (var unit in buildableThings)
 			{
-				if (!Info.UnitsToBuild.TryGetValue(unit.Name, out var share) ||
-					(Info.UnitDelays != null && Info.UnitDelays.TryGetValue(unit.Name, out var delay) && delay > world.WorldTick))
+				if (!info.UnitsToBuild.TryGetValue(unit.Name, out var share) || share <= 0)
 					continue;
 
-				var unitCount = allUnits.Count(a => a.Info.Name == unit.Name);
-				if (Info.UnitLimits != null && Info.UnitLimits.TryGetValue(unit.Name, out var count) && unitCount >= count)
-					continue;
-
+				var unitCount = allUnits.Count(a => a.Name == unit.Name);
 				var error = allUnits.Length > 0 ? unitCount * 100 / allUnits.Length - share : -1;
 				if (error < 0)
-					return HasAdequateAirUnitReloadBuildings(unit) ? unit : null;
+					return unit;
 
 				if (error < desiredError)
 				{
@@ -218,33 +232,28 @@ namespace OpenRA.Mods.Common.Traits
 				}
 			}
 
-			return desiredUnit != null ? (HasAdequateAirUnitReloadBuildings(desiredUnit) ? desiredUnit : null) : null;
+			return desiredUnit;
 		}
 
-		ActorInfo ChooseRoleUnitToBuild(ActorInfo[] buildableThings, Actor[] allUnits)
+		static ActorInfo ChooseRoleUnitToBuild(UnitBuilderBotModuleInfo info, ActorInfo[] buildableThings, ActorInfo[] allUnits)
 		{
-			if (Info.RoleShares.Count == 0)
+			if (info.RoleShares.Count == 0)
 				return null;
 
-			var taggedUnits = allUnits.Where(a => a.Info.TraitInfos<StrategicRoleInfo>()
-				.Any(role => role.Roles.Any(Info.RoleShares.ContainsKey))).ToArray();
+			var taggedUnits = allUnits.Where(a => a.TraitInfos<StrategicRoleInfo>()
+				.Any(role => role.Roles.Any(id => info.RoleShares.TryGetValue(id, out var share) && share > 0))).ToArray();
 			var desiredError = int.MaxValue;
 			ActorInfo desiredUnit = null;
 
 			foreach (var unit in buildableThings)
 			{
-				if ((Info.UnitDelays != null && Info.UnitDelays.TryGetValue(unit.Name, out var delay) && delay > world.WorldTick) ||
-					(Info.UnitLimits != null && Info.UnitLimits.TryGetValue(unit.Name, out var limit) &&
-						allUnits.Count(a => a.Info.Name == unit.Name) >= limit))
-					continue;
-
-				foreach (var role in unit.TraitInfos<StrategicRoleInfo>().SelectMany(info => info.Roles).Distinct())
+				foreach (var role in unit.TraitInfos<StrategicRoleInfo>().SelectMany(roleInfo => roleInfo.Roles).Distinct())
 				{
-					if (!Info.RoleShares.TryGetValue(role, out var share))
+					if (!info.RoleShares.TryGetValue(role, out var share) || share <= 0)
 						continue;
 
-					var roleCount = taggedUnits.Count(a => a.Info.TraitInfos<StrategicRoleInfo>()
-						.Any(info => info.Roles.Contains(role)));
+					var roleCount = taggedUnits.Count(a => a.TraitInfos<StrategicRoleInfo>()
+						.Any(roleInfo => roleInfo.Roles.Contains(role)));
 					var error = taggedUnits.Length > 0 ? roleCount * 100 / taggedUnits.Length - share : -share;
 					if (error < desiredError)
 					{

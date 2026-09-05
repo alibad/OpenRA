@@ -463,6 +463,170 @@ namespace OpenRA.Test
 			Assert.That(review.ChangeCount, Is.EqualTo(5));
 		}
 
+		[Test]
+		public void ConflictingDependencyRemovesTheOldPackAndItsDependents()
+		{
+			var selection = Selection(
+				GraphComponent("old-base", conflicts: "new-base", kind: "Internal"),
+				GraphComponent("old-pack", dependencies: "old-base"),
+				GraphComponent("old-addon", dependencies: "old-pack"),
+				GraphComponent("new-base", kind: "Internal"),
+				GraphComponent("new-pack", dependencies: "new-base"),
+				GraphComponent("unrelated"));
+			var before = selection.Resolve(["old-addon", "unrelated"], true);
+			Assert.That(selection.Toggle(before, "new-pack", true),
+				Is.EquivalentTo(new[] { "new-base", "new-pack", "unrelated" }));
+			Assert.That(selection.Toggle(["new-base", "new-pack"], "old-addon", true),
+				Is.EquivalentTo(new[] { "old-base", "old-pack", "old-addon" }));
+			Assert.Throws<InvalidDataException>(() => selection.Resolve(["old-addon", "new-pack"], true));
+			Assert.Throws<InvalidDataException>(() => selection.Resolve(["new-pack", "old-addon"], true));
+		}
+
+		[Test]
+		public void DisablingLastFactionUnloadsItsHiddenFoundation()
+		{
+			var selection = Selection(GraphComponent("foundation", kind: "Internal"),
+				GraphComponent("first", dependencies: "foundation"), GraphComponent("second", dependencies: "foundation"),
+				GraphComponent("authoring", kind: "Authoring"));
+			var active = selection.Resolve(["first", "second", "authoring"], true);
+			active = selection.Toggle(active, "first", false);
+			Assert.That(active, Is.EquivalentTo(new[] { "foundation", "second", "authoring" }));
+			Assert.That(selection.Toggle(active, "second", false), Is.EqualTo(new[] { "authoring" }));
+			Assert.That(selection.Toggle(active, "foundation", false), Is.EqualTo(new[] { "authoring" }));
+		}
+
+		[Test]
+		public void DependenciesLoadBeforeAlphabeticallyEarlierOverrides()
+		{
+			var selection = Selection(GraphComponent("a-roster", dependencies: "z-foundation"),
+				GraphComponent("z-foundation", dependencies: "shared"), GraphComponent("b-roster", dependencies: "shared"),
+				GraphComponent("shared", kind: "Internal"));
+			Assert.That(selection.DependencyOrder(["b-roster", "a-roster"]),
+				Is.EqualTo(new[] { "shared", "z-foundation", "a-roster", "b-roster" }));
+			Assert.That(selection.Resolve(["A-ROSTER", "a-roster", "missing"], false),
+				Is.EqualTo(new[] { "a-roster", "shared", "z-foundation" }));
+		}
+
+		[Test]
+		public void InvalidDependencyGraphsAreRejectedBeforeLoadingGameplay()
+		{
+			Assert.Throws<InvalidDataException>(() => Selection(GraphComponent("pack", dependencies: "missing")));
+			Assert.Throws<InvalidDataException>(() => Selection(GraphComponent("a", dependencies: "b"), GraphComponent("b", dependencies: "a")));
+			Assert.Throws<InvalidDataException>(() => Selection(GraphComponent("pack", dependencies: "base", conflicts: "base"), GraphComponent("base")));
+			Assert.Throws<InvalidDataException>(() => Selection(GraphComponent("pack", dependencies: "first, second"),
+				GraphComponent("first", conflicts: "second"), GraphComponent("second")));
+		}
+
+		[Test]
+		public void ReviewExplainsTransitiveConflictsAndExcludesInternalModules()
+		{
+			var components = new[] { GraphComponent("old", dependencies: "old-base"),
+				GraphComponent("old-base", conflicts: "new-base", kind: "Internal"),
+				GraphComponent("new", dependencies: "new-base"), GraphComponent("new-base", kind: "Internal") }
+				.ToDictionary(c => c.Id);
+			var review = new ExperienceReviewModel(components, ["old", "old-base"], ["new", "new-base"],
+				new Dictionary<string, string>(), new Dictionary<string, string>(), "default", "default");
+			Assert.That(review.RegisteredCount, Is.EqualTo(2));
+			Assert.That(review.ChangeCount, Is.EqualTo(2));
+			Assert.That(review.ConflictedBy["old"].Single().Id, Is.EqualTo("new"));
+			Assert.That(GraphComponent("framework", kind: "Authoring").IsGameplayCapability, Is.False);
+			Assert.That(GraphComponent("hidden", kind: "Internal").IsGameplayCapability, Is.False);
+			Assert.That(GraphComponent("combat").IsGameplayCapability, Is.True);
+		}
+
+		[Test]
+		public void EveryBuiltInPresetAndFactionResolvesIndependently()
+		{
+			var path = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory,
+				"..", "mods", "ra", "experiences.yaml"));
+			var yaml = MiniYaml.FromFile(path, false).Single().Value;
+			var components = yaml.Nodes.Single(n => n.Key == "Components").Value.Nodes
+				.Select(n => new ExperienceComponent(n.Key, n.Value)).ToDictionary(c => c.Id);
+			var selection = new ExperienceSelection(components);
+			foreach (var profile in yaml.Nodes.Single(n => n.Key == "Profiles").Value.Nodes)
+				Assert.DoesNotThrow(() => selection.Resolve(new ExperienceProfile(profile.Key, profile.Value).Components, true));
+			foreach (var faction in components.Values.Where(c => c.Kind == ExperienceComponentKind.Faction))
+			{
+				var active = selection.Resolve([faction.Id], true);
+				Assert.That(active.Count(id => components[id].Kind == ExperienceComponentKind.Faction), Is.EqualTo(1));
+				Assert.That(active, Does.Not.Contain("advanced-projectile-library"),
+					"Choosing a faction must not silently upgrade unrelated stock artillery and Tesla tanks.");
+			}
+		}
+
+		[Test]
+		public void DisabledModuleParametersDoNotAlterAuthoredActors()
+		{
+			var settings = new ExperienceSettings
+			{
+				UseCustomComponents = true,
+				EnabledComponents = "",
+				ParameterValues = "minefield-generator.slot-count=2;point-defense-interception.intercept-effects=false;" +
+					"commander-promotions.doctrine=Firepower"
+			};
+			var disabled = BuiltInCatalog(settings);
+			Assert.That(disabled.GetIntegerParameter("minefield-generator", "slot-count", 3), Is.EqualTo(3));
+			Assert.That(disabled.GetBooleanParameter("point-defense-interception", "intercept-effects", true), Is.True);
+			Assert.That(disabled.GetChoiceParameter("commander-promotions", "doctrine", "Balanced"), Is.EqualTo("Balanced"));
+			Assert.That(disabled.ActiveParameterValues["minefield-generator.slot-count"], Is.EqualTo("2"),
+				"Turning a module off must retain the user's configuration for the next time they enable it.");
+
+			settings.EnabledComponents = "minefield-generator,point-defense-interception,commander-promotions";
+			var enabled = BuiltInCatalog(settings);
+			Assert.That(enabled.GetIntegerParameter("minefield-generator", "slot-count", 3), Is.EqualTo(2));
+			Assert.That(enabled.GetBooleanParameter("point-defense-interception", "intercept-effects", true), Is.False);
+			Assert.That(enabled.GetChoiceParameter("commander-promotions", "doctrine", "Balanced"), Is.EqualTo("Firepower"));
+		}
+
+		[Test]
+		public void UtilityProfileOverridesSavedCustomSelectionWithoutChangingIt()
+		{
+			var settings = new ExperienceSettings { UseCustomComponents = true, EnabledComponents = "turkey-faction" };
+			var custom = BuiltInCatalog(settings);
+			Assert.That(custom.ActiveFactionCount, Is.EqualTo(1));
+			Assert.That(custom.ActiveCapabilityCount, Is.Zero);
+			Assert.That(custom.ActiveAuthoringCount, Is.GreaterThan(0));
+			Assert.That(custom.ActiveTitle, Is.EqualTo("Custom experience"));
+			Assert.That(custom.ActiveRules, Does.Not.Contain("ra|experiences/components/advanced-projectile-library.yaml"));
+			Assert.That(custom.ActiveRules, Does.Contain("ra|rules/turkey.yaml"));
+			var preset = BuiltInCatalog(settings, "ai-assistant-only");
+			Assert.That(preset.ActiveComponentIds, Is.Empty);
+			Assert.That(preset.ActiveRules, Is.Empty);
+			Assert.That(preset.ActiveTitle, Is.EqualTo("AI Assistant Only"));
+			Assert.That(settings.EnabledComponents, Is.EqualTo("turkey-faction"));
+			Assert.That(settings.UseCustomComponents, Is.True);
+		}
+
+		static ExperienceCatalog BuiltInCatalog(ExperienceSettings settings, string utilityProfile = null)
+		{
+			var path = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory,
+				"..", "mods", "ra", "experiences.yaml"));
+			return new ExperienceCatalog(MiniYaml.FromFile(path, false).Single().Value, settings,
+				[], PresentationPackDefinition.Default, utilityProfile);
+		}
+
+		static ExperienceSelection Selection(params ExperienceComponent[] components)
+		{
+			return new ExperienceSelection(components.ToDictionary(c => c.Id));
+		}
+
+		static ExperienceComponent GraphComponent(string id, string dependencies = "", string conflicts = "", string kind = "Module")
+		{
+			return Component($"""
+				Title: {id}
+				Description: Test module.
+				Effects: Test effect.
+				Tradeoffs: Test tradeoff.
+				Scope: Test scope.
+				Category: Test
+				Preview: preview.png
+				Version: 1
+				Kind: {kind}
+				Dependencies: {dependencies}
+				Conflicts: {conflicts}
+				""", id);
+		}
+
 		static ExperienceParameter Parameter(string yaml)
 		{
 			var indented = yaml.Split('\n', StringSplitOptions.RemoveEmptyEntries)

@@ -139,7 +139,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			workingComponents = catalog.ActiveComponentIds;
 			workingParameterValues = catalog.ParseParameterSettings(settings.ParameterValues)
 				.ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.OrdinalIgnoreCase);
-			selectedComponentId = workingComponents.FirstOrDefault();
+			selectedComponentId = workingComponents.FirstOrDefault(id => catalog.Components[id].IsSelectable);
 			presentationPacks = PresentationPackRegistry.Discover(catalog.Mod);
 			workingPresentationPackId = presentationPacks.ContainsKey(settings.PresentationPack) ? settings.PresentationPack : "default";
 
@@ -371,7 +371,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var scrollOffset = componentPanel.CurrentListOffset;
 			componentPanel.RemoveChildren();
 			var matchingComponents = catalog.Components.Values
-				.Where(component => !component.Hidden && ComponentMatchesFilter(component))
+				.Where(component => component.IsSelectable && ComponentMatchesFilter(component))
 				.OrderBy(c => ComponentGroupIndex(ComponentGroup(c)))
 				.ThenBy(c => c.Kind == ExperienceComponentKind.Faction ? 0 : 1)
 				.ThenBy(c => c.Title)
@@ -431,6 +431,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		static string ComponentGroup(ExperienceComponent component)
 		{
+			if (component.Kind == ExperienceComponentKind.Authoring)
+				return "Tools & Compatibility";
+
 			if (component.Kind == ExperienceComponentKind.Faction ||
 				component.Category.Equals("Faction packs", StringComparison.OrdinalIgnoreCase) ||
 				component.Category.StartsWith("Factions", StringComparison.OrdinalIgnoreCase))
@@ -460,7 +463,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 		bool ComponentMatchesFilter(ExperienceComponent component)
 		{
-			if (component.Hidden)
+			if (!component.IsSelectable)
 				return false;
 
 			if (showEnabledComponentsOnly && !workingComponents.Contains(component.Id))
@@ -477,8 +480,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		void RefreshComponentSummary(int? visibleCount = null)
 		{
 			var loadout = workingCustomComponents ? "Custom loadout" : "Preset loadout";
-			var selectableComponents = catalog.Components.Values.Where(component => !component.Hidden).ToArray();
-			var enabled = workingComponents.Count(id => catalog.Components.TryGetValue(id, out var component) && !component.Hidden);
+			var selectableComponents = catalog.Components.Values.Where(component => component.IsSelectable).ToArray();
+			var enabled = workingComponents.Count(id => catalog.Components.TryGetValue(id, out var component) && component.IsSelectable);
 			var visible = visibleCount ?? selectableComponents.Count(ComponentMatchesFilter);
 			var filtered = componentSearch.Text.Trim().Length > 0 || showEnabledComponentsOnly;
 			componentSummary.GetText = () => filtered ?
@@ -609,14 +612,15 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			factionPreview.IsVisible = () => previewLoaded;
 			factionPreviewEmpty.IsVisible = () => !previewLoaded;
 			factionPreviewEmpty.GetText = () => "PREVIEW UNAVAILABLE";
-			componentKind.GetText = () => isFaction ?
-				$"{component.Faction.Side.ToUpperInvariant()} FACTION PACK" : ComponentGroup(component).ToUpperInvariant();
+			componentKind.GetText = () => isFaction ? $"{component.Faction.Side.ToUpperInvariant()} FACTION PACK" :
+				component.Kind == ExperienceComponentKind.Authoring ? "AUTHORING · COMPATIBLE CONTENT REQUIRED" : "GAMEPLAY MODULE";
 
 			var enabled = workingComponents.Contains(component.Id) ? "Enabled" : "Disabled";
 			var dependencies = component.Dependencies.Length == 0 ? "No dependencies" :
 				"Requires " + component.Dependencies.Select(id => catalog.Components[id].Title).JoinWith(", ");
-			var conflicts = component.Conflicts.Length == 0 ? "No conflicts" :
-				"Conflicts with " + component.Conflicts.Select(id => catalog.Components[id].Title).JoinWith(", ");
+			var conflictTitles = catalog.Components.Values.Where(candidate => component.Conflicts.Contains(candidate.Id) ||
+				candidate.Conflicts.Contains(component.Id)).Select(candidate => candidate.Title).ToArray();
+			var conflicts = conflictTitles.Length == 0 ? "No conflicts" : "Conflicts with " + conflictTitles.JoinWith(", ");
 			var fileCounts = new (string Type, int Count)[]
 			{
 				("rule", component.Rules.Length), ("weapon", component.Weapons.Length),

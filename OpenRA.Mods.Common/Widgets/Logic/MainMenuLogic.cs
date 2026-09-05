@@ -169,12 +169,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					var active = experienceCatalog.ActiveComponentIds.Select(id => experienceCatalog.Components[id]).ToArray();
 					var factions = active.Where(component => component.Faction != null).Select(component => component.Title);
 					var title = experienceStatus.Get<LabelWidget>("ACTIVE_EXPERIENCE_TITLE");
-					title.GetText = () => $"Experience: {experienceCatalog.ActiveProfile.Title}";
+					title.GetText = () => $"Experience: {experienceCatalog.ActiveTitle}";
 					var detail = experienceStatus.Get<LabelWidget>("ACTIVE_EXPERIENCE_DETAIL");
 					var text = active.Length == 0 ? (modData.Manifest.Id == "ra2"
 						? "Shared AI included · 9 original RA2 countries.\nEnable modern countries in Change Experience."
 						: "Classic gameplay — optional capabilities are off.")
-						: $"{active.Length} capabilities enabled\n{string.Join(", ", factions)}";
+						: $"{experienceCatalog.ActiveFactionCount} modern factions · {experienceCatalog.ActiveCapabilityCount} gameplay modules\n" +
+							$"Shared AI included · {string.Join(", ", factions)}";
 					detail.GetText = () => WidgetUtils.WrapText(text, detail.Bounds.Width, Game.Renderer.Fonts[detail.Font]);
 					experienceStatus.Get<ButtonWidget>("CHANGE_EXPERIENCE").OnClick = () =>
 					{

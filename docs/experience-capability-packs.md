@@ -64,6 +64,28 @@ from the Command & Conquer games.
 
 ## First-class faction packs
 
+`Kind: Module` (the default) is a concrete gameplay capability. Its card must
+identify the units or map objects changed, how a player uses the feature, and
+its costs or counters. Use `Kind: Authoring` for reusable contracts, metadata or
+mission-only building blocks that need compatible authored content. These stay
+selectable under Tools & Compatibility, but do not inflate the number of active
+gameplay capabilities. `Kind: Internal` is a dependency managed automatically;
+it disappears when the last component requiring it is disabled.
+
+Dependencies are loaded before their dependents. A conflict declared by either
+component applies in both directions, including conflicts within dependency
+closures. Selecting a conflicting module removes the old module and components
+that can no longer satisfy their dependencies. Contradictory presets, cycles,
+missing dependencies and internally conflicting dependency closures are rejected
+before gameplay files load. Saved selections retain unrelated modules and their
+parameter choices.
+
+In World War III, faction selection alone does not add the optional stock
+Artillery/Tesla upgrades. China's carrier pack explicitly includes its real drone
+wing implementation. The default World War III experience still includes the
+full selection; each gameplay card now describes the concrete changes rather
+than presenting an implemented power as a future framework.
+
 Set `Kind: Faction` to make a capability pack appear as a faction card in the
 Experience Builder. A faction pack is still data-only and removable, but it has
 a stricter contract so the engine can present, validate, randomize, and compose

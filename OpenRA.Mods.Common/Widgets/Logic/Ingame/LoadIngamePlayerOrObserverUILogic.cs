@@ -61,8 +61,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
 			if (experience != null && world.LocalPlayer != null)
 			{
-				var factionCount = experience.ActiveComponentIds.Count(id => experience.Components[id].Faction != null);
-				var summary = $"{experience.ActiveProfile.Title}: {factionCount} modern factions and {experience.ActiveComponentIds.Length} capabilities enabled.";
+				var summary = $"{experience.ActiveTitle}: {experience.ActiveFactionCount} modern factions and " +
+					$"{experience.ActiveCapabilityCount} gameplay modules. Shared AI controls included.";
+				if (experience.ActiveAuthoringCount > 0)
+					summary += $" {experience.ActiveAuthoringCount} authoring modules support compatible maps and rosters.";
 				if (Game.ModData.Manifest.Id == "ra2" && experience.ActiveComponentIds.Length == 0)
 				{
 					var countries = world.WorldActor.Info.TraitInfos<FactionInfo>().Count(faction => faction.Selectable && faction.RandomFactionMembers.Count == 0);
