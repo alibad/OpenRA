@@ -4,16 +4,11 @@
 	</PropertyGroup>
 
 	<!--
-		Asset-import code from the upstream ra2 mod is kept in the tree for reference but is
-		not compiled. It only exists to read retail Red Alert 2 containers (.bag audio) and to
-		convert retail RA2 maps, neither of which this project ships or needs: the RA2 mechanics
-		are fused onto the existing ra mod and its own assets. These two files also carry almost
-		all of the API drift against the current engine (72 of 80 initial build errors), so
-		excluding them keeps the gameplay port clean. Re-enable and port them if retail RA2
-		asset import is ever wanted.
+		The shared RA2 library supports both the fused World War III mechanics and the
+		integrated RA2 game. AudioBagLoader reads audio from locally owned RA2 data.
+		The retail map conversion command remains excluded; packaged maps are already converted.
 	-->
 	<ItemGroup>
-		<Compile Remove="FileSystem/BagFile.cs" />
 		<Compile Remove="UtilityCommands/ImportRA2MapCommand.cs" />
 	</ItemGroup>
 

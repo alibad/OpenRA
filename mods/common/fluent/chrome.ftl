@@ -1022,6 +1022,6 @@ label-base-game = Game experience · AI assistant shared across both
 button-base-game-ww3 = World War III
 button-base-game-ra2 = Red Alert 2
 dialog-ra2-content-title = Use your Red Alert 2 game files
-dialog-ra2-content-required = Red Alert 2 needs files from your owned copy. Import from Steam or the existing RA2 Preview? Your files stay on this computer. No purchase or compatibility trial is needed.
+dialog-ra2-content-required = Red Alert 2 needs files from your owned copy. Import from a registered Steam library or an existing RA2 Preview? If it is not installed, install your owned Red Alert 2 through Steam, then retry. Your files stay on this computer.
 button-ra2-import = Import my game files
 dialog-ra2-import-failed = Import could not finish: { $message }

@@ -71,7 +71,7 @@ namespace OpenRA.Launcher
 				return false;
 
 			var mod = args.LastOrDefault(a => a.StartsWith("Game.Mod=", StringComparison.OrdinalIgnoreCase));
-			if (mod != null && !mod["Game.Mod=".Length..].Trim('"').Equals("ra", StringComparison.OrdinalIgnoreCase))
+			if (mod != null && !new[] { "ra", "ra2" }.Contains(mod["Game.Mod=".Length..].Trim('"'), StringComparer.OrdinalIgnoreCase))
 				return false;
 
 			return File.Exists(GetCompanionLauncherPath());

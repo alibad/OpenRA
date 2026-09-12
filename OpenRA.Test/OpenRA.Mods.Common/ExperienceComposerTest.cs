@@ -584,7 +584,9 @@ namespace OpenRA.Test
 			var settings = new ExperienceSettings { UseCustomComponents = true, EnabledComponents = "turkey-faction" };
 			var custom = BuiltInCatalog(settings);
 			Assert.That(custom.ActiveFactionCount, Is.EqualTo(1));
-			Assert.That(custom.ActiveCapabilityCount, Is.Zero);
+			Assert.That(custom.ActiveCapabilityCount, Is.EqualTo(2), "Turkey requires mind control and its targeted-ability dependency.");
+			Assert.That(custom.ActiveComponentIds, Does.Contain("mind-control-and-disguise"));
+			Assert.That(custom.ActiveComponentIds, Does.Contain("targeted-unit-abilities"));
 			Assert.That(custom.ActiveAuthoringCount, Is.GreaterThan(0));
 			Assert.That(custom.ActiveTitle, Is.EqualTo("Custom experience"));
 			Assert.That(custom.ActiveRules, Does.Not.Contain("ra|experiences/components/advanced-projectile-library.yaml"));

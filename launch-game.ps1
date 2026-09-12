@@ -2,6 +2,7 @@
 param(
 	[switch]$NoCompanion,
 	[switch]$NoSpeech,
+	[switch]$NoVoiceHotkeys,
 	[string]$CompanionRoot,
 	[int]$BridgePort = 9998,
 	[int]$AIConsolePort = 8787,
@@ -134,22 +135,42 @@ foreach ($argument in $GameArguments) {
 }
 
 $mod = Get-ArgumentValue "Game.Mod" $arguments
+$supportRoot = Get-ArgumentValue "Engine.SupportDir" $arguments
+if ([string]::IsNullOrWhiteSpace($supportRoot)) {
+	$supportRoot = if ((Test-Path -LiteralPath (Join-Path $engineRoot "OpenRA.slnx")) -or (Test-Path -LiteralPath (Join-Path $engineRoot "Support"))) {
+		Join-Path $engineRoot "Support"
+	} else { Join-Path $env:APPDATA "OpenRA" }
+}
 if ([string]::IsNullOrWhiteSpace($mod)) {
 	$mod = "ra"
+	$selection = Join-Path $supportRoot "openra-ai-game.txt"
+	if (Test-Path -LiteralPath $selection) {
+		$saved = (Get-Content -LiteralPath $selection -Raw).Trim()
+		if ($saved -in @("ra", "ra2")) { $mod = $saved }
+	}
 }
-if ($mod -notin @("ra", "cnc", "d2k", "ts")) {
+if ($mod -notin @("ra", "ra2", "cnc", "d2k", "ts")) {
 	throw "Unknown mod: $mod"
 }
 
 Add-DefaultArgument $arguments "Game.Mod" $mod
 Add-DefaultArgument $arguments "Engine.LaunchPath" $launchPath
 Add-DefaultArgument $arguments "Engine.EngineDir" $engineRoot
+Add-DefaultArgument $arguments "Engine.SupportDir" $supportRoot
+Add-DefaultArgument $arguments "Game.Platform" "Default"
 
-$companionRequested = $mod.Equals("ra", [StringComparison]::OrdinalIgnoreCase) -and -not $NoCompanion
+$companionRequested = $mod -in @("ra", "ra2") -and -not $NoCompanion
 $runtime = $null
 $ports = $null
 if ($companionRequested) {
 	$runtime = Resolve-CompanionRuntime $CompanionRoot
+	if ($null -eq $runtime -and -not $ValidateOnly) {
+		$sourceSetup = Join-Path (Split-Path -Parent $engineRoot) "OpenRA-AI\scripts\setup.ps1"
+		if (Test-Path -LiteralPath $sourceSetup) {
+			& $sourceSetup -SkipEngine -SkipWeb
+			$runtime = Resolve-CompanionRuntime $CompanionRoot
+		}
+	}
 	if ($null -eq $runtime) {
 		throw "The OpenRA AI companion runtime was not found. Run ..\OpenRA-AI\scripts\setup.ps1 -SkipEngine, set OPENRA_AI_ROOT, or pass -NoCompanion to intentionally launch without it."
 	}
@@ -159,6 +180,18 @@ if ($companionRequested) {
 		Bridge = Get-AvailableLocalPort $BridgePort $reservedPorts
 		Console = Get-AvailableLocalPort $AIConsolePort $reservedPorts
 		WorldStudio = Get-AvailableLocalPort $WorldStudioPort $reservedPorts
+	}
+}
+
+# Source builds prepare a cached data-only RA2 overlay. Packaged builds ship it.
+if ($null -ne $runtime -and -not $ValidateOnly -and -not (Test-Path (Join-Path $engineRoot "mods\ra2\mod.yaml"))) {
+	$prepare = Join-Path $runtime.Root "scripts\prepare-local-ra2.py"
+	if (Test-Path -LiteralPath $prepare) {
+		$env:PYTHONUTF8 = "1"
+		$prepared = & (Join-Path $runtime.Root ".venv\Scripts\python.exe") $prepare --engine $engineRoot
+		if ($LASTEXITCODE -ne 0) { throw "RA2 preparation failed; the game was not launched." }
+		$ra2Search = ($prepared | Select-Object -Last 1).Trim()
+		Add-DefaultArgument $arguments "Engine.ModSearchPaths" "$engineRoot\mods,$ra2Search"
 	}
 }
 
@@ -175,20 +208,16 @@ if ($ValidateOnly) {
 	exit 0
 }
 
-$logDirectory = Join-Path $engineRoot "Support\Logs"
+$logDirectory = Join-Path $supportRoot "Logs"
 New-Item -ItemType Directory -Path $logDirectory -Force | Out-Null
 $gameProcess = $null
 $watcher = $null
 
 try {
+	# Explicitly prevent recursive bootstrap, including intentional no-companion runs.
+	$env:OPENRA_AI_DISABLE_AUTOSTART = "1"
 	if ($companionRequested) {
 		$version = (Get-Content -LiteralPath (Join-Path $engineRoot "VERSION") -Raw).Trim()
-		$supportRoot = if (Test-Path -LiteralPath (Join-Path $engineRoot "Support")) {
-			Join-Path $engineRoot "Support"
-		}
-		else {
-			Join-Path $env:APPDATA "OpenRA"
-		}
 		$missionOutput = Join-Path $supportRoot "GeneratedMissions"
 		$missionInstall = Join-Path $supportRoot "maps\ra\$version"
 		New-Item -ItemType Directory -Path $missionOutput -Force | Out-Null
@@ -201,6 +230,42 @@ try {
 		$env:OPENRA_AI_CONSOLE_URL = "http://127.0.0.1:$($ports.Console)/"
 		$env:OPENRA_AI_WORLD_STUDIO_URL = "http://127.0.0.1:$($ports.WorldStudio)/"
 		$env:OPENRA_AI_ENGINE_DIR = $engineRoot
+		$env:OPENRA_AI_SUPPORT_DIR = $supportRoot
+		$packLock = Join-Path $runtime.Root "packaging\ai-pack.lock.json"
+		$modelRoot = $runtime.Root
+		$localRuntime = Join-Path $runtime.Root "bin\openra-ai-runtime.exe"
+		$setupModels = Join-Path $runtime.Root "scripts\setup-local-ai.py"
+		$provider = $env:OPENRA_AI_MODEL_PROVIDER
+		if (-not $provider) {
+			$settingsPath = Join-Path $env:APPDATA "OpenRA-AI\settings.json"
+			if (Test-Path $settingsPath) { $provider = (Get-Content $settingsPath -Raw | ConvertFrom-Json).model_provider }
+		}
+		if (-not $provider) { $provider = "local" }
+		if ($provider -eq "local" -and (Test-Path $setupModels) -and -not (Test-Path (Join-Path $modelRoot "ai\pack.json"))) {
+			& (Join-Path $runtime.Root ".venv\Scripts\python.exe") $setupModels
+			if ($LASTEXITCODE -ne 0) { throw "Local AI setup failed; see the download/checksum error above." }
+		}
+		if ((Test-Path $packLock) -and (Test-Path (Join-Path $modelRoot "ai\runtime"))) {
+			if (-not (Test-Path $localRuntime)) {
+				$localRuntime = Join-Path $runtime.Root ".venv\Scripts\python.exe"
+				$env:OPENRA_AI_RUNTIME_PYTHON = "1"
+			}
+			$env:OPENRA_AI_PACK_LOCK = $packLock
+			$env:OPENRA_AI_MODEL_ROOT = $modelRoot
+			$env:OPENRA_AI_RUNTIME_EXECUTABLE = $localRuntime
+			$env:OPENRA_AI_BUNDLED_RUNTIME = Join-Path $modelRoot "ai\runtime"
+			$gatewayPort = Get-AvailableLocalPort 4010 $reservedPorts
+			$env:OPENRA_AI_LOCAL_CHAT_PORT = [string](Get-AvailableLocalPort 4011 $reservedPorts)
+			$env:OPENRA_AI_LOCAL_TRANSCRIBE_PORT = [string](Get-AvailableLocalPort 4012 $reservedPorts)
+			$env:OPENRA_AI_LOCAL_ROUTER_URL = "http://127.0.0.1:$gatewayPort"
+			if ($provider -eq "local") {
+				$env:OPENRA_AI_ROUTER_URL = $env:OPENRA_AI_LOCAL_ROUTER_URL
+				$env:OPENRA_AI_AGENT_ROUTER_URL = $env:OPENRA_AI_LOCAL_ROUTER_URL
+			}
+		}
+		if ($NoSpeech) { $env:OPENRA_AI_VOICE_ENABLED = "0" }
+		$contentInstaller = Join-Path $runtime.Root "apps\launcher\Install-OpenRAContent.ps1"
+		if (Test-Path -LiteralPath $contentInstaller) { & $contentInstaller -SupportRoot $supportRoot }
 		if ([string]::IsNullOrWhiteSpace($env:OPENRA_AI_APP_LANGUAGE)) {
 			$env:OPENRA_AI_APP_LANGUAGE = "en"
 		}
@@ -220,10 +285,9 @@ try {
 
 		Write-Host "AI companion: enabled from $($runtime.Root)" -ForegroundColor Cyan
 		Write-Host "AI controls: hold Ctrl+Space to ask; Ctrl+Shift+A toggles AUTO; Ctrl+Shift+M toggles voice." -ForegroundColor Cyan
+		& $runtime.Program @($runtime.PrefixArguments) content-check
+		if ($LASTEXITCODE -ne 0) { throw "Content discovery failed." }
 	}
-
-	$gameProcess = Start-Process -FilePath $game -ArgumentList $arguments.ToArray() `
-		-WorkingDirectory $engineRoot -PassThru
 
 	if ($companionRequested) {
 		$watchArguments = [Collections.Generic.List[string]]::new()
@@ -233,8 +297,8 @@ try {
 		$watchArguments.Add("watch")
 		$watchArguments.Add("--bridge")
 		$watchArguments.Add("127.0.0.1:$($ports.Bridge)")
-		$watchArguments.Add("--game-pid")
-		$watchArguments.Add([string]$gameProcess.Id)
+		$watchArguments.Add("--parent-pid")
+		$watchArguments.Add([string]$PID)
 		$watchArguments.Add("--control-port")
 		$watchArguments.Add([string]$ports.Console)
 		$watchArguments.Add("--worldgen-port")
@@ -248,20 +312,34 @@ try {
 		}
 		else {
 			$watchArguments.Add("--speak")
-			$watchArguments.Add("--voice-hotkeys")
+			if (-not $NoVoiceHotkeys) { $watchArguments.Add("--voice-hotkeys") }
 		}
 
-		$watcher = Start-Process -FilePath $runtime.Program -ArgumentList $watchArguments.ToArray() `
+		$quotedWatchArguments = $watchArguments | ForEach-Object { '"' + $_.Replace('"', '\"') + '"' }
+		$watcher = Start-Process -FilePath $runtime.Program -ArgumentList $quotedWatchArguments `
 			-WorkingDirectory $runtime.Root -WindowStyle Hidden -PassThru `
 			-RedirectStandardOutput (Join-Path $logDirectory "ai-companion.out.log") `
 			-RedirectStandardError (Join-Path $logDirectory "ai-companion.err.log")
 
-		Start-Sleep -Milliseconds 750
-		if ($watcher.HasExited) {
-			$watchError = Get-Content -LiteralPath (Join-Path $logDirectory "ai-companion.err.log") -Raw -ErrorAction SilentlyContinue
-			throw "The AI companion watcher exited during startup. $watchError"
+		$ready = $false
+		for ($attempt = 0; $attempt -lt 60; $attempt++) {
+			if ($watcher.HasExited) { break }
+			try {
+				$health = Invoke-RestMethod -Uri "$($env:OPENRA_AI_CONSOLE_URL)health" -TimeoutSec 1
+				if ($health.control_ready) { $ready = $true; break }
+			} catch { }
+			Start-Sleep -Milliseconds 250
 		}
+		if (-not $ready) {
+			$watchError = Get-Content -LiteralPath (Join-Path $logDirectory "ai-companion.err.log") -Raw -ErrorAction SilentlyContinue
+			throw "The AI companion did not become ready. $watchError"
+		}
+		$env:OPENRA_AI_COMPANION_READY = "1"
+		$env:OPENRA_AI_STARTUP_AUTO_ACT = if ($health.auto_act_enabled) { "1" } else { "0" }
 	}
+	$quotedGameArguments = $arguments | ForEach-Object { '"' + $_.Replace('"', '\"') + '"' }
+	$gameProcess = Start-Process -FilePath $game -ArgumentList $quotedGameArguments `
+		-WorkingDirectory $engineRoot -PassThru
 
 	$gameProcess.WaitForExit()
 	exit $gameProcess.ExitCode
