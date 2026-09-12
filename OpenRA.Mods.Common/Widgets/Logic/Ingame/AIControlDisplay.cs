@@ -9,15 +9,19 @@
  */
 #endregion
 
-namespace OpenRA.Mods.Common.Experience
+namespace OpenRA.Mods.Common.Widgets.Logic
 {
-	[SettingsModule.YamlNode("Experience", shared: false)]
-	public sealed class ExperienceSettings : SettingsModule
+	public static class AIControlDisplay
 	{
-		public string Profile = "world-war-iii";
-		public bool UseCustomComponents = false;
-		public string EnabledComponents = "";
-		public string ParameterValues = "";
-		public string PresentationPack = "default";
+		public static string AutoButtonText(bool requestPending, bool companionAvailable, bool autoActEnabled)
+		{
+			if (!companionAvailable)
+				return "AUTO: STARTING…";
+
+			if (requestPending)
+				return "AUTO: …";
+
+			return autoActEnabled ? "AUTO: ON" : "AUTO: OFF";
+		}
 	}
 }

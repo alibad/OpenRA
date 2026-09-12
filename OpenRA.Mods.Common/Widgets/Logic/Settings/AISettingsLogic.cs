@@ -17,9 +17,34 @@ using OpenRA.Widgets;
 
 namespace OpenRA.Mods.Common.Widgets.Logic
 {
+	public static class AISettingsDisplay
+	{
+		public static string DownloadButton(long bytes) => $"INSTALL {bytes / 1_000_000_000d:0.0} GB PACK";
+
+		public static string AskShortcut(string binding)
+		{
+			return $"HOLD {binding.ToUpperInvariant()} TO TALK";
+		}
+
+		public static string DiagnosticFailure(bool localSelected, bool localReady)
+		{
+			return localSelected && !localReady
+				? "Local AI is not installed yet. Open Models and select Install Local AI."
+				: "The selected AI service is unavailable. Check Models, then retry the diagnostic.";
+		}
+	}
+
 	public class AISettingsLogic : ChromeLogic
 	{
 		const string DefaultAILayerUrl = "http://127.0.0.1:4000";
+
+		static readonly Dictionary<string, string> SelectionLabels = new()
+		{
+			{ "auto", "Automatic — recommended" },
+			{ "lightweight", "Lightweight — protect game performance" },
+			{ "recommended", "Balanced — includes map images" },
+			{ "manual", "Manual — advanced settings" }
+		};
 
 		static readonly Dictionary<string, string> PaceLabels = new()
 		{
@@ -50,7 +75,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			{ "openai", "OpenAI" },
 			{ "anthropic", "Anthropic / Claude" },
 			{ "gemini", "Google / Gemini" },
-			{ "local", "Local models" },
+			{ "local", "On-device AI" },
 			{ "custom", "Custom endpoint" }
 		};
 
@@ -82,8 +107,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			new() { Id = "claude-haiku", Label = "Claude Haiku", Provider = "anthropic", Mode = "chat" },
 			new() { Id = "gemini-pro", Label = "Gemini Pro", Provider = "gemini", Mode = "chat" },
 			new() { Id = "gemini-flash", Label = "Gemini Flash", Provider = "gemini", Mode = "chat" },
-			new() { Id = "local-small", Label = "Local Small", Provider = "local", Mode = "chat" },
-			new() { Id = "local-coder", Label = "Local Coder", Provider = "local", Mode = "chat" },
+			new() { Id = "local-coder", Label = "On-device assistant", Provider = "local", Mode = "chat" },
 			new() { Id = "openai-transcribe", Label = "OpenAI Transcription", Provider = "openai", Mode = "audio_transcription" },
 			new() { Id = "local-whisper", Label = "Local Whisper", Provider = "local", Mode = "audio_transcription" },
 			new() { Id = "openai-tts", Label = "OpenAI Voice", Provider = "openai", Mode = "audio_speech" },
@@ -91,17 +115,29 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		];
 
 		bool companionEnabled = true;
+		bool advancedModels;
+		string modelSelection = "auto";
+		string selectionSummary = "Automatic selects a tested profile for this computer and reserves resources for the game.";
+		string selectedModelDetail = "";
+		string readinessSummary = "Assistant, voice input, and spoken replies: checking…";
+		long downloadBytes = 1821003048;
 		bool voiceEnabled = true;
 		bool busy;
-		bool catalogueAvailable = true;
+		bool localInstallBusy;
+		bool catalogueAvailable;
+		bool localSetupSupported;
+		bool localSetupInstalled;
+		string localSetupState = "not_installed";
+		string localSetupDetail = "Checking Local AI Pack…";
+		int localSetupProgress;
 		string provider = "local";
 		string pace = "calm";
 		string voicePriority = "critical";
 		string nativeStrategy = "adaptive";
-		string textModel = "local-small";
-		string visionModel = "gemini-flash";
-		string transcribeModel = "openai-transcribe";
-		string speechModel = "openai-tts";
+		string textModel = "local-coder";
+		string visionModel = "local-coder";
+		string transcribeModel = "local-whisper";
+		string speechModel = "local-kokoro";
 		string speechVoice = "alloy";
 		string selectedTab = "assistant";
 		string aiLayerUrl = DefaultAILayerUrl;
@@ -117,10 +153,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		LabelWidget statusLabel;
 		LabelWidget providerStatusLabel;
 		LabelWidget costAssumptionsLabel;
+		LabelWidget localSetupStatusLabel;
+		readonly ModData modData;
 
 		[ObjectCreator.UseCtor]
-		public AISettingsLogic(SettingsLogic settingsLogic, string panelID, string label)
+		public AISettingsLogic(ModData modData, SettingsLogic settingsLogic, string panelID, string label)
 		{
+			this.modData = modData;
 			settingsLogic.RegisterSettingsPanel(panelID, label, InitPanel, ResetPanel);
 		}
 
@@ -138,10 +177,35 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				"STRATEGY_BRAIN_ROW", "SHORTCUTS_HINT_ROW"
 			})
 				panel.Get(id).IsVisible = () => selectedTab == "assistant";
-			foreach (var id in new[] { "VOICE_SECTION_HEADER", "VOICE_ENABLED_ROW", "VOICE_PRIORITY_ROW", "VOICE_ROUTES_ROW" })
+			foreach (var id in new[] { "VOICE_SECTION_HEADER", "VOICE_SHORTCUT_ROW", "VOICE_ENABLED_ROW", "VOICE_PRIORITY_ROW", "VOICE_ROUTES_ROW" })
 				panel.Get(id).IsVisible = () => selectedTab == "voice";
-			foreach (var id in new[] { "MODEL_SECTION_HEADER", "MODEL_PICKER_ROW" })
+			foreach (var id in new[] { "MODEL_SECTION_HEADER", "LOCAL_SETUP_ROW", "MODEL_PICKER_ROW" })
 				panel.Get(id).IsVisible = () => selectedTab == "models";
+			panel.Get("LOCAL_SETUP_ROW").IsVisible = () => selectedTab == "models" && provider == "local";
+			panel.Get("AUTO_PROFILE_ROW").IsVisible = () => selectedTab == "models" && provider == "local";
+			panel.Get("MODEL_READINESS_ROW").IsVisible = () => selectedTab is "models" or "voice";
+			panel.Get("ADVANCED_MODELS_ROW").IsVisible = () => selectedTab == "models";
+			panel.Get("MODEL_PICKER_ROW").IsVisible = () => selectedTab == "models" && advancedModels;
+			BindDropdown(panel.Get<DropDownButtonWidget>("MODEL_SELECTION"), () => SelectionLabels,
+				() => modelSelection, value =>
+				{
+					modelSelection = value;
+					SetStatus("Select Apply Now, then relaunch to use the new profile. The current download/profile is unchanged.");
+				});
+			panel.Get<LabelWidget>("MODEL_SELECTION_SUMMARY").GetText = () => selectionSummary + (advancedModels ? $"\n{selectedModelDetail}" : "");
+			panel.Get<LabelWidget>("MODEL_READINESS").GetText = () => readinessSummary;
+			var advanced = panel.Get<ButtonWidget>("ADVANCED_MODELS");
+			advanced.GetText = () => advancedModels ? "HIDE ADVANCED MODEL SETTINGS" : "ADVANCED: MODELS AND PROVIDERS";
+			advanced.OnClick = () =>
+			{
+				advancedModels = !advancedModels;
+				SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
+			};
+			panel.Get("LM_STUDIO_ROW").IsVisible = () => selectedTab == "models" && advancedModels;
+			var discover = panel.Get<ButtonWidget>("DISCOVER_LM_STUDIO");
+			discover.GetText = () => "DETECT LOCAL LM STUDIO";
+			discover.IsDisabled = () => busy;
+			discover.OnClick = () => _ = DiscoverLMStudioAsync();
 			foreach (var id in new[] { "COST_SECTION_HEADER", "COST_ROW" })
 				panel.Get(id).IsVisible = () => selectedTab == "usage";
 
@@ -169,14 +233,26 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				() => ModelLabels("audio_speech", null, speechModel), () => speechModel, value => speechModel = value);
 			BindDropdown(panel.Get<DropDownButtonWidget>("SPEECH_VOICE"), () => voiceLabels,
 				() => speechVoice, value => speechVoice = value);
-			panel.Get("TEXT_MODEL_CONTAINER").IsVisible = () => selectedTab == "models" && provider != "custom";
-			panel.Get("VISION_PICKER_ROW").IsVisible = () => selectedTab == "models" && provider != "custom";
+			panel.Get("TEXT_MODEL_CONTAINER").IsVisible = () => selectedTab == "models" && advancedModels && provider != "custom";
+			panel.Get("VISION_PICKER_ROW").IsVisible = () => selectedTab == "models" && advancedModels && provider != "custom";
+			panel.Get("VOICE_ROUTES_ROW").IsVisible = () => selectedTab == "voice" && (advancedModels || provider != "local");
 
 			customEndpoint = panel.Get<TextFieldWidget>("CUSTOM_ENDPOINT");
 			customTextModel = panel.Get<TextFieldWidget>("CUSTOM_TEXT_MODEL");
 			customVisionModel = panel.Get<TextFieldWidget>("CUSTOM_VISION_MODEL");
-			panel.Get("CUSTOM_ENDPOINT_ROW").IsVisible = () => selectedTab == "models" && provider == "custom";
-			panel.Get("CUSTOM_MODELS_ROW").IsVisible = () => selectedTab == "models" && provider == "custom";
+			panel.Get("CUSTOM_ENDPOINT_ROW").IsVisible = () => selectedTab == "models" && advancedModels && provider == "custom";
+			panel.Get("CUSTOM_MODELS_ROW").IsVisible = () => selectedTab == "models" && advancedModels && provider == "custom";
+			panel.Get<LabelWidget>("ASK_SHORTCUT").GetText = () => AISettingsDisplay.AskShortcut(Binding("AIAsk"));
+			panel.Get<LabelWidget>("ASK_SHORTCUT_HINT").GetText = () =>
+				"Release to send. Remap under Settings > Hotkeys > AI Assistant.";
+			panel.Get<LabelWidget>("SHORTCUTS_HINT").GetText = () =>
+				$"Ask: {Binding("AIAsk")}  |  AUTO: {Binding("AIToggleAuto")}  |  Voice: {Binding("AIToggleVoice")}  |  Remap under Hotkeys > AI Assistant.";
+			localSetupStatusLabel = panel.Get<LabelWidget>("LOCAL_SETUP_STATUS");
+			localSetupStatusLabel.GetText = LocalSetupStatus;
+			var installLocal = panel.Get<ButtonWidget>("INSTALL_LOCAL_AI");
+			installLocal.GetText = LocalSetupButtonText;
+			installLocal.IsDisabled = () => busy || localInstallBusy || !localSetupSupported || localSetupState == "running";
+			installLocal.OnClick = () => _ = InstallLocalAIAsync();
 
 			providerStatusLabel = panel.Get<LabelWidget>("PROVIDER_STATUS");
 			providerStatusLabel.GetText = ProviderStatus;
@@ -191,7 +267,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			apply.IsDisabled = () => busy;
 			apply.OnClick = () => _ = ApplyAsync();
 			var test = panel.Get<ButtonWidget>("TEST");
-			test.IsDisabled = () => busy;
+			test.IsDisabled = () => busy || (provider == "local" && localSetupState != "running");
 			test.OnClick = () => _ = TestAsync();
 			var refresh = panel.Get<ButtonWidget>("REFRESH_USAGE");
 			refresh.IsDisabled = () => busy;
@@ -216,10 +292,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				pace = "calm";
 				voicePriority = "critical";
 				nativeStrategy = "adaptive";
-				textModel = "local-small";
-				visionModel = "gemini-flash";
-				transcribeModel = "openai-transcribe";
-				speechModel = "openai-tts";
+				modelSelection = "auto";
+				advancedModels = false;
+				textModel = "local-coder";
+				visionModel = "local-coder";
+				transcribeModel = "local-whisper";
+				speechModel = "local-kokoro";
 				speechVoice = "alloy";
 				aiLayerUrl = DefaultAILayerUrl;
 				customEndpoint.Text = DefaultAILayerUrl;
@@ -303,11 +381,13 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			if (provider == "custom")
 				message = "Custom OpenAI-compatible endpoint. You control the URL and model IDs.";
 			else if (provider == "local")
-				message = "Local models are registered with the AI layer. No manual URL is needed.";
+				message = localSetupState == "running"
+					? "Local models are installed and ready. Voice and answers stay on this computer."
+					: localSetupDetail;
 			else
 				message = "Credentials and routing are managed by the AI layer. No endpoint URL is needed.";
-			if (!catalogueAvailable)
-				message = "AI layer catalogue is offline. Showing safe fallback choices.";
+			if (!catalogueAvailable && provider != "local")
+				message = "The selected AI service is offline. Configure a reachable endpoint before testing.";
 			return WidgetUtils.TruncateText(message, providerStatusLabel.Bounds.Width,
 				Game.Renderer.Fonts[providerStatusLabel.Font]);
 		}
@@ -333,7 +413,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				{
 					if (hasCatalogue)
 						ApplyCatalogue(catalogue);
-					ApplyState(state, "AI layer connected. Models and usage are current.");
+					ApplyState(state, localSetupState == "running"
+						? "AI and voice models are ready."
+						: "Companion ready. Open Models to finish Local AI setup.");
 				});
 			}
 			catch (Exception e)
@@ -351,11 +433,41 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_CONSOLE_URL", "http://127.0.0.1:8787/");
 				using var document = await OpenRAAILocalClient.PostAsync(baseUri, "v1/state", BuildPayload());
 				var snapshot = document.RootElement.Clone();
-				Game.RunAfterTick(() => ApplyState(snapshot, "AI settings saved. Changes apply immediately."));
+				Game.RunAfterTick(() => ApplyState(snapshot, "Settings saved. Local AI profile changes take effect next launch."));
 			}
 			catch (Exception e)
 			{
 				Game.RunAfterTick(() => SetIdle($"Could not save AI settings: {e.Message}"));
+			}
+		}
+
+		async System.Threading.Tasks.Task DiscoverLMStudioAsync()
+		{
+			SetBusy("Checking your local LM Studio server…");
+			try
+			{
+				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_CONSOLE_URL", "http://127.0.0.1:8787/");
+				using var document = await OpenRAAILocalClient.GetAsync(baseUri, "v1/lm-studio");
+				var root = document.RootElement.Clone();
+				Game.RunAfterTick(() =>
+				{
+					if (!root.TryGetProperty("suggested", out var model) || model.ValueKind == JsonValueKind.Null)
+					{
+						SetIdle("No tool-capable LM Studio model fits the game memory budget. Your current AI is unchanged.");
+						return;
+					}
+					provider = "custom";
+					modelSelection = "manual";
+					customEndpoint.Text = root.GetProperty("endpoint").GetString();
+					customTextModel.Text = model.GetProperty("id").GetString();
+					customVisionModel.Text = model.GetProperty("supports_vision").GetBoolean() ? customTextModel.Text : "local-no-vision";
+					SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
+					SetIdle($"Detected {model.GetProperty("label").GetString()}. Select Apply Now to use it; this does not download models.");
+				});
+			}
+			catch (Exception)
+			{
+				Game.RunAfterTick(() => SetIdle("Start LM Studio's local server on port 1234, then retry. Token-protected discovery is not supported yet."));
 			}
 		}
 
@@ -378,9 +490,54 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					_ = RefreshUsageAsync();
 				});
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
-				Game.RunAfterTick(() => SetIdle($"Diagnostic failed: {e.Message}"));
+				Game.RunAfterTick(() => SetIdle(AISettingsDisplay.DiagnosticFailure(
+					provider == "local", localSetupState == "running")));
+			}
+		}
+
+		async System.Threading.Tasks.Task InstallLocalAIAsync()
+		{
+			localInstallBusy = true;
+			SetStatus("Starting the verified Local AI Pack download…");
+			try
+			{
+				var baseUri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_CONSOLE_URL", "http://127.0.0.1:8787/");
+				var route = localSetupState == "error" ? "v1/local-ai/retry" : "v1/local-ai/install";
+				using (var response = await OpenRAAILocalClient.PostAsync(baseUri, route, new { }))
+				{
+					var initial = response.RootElement.Clone();
+					Game.RunAfterTick(() => ApplyLocalSetup(initial));
+				}
+
+				for (var attempt = 0; attempt < 3600; attempt++)
+				{
+					await System.Threading.Tasks.Task.Delay(1000);
+					using var response = await OpenRAAILocalClient.GetAsync(baseUri, "v1/local-ai");
+					var snapshot = response.RootElement.Clone();
+					var state = snapshot.GetProperty("state").GetString() ?? "error";
+					Game.RunAfterTick(() => ApplyLocalSetup(snapshot));
+					if (state is not ("installing" or "starting" or "ready"))
+					{
+						if (state == "running")
+							_ = LoadAsync();
+						break;
+					}
+				}
+			}
+			catch (Exception)
+			{
+				Game.RunAfterTick(() =>
+				{
+					localSetupState = "error";
+					localSetupDetail = "Local AI setup could not continue. Select Retry to resume safely.";
+					SetStatus(localSetupDetail);
+				});
+			}
+			finally
+			{
+				Game.RunAfterTick(() => localInstallBusy = false);
 			}
 		}
 
@@ -395,6 +552,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				{ "voice_priority", voicePriority },
 				{ "native_strategy", nativeStrategy },
 				{ "model_provider", provider },
+				{ "model_selection", modelSelection },
 				{ "router_url", custom ? customEndpoint.Text.Trim() : aiLayerUrl },
 				{ "text_model", custom ? customTextModel.Text.Trim() : textModel },
 				{ "vision_model", custom ? customVisionModel.Text.Trim() : visionModel },
@@ -419,6 +577,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		void ApplyCatalogue(JsonElement root)
 		{
 			catalogueAvailable = root.TryGetProperty("router_available", out var available) && available.GetBoolean();
+			if (root.TryGetProperty("local_setup", out var localSetup))
+				ApplyLocalSetup(localSetup);
 			providerLabels.Clear();
 			foreach (var value in root.GetProperty("providers").EnumerateArray())
 				providerLabels[value.GetProperty("id").GetString()] = value.GetProperty("label").GetString();
@@ -441,6 +601,72 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
 		}
 
+		void ApplyLocalSetup(JsonElement root)
+		{
+			localSetupSupported = root.TryGetProperty("supported", out var supported) && supported.GetBoolean();
+			localSetupInstalled = root.TryGetProperty("installed", out var installed) && installed.GetBoolean();
+			localSetupState = root.TryGetProperty("state", out var state)
+				? state.GetString() ?? "not_installed"
+				: "not_installed";
+			localSetupDetail = root.TryGetProperty("detail", out var detail)
+				? detail.GetString() ?? "Local AI setup status unavailable."
+				: "Local AI setup status unavailable.";
+			localSetupProgress = root.TryGetProperty("progress_percent", out var progress) ? progress.GetInt32() : 0;
+			if (root.TryGetProperty("total_bytes", out var bytes))
+				downloadBytes = bytes.GetInt64();
+			if (root.TryGetProperty("selection", out var selection))
+			{
+				var label = selection.GetProperty("label").GetString();
+				var model = selection.GetProperty("model").GetString();
+				var images = selection.GetProperty("vision").GetBoolean() ? "Map images enabled." : "Uses game state; map images disabled.";
+				selectionSummary = $"{label}\n{images}";
+				selectedModelDetail = $"Model: {model}";
+			}
+			var ready = localSetupState switch
+			{
+				"running" => "Model ready",
+				"not_installed" => "Install required",
+				"installing" => "Downloading",
+				"starting" => "Loading",
+				"error" => "Retry required",
+				_ => "Unavailable"
+			};
+			var assistantState = provider == "local" ? ready : "External provider";
+			var speechState = localSetupState == "running" ? "Loads on demand" : ready;
+			readinessSummary = $"Assistant: {assistantState}  |  Voice input: {ready}  |  Spoken replies: {speechState}\nVoice input: Whisper (English). Included in the same pack download.";
+			if (localSetupState is "installing" or "starting")
+				SetStatus(LocalSetupStatus());
+			SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
+		}
+
+		string LocalSetupStatus()
+		{
+			var message = localSetupState == "installing"
+				? $"Downloading and verifying Local AI Pack… {localSetupProgress}%"
+				: localSetupDetail;
+			return WidgetUtils.WrapText(message, localSetupStatusLabel.Bounds.Width,
+				Game.Renderer.Fonts[localSetupStatusLabel.Font]);
+		}
+
+		string LocalSetupButtonText()
+		{
+			return localSetupState switch
+			{
+				"installing" => $"INSTALLING… {localSetupProgress}%",
+				"starting" => "LOADING MODELS…",
+				"running" => "LOCAL AI READY",
+				"error" => "RETRY LOCAL AI",
+				_ when localSetupInstalled => "START LOCAL AI",
+				_ => AISettingsDisplay.DownloadButton(downloadBytes)
+			};
+		}
+
+		string Binding(string name)
+		{
+			var key = modData.Hotkeys[name].GetValue();
+			return key.IsValid() ? key.DisplayString() : "Unbound";
+		}
+
 		void ApplyState(JsonElement root, string message)
 		{
 			var config = root.GetProperty("config");
@@ -451,7 +677,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			nativeStrategy = config.TryGetProperty("native_strategy", out var configuredStrategy)
 				? configuredStrategy.GetString() ?? "adaptive"
 				: "adaptive";
-			textModel = config.GetProperty("text_model").GetString() ?? "local-small";
+			modelSelection = config.TryGetProperty("model_selection", out var configuredSelection)
+				? configuredSelection.GetString() ?? "auto" : "auto";
+			textModel = config.GetProperty("text_model").GetString() ?? "local-coder";
 			visionModel = config.GetProperty("vision_model").GetString() ?? textModel;
 			transcribeModel = config.GetProperty("transcribe_model").GetString() ?? "openai-transcribe";
 			speechModel = config.GetProperty("speech_model").GetString() ?? "openai-tts";
@@ -467,6 +695,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			customTextModel.Text = textModel;
 			customVisionModel.Text = visionModel;
 			ApplyUsage(root.GetProperty("usage"));
+			if (root.TryGetProperty("local_ai", out var setup))
+				ApplyLocalSetup(setup);
 			SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
 			SetIdle(message);
 		}

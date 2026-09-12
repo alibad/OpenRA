@@ -218,6 +218,36 @@ namespace OpenRA.Mods.Common.UtilityCommands
 			throw new InvalidDataException($"Native map generation failed after {config.Attempts} attempts", lastError);
 		}
 
+		// MapGeneratorBase expects a value for every option, including the hidden
+		// defaults and tileset overrides that the editor UI normally supplies.
+		static Dictionary<string, string> CompileOptions(
+			IEditorMapGeneratorInfo generator,
+			ITerrainInfo terrainInfo,
+			Dictionary<string, string> configuredOptions)
+		{
+			var optionValues = new Dictionary<string, string>(configuredOptions, StringComparer.OrdinalIgnoreCase);
+			var playerCount = optionValues.TryGetValue("Players", out var players)
+				? FieldLoader.GetValue<int>("Players", players)
+				: 0;
+
+			foreach (var option in generator.Options)
+			{
+				if (optionValues.ContainsKey(option.Id))
+					continue;
+
+				optionValues[option.Id] = option switch
+				{
+					MapGeneratorBooleanOption booleanOption => FieldSaver.FormatValue(booleanOption.Default),
+					MapGeneratorIntegerOption integerOption => FieldSaver.FormatValue(integerOption.Default),
+					MapGeneratorMultiIntegerChoiceOption integerChoiceOption => FieldSaver.FormatValue(integerChoiceOption.Default),
+					MapGeneratorMultiChoiceOption choiceOption => choiceOption.DefaultFor(terrainInfo, playerCount),
+					_ => throw new ArgumentException($"Unsupported map generator option `{option.Id}`"),
+				};
+			}
+
+			return optionValues;
+		}
+
 		// Upstream made MapGeneratorOption immutable: option values are no longer assigned
 		// onto the option objects, they are carried as strings in MapGenerationArgs.Options
 		// and converted by the generator. This only has to reject ids the generator lacks.

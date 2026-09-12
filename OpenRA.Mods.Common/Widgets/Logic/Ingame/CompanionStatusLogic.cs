@@ -110,6 +110,9 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var threatTrack = widget.Get<ColorBlockWidget>("THREAT_TRACK");
 			var threatFill = widget.Get<ColorBlockWidget>("THREAT_FILL");
 			var voiceButton = widget.Get<ButtonWidget>("VOICE_TOGGLE");
+			var askShortcut = widget.GetOrNull<LabelWidget>("ASK_SHORTCUT");
+			if (askShortcut != null)
+				askShortcut.GetText = () => $"Hold {Binding("AIAsk")} to ask AI";
 			feedPanel = widget.Get<BackgroundWidget>("FEED_PANEL");
 			historyPanel = feedPanel.Get<ScrollPanelWidget>("FEED_HISTORY");
 			historyTemplate = historyPanel.Get<ContainerWidget>("FEED_ITEM_TEMPLATE");
@@ -129,7 +132,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			feedPanel.Get<LabelWidget>("LATEST_KICKER").GetText = () =>
 				showOnlyPlayer ? "YOUR TRANSMISSIONS" : "LAST TRANSMISSION";
 			feedPanel.Get<LabelWidget>("FEED_FOOTER").GetText = () =>
-				$"{Binding("AIAsk").ToUpperInvariant()} // COMMAND CHANNEL     CLICK AI STRIP // COMMAND DRAWER";
+				$"OPENRA AI {modData.Manifest.Metadata.Version.ToUpperInvariant()}     " +
+				$"{Binding("AIAsk").ToUpperInvariant()} // COMMAND CHANNEL";
 			feedEmptyLabel.GetText = () => showOnlyPlayer
 				? $"NO VOICE TRANSMISSIONS YET // HOLD {Binding("AIAsk").ToUpperInvariant()}"
 				: $"NO SIGNALS YET // HOLD {Binding("AIAsk").ToUpperInvariant()} TO OPEN COMMS";
@@ -224,9 +228,14 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				return CompanionBridge.TryGetAutoAct(out var enabled) && enabled;
 			}
 
-			autoButton.GetText = () => autoRequestPending ? "AUTO: ..." : AutoActEnabled() ? "AUTO: ON" : "AUTO: OFF";
-			autoButton.IsHighlighted = AutoActEnabled;
+			autoButton.GetText = () =>
+			{
+				var available = CompanionBridge.TryGetAutoAct(out var enabled);
+				return AIControlDisplay.AutoButtonText(autoRequestPending, available, enabled);
+			};
+			autoButton.IsHighlighted = () => CompanionBridge.TryGetAutoAct(out var enabled) && enabled;
 			autoButton.IsDisabled = () => autoRequestPending ||
+				!CompanionBridge.TryGetAutoAct(out _) ||
 				!CompanionBridge.TryGetStatus(out _, out _, out var enabled, out _) || !enabled;
 			autoButton.OnClick = () => _ = SetAutoActAsync(!AutoActEnabled());
 
@@ -348,7 +357,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 				displayMessage = FitToTwoLines(message, statusButton.Bounds.Width, font);
 				var height = Math.Max(30, font.Measure(displayMessage).Y + VerticalPadding);
-				widget.Bounds.Height = height;
+				widget.Bounds.Height = height + (askShortcut == null ? 0 : 18);
+				if (askShortcut != null)
+				{
+					askShortcut.Bounds.Y = height;
+					askShortcut.Bounds.Width = width - 16;
+				}
 				statusButton.Bounds.Height = height;
 				voiceButton.Bounds.Y = (height - voiceButton.Bounds.Height) / 2;
 				autoButton.Bounds.Y = (height - autoButton.Bounds.Height) / 2;
@@ -363,7 +377,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 				var feedWidth = Math.Clamp(FeedPanelTargetWidth, minimumWidth, maximumWidth);
 				feedPanel.Bounds.X = (width - feedWidth) / 2;
-				feedPanel.Bounds.Y = height + 6;
+				feedPanel.Bounds.Y = widget.Bounds.Height + 6;
 				feedPanel.Bounds.Width = feedWidth;
 				feedPanel.Bounds.Height = FeedPanelHeight;
 				LayoutFeed(feedWidth);

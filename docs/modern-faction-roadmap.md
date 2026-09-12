@@ -1,8 +1,10 @@
 # Modern faction graphics roadmap
 
 This roadmap extends the optional Experience faction system without replacing
-the classic Red Alert factions. Built-in and imported faction packs remain
-disabled under **AI Assistant Only** until the player explicitly enables them.
+the classic Red Alert factions. Fresh installs select **World War III**, which
+enables the five completed built-in factions and the reusable capability
+portfolio. Players can select **AI Assistant Only** for the classic base
+simulation without optional faction or capability packs.
 
 The next production phase is graphics-first, but not graphics-only: a faction
 is not complete until its art, sequences, weapons, abilities, AI metadata, and

@@ -168,7 +168,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			autoButton = widget.Get<ButtonWidget>("AUTO_BUTTON");
 			voiceButton = widget.Get<ButtonWidget>("VOICE_BUTTON");
 			strategyButton = widget.Get<ButtonWidget>("STRATEGY_BUTTON");
-			autoButton.GetText = () => requestPending ? "AUTO: ..." : model.AutoAct ? "AUTO: ON" : "AUTO: OFF";
+			autoButton.GetText = () => AIControlDisplay.AutoButtonText(requestPending, model.Connected, model.AutoAct);
 			voiceButton.GetText = () => requestPending ? "VOICE: ..." : model.Voice ? "VOICE: ON" : "VOICE: OFF";
 			strategyButton.GetText = () => $"STRATEGY: {model.Strategy.ToUpperInvariant()}";
 			autoButton.IsHighlighted = () => model.AutoAct;

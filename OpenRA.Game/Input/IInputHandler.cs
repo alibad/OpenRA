@@ -49,6 +49,9 @@ namespace OpenRA
 		[FluentReference]
 		const string Cmd = "keycode-modifier.cmd";
 
+		[FluentReference]
+		const string Option = "keycode-modifier.option";
+
 		[FluentReference(Traits.LintDictionaryReference.Values)]
 		public static readonly IReadOnlyDictionary<Modifiers, string> ModifierFluentKeys = new Dictionary<Modifiers, string>()
 		{
@@ -61,13 +64,21 @@ namespace OpenRA
 
 		public static string DisplayString(Modifiers m)
 		{
-			if (m == Modifiers.Meta && Platform.CurrentPlatform == PlatformType.OSX)
-				return FluentProvider.GetMessage(Cmd);
+			var fluentKey = FluentKey(m, Platform.CurrentPlatform);
+			return fluentKey == null ? m.ToString() : FluentProvider.GetMessage(fluentKey);
+		}
 
-			if (!ModifierFluentKeys.TryGetValue(m, out var fluentKey))
-				return m.ToString();
+		public static string FluentKey(Modifiers m, PlatformType platform)
+		{
+			if (platform == PlatformType.OSX)
+			{
+				if (m == Modifiers.Meta)
+					return Cmd;
+				if (m == Modifiers.Alt)
+					return Option;
+			}
 
-			return FluentProvider.GetMessage(fluentKey);
+			return ModifierFluentKeys.TryGetValue(m, out var fluentKey) ? fluentKey : null;
 		}
 	}
 

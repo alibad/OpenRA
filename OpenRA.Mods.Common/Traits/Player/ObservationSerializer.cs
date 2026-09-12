@@ -28,6 +28,7 @@ namespace OpenRA.Mods.Common.Traits
 		readonly World world;
 		readonly Player player;
 		readonly string episodeId;
+		readonly ObservationWeaponTargets weaponTargets;
 
 		// Cached trait references for spatial map (resolved lazily)
 		IResourceLayer resourceLayer;
@@ -41,6 +42,9 @@ namespace OpenRA.Mods.Common.Traits
 			this.world = world;
 			this.player = player;
 			this.episodeId = episodeId;
+			weaponTargets = new ObservationWeaponTargets(world.Map.Rules.Actors.Values
+				.Where(info => !info.Name.StartsWith('^'))
+				.SelectMany(info => info.TraitInfos<ITargetableInfo>()).Select(info => info.GetTargetTypes()));
 		}
 
 		void EnsureTraitsCached()
@@ -62,6 +66,7 @@ namespace OpenRA.Mods.Common.Traits
 			{
 				Tick = tick,
 				EpisodeId = episodeId,
+				ModId = Game.ModData.Manifest.Id,
 				Economy = SerializeEconomy(),
 				Military = SerializeMilitary(),
 				MapInfo = SerializeMapInfo(),
@@ -82,6 +87,16 @@ namespace OpenRA.Mods.Common.Traits
 			SerializeMissionContext(obs);
 			SerializeSupportPowers(obs);
 			SerializeSpatialMap(obs);
+			var knownTypes = obs.Units.Select(a => a.Type).Concat(obs.Buildings.Select(a => a.Type))
+				.Concat(obs.VisibleEnemies.Select(a => a.Type)).Concat(obs.VisibleEnemyBuildings.Select(a => a.Type))
+				.Concat(obs.RememberedEnemyBuildings.Select(a => a.Type)).Concat(obs.AvailableProduction)
+				.Concat(obs.Production.Select(a => a.Item)).Distinct();
+			foreach (var type in knownTypes)
+				if (world.Map.Rules.Actors.TryGetValue(type, out var info))
+				{
+					var name = info.TraitInfos<TooltipInfo>().FirstOrDefault()?.Name;
+					obs.ActorNames[type] = string.IsNullOrEmpty(name) ? type : FluentProvider.GetMessage(name);
+				}
 
 			return obs;
 		}
@@ -146,7 +161,7 @@ namespace OpenRA.Mods.Common.Traits
 					!frozen.Info.HasTraitInfo<BuildingInfo>())
 					continue;
 
-				var cell = world.Map.CellContaining(frozen.CenterPosition);
+				var cell = world.Map.CellContaining(frozen.CenterPosition).ToMPos(world.Map);
 				var healthInfo = frozen.Info.TraitInfoOrDefault<HealthInfo>();
 				var hpPercent = healthInfo != null && healthInfo.HP > 0
 					? (float)frozen.HP / healthInfo.HP
@@ -158,8 +173,8 @@ namespace OpenRA.Mods.Common.Traits
 					Type = frozen.Info.Name,
 					PosX = frozen.CenterPosition.X,
 					PosY = frozen.CenterPosition.Y,
-					CellX = cell.X,
-					CellY = cell.Y,
+					CellX = cell.U,
+					CellY = cell.V,
 					HpPercent = hpPercent,
 					Owner = frozen.Owner.InternalName,
 					LastSeenTick = enemyLastSeenTicks.TryGetValue(frozen.ID, out var lastSeenTick) ? lastSeenTick : 0,
@@ -343,9 +358,9 @@ namespace OpenRA.Mods.Common.Traits
 			SerializeBuildingWeapon(actor, bldg);
 
 			// Cell position
-			var bldgCell = world.Map.CellContaining(actor.CenterPosition);
-			bldg.CellX = bldgCell.X;
-			bldg.CellY = bldgCell.Y;
+			var bldgCell = world.Map.CellContaining(actor.CenterPosition).ToMPos(world.Map);
+			bldg.CellX = bldgCell.U;
+			bldg.CellY = bldgCell.V;
 
 			// Power
 			var powerTrait = actor.TraitOrDefault<Power>();
@@ -367,8 +382,9 @@ namespace OpenRA.Mods.Common.Traits
 			var rally = actor.TraitOrDefault<RallyPoint>();
 			if (rally != null && rally.Path.Count > 0)
 			{
-				bldg.RallyX = rally.Path[0].X;
-				bldg.RallyY = rally.Path[0].Y;
+				var rallyCell = rally.Path[0].ToMPos(world.Map);
+				bldg.RallyX = rallyCell.U;
+				bldg.RallyY = rallyCell.V;
 			}
 			else
 			{
@@ -424,9 +440,9 @@ namespace OpenRA.Mods.Common.Traits
 				unit.Cost = actorValue.Cost;
 
 			// Cell position
-			var cell = world.Map.CellContaining(actor.CenterPosition);
-			unit.CellX = cell.X;
-			unit.CellY = cell.Y;
+			var cell = world.Map.CellContaining(actor.CenterPosition).ToMPos(world.Map);
+			unit.CellX = cell.U;
+			unit.CellY = cell.V;
 
 			// Current activity
 			var activity = actor.CurrentActivity;
@@ -434,26 +450,26 @@ namespace OpenRA.Mods.Common.Traits
 				unit.CurrentActivity = activity.GetType().Name;
 
 			// Attack capability and range
-			unit.CanAttack = actor.Info.HasTraitInfo<AttackBaseInfo>();
-			var attack = actor.TraitOrDefault<AttackBase>();
-			if (attack != null)
-			{
-				unit.AttackRange = attack.GetMaximumRange().Length;
-				unit.MinimumAttackRange = attack.GetMinimumRange().Length;
-			}
-			var armament = actor.TraitsImplementing<Armament>().FirstOrDefault(value => !value.IsTraitDisabled);
+			var armaments = GetActiveArmaments(actor).ToArray();
+			unit.CanAttack = armaments.Length > 0;
+			var ranges = GetAttackRanges(actor);
+			unit.AttackRange = ranges.Maximum;
+			unit.MinimumAttackRange = ranges.Minimum;
+			var targets = weaponTargets.Summarize(armaments.Select(armament => armament.Weapon));
+			unit.CanTargetAir = targets.Air;
+			unit.CanTargetGround = targets.Ground;
+			var armament = armaments.FirstOrDefault();
 			if (armament != null)
 			{
 				unit.ReloadRemainingTicks = armament.FireDelay;
 				unit.ReloadTotalTicks = armament.Weapon.ReloadDelay;
 				unit.Weapon = armament.Info.Weapon ?? "";
 				unit.Burst = armament.Weapon.Burst;
-				unit.CanTargetAir = armament.Weapon.ValidTargets.Contains("Air");
-				unit.CanTargetGround = armament.Weapon.ValidTargets.Contains("Ground");
 			}
 
-			var attackFollow = actor.TraitOrDefault<AttackFollow>();
-			if (attackFollow != null && attackFollow.RequestedTarget.Type == TargetType.Actor)
+			var attackFollow = actor.TraitsImplementing<AttackFollow>()
+				.FirstOrDefault(attack => !attack.IsTraitDisabled && attack.RequestedTarget.Type == TargetType.Actor);
+			if (attackFollow != null)
 				unit.CurrentTargetActorId = attackFollow.RequestedTarget.Actor.ActorID;
 
 			// Ammo
@@ -483,8 +499,9 @@ namespace OpenRA.Mods.Common.Traits
 			var mobile = actor.TraitOrDefault<Mobile>();
 			if (mobile != null)
 			{
-				unit.MoveTargetX = mobile.ToCell.X;
-				unit.MoveTargetY = mobile.ToCell.Y;
+				var destination = mobile.ToCell.ToMPos(world.Map);
+				unit.MoveTargetX = destination.U;
+				unit.MoveTargetY = destination.V;
 			}
 
 			// Cargo
@@ -505,26 +522,58 @@ namespace OpenRA.Mods.Common.Traits
 			return unit;
 		}
 
-		static void SerializeBuildingWeapon(Actor actor, RLProto.RlBuildingInfo building)
+		static (int Minimum, int Maximum) GetAttackRanges(Actor actor)
 		{
-			var attack = actor.TraitOrDefault<AttackBase>();
-			if (attack != null)
+			var minimum = int.MaxValue;
+			var maximum = 0;
+			foreach (var attack in actor.TraitsImplementing<AttackBase>())
 			{
-				building.AttackRange = attack.GetMaximumRange().Length;
-				building.MinimumAttackRange = attack.GetMinimumRange().Length;
+				if (attack.IsTraitDisabled || attack.IsTraitPaused)
+					continue;
+
+				var range = attack.GetMaximumRange().Length;
+				if (range <= 0)
+					continue;
+
+				maximum = Math.Max(maximum, range);
+				minimum = Math.Min(minimum, attack.GetMinimumRange().Length);
 			}
 
-			var armament = actor.TraitsImplementing<Armament>().FirstOrDefault(value => !value.IsTraitDisabled);
+			return (minimum == int.MaxValue ? 0 : minimum, maximum);
+		}
+
+		static IEnumerable<Armament> GetActiveArmaments(Actor actor)
+		{
+			// Attack modes may select different armaments even when the armament itself
+			// has no condition (e.g. deployed infantry). Include secondary weapons and
+			// passenger weapons only when their owning attack mode can use them.
+			return actor.TraitsImplementing<AttackBase>()
+				.Where(attack => !attack.IsTraitDisabled && !attack.IsTraitPaused)
+				.SelectMany(attack => attack.Armaments)
+				.Where(armament => !armament.IsTraitDisabled && !armament.IsTraitPaused)
+				.Distinct();
+		}
+
+		void SerializeBuildingWeapon(Actor actor, RLProto.RlBuildingInfo building)
+		{
+			var ranges = GetAttackRanges(actor);
+			building.AttackRange = ranges.Maximum;
+			building.MinimumAttackRange = ranges.Minimum;
+
+			var armaments = GetActiveArmaments(actor).ToArray();
+			var targets = weaponTargets.Summarize(armaments.Select(armament => armament.Weapon));
+			building.CanTargetAir = targets.Air;
+			building.CanTargetGround = targets.Ground;
+			var armament = armaments.FirstOrDefault();
 			if (armament == null)
 				return;
 			building.ReloadRemainingTicks = armament.FireDelay;
 			building.ReloadTotalTicks = armament.Weapon.ReloadDelay;
 			building.Weapon = armament.Info.Weapon ?? "";
 			building.Burst = armament.Weapon.Burst;
-			building.CanTargetAir = armament.Weapon.ValidTargets.Contains("Air");
-			building.CanTargetGround = armament.Weapon.ValidTargets.Contains("Ground");
-			var attackFollow = actor.TraitOrDefault<AttackFollow>();
-			if (attackFollow != null && attackFollow.RequestedTarget.Type == TargetType.Actor)
+			var attackFollow = actor.TraitsImplementing<AttackFollow>()
+				.FirstOrDefault(attack => !attack.IsTraitDisabled && attack.RequestedTarget.Type == TargetType.Actor);
+			if (attackFollow != null)
 				building.CurrentTargetActorId = attackFollow.RequestedTarget.Actor.ActorID;
 		}
 
@@ -662,20 +711,20 @@ namespace OpenRA.Mods.Common.Traits
 				if (actor.Owner.NonCombatant)
 					continue;
 
-				CPos actorCell;
+				MPos actorCell;
 				try
 				{
-					actorCell = map.CellContaining(actor.CenterPosition);
+					actorCell = map.CellContaining(actor.CenterPosition).ToMPos(map);
 				}
 				catch (NullReferenceException)
 				{
 					continue;
 				}
 
-				if (actorCell.X < 0 || actorCell.X >= width || actorCell.Y < 0 || actorCell.Y >= height)
+				if (actorCell.U < 0 || actorCell.U >= width || actorCell.V < 0 || actorCell.V >= height)
 					continue;
 
-				var idx = actorCell.Y * width + actorCell.X;
+				var idx = actorCell.V * width + actorCell.U;
 
 				if (actor.Owner == player)
 				{
@@ -692,19 +741,20 @@ namespace OpenRA.Mods.Common.Traits
 						enemyUnitDensity[idx]++;
 				}
 
-				var attack = actor.TraitOrDefault<AttackBase>();
-				if (attack == null || (actor.Owner != player &&
-					(player.RelationshipWith(actor.Owner) != PlayerRelationship.Enemy || !shroud.IsVisible(actor.CenterPosition))))
+				if (actor.Owner != player &&
+					(player.RelationshipWith(actor.Owner) != PlayerRelationship.Enemy || !shroud.IsVisible(actor.CenterPosition)))
 					continue;
-				var range = Math.Max(0, (attack.GetMaximumRange().Length + 1023) / 1024);
+				var maximumRange = GetAttackRanges(actor).Maximum;
+				if (maximumRange <= 0)
+					continue;
+				var range = (maximumRange + 1023) / 1024;
 				var coverage = actor.Owner == player ? friendlyCoverage : enemyThreat;
-				for (var cy = Math.Max(0, actorCell.Y - range); cy <= Math.Min(height - 1, actorCell.Y + range); cy++)
+				for (var cy = Math.Max(0, actorCell.V - range * 2); cy <= Math.Min(height - 1, actorCell.V + range * 2); cy++)
 				{
-					for (var cx = Math.Max(0, actorCell.X - range); cx <= Math.Min(width - 1, actorCell.X + range); cx++)
+					for (var cx = Math.Max(0, actorCell.U - range * 2); cx <= Math.Min(width - 1, actorCell.U + range * 2); cx++)
 					{
-						var dx = cx - actorCell.X;
-						var dy = cy - actorCell.Y;
-						if (dx * dx + dy * dy <= range * range)
+						var offset = new MPos(cx, cy).ToCPos(map) - actorCell.ToCPos(map);
+						if (offset.LengthSquared <= range * range)
 							coverage[cy * width + cx] += 1f;
 					}
 				}
@@ -713,8 +763,9 @@ namespace OpenRA.Mods.Common.Traits
 			// Fill per-cell data
 			foreach (var cell in map.AllCells)
 			{
-				var x = cell.X;
-				var y = cell.Y;
+				var mapCell = cell.ToMPos(map);
+				var x = mapCell.U;
+				var y = mapCell.V;
 				if (x < 0 || x >= width || y < 0 || y >= height)
 					continue;
 

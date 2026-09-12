@@ -888,6 +888,7 @@ enumerated-bot-name =
 ## ModifiersExts
 keycode-modifier =
     .alt = Alt
+    .option = Option
     .ctrl = Ctrl
     .meta = Meta
     .cmd = Cmd

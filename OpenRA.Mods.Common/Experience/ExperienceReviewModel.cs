@@ -70,17 +70,21 @@ namespace OpenRA.Mods.Common.Experience
 			ComponentsById = componentsById;
 			var previous = previousComponents.Where(componentsById.ContainsKey).ToHashSet();
 			var selected = components.Where(componentsById.ContainsKey).ToHashSet();
-			var ordered = componentsById.Values.OrderBy(c => c.Category).ThenBy(c => c.Title).ToArray();
+			var ordered = componentsById.Values.Where(c => c.IsSelectable).OrderBy(c => c.Category).ThenBy(c => c.Title).ToArray();
+			var selection = new ExperienceSelection(componentsById);
 
 			EnabledComponents = ordered.Where(c => selected.Contains(c.Id)).ToImmutableArray();
 			DisabledComponents = ordered.Where(c => !selected.Contains(c.Id)).ToImmutableArray();
 			NewlyEnabledComponents = ordered.Where(c => selected.Contains(c.Id) && !previous.Contains(c.Id)).ToImmutableArray();
 			NewlyDisabledComponents = ordered.Where(c => previous.Contains(c.Id) && !selected.Contains(c.Id)).ToImmutableArray();
-			RequiredBy = ordered.ToDictionary(component => component.Id, component => ordered
-				.Where(candidate => selected.Contains(candidate.Id) && candidate.Dependencies.Contains(component.Id))
+			RequiredBy = componentsById.Values.ToDictionary(component => component.Id, component => ordered
+				.Where(candidate => candidate.Id != component.Id && selected.Contains(candidate.Id) &&
+					selection.DependencyOrder([candidate.Id]).Contains(component.Id))
 				.ToImmutableArray());
 			ConflictedBy = ordered.ToDictionary(component => component.Id, component => NewlyEnabledComponents
-				.Where(candidate => candidate.Conflicts.Contains(component.Id)).ToImmutableArray());
+				.Where(candidate => selection.DependencyOrder([candidate.Id]).Any(added =>
+					selection.DependencyOrder([component.Id]).Any(removed => selection.Conflicts(added, removed))))
+				.ToImmutableArray());
 
 			ParameterChanges = ordered.SelectMany(component => component.Parameters.Values
 				.OrderBy(p => p.Group).ThenBy(p => p.Title)

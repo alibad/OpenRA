@@ -142,7 +142,7 @@ namespace OpenRA.Mods.Common.Traits
 			if (subject == null || subject.IsDead || !subject.IsInWorld)
 				return null;
 
-			var cell = new CPos(cmd.TargetX, cmd.TargetY);
+			var cell = new MPos(cmd.TargetX, cmd.TargetY).ToCPos(world.Map);
 			var target = Target.FromCell(world, cell);
 
 			return new Order("Move", subject, target, cmd.Queued);
@@ -154,7 +154,7 @@ namespace OpenRA.Mods.Common.Traits
 			if (subject == null || subject.IsDead || !subject.IsInWorld)
 				return null;
 
-			var cell = new CPos(cmd.TargetX, cmd.TargetY);
+			var cell = new MPos(cmd.TargetX, cmd.TargetY).ToCPos(world.Map);
 			var target = Target.FromCell(world, cell);
 
 			return new Order("AttackMove", subject, target, cmd.Queued);
@@ -176,7 +176,7 @@ namespace OpenRA.Mods.Common.Traits
 			}
 
 			// Attack-ground at position
-			var cell = new CPos(cmd.TargetX, cmd.TargetY);
+			var cell = new MPos(cmd.TargetX, cmd.TargetY).ToCPos(world.Map);
 			return new Order("ForceAttack", subject, Target.FromCell(world, cell), cmd.Queued);
 		}
 
@@ -197,7 +197,7 @@ namespace OpenRA.Mods.Common.Traits
 
 			if (cmd.TargetX != 0 || cmd.TargetY != 0)
 			{
-				var cell = new CPos(cmd.TargetX, cmd.TargetY);
+				var cell = new MPos(cmd.TargetX, cmd.TargetY).ToCPos(world.Map);
 				return new Order("Harvest", subject, Target.FromCell(world, cell), cmd.Queued);
 			}
 
@@ -314,7 +314,7 @@ namespace OpenRA.Mods.Common.Traits
 			var bi = actorInfo.TraitInfoOrDefault<BuildingInfo>();
 
 			// Try agent's requested position first
-			var requestedCell = new CPos(cmd.TargetX, cmd.TargetY);
+			var requestedCell = new MPos(cmd.TargetX, cmd.TargetY).ToCPos(world.Map);
 			if (cmd.TargetX != 0 || cmd.TargetY != 0)
 			{
 				if (world.CanPlaceBuilding(requestedCell, actorInfo, bi, null)
@@ -364,7 +364,7 @@ namespace OpenRA.Mods.Common.Traits
 					return actor.Location;
 			}
 
-			return new CPos(world.Map.MapSize.Width / 2, world.Map.MapSize.Height / 2);
+			return new MPos(world.Map.MapSize.Width / 2, world.Map.MapSize.Height / 2).ToCPos(world.Map);
 		}
 
 		CPos? FindPlacementCell(ActorInfo actorInfo, BuildingInfo bi, CPos center)
@@ -529,7 +529,7 @@ namespace OpenRA.Mods.Common.Traits
 			if (subject == null || subject.IsDead || !subject.IsInWorld)
 				return null;
 
-			var cell = new CPos(cmd.TargetX, cmd.TargetY);
+			var cell = new MPos(cmd.TargetX, cmd.TargetY).ToCPos(world.Map);
 			return new Order("SetRallyPoint", subject, Target.FromCell(world, cell), false);
 		}
 
@@ -624,7 +624,7 @@ namespace OpenRA.Mods.Common.Traits
 				return null;
 
 			return new Order(power.Key, player.PlayerActor,
-				Target.FromCell(world, new CPos(cmd.TargetX, cmd.TargetY)), false)
+				Target.FromCell(world, new MPos(cmd.TargetX, cmd.TargetY).ToCPos(world.Map)), false)
 			{
 				SuppressVisualFeedback = true,
 				ExtraData = uint.MaxValue
