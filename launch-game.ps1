@@ -184,11 +184,12 @@ if ($companionRequested) {
 }
 
 # Source builds prepare a cached data-only RA2 overlay. Packaged builds ship it.
-if ($null -ne $runtime -and -not $ValidateOnly -and -not (Test-Path (Join-Path $engineRoot "mods\ra2\mod.yaml"))) {
-	$prepare = Join-Path $runtime.Root "scripts\prepare-local-ra2.py"
+$contentRuntime = if ($null -ne $runtime) { $runtime } else { Resolve-CompanionRuntime $CompanionRoot }
+if ($null -ne $contentRuntime -and -not $ValidateOnly -and -not (Test-Path (Join-Path $engineRoot "mods\ra2\mod.yaml"))) {
+	$prepare = Join-Path $contentRuntime.Root "scripts\prepare-local-ra2.py"
 	if (Test-Path -LiteralPath $prepare) {
 		$env:PYTHONUTF8 = "1"
-		$prepared = & (Join-Path $runtime.Root ".venv\Scripts\python.exe") $prepare --engine $engineRoot
+		$prepared = & (Join-Path $contentRuntime.Root ".venv\Scripts\python.exe") $prepare --engine $engineRoot
 		if ($LASTEXITCODE -ne 0) { throw "RA2 preparation failed; the game was not launched." }
 		$ra2Search = ($prepared | Select-Object -Last 1).Trim()
 		Add-DefaultArgument $arguments "Engine.ModSearchPaths" "$engineRoot\mods,$ra2Search"
