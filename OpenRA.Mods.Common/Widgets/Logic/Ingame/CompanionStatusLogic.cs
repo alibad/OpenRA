@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -32,6 +33,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		const int VoiceButtonWidth = 94;
 		const int VoiceButtonMargin = 4;
 		const int VoiceButtonGap = 8;
+		const int FeedbackButtonWidth = 70;
+		const int FeedbackButtonGap = 5;
 		const int FeedButtonWidth = 34;
 		const int FeedButtonGap = 5;
 		const int ActionConfirmButtonWidth = 76;
@@ -110,6 +113,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var threatTrack = widget.Get<ColorBlockWidget>("THREAT_TRACK");
 			var threatFill = widget.Get<ColorBlockWidget>("THREAT_FILL");
 			var voiceButton = widget.Get<ButtonWidget>("VOICE_TOGGLE");
+			var feedbackButton = widget.Get<ButtonWidget>("FEEDBACK");
 			var askShortcut = widget.GetOrNull<LabelWidget>("ASK_SHORTCUT");
 			if (askShortcut != null)
 				askShortcut.GetText = () => $"Hold {Binding("AIAsk")} to ask AI";
@@ -127,6 +131,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			var requestPending = false;
 			var actionRequestPending = false;
 			var autoRequestPending = false;
+			var feedbackRequestPending = false;
 
 			feedPanel.Get<LabelWidget>("FEED_TITLE").GetText = () => "AI TACTICAL FEED // COMMS LOG";
 			feedPanel.Get<LabelWidget>("LATEST_KICKER").GetText = () =>
@@ -176,6 +181,54 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			feedToggleButton.OnClick = ToggleFeed;
 			feedToggleButton.GetText = () => feedExpanded ? "X" : "LOG";
 			feedToggleButton.IsHighlighted = () => feedExpanded;
+			feedbackButton.GetText = () => feedbackRequestPending ? "WAIT" : "REPORT";
+			feedbackButton.IsHighlighted = () => feedbackRequestPending;
+			feedbackButton.IsDisabled = () => feedbackRequestPending ||
+				!CompanionBridge.TryGetStatus(out _, out _, out _, out _);
+			feedbackButton.OnClick = () => _ = CaptureFeedbackAsync();
+
+			async Task CaptureFeedbackAsync()
+			{
+				if (feedbackRequestPending)
+					return;
+
+				feedbackRequestPending = true;
+				try
+				{
+					var uri = OpenRAAILocalClient.GetBaseUri("OPENRA_AI_CONSOLE_URL", "http://127.0.0.1:8787/");
+					using var result = await OpenRAAILocalClient.PostAsync(uri, "v1/feedback/capture", new { }, 12);
+					var feedbackPath = result.RootElement.GetProperty("feedback_url").GetString();
+					if (!Uri.TryCreate(uri, feedbackPath, out var feedbackUri) || !feedbackUri.IsLoopback)
+						throw new InvalidOperationException("The feedback URL must be local.");
+
+					Game.RunAfterTick(() =>
+					{
+						CompanionBridge.UpdateLocalStatus("feedback", "FEEDBACK DRAFT SAVED  •  ADD YOUR NOTE IN BROWSER");
+						try
+						{
+							Process.Start(new ProcessStartInfo
+							{
+								FileName = feedbackUri.AbsoluteUri,
+								UseShellExecute = true,
+							});
+						}
+						catch (Exception error)
+						{
+							Log.Write("debug", $"Feedback draft saved but could not open the browser: {error}");
+						}
+					});
+				}
+				catch (Exception e)
+				{
+					Log.Write("debug", $"Failed to capture OpenRA AI feedback: {e}");
+					Game.RunAfterTick(() => CompanionBridge.UpdateLocalControlError(
+						"FEEDBACK CAPTURE UNAVAILABLE  •  GAMEPLAY UNAFFECTED"));
+				}
+				finally
+				{
+					Game.RunAfterTick(() => feedbackRequestPending = false);
+				}
+			}
 
 			bool HasPendingAction()
 			{
@@ -336,7 +389,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				var autoControlsWidth = AutoButtonWidth + AutoButtonGap;
 				var minimumWidth = Math.Min(MinWidth + actionControlsWidth + autoControlsWidth, maximumWidth);
 				var desiredWidth = font.Measure(message).X + 2 * HorizontalPadding + ThreatPanelWidth +
-					VoiceButtonWidth + VoiceButtonGap + FeedButtonWidth + FeedButtonGap +
+					VoiceButtonWidth + VoiceButtonGap + FeedbackButtonWidth + FeedbackButtonGap +
+					FeedButtonWidth + FeedButtonGap +
 					actionControlsWidth + autoControlsWidth;
 				var width = Math.Clamp(desiredWidth, minimumWidth, maximumWidth);
 
@@ -353,7 +407,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				}
 				else
 					feedToggleButton.Bounds.X = autoButton.Bounds.X - FeedButtonGap - FeedButtonWidth;
-				statusButton.Bounds.Width = Math.Max(1, feedToggleButton.Bounds.X - FeedButtonGap - statusButton.Bounds.X);
+				feedbackButton.Bounds.X = feedToggleButton.Bounds.X - FeedbackButtonGap - FeedbackButtonWidth;
+				statusButton.Bounds.Width = Math.Max(1, feedbackButton.Bounds.X - FeedbackButtonGap - statusButton.Bounds.X);
 
 				displayMessage = FitToTwoLines(message, statusButton.Bounds.Width, font);
 				var height = Math.Max(30, font.Measure(displayMessage).Y + VerticalPadding);
@@ -367,6 +422,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				voiceButton.Bounds.Y = (height - voiceButton.Bounds.Height) / 2;
 				autoButton.Bounds.Y = (height - autoButton.Bounds.Height) / 2;
 				feedToggleButton.Bounds.Y = (height - feedToggleButton.Bounds.Height) / 2;
+				feedbackButton.Bounds.Y = (height - feedbackButton.Bounds.Height) / 2;
 				actionConfirmButton.Bounds.Y = (height - actionConfirmButton.Bounds.Height) / 2;
 				actionCancelButton.Bounds.Y = (height - actionCancelButton.Bounds.Height) / 2;
 				threatLabel.Bounds.Y = (height - 24) / 2;

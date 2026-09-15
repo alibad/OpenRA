@@ -53,6 +53,16 @@ Container@PLAYER_WIDGETS:
 					Height: 22
 					Font: TinyBold
 					VisualHeight: 0
+				Button@FEEDBACK:
+					Y: 4
+					Width: 70
+					Height: 22
+					Font: TinyBold
+					VisualHeight: 0
+					TooltipText: Capture feedback
+					TooltipDesc: Save a fog-respecting screenshot and live game state, then open the local feedback form.
+					TooltipContainer: TOOLTIP_CONTAINER
+					TooltipTemplate: BUTTON_WITH_DESC_HIGHLIGHT_TOOLTIP
 				Button@ACTION_CONFIRM:
 					Y: 4
 					Width: 76

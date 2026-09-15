@@ -905,6 +905,23 @@ namespace OpenRA.Mods.Common.Traits
 			}
 		}
 
+		internal static bool UpdateLocalStatus(string state, string message)
+		{
+			if (string.IsNullOrWhiteSpace(state) || string.IsNullOrWhiteSpace(message))
+				return false;
+
+			lock (CurrentLock)
+			{
+				if (current == null || !current.enabled)
+					return false;
+
+				companionStatus.State = state;
+				companionStatus.Message = message;
+				companionStatusUpdatedAt = Environment.TickCount64;
+				return true;
+			}
+		}
+
 		internal static bool TryGetStatus(out string state, out string message)
 		{
 			return TryGetStatus(out state, out message, out _, out _);
