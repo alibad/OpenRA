@@ -129,7 +129,7 @@ Player:
 		InitialHarvesters: 4
 	BaseBuilderBotModule@beginner:
 		RequiresCondition: enable-beginner-ai
-		MinimumExcessPower: 0
+		MinimumExcessPower: 20
 		MaximumExcessPower: 100
 		ExcessPowerIncrement: 20
 		ExcessPowerIncreaseThreshold: 6
@@ -167,7 +167,7 @@ Player:
 			gun: 8000
 	BaseBuilderBotModule@easy:
 		RequiresCondition: enable-easy-ai
-		MinimumExcessPower: 0
+		MinimumExcessPower: 20
 		MaximumExcessPower: 150
 		ExcessPowerIncrement: 30
 		ExcessPowerIncreaseThreshold: 5
@@ -215,7 +215,7 @@ Player:
 			sam: 10000
 	BaseBuilderBotModule@medium:
 		RequiresCondition: enable-medium-ai
-		MinimumExcessPower: 0
+		MinimumExcessPower: 20
 		MaximumExcessPower: 180
 		ExcessPowerIncrement: 35
 		ExcessPowerIncreaseThreshold: 4
@@ -277,7 +277,7 @@ Player:
 			stek: 12000
 	BaseBuilderBotModule@rush:
 		RequiresCondition: enable-rush-ai
-		MinimumExcessPower: 0
+		MinimumExcessPower: 20
 		MaximumExcessPower: 160
 		ExcessPowerIncrement: 40
 		ExcessPowerIncreaseThreshold: 4
@@ -339,7 +339,7 @@ Player:
 			stek: 11000
 	BaseBuilderBotModule@normal:
 		RequiresCondition: enable-normal-ai
-		MinimumExcessPower: 0
+		MinimumExcessPower: 20
 		MaximumExcessPower: 200
 		ExcessPowerIncrement: 40
 		ExcessPowerIncreaseThreshold: 4
@@ -468,7 +468,7 @@ Player:
 			kenn: 8000
 	BaseBuilderBotModule@naval:
 		RequiresCondition: enable-naval-ai
-		MinimumExcessPower: 0
+		MinimumExcessPower: 20
 		MaximumExcessPower: 400
 		ExcessPowerIncrement: 40
 		ExcessPowerIncreaseThreshold: 3

@@ -451,6 +451,13 @@ namespace OpenRA.Mods.Common.Traits
 
 						return power;
 					}
+
+					// This queue may not be able to produce a power plant (the
+					// Defense queue is the important example). Do not let it make
+					// the outage worse while the Building queue is recovering power.
+					AIUtils.BotDebug("{0} skipped {1}: no power plant is available in queue {2}",
+						queue.Actor.Owner, name, queue.Info.Type);
+					return null;
 				}
 
 				// Lets build this
