@@ -225,7 +225,7 @@ namespace OpenRA.Mods.Common.Traits
 				if (!string.IsNullOrWhiteSpace(requestedStrategy))
 					assistantStrategyRequested = NormalizeAssistantStrategy(requestedStrategy);
 			}
-			else if (lifecycle is "ready" or "disabled")
+			else if (OpenRA.Mods.Common.Widgets.Logic.AIControlDisplay.IsExplicitManualModeState(state))
 			{
 				assistantAutoRequested = false;
 				if (!string.IsNullOrWhiteSpace(requestedStrategy))

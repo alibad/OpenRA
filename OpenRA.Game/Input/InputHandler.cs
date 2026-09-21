@@ -37,6 +37,7 @@ namespace OpenRA
 
 		public void OnKeyInput(KeyInput input)
 		{
+			Game.HandleKeyInput(input);
 			Sync.RunUnsynced(world, () => Ui.HandleKeyPress(input));
 		}
 

@@ -13,6 +13,20 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 {
 	public static class AIControlDisplay
 	{
+		public static bool IsExplicitManualModeState(string state)
+		{
+			if (string.IsNullOrWhiteSpace(state))
+				return false;
+
+			var separator = state.IndexOf(':');
+			var lifecycle = separator < 0 ? state : state[..separator];
+
+			// Only the companion's durable, strategy-qualified idle state means
+			// AUTO was explicitly disabled. Transient voice states such as
+			// no-speech, interrupted, listening, and errors must preserve AUTO.
+			return lifecycle == "disabled" || (lifecycle == "ready" && separator >= 0);
+		}
+
 		public static string AutoButtonText(bool requestPending, bool companionAvailable, bool autoActEnabled)
 		{
 			if (!companionAvailable)

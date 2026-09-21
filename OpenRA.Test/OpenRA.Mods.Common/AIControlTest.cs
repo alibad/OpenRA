@@ -36,6 +36,17 @@ namespace OpenRA.Test
 			Assert.That(AIControlDisplay.AutoButtonText(false, true, true), Is.EqualTo("AUTO: ON"));
 		}
 
+		[TestCase(TestName = "Transient voice states cannot silently disable AUTO")]
+		public void OnlyDurableManualStatesDisableAuto()
+		{
+			Assert.That(AIControlDisplay.IsExplicitManualModeState("ready:normal"), Is.True);
+			Assert.That(AIControlDisplay.IsExplicitManualModeState("disabled"), Is.True);
+			Assert.That(AIControlDisplay.IsExplicitManualModeState("ready"), Is.False);
+			Assert.That(AIControlDisplay.IsExplicitManualModeState("voice-no-speech"), Is.False);
+			Assert.That(AIControlDisplay.IsExplicitManualModeState("listening"), Is.False);
+			Assert.That(AIControlDisplay.IsExplicitManualModeState("error"), Is.False);
+		}
+
 		[TestCase(TestName = "AI shortcuts keep their platform defaults and remain data-defined")]
 		public void AIHotkeysUsePlatformDefaults()
 		{
@@ -70,6 +81,12 @@ namespace OpenRA.Test
 			Assert.That(logic, Does.Contain("v1/local-ai/{operation}"));
 			Assert.That(logic, Does.Contain("ConfirmationDialogs.ButtonPrompt"));
 			Assert.That(logic, Does.Contain("askKey.IsActivatedBy(e)"));
+			Assert.That(logic, Does.Contain("Game.IsKeyDown(ask.Key)"));
+			Assert.That(logic, Does.Contain("RequiredModifiersHeld(ask.Modifiers, Game.GetModifierKeys())"));
+
+			var inputHandlerPath = Path.GetFullPath(Path.Combine(
+				TestContext.CurrentContext.TestDirectory, "..", "OpenRA.Game", "Input", "InputHandler.cs"));
+			Assert.That(File.ReadAllText(inputHandlerPath), Does.Contain("Game.HandleKeyInput(input)"));
 
 			var fluentPath = Path.GetFullPath(Path.Combine(
 				TestContext.CurrentContext.TestDirectory, "..", "mods", "common", "fluent", "chrome.ftl"));

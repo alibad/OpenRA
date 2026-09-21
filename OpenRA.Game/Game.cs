@@ -327,8 +327,17 @@ namespace OpenRA
 		}
 
 		static Modifiers modifiers;
+		static readonly HashSet<Keycode> PressedKeys = [];
 		public static Modifiers GetModifierKeys() { return modifiers; }
+		public static bool IsKeyDown(Keycode key) { return PressedKeys.Contains(key); }
 		internal static void HandleModifierKeys(Modifiers mods) { modifiers = mods; }
+		internal static void HandleKeyInput(KeyInput input)
+		{
+			if (input.Event == KeyInputEvent.Down)
+				PressedKeys.Add(input.Key);
+			else
+				PressedKeys.Remove(input.Key);
+		}
 
 		public static void InitializeSettings(Arguments args)
 		{

@@ -107,15 +107,10 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				return true;
 			}
 
-			if (e.Event == KeyInputEvent.Up && askHeld && e.Key == ask.Key)
+			if (e.Event == KeyInputEvent.Up && askHeld &&
+				(e.Key == ask.Key || !RequiredModifiersHeld(ask.Modifiers, e.Modifiers)))
 			{
-				askHeld = false;
-				if (voiceCaptureStarted)
-				{
-					voiceCaptureStarted = false;
-					_ = PostAsync("v1/voice/stop");
-				}
-
+				StopVoiceCapture();
 				return true;
 			}
 
@@ -132,6 +127,31 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				return StartOperation(() => ToggleAsync("voice_enabled", "muted", invertPostedValue: true));
 
 			return false;
+		}
+
+		static bool RequiredModifiersHeld(Modifiers required, Modifiers current)
+		{
+			return (current & required) == required;
+		}
+
+		void StopVoiceCapture()
+		{
+			askHeld = false;
+			if (!voiceCaptureStarted)
+				return;
+
+			voiceCaptureStarted = false;
+			_ = PostAsync("v1/voice/stop");
+		}
+
+		public override void Tick()
+		{
+			if (!askHeld)
+				return;
+
+			var ask = askKey.GetValue();
+			if (!Game.IsKeyDown(ask.Key) || !RequiredModifiersHeld(ask.Modifiers, Game.GetModifierKeys()))
+				StopVoiceCapture();
 		}
 
 		async Task BeginVoiceAsync()
