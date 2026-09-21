@@ -622,7 +622,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				selectionSummary = $"{label}\n{images}";
 				selectedModelDetail = $"Model: {model}";
 			}
-			var ready = localSetupState switch
+			var modelState = localSetupState switch
 			{
 				"running" => "Model ready",
 				"not_installed" => "Install required",
@@ -631,9 +631,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				"error" => "Retry required",
 				_ => "Unavailable"
 			};
-			var assistantState = provider == "local" ? ready : "External provider";
-			var speechState = localSetupState == "running" ? "Loads on demand" : ready;
-			readinessSummary = $"Assistant: {assistantState}  |  Voice input: {ready}  |  Spoken replies: {speechState}\nVoice input: Whisper (English). Included in the same pack download.";
+			var assistantState = provider == "local" ? modelState : "External provider";
+			var voiceState = localSetupState == "running" ? "Whisper installed" : modelState;
+			var speechState = localSetupState == "running" ? "Loads on demand" : modelState;
+			readinessSummary = $"Assistant: {assistantState}  |  Voice input: {voiceState}  |  Spoken replies: {speechState}\n" +
+				"Whisper Base English (~147 MB) is installed with the Local AI Pack. " +
+				"Microphone signal is checked when you speak.";
 			if (localSetupState is "installing" or "starting")
 				SetStatus(LocalSetupStatus());
 			SettingsUtils.AdjustSettingsScrollPanelLayout(scrollPanel);
