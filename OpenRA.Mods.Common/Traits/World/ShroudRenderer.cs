@@ -354,6 +354,12 @@ namespace OpenRA.Mods.Common.Traits
 
 		void IRenderShroud.RenderShroud(WorldRenderer wr)
 		{
+			// FORK: headless (Game.Platform=Null) worlds skip a WorldLoaded that fails on missing
+			// art (see World.LoadComplete), which leaves these layers uninitialized. Nothing is
+			// drawn on the Null platform, so there is nothing to render.
+			if (shroudLayer == null || fogLayer == null)
+				return;
+
 			UpdateShroud(map.ProjectedCells);
 			fogLayer.Draw(wr.Viewport);
 			shroudLayer.Draw(wr.Viewport);
@@ -383,8 +389,8 @@ namespace OpenRA.Mods.Common.Traits
 			if (disposed)
 				return;
 
-			shroudLayer.Dispose();
-			fogLayer.Dispose();
+			shroudLayer?.Dispose();
+			fogLayer?.Dispose();
 			disposed = true;
 		}
 	}
