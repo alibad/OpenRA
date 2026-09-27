@@ -123,6 +123,13 @@ Background@EXPERIENCE_COMPOSER_PANEL:
 					Width: PARENT_WIDTH - 20
 					Height: 20
 					Font: Bold
+				Button@FACTION_CATALOG_BUTTON:
+					X: PARENT_WIDTH - 180
+					Y: 5
+					Width: 170
+					Height: 22
+					Text: button-experience-faction-catalog
+					Font: TinyBold
 				Background@FACTION_PREVIEW_FRAME:
 					X: 10
 					Y: 31

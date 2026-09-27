@@ -171,6 +171,7 @@ ChromeLayout:
 	common|chrome/settings-advanced.yaml
 	ra|chrome/experience-composer.yaml
 	ra|chrome/experience-review.yaml
+	common|chrome/faction-catalog.yaml
 	common|chrome/credits.yaml
 	common|chrome/lobby.yaml
 	common|chrome/lobby-mappreview.yaml
@@ -207,6 +208,7 @@ FluentMessages:
 	common|fluent/ingame-debug.ftl
 	common|fluent/hotkeys.ftl
 	common|fluent/rules.ftl
+	common|fluent/faction-catalog.ftl
 	ra|fluent/ra.ftl
 	ra|fluent/chrome.ftl
 	ra|fluent/hotkeys.ftl

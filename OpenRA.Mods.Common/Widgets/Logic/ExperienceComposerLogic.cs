@@ -285,6 +285,21 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				RefreshSummary();
 			};
 
+			// Faction packs link to the native Faction Catalog, which shows their live roster and web pages.
+			var factionCatalogButton = widget.GetOrNull<ButtonWidget>("FACTION_CATALOG_BUTTON");
+			if (factionCatalogButton != null)
+			{
+				var hasFactionCatalog = FactionCatalogLogic.IsAvailable(modData);
+				factionCatalogButton.IsVisible = () => hasFactionCatalog && selectedComponentId != null &&
+					catalog.Components.TryGetValue(selectedComponentId, out var selected) && selected.Faction != null;
+				factionCatalogButton.OnClick = () => Game.OpenWindow(FactionCatalogLogic.PanelId, new WidgetArgs
+				{
+					{ "onExit", () => { } },
+					{ "initialFaction", catalog.Components[selectedComponentId].Faction.InternalName },
+					{ "onOpenExperience", null },
+				});
+			}
+
 			applyButton = widget.Get<ButtonWidget>("APPLY_BUTTON");
 			applyButton.IsDisabled = () => !HasChanges();
 			applyButton.OnClick = ReviewChanges;
@@ -308,6 +323,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					selectedComponentId = capturedComponent.Id;
 					PopulateComponents();
 					Game.RunAfterDelay(750, Game.TakeScreenshot);
+
+					// Follow the faction pack into the native Faction Catalog for navigation captures.
+					var catalogButton = widget.GetOrNull<ButtonWidget>("FACTION_CATALOG_BUTTON");
+					if (Environment.GetEnvironmentVariable("OPENRA_AI_CAPTURE_OPEN_FACTION_CATALOG") == "1" && catalogButton != null &&
+						catalogButton.IsVisible())
+						Game.RunAfterDelay(1500, catalogButton.OnClick);
 				});
 			else if (Environment.GetEnvironmentVariable("OPENRA_AI_CAPTURE_EXPERIENCE_REVIEW") == "1")
 				Game.RunAfterDelay(750, () =>

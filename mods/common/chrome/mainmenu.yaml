@@ -139,9 +139,15 @@ Container@MAINMENU:
 							Height: 30
 							Text: button-main-menu-content
 							Font: Bold
-						Button@QUIT_BUTTON:
+						Button@FACTIONS_BUTTON:
 							X: PARENT_WIDTH / 2 - WIDTH / 2
 							Y: 295
+							Width: 140
+							Height: 30
+							Font: Bold
+						Button@QUIT_BUTTON:
+							X: PARENT_WIDTH / 2 - WIDTH / 2
+							Y: 335
 							Width: 140
 							Height: 30
 							Text: button-quit
