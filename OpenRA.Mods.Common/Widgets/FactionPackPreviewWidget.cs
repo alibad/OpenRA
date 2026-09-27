@@ -44,7 +44,7 @@ namespace OpenRA.Mods.Common.Widgets
 				sheet = new Sheet(SheetType.BGRA, spriteBounds.Size.NextPowerOf2());
 				sprite = new Sprite(sheet, spriteBounds, TextureChannel.RGBA);
 				OpenRA.Graphics.Util.FastCopyIntoSprite(sprite, preview);
-				sheet.CommitBufferedData();
+				sheet.CommitBufferedData(sprite.Bounds);
 				sheet.GetTexture().ScaleFilter = TextureScaleFilter.Linear;
 				return true;
 			}

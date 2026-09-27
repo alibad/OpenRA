@@ -58,7 +58,7 @@ namespace OpenRA.Mods.Common.Widgets
 			var fullRect = new Rectangle(0, 0, preview.Width, preview.Height);
 			var fullSprite = new Sprite(mapSheet, fullRect, TextureChannel.RGBA);
 			OpenRA.Graphics.Util.FastCopyIntoSprite(fullSprite, preview);
-			mapSheet.CommitBufferedData();
+			mapSheet.CommitBufferedData(fullSprite.Bounds);
 
 			var targetAspect = RenderBounds.Width * 1f / Math.Max(1, RenderBounds.Height);
 			var sourceAspect = preview.Width * 1f / preview.Height;

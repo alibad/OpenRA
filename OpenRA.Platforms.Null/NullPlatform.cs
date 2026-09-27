@@ -109,6 +109,8 @@ namespace OpenRA.Platforms.Null
 			Size = new Size(width, height);
 		}
 
+		public void SetSubData(byte[] colors, int xoffset, int yoffset, int width, int height) { }
+
 		public void SetFloatData(float[] data, int width, int height)
 		{
 			Size = new Size(width, height);
