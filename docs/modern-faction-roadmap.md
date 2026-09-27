@@ -20,7 +20,7 @@ this roadmap remains the authority on sequencing and gates.
 
 | Faction | Contract | State |
 | --- | --- | --- |
-| United States (`usa`) | [`faction-spec-usa.md`](faction-spec-usa.md) | **Complete.** All decisions settled. One blocker before freeze: the source links that block automated retrieval must be opened and confirmed by a human (see its §9.1) |
+| United States (`usa`) | [`faction-spec-usa.md`](faction-spec-usa.md) | **Complete.** All decisions settled. One blocker before freeze: the source links that block automated retrieval must be opened and confirmed by a human (see its §9.1). Gate 2 concept board ready for product-owner review in [`concept/usa/`](concept/usa/README.md) — not approved |
 | Israel (`israel`) | [`faction-spec-israel.md`](faction-spec-israel.md) | Sourced outline. Cross-faction rulings applied; expands after the U.S. contract is frozen |
 | Germany (Modern) (`bundeswehr`) | [`faction-spec-bundeswehr.md`](faction-spec-bundeswehr.md) | Sourced outline. The only faction whose entire source set was directly retrievable |
 | The Koreas (`northkorea`, `southkorea`) | [`faction-spec-koreas.md`](faction-spec-koreas.md) | Sourced outline. Carries a two-source corroboration policy for every North Korean actor |
@@ -79,7 +79,8 @@ content requires product-owner approval.
    the hidden Allies base. This is the first wholly new graphics set.
    *Gate 1 complete — see `faction-spec-usa.md`. Doctrine is networked joint
    fires built on one mechanic, fires-network coverage, which was verified
-   buildable from existing engine traits with no new code.*
+   buildable from existing engine traits with no new code. Gate 2: concept
+   board ready for product-owner review in `docs/concept/usa/` — not approved.*
 3. **Israel.** Build a defensive combined-arms faction around armored
    protection, reconnaissance, unmanned systems, and layered interception.
    *Sourced outline delivered.*
@@ -279,9 +280,11 @@ matters, because the cost of getting it wrong rises sharply once art exists.
   audits and an explicit remaining-gap list. *Not started.*
 - **Checkpoint B:** the U.S. contract and concept board are approved; only then
   generate the full U.S. sheets. *Contract half delivered and settled; blocked
-  only on human source verification. Concept board not started, and it carries
-  two mandatory side-by-side comparisons: `USMBT` beside `M1A2S`, and `USICV`
-  beside Turkey's `ARAS8`, both at native scale on all three palettes.*
+  only on human source verification. Concept board ready for product-owner
+  review in [`concept/usa/`](concept/usa/README.md) — not approved. It carries
+  the two mandatory side-by-side comparisons: `USMBT` beside `M1A2S`, and
+  `USICV` beside Turkey's `ARAS8`, both at native scale on all three palettes,
+  and lists the open questions the product owner must settle.*
 - **Checkpoint C:** the U.S. faction passes live acceptance and becomes the
   quality bar for Israel and Germany (Modern).
 - **Checkpoint D:** Israel and Germany pass independently without altering the
