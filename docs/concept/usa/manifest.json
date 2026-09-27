@@ -1,0 +1,133 @@
+{
+  "generator": "usa-concept-board/1",
+  "product_commit": "6ce701ddf2d897adf54502212a9dca088c494c56",
+  "engine_commit": "5ddc34cb91e52953d4844c169075a0dbbd79e139",
+  "inputs": {
+    "scripts": {
+      "usa_concept_actors.py": "146258a29beed9583c7af98bf9bc459bfac4b2cc0c1cf3234aac07a537a80757",
+      "usa_concept_models.py": "f3353678d60513be2395aaee2e7d67b764ce9d4b2755e1e2aa91879290a6a6eb",
+      "usa_concept_render.py": "f945a85d1d6bb52e5a66d06bd223872215c613bc89384af41cea526481d93849",
+      "build-usa-concept-board.py": "7a12788d22a39d4d028b7878660fd56e6e5201f4d0fd50eaeeb34f9a796188bf",
+      "red_sea_directional_vehicle.py": "9f25a4a4440b09377bc4001b4a380b72b7e3738a3991dea18210964360ffbb56"
+    },
+    "palettes": {
+      "desert": "bb1ad7a0958fa004501e49bf58cd0fb0ff909226c3f0e94403a36083cc17cc29",
+      "snow": "e85c535002573b5f95f7c361c4bdb95ee43e4914ddc926afda9ace995c54242b",
+      "temperat": "e85c535002573b5f95f7c361c4bdb95ee43e4914ddc926afda9ace995c54242b"
+    }
+  },
+  "player_colours": {
+    "blue": "2F86F2",
+    "red": "F50606",
+    "green": "06F739",
+    "gold": "F2BC18",
+    "maroon": "391D1D"
+  },
+  "remap_share": {
+    "USRIFLE": 0.0611,
+    "USJAV": 0.0405,
+    "USJTAC": 0.0611,
+    "TALONSIX": 0.108,
+    "USMBT": 0.1478,
+    "USIFV": 0.1115,
+    "USICV": 0.1126,
+    "USHIMARS": 0.1012,
+    "USSHORAD": 0.0927,
+    "USRECOV": 0.1634,
+    "USF35": 0.068,
+    "USMQ9": 0.1816,
+    "USUH60": 0.0892,
+    "USAC130": 0.1037,
+    "USDDG": 0.0337,
+    "USSSN": 0.114,
+    "USLPD": 0.0889,
+    "USTOC": 0.1497,
+    "USIAMD": 0.2605,
+    "USCUAS": 0.1288,
+    "USNODE": 0.253,
+    "M1A2S": 0.5539,
+    "ARAS8": 0.5385
+  },
+  "outputs": {
+    "usa-concept-board.png": {
+      "sha256": "de0a5ed8f9b38ab75db7540bba10ca80b073ce628200fd47321cc7adc0b0225e",
+      "bytes": 691843,
+      "size": [
+        1440,
+        621
+      ]
+    },
+    "usa-concept-board@3x.png": {
+      "sha256": "1ab75c2aee05ffd1aa8ed1b74d5e0c59b44475b9370a1537d4f317b537b1b936",
+      "bytes": 825456,
+      "size": [
+        4320,
+        1863
+      ]
+    },
+    "usa-facings-states.png": {
+      "sha256": "98bdbd4df0c025bff308044a48bcc02db99ca73ccd8af45b6b1e41139c1b36cb",
+      "bytes": 290458,
+      "size": [
+        1614,
+        1775
+      ]
+    },
+    "usa-facings-states@3x.png": {
+      "sha256": "1b4ba825231d267b5e00875a07bfe9be0a83c0dbf6940a5af74d927ce0dfb472",
+      "bytes": 487551,
+      "size": [
+        4842,
+        5325
+      ]
+    },
+    "usa-comparisons-mbt-icv.png": {
+      "sha256": "77961c35c84a29894d2c284bab14abc9cc500712351529c54b6a735b0a2e046a",
+      "bytes": 529711,
+      "size": [
+        950,
+        1272
+      ]
+    },
+    "usa-comparisons-mbt-icv@3x.png": {
+      "sha256": "9be9cb6ff725a5ebbce7a31f8c79f5d25522812c810e1354f16f0a6ca3163b87",
+      "bytes": 608379,
+      "size": [
+        2850,
+        3816
+      ]
+    },
+    "usa-player-colour-zones.png": {
+      "sha256": "dfde8504a9840501cb1258cf838adf3569577eace51d57ab3ffe4e19d86fd82f",
+      "bytes": 129351,
+      "size": [
+        562,
+        1414
+      ]
+    },
+    "usa-player-colour-zones@3x.png": {
+      "sha256": "b0e8f6cdb753ad5d2df0591d08e2b364df6b41dd9638fb7c862af3a635164887",
+      "bytes": 197036,
+      "size": [
+        1686,
+        4242
+      ]
+    },
+    "usa-silhouette-matrix.png": {
+      "sha256": "b7b2a254751c7011869de3a8f238799c5f361436a1b7963ee7ed0237ec647f4d",
+      "bytes": 77411,
+      "size": [
+        738,
+        1532
+      ]
+    },
+    "usa-silhouette-matrix@3x.png": {
+      "sha256": "ca58526fee1ec71e61e7a57a4f76f9713742d90e7437baa4c3dc3df0e0604d04",
+      "bytes": 131059,
+      "size": [
+        2214,
+        4596
+      ]
+    }
+  }
+}
