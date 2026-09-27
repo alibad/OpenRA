@@ -217,7 +217,7 @@ namespace OpenRA.Network
 				if (World.IsLoadingGameSave)
 					return 1;
 
-				if (World.IsReplay)
+				if (World.IsReplay && !IsOutOfSync && NetFrameNumber < ((ReplayConnection)Connection).TickCount)
 					return World.ReplayTimestep;
 
 				if (tickScale != 1f)

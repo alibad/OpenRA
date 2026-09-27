@@ -68,10 +68,10 @@ namespace OpenRA.Mods.Common.Widgets
 				return;
 
 			var scale = Math.Min(RenderBounds.Width / (float)sprite.Size.X, RenderBounds.Height / (float)sprite.Size.Y);
-			var size = (scale * sprite.Size.XY).ToInt2();
+			var size = int2.FromVector(scale * sprite.Size);
 			var location = new int2(RenderBounds.X, RenderBounds.Y) +
 				(new int2(RenderBounds.Width, RenderBounds.Height) - size) / 2;
-			WidgetUtils.DrawSprite(sprite, location, size);
+			WidgetUtils.DrawSprite(sprite, location.ToVector2(), size.ToVector2());
 		}
 
 		public override void Removed()

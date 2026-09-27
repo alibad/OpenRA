@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using System.Numerics;
 using OpenRA.FileFormats;
 using OpenRA.Graphics;
 using OpenRA.Primitives;
@@ -22,14 +23,14 @@ namespace OpenRA.Mods.Common.Widgets
 		readonly Sprite pinSprite;
 		Sheet mapSheet;
 		Sprite mapSprite;
-		float2 pin = new(0.5f, 0.5f);
+		Vector2 pin = new(0.5f, 0.5f);
 		float cropLeft;
 		float cropTop;
 		float cropWidth = 1f;
 		float cropHeight = 1f;
 		float footprintScale = 1f;
 
-		public Action<float2> OnMapClick = _ => { };
+		public Action<Vector2> OnMapClick = _ => { };
 		public Action<int> OnZoom = _ => { };
 
 		public EarthMapPreviewWidget()
@@ -47,7 +48,7 @@ namespace OpenRA.Mods.Common.Widgets
 
 		public override EarthMapPreviewWidget Clone() { return new EarthMapPreviewWidget(this); }
 
-		public void Update(Png preview, float2 pinPosition, float selectedRadiusToViewRadius = 1f)
+		public void Update(Png preview, Vector2 pinPosition, float selectedRadiusToViewRadius = 1f)
 		{
 			if (mapSheet == null || mapSheet.Size.Width < preview.Width || mapSheet.Size.Height < preview.Height)
 			{
@@ -79,7 +80,7 @@ namespace OpenRA.Mods.Common.Widgets
 			cropTop = spriteRect.Y * 1f / preview.Height;
 			cropWidth = spriteRect.Width * 1f / preview.Width;
 			cropHeight = spriteRect.Height * 1f / preview.Height;
-			pin = new float2(pinPosition.X.Clamp(0f, 1f), pinPosition.Y.Clamp(0f, 1f));
+			pin = new Vector2(pinPosition.X.Clamp(0f, 1f), pinPosition.Y.Clamp(0f, 1f));
 			footprintScale = Math.Max(0.01f, selectedRadiusToViewRadius);
 		}
 
@@ -95,7 +96,7 @@ namespace OpenRA.Mods.Common.Widgets
 				return false;
 
 			var point = mi.Location - RenderBounds.Location;
-			OnMapClick(new float2(
+			OnMapClick(new Vector2(
 				(cropLeft + point.X * 1f / RenderBounds.Width * cropWidth).Clamp(0f, 1f),
 				(cropTop + point.Y * 1f / RenderBounds.Height * cropHeight).Clamp(0f, 1f)));
 			return true;
@@ -107,27 +108,27 @@ namespace OpenRA.Mods.Common.Widgets
 				return;
 
 			Game.Renderer.EnableScissor(RenderBounds);
-			WidgetUtils.DrawSprite(mapSprite, RenderBounds.Location, RenderBounds.Size);
+			WidgetUtils.DrawSprite(mapSprite, RenderBounds.Location.ToVector2(), RenderBounds.Size);
 			var pinPosition = RenderBounds.Location + new int2(
 				(int)((pin.X - cropLeft) / cropWidth * RenderBounds.Width),
 				(int)((pin.Y - cropTop) / cropHeight * RenderBounds.Height));
 
 			var radius = Math.Min(RenderBounds.Width, RenderBounds.Height) * 0.42f * footprintScale;
-			var topLeft = new float3(pinPosition.X - radius, pinPosition.Y - radius, 0);
-			var bottomRight = new float3(pinPosition.X + radius, pinPosition.Y + radius, 0);
+			var topLeft = new Vector3(pinPosition.X - radius, pinPosition.Y - radius, 0);
+			var bottomRight = new Vector3(pinPosition.X + radius, pinPosition.Y + radius, 0);
 			Game.Renderer.RgbaColorRenderer.FillEllipse(topLeft, bottomRight, Color.FromArgb(42, 244, 205, 67));
-			var circle = new float3[48];
+			var circle = new Vector3[48];
 			for (var i = 0; i < circle.Length; i++)
 			{
 				var angle = i * Math.PI * 2 / circle.Length;
-				circle[i] = new float3(
+				circle[i] = new Vector3(
 					pinPosition.X + (float)Math.Cos(angle) * radius,
 					pinPosition.Y + (float)Math.Sin(angle) * radius,
 					0);
 			}
 
 			Game.Renderer.RgbaColorRenderer.DrawPolygon(circle, 2, Color.FromArgb(220, 244, 205, 67));
-			WidgetUtils.DrawSprite(pinSprite, pinPosition - pinSprite.Size.XY.ToInt2() / 2);
+			WidgetUtils.DrawSprite(pinSprite, (pinPosition - int2.FromVector(pinSprite.Size) / 2).ToVector2());
 			Game.Renderer.DisableScissor();
 		}
 

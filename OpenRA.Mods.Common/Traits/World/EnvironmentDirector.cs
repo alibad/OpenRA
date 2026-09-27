@@ -11,6 +11,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.Graphics;
 using OpenRA.Primitives;
@@ -549,17 +550,17 @@ namespace OpenRA.Mods.Common.Traits
 				var y = Math.Max(78, Game.Renderer.NativeResolution.Height / 2 - 62);
 				var width = 304f;
 				var renderer = Game.Renderer.RgbaColorRenderer;
-				renderer.FillRect(new float3(x, y, 0), new float3(x + width, y + 62, 0), Color.FromArgb(220, 9, 12, 17));
-				renderer.FillRect(new float3(x, y, 0), new float3(x + 5, y + 62, 0), accent);
-				renderer.DrawRect(new float3(x, y, 0), new float3(x + width, y + 62, 0), 1, Color.FromArgb(210, accent.R, accent.G, accent.B));
+				renderer.FillRect(new Vector3(x, y, 0), new Vector3(x + width, y + 62, 0), Color.FromArgb(220, 9, 12, 17));
+				renderer.FillRect(new Vector3(x, y, 0), new Vector3(x + 5, y + 62, 0), accent);
+				renderer.DrawRect(new Vector3(x, y, 0), new Vector3(x + width, y + 62, 0), 1, Color.FromArgb(210, accent.R, accent.G, accent.B));
 
 				var status = adaptation > 0 ? $"ADAPTED {adaptation}%" : "EXPOSED";
 				var title = warning ? $"INCOMING: {EventName(type)}" : EventName(type);
 				var font = Game.Renderer.Fonts["TinyBold"];
-				font.DrawTextWithContrast(title, new float2(x + 14, y + 9), Color.White, Color.Black, 1);
-				font.DrawTextWithContrast($"{secondsRemaining:00}s", new float2(x + width - 42, y + 9), accent, Color.Black, 1);
-				font.DrawTextWithContrast(status, new float2(x + 14, y + 31), adaptation > 0 ? Color.FromArgb(255, 117, 224, 151) : Color.FromArgb(255, 255, 128, 112), Color.Black, 1);
-				font.DrawTextWithContrast(EventEffect(type), new float2(x + 14, y + 46), Color.FromArgb(255, 195, 204, 214), Color.Black, 1);
+				font.DrawTextWithContrast(title, new Vector2(x + 14, y + 9), Color.White, Color.Black, 1);
+				font.DrawTextWithContrast($"{secondsRemaining:00}s", new Vector2(x + width - 42, y + 9), accent, Color.Black, 1);
+				font.DrawTextWithContrast(status, new Vector2(x + 14, y + 31), adaptation > 0 ? Color.FromArgb(255, 117, 224, 151) : Color.FromArgb(255, 255, 128, 112), Color.Black, 1);
+				font.DrawTextWithContrast(EventEffect(type), new Vector2(x + 14, y + 46), Color.FromArgb(255, 195, 204, 214), Color.Black, 1);
 
 				if (type == EnvironmentEventType.NightBlackout && !warning)
 					RenderEmergencyLights(wr);
@@ -577,10 +578,10 @@ namespace OpenRA.Mods.Common.Traits
 				var renderer = Game.Renderer.RgbaColorRenderer;
 				foreach (var building in wr.World.Actors.Where(a => a.IsInWorld && a.Owner.IsAlliedWith(localPlayer) && a.Info.HasTraitInfo<BuildingInfo>()))
 				{
-					var pos = wr.Viewport.WorldToViewPx(wr.ScreenPosition(building.CenterPosition)).ToFloat2();
+					var pos = wr.Viewport.WorldToViewPx(wr.ScreenPosition(building.CenterPosition).AsVector3()).ToVector2();
 					var pulse = 2 + (building.ActorID + (uint)(wr.World.WorldTick / 12)) % 3;
 					var color = Color.FromArgb(190, 255, 194, 64);
-					renderer.FillRect(new float3(pos.X - pulse, pos.Y - 12, 0), new float3(pos.X + pulse, pos.Y - 8, 0), color);
+					renderer.FillRect(new Vector3(pos.X - pulse, pos.Y - 12, 0), new Vector3(pos.X + pulse, pos.Y - 8, 0), color);
 				}
 			}
 		}

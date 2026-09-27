@@ -13,6 +13,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Numerics;
 using OpenRA.GameRules;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.Effects;
@@ -158,7 +159,7 @@ namespace OpenRA.Mods.Common.Projectiles
 		readonly WDist speed;
 		readonly string trailPalette;
 
-		readonly float3 shadowColor;
+		readonly Vector3 shadowColor;
 		readonly float shadowAlpha;
 
 		readonly ContrailRenderable contrail;
@@ -229,8 +230,9 @@ namespace OpenRA.Mods.Common.Projectiles
 			smokeTicks = info.TrailDelay;
 			remainingBounces = info.BounceCount;
 
-			shadowColor = new float3(info.ShadowColor.R, info.ShadowColor.G, info.ShadowColor.B) / 255f;
-			shadowAlpha = info.ShadowColor.A / 255f;
+			var sColor = info.ShadowColor.ToVector4();
+			shadowColor = sColor.AsVector3();
+			shadowAlpha = sColor.W;
 		}
 
 		WAngle GetEffectiveFacing()

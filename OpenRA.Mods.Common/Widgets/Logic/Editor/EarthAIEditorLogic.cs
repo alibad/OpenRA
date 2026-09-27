@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text.Json;
 using OpenRA.FileFormats;
 using OpenRA.Graphics;
@@ -279,7 +280,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				var preview = new Png(stream);
 				Game.RunAfterTick(() =>
 				{
-					earthPreview.Update(preview, new float2(0.5f, 0.5f));
+					earthPreview.Update(preview, new Vector2(0.5f, 0.5f));
 					source = "SATELLITE VIEW READY  |  THIS EXACT IMAGE GOES TO AI";
 					if (!busy)
 						SetStatus("Satellite image captured. Pick a fidelity mode, then generate the OpenRA translation.");
@@ -291,7 +292,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			}
 		}
 
-		void MoveEarthPin(float2 point)
+		void MoveEarthPin(Vector2 point)
 		{
 			if (!double.TryParse(latitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var lat) ||
 				!double.TryParse(longitude.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var lon) ||

@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Numerics;
 using System.Text.Json;
 using OpenRA.FileFormats;
 using OpenRA.Primitives;
@@ -507,7 +508,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				{
 					if (requestId != earthPreviewRequestId)
 						return;
-					earthPreview.Update(preview, new float2(0.5f, 0.5f), radiusMeters / (float)earthViewRadiusMeters);
+					earthPreview.Update(preview, new Vector2(0.5f, 0.5f), radiusMeters / (float)earthViewRadiusMeters);
 					earthPreviewLoaded = true;
 					visionStatus = $"{ImageryStyleLabels[resolvedStyle].ToUpperInvariant()} + MAP DATA | READY TO ANALYZE";
 					if (!busy)
@@ -520,7 +521,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			}
 		}
 
-		void MoveEarthPin(float2 point)
+		void MoveEarthPin(Vector2 point)
 		{
 			if (!TryReadCoordinates(out var lat, out var lon))
 				return;

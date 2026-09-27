@@ -12,6 +12,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using OpenRA.FileSystem;
 using OpenRA.Primitives;
 
@@ -71,7 +72,7 @@ namespace OpenRA.Graphics
 		/// </summary>
 		Size FrameSize { get; }
 
-		float2 Offset { get; }
+		Vector2 Offset { get; }
 		byte[] Data { get; }
 		bool DisableExportPadding { get; }
 	}
@@ -135,7 +136,7 @@ namespace OpenRA.Graphics
 		public SpriteFrameType Type => SpriteFrameType.Bgra32;
 		public Size Size => new(1, 1);
 		public Size FrameSize => new(1, 1);
-		public float2 Offset => float2.Zero;
+		public Vector2 Offset => Vector2.Zero;
 		public byte[] Data => DummyData;
 		public bool DisableExportPadding => true;
 	}
