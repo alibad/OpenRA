@@ -98,7 +98,7 @@ namespace OpenRA.Graphics
 			{
 				metadata = null;
 				if (Game.IsHeadless)
-					return Enumerable.Repeat((ISpriteFrame)DummySpriteFrame.Instance, 256).ToArray();
+					return Enumerable.Repeat((ISpriteFrame)DummySpriteFrame.Instance, 1024).ToArray();
 
 				throw new FileNotFoundException($"File not found: {filename}", filename);
 			}
