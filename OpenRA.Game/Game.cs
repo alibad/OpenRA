@@ -44,6 +44,9 @@ namespace OpenRA
 		public static CursorManager Cursor;
 		public static bool HideCursor;
 
+		/// <summary>True when running on the no-op OpenRA.Platforms.Null platform (Game.Platform=Null).</summary>
+		public static bool IsHeadless => Settings?.Game?.Platform == "Null";
+
 		static WorldRenderer worldRenderer;
 		static string modLaunchWrapper;
 
