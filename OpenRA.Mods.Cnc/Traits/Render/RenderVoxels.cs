@@ -38,7 +38,7 @@ namespace OpenRA.Mods.Cnc.Traits.Render
 		[PaletteReference]
 		public readonly string Palette = null;
 
-		[PaletteReference]
+		[PaletteReference(true)]
 		[Desc("Custom PlayerColorPalette: BaseName")]
 		public readonly string PlayerPalette = "player";
 
