@@ -560,7 +560,9 @@ namespace OpenRA
 			var viewWidth = Math.Min(screenSprite.Bounds.Width, srcWidth);
 			var viewHeight = Math.Min(-screenSprite.Bounds.Height, srcRows);
 			if (viewWidth <= 0 || viewHeight <= 0)
-				throw new InvalidOperationException("The active renderer does not expose viewport pixels.");
+				throw new InvalidOperationException("The active renderer does not expose viewport pixels " +
+					$"(texture {texture.Size.Width}x{texture.Size.Height}, {src.Length} bytes read, " +
+					$"screen {screenSprite.Bounds.Width}x{-screenSprite.Bounds.Height}, window surface {Window.SurfaceSize.Width}x{Window.SurfaceSize.Height}).");
 
 			var scale = Math.Min(1f, Math.Min((float)maxWidth / viewWidth, (float)maxHeight / viewHeight));
 			width = Math.Max(1, (int)(viewWidth * scale));
