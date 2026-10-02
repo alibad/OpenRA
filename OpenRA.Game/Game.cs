@@ -201,7 +201,7 @@ namespace OpenRA
 			// Dispose of the old world before creating a new one.
 			worldRenderer?.Dispose();
 
-			Cursor.SetCursor(null);
+			Cursor?.SetCursor(null);
 			BeforeGameStart();
 
 			using (new PerfTimer("NewWorld"))
@@ -244,7 +244,7 @@ namespace OpenRA
 
 			OrderManager.StartGame();
 			worldRenderer.RefreshPalette();
-			Cursor.SetCursor(ChromeMetrics.Get<string>("DefaultCursor"));
+			Cursor?.SetCursor(ChromeMetrics.Get<string>("DefaultCursor"));
 
 			// Now loading is completed, now is the ideal time to run a GC and compact the LOH.
 			// - All the temporary garbage created during loading can be collected.
@@ -527,7 +527,9 @@ namespace OpenRA
 				ModData.MapCache.LoadMaps(ModData);
 
 			Cursor?.Dispose();
-			Cursor = new CursorManager(ModData);
+
+			// The Null platform has no readable textures or hardware cursors.
+			Cursor = IsHeadless ? null : new CursorManager(ModData);
 
 			var metadata = ModData.Manifest.Metadata;
 			if (!string.IsNullOrEmpty(metadata.WindowTitleTranslated))
@@ -646,7 +648,7 @@ namespace OpenRA
 			{
 				Ui.LastTickTime.AdvanceTickTime(tick);
 				Sync.RunUnsynced(world, Ui.Tick);
-				Cursor.Tick();
+				Cursor?.Tick();
 			}
 
 			if (orderManager.LastTickTime.ShouldAdvance(tick))
