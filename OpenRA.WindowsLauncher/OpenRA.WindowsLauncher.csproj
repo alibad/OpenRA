@@ -27,4 +27,9 @@
 	<ItemGroup>
 		<ProjectReference Include="..\OpenRA.Game\OpenRA.Game.csproj" />
 	</ItemGroup>
+	<!-- Mods may host loopback ASP.NET Core services (e.g. the RTS AI companion gRPC bridge).
+	     A mod assembly cannot add a shared framework to the host process, so the launcher must. -->
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 </Project>
