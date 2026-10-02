@@ -31,6 +31,13 @@ namespace OpenRA
 		[Desc("Automatically start playing the given map.")]
 		public string Map;
 
+		[Desc("With Launch.Map: seat bots before starting. Format: slot:bottype[:faction],... " +
+			"(e.g. Multi1:normal or Multi0:normal:allies,Multi1:rush:soviets). A bot in Multi0 makes the local player spectate.")]
+		public string Bots;
+
+		[Desc("With Launch.Map: faction for the local player (e.g. allies).")]
+		public string Faction;
+
 		public LaunchArguments(Arguments args)
 		{
 			if (args == null)

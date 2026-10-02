@@ -1013,13 +1013,36 @@ namespace OpenRA
 			benchmark = new Benchmark(prefix);
 		}
 
-		public static void LoadMap(string launchMap)
+		public static void LoadMap(string launchMap, string launchBots = null, string launchFaction = null)
 		{
-			var orders = new List<Order>
+			var orders = new List<Order>();
+			if (!string.IsNullOrEmpty(launchFaction))
+				orders.Add(Order.Command($"faction 0 {launchFaction}"));
+
+			// Seat bots before readying up. Entries are slot:bottype[:faction].
+			if (!string.IsNullOrEmpty(launchBots))
 			{
-				Order.Command("option gamespeed default"),
-				Order.Command($"state {Session.ClientState.Ready}")
-			};
+				var bots = launchBots.Split(',')
+					.Select(entry => entry.Trim().Split(':'))
+					.Where(parts => parts.Length is 2 or 3)
+					.ToArray();
+
+				// The local host occupies Multi0 by default; only spectate if a bot was requested there.
+				if (bots.Any(parts => parts[0] == "Multi0"))
+					orders.Add(Order.Command("spectate"));
+
+				// The local server hands out client indices sequentially: the host is 0,
+				// so the n-th bot seated here becomes client n.
+				for (var i = 0; i < bots.Length; i++)
+				{
+					orders.Add(Order.Command($"slot_bot {bots[i][0]} 0 {bots[i][1]}"));
+					if (bots[i].Length == 3)
+						orders.Add(Order.Command($"faction {i + 1} {bots[i][2]}"));
+				}
+			}
+
+			orders.Add(Order.Command("option gamespeed default"));
+			orders.Add(Order.Command($"state {Session.ClientState.Ready}"));
 
 			var map = ModData.MapCache.SingleOrDefault(m => m.Uid == launchMap || Path.GetFileName(m.Path) == launchMap);
 			if (map == null)
