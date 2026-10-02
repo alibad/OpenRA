@@ -177,6 +177,11 @@ namespace OpenRA.Graphics
 				CenterLocation = ((tl + br) / 2).ToVector2();
 			}
 
+			// A new viewport may be drawn before the window reports any mouse position.
+			// Do not treat the static default (0, 0) as the cursor resting in the top-left
+			// corner, which edge-scrolls the camera away from the player's start location.
+			LastMousePos = new int2(Game.Renderer.Resolution.Width / 2, Game.Renderer.Resolution.Height / 2);
+
 			UpdateViewportZooms();
 		}
 
