@@ -156,11 +156,11 @@ SA_FRGT:
 		RequiresCondition: active-radar
 	Turreted@GUN:
 		Turret: primary
-		Offset: 0,470,120
+		Offset: 470,0,120
 		TurnSpeed: 18
 	Turreted@CIWS:
 		Turret: ciws
-		Offset: 0,-190,210
+		Offset: -190,0,210
 		TurnSpeed: 42
 	Armament@GUN:
 		Turret: primary
@@ -182,6 +182,7 @@ SA_FRGT:
 		Turret: primary
 	WithSpriteTurret@CIWS:
 		Turret: ciws
+		Sequence: ciws
 	AmmoPool@INTERCEPTORS:
 		Name: interceptors
 		Armaments: defensive-interceptor
@@ -252,7 +253,7 @@ SA_INTC:
 		Range: 8c0
 		RevealGeneratedShroud: false
 	Turreted:
-		Offset: 0,300,80
+		Offset: 300,0,80
 		TurnSpeed: 44
 	Armament:
 		Weapon: NavalInterceptorCannon
@@ -361,7 +362,7 @@ YE_MSLC:
 	ExternalCondition@TARGETINGLINK:
 		Condition: targeting-link
 	Turreted:
-		Offset: 0,-210,130
+		Offset: -210,0,130
 		TurnSpeed: 16
 	Armament:
 		Weapon: YemeniNavalMissile
@@ -494,7 +495,7 @@ YE_SURVE:
 		ValidRelationships: Ally
 		RequiresCondition: active-radar
 	Turreted:
-		Offset: 0,245,85
+		Offset: 245,0,85
 		TurnSpeed: 34
 	Armament:
 		Weapon: YemeniSurveillanceGun

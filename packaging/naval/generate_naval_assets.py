@@ -27,8 +27,19 @@ PALETTE_PATH = ROOT / "mods" / "ra" / "maps" / "chernobyl" / "temperat.pal"
 UTILITY = ROOT / "bin" / "OpenRA.Utility.exe"
 
 
+ICON_LABELS = {
+    "sa_frgt": "AL RIYADH",
+    "sa_intc": "AL SADIQ",
+    "sa_fss": "AL JUBAIL",
+    "ye_mslc": "HODEIDAH",
+    "ye_usv": "SAHAAB USV",
+    "ye_surve": "MOKHA",
+}
+FONT_PATH = ROOT / "mods" / "common" / "FreeSansBold.ttf"
+PORTRAIT_YAW = math.radians(118)  # bow toward the lower left; no world facing uses it
+
 VESSELS = {
-    "sa_frgt": dict(length=68, width=17, bow=0.15, bridge=-4, bridge_len=17, mast=-7, deck=18, accent="saudi", turret=True),
+    "sa_frgt": dict(length=68, width=17, bow=0.15, bridge=-4, bridge_len=17, mast=-7, deck=18, accent="saudi", turret=True, ciws=True),
     "sa_intc": dict(length=43, width=13, bow=0.05, bridge=-1, bridge_len=12, mast=-3, deck=11, accent="saudi", turret=True),
     "sa_fss": dict(length=63, width=20, bow=0.18, bridge=-12, bridge_len=17, mast=-13, deck=25, accent="saudi", crane=True),
     "ye_mslc": dict(length=47, width=14, bow=0.08, bridge=-3, bridge_len=14, mast=-5, deck=12, accent="yemen", missiles=True, turret=True),
@@ -76,6 +87,16 @@ IDX = {
 }
 
 
+# Player-remap ramp entries for the painted hull and superstructure (80 is the
+# brightest shade).  These reproduce the ownership colors that were previously
+# patched into the shipped SHPs outside this generator.
+TEAM = {"hull": 87, "hull_light": 82}
+
+
+def paint(role: str, team: bool) -> int:
+    return TEAM[role] if team else IDX[role]
+
+
 def blank(size: tuple[int, int] = CANVAS) -> Image.Image:
     image = Image.new("P", size, 0)
     image.putpalette(PALETTE)
@@ -83,38 +104,64 @@ def blank(size: tuple[int, int] = CANVAS) -> Image.Image:
     return image
 
 
-def project(local_x: float, local_y: float, yaw: float, z: float = 0, center: tuple[float, float] = (48, 39)) -> tuple[int, int]:
+# OpenRA's classic perspective draws a ground offset of one unit north as
+# sin(40 deg) of a unit up the screen (BodyOrientationInfo.LocalToWorld), so the
+# hull art uses the same squash and turret offsets line up at every facing.
+GROUND_SQUASH = 658 / 1024
+
+
+def project(local_x: float, local_y: float, yaw: float, z: float = 0, center: tuple[float, float] = (48, 39),
+            scale: float = 1.0) -> tuple[int, int]:
+    """Project a hull-local point (x starboard, y toward the bow) to the canvas.
+
+    ``yaw`` is the OpenRA facing angle in radians, counter-clockwise from north:
+    the bow points up at facing 0, left at facing 8, down at 16, right at 24.
+    """
+
     sin_yaw, cos_yaw = math.sin(yaw), math.cos(yaw)
-    world_x = local_x * cos_yaw + local_y * sin_yaw
-    world_y = -local_x * sin_yaw + local_y * cos_yaw
-    return round(center[0] + world_x), round(center[1] + world_y * 0.48 - z)
+    east = local_x * cos_yaw - local_y * sin_yaw
+    north = local_x * sin_yaw + local_y * cos_yaw
+    return round(center[0] + east * scale), round(center[1] - north * GROUND_SQUASH * scale - z * scale)
+
+
+VIEW = {"center": (48, 39), "scale": 1.0}
 
 
 def polygon(draw: ImageDraw.ImageDraw, points: list[tuple[float, float]], yaw: float, fill: int, z: float = 0) -> None:
-    draw.polygon([project(x, y, yaw, z) for x, y in points], fill=fill)
+    draw.polygon([project(x, y, yaw, z, VIEW["center"], VIEW["scale"]) for x, y in points], fill=fill)
 
 
 def line(draw: ImageDraw.ImageDraw, points: list[tuple[float, float]], yaw: float, fill: int, width: int = 1, z: float = 0) -> None:
-    draw.line([project(x, y, yaw, z) for x, y in points], fill=fill, width=width)
+    draw.line([project(x, y, yaw, z, VIEW["center"], VIEW["scale"]) for x, y in points], fill=fill, width=width)
 
 
-def vessel_frame(spec: dict, facing: int, damage: int = 0, sink: int = 0) -> Image.Image:
-    image = blank()
+def vessel_frame(spec: dict, facing: int, damage: int = 0, sink: int = 0, *, yaw: float | None = None,
+                 canvas: tuple[int, int] = CANVAS, center: tuple[float, float] = (48, 39), scale: float = 1.0,
+                 team: bool = True) -> Image.Image:
+    image = blank(canvas)
     draw = ImageDraw.Draw(image)
-    yaw = facing * 2 * math.pi / FACINGS
+    if yaw is None:
+        yaw = facing * 2 * math.pi / FACINGS
+    VIEW["center"], VIEW["scale"] = center, scale
+
+    def at(x: float, y: float, z: float = 0) -> tuple[int, int]:
+        return project(x, y, yaw, z, center, scale)
+
     length, width = spec["length"], spec["width"]
     half_l, half_w = length / 2, width / 2
     sink_drop = sink * 1.25
     sink_tilt = (sink / 7) * 4
 
     shadow = [(-half_w, -half_l + 5), (-half_w * 0.9, half_l - 8), (0, half_l + 1), (half_w * 0.9, half_l - 8), (half_w, -half_l + 5)]
-    shadow_points = [project(x + 3, y + 4, yaw, -sink_drop, (48, 41)) for x, y in shadow]
+    # The light is fixed on screen, so the shadow is offset in screen space
+    # (down-right) rather than in hull space, where it rotated with the ship.
+    shadow_points = [(px + round(3 * scale), py + round(4 * scale)) for px, py in (at(x, y, -sink_drop) for x, y in shadow)]
     draw.polygon(shadow_points, fill=IDX["shadow"])
 
     hull = [(-half_w * 0.85, -half_l), (-half_w, half_l - 10), (0, half_l), (half_w, half_l - 10), (half_w * 0.85, -half_l)]
     polygon(draw, hull, yaw, IDX["hull_dark"], z=2 - sink_drop)
     inner = [(x * 0.83, y * 0.91) for x, y in hull]
-    polygon(draw, inner, yaw, IDX["hull"], z=4 - sink_drop)
+    polygon(draw, inner, yaw, paint("hull", team), z=4 - sink_drop)
     foredeck = [(-half_w * 0.67, 2), (-half_w * 0.55, half_l - 10), (0, half_l - 4), (half_w * 0.55, half_l - 10), (half_w * 0.67, 2)]
     polygon(draw, foredeck, yaw, IDX["deck"], z=5 - sink_drop)
 
@@ -122,35 +169,35 @@ def vessel_frame(spec: dict, facing: int, damage: int = 0, sink: int = 0) -> Ima
     bridge_len = spec["bridge_len"]
     bw = half_w * (0.60 if not spec.get("usv") else 0.42)
     box = [(-bw, bridge_y - bridge_len / 2), (-bw, bridge_y + bridge_len / 2), (bw, bridge_y + bridge_len / 2), (bw, bridge_y - bridge_len / 2)]
-    polygon(draw, box, yaw, IDX["hull_light"], z=8 - sink_drop + sink_tilt)
+    polygon(draw, box, yaw, paint("hull_light", team), z=8 - sink_drop + sink_tilt)
     front_y = bridge_y + bridge_len / 2
     line(draw, [(-bw * 0.72, front_y), (bw * 0.72, front_y)], yaw, IDX["window"], width=2, z=9 - sink_drop + sink_tilt)
 
     mast_y = spec["mast"]
-    mast_base = project(0, mast_y, yaw, 10 - sink_drop + sink_tilt)
-    mast_top = project(0, mast_y, yaw, 21 - sink_drop + sink_tilt)
+    mast_base = at(0, mast_y, 10 - sink_drop + sink_tilt)
+    mast_top = at(0, mast_y, 21 - sink_drop + sink_tilt)
     draw.line([mast_base, mast_top], fill=IDX["black"], width=2)
-    draw.line([(mast_top[0] - 4, mast_top[1] + 2), (mast_top[0] + 4, mast_top[1] + 2)], fill=IDX["hull_light"], width=1)
+    draw.line([(mast_top[0] - 4, mast_top[1] + 2), (mast_top[0] + 4, mast_top[1] + 2)], fill=paint("hull_light", team), width=1)
     if spec.get("radar") or spec["deck"] >= 18:
-        draw.rectangle((mast_top[0] - 4, mast_top[1] - 1, mast_top[0] + 4, mast_top[1] + 1), fill=IDX["hull_light"])
+        draw.rectangle((mast_top[0] - 4, mast_top[1] - 1, mast_top[0] + 4, mast_top[1] + 1), fill=paint("hull_light", team))
 
     if spec.get("missiles"):
         for x in (-5, -2, 2, 5):
-            p1 = project(x, -12, yaw, 9 - sink_drop)
-            p2 = project(x, -21, yaw, 12 - sink_drop)
+            p1 = at(x, -12, 9 - sink_drop)
+            p2 = at(x, -21, 12 - sink_drop)
             draw.line([p1, p2], fill=IDX["rust"], width=2)
     if spec.get("crane"):
-        base = project(-4, -8, yaw, 10 - sink_drop)
-        top = project(-4, -8, yaw, 21 - sink_drop)
-        boom = project(7, -18, yaw, 19 - sink_drop)
-        draw.line([base, top, boom], fill=IDX["hull_light"], width=2)
+        base = at(-4, -8, 10 - sink_drop)
+        top = at(-4, -8, 21 - sink_drop)
+        boom = at(7, -18, 19 - sink_drop)
+        draw.line([base, top, boom], fill=paint("hull_light", team), width=2)
         service = [(-half_w * 0.75, -half_l + 4), (-half_w * 0.75, -half_l + 4), (-half_w * 0.75, -10), (half_w * 0.75, -10)]
         polygon(draw, service, yaw, IDX["deck"], z=7 - sink_drop)
 
     accent_index = IDX["saudi_accent"] if spec["accent"] == "saudi" else IDX["yemen_accent"]
     line(draw, [(-half_w * 0.92, -half_l + 7), (-half_w * 0.98, half_l - 12)], yaw, accent_index, width=2, z=4 - sink_drop)
     if spec.get("usv"):
-        dome = project(0, mast_y, yaw, 15 - sink_drop)
+        dome = at(0, mast_y, 15 - sink_drop)
         draw.ellipse((dome[0] - 3, dome[1] - 3, dome[0] + 3, dome[1] + 3), fill=IDX["window"])
 
     if damage:
@@ -158,17 +205,17 @@ def vessel_frame(spec: dict, facing: int, damage: int = 0, sink: int = 0) -> Ima
         for _ in range(3 + damage * 2):
             x = rng.uniform(-half_w * 0.6, half_w * 0.6)
             y = rng.uniform(-half_l * 0.5, half_l * 0.6)
-            p = project(x, y, yaw, 8 - sink_drop)
+            p = at(x, y, 8 - sink_drop)
             draw.rectangle((p[0] - 1, p[1] - 1, p[0] + 1, p[1] + 1), fill=IDX["rust"] if damage == 1 else IDX["black"])
         if damage == 2:
-            smoke = project(-2, bridge_y - 2, yaw, 19 - sink_drop)
+            smoke = at(-2, bridge_y - 2, 19 - sink_drop)
             draw.ellipse((smoke[0] - 3, smoke[1] - 6, smoke[0] + 3, smoke[1]), fill=IDX["smoke"])
             draw.point((smoke[0], smoke[1]), fill=IDX["fire"])
 
     if sink:
         water_y = 44
-        draw.rectangle((0, water_y + 7, CANVAS[0] - 1, CANVAS[1] - 1), fill=0)
-        foam = project(0, 0, yaw, -2, (48, 45))
+        draw.rectangle((0, water_y + 7, canvas[0] - 1, canvas[1] - 1), fill=0)
+        foam = project(0, 0, yaw, -2, (center[0], center[1] + 6 * scale), scale)
         radius = max(2, 13 - sink)
         draw.arc((foam[0] - radius, foam[1] - radius // 2, foam[0] + radius, foam[1] + radius // 2), 0, 360, fill=IDX["foam"], width=1)
 
@@ -176,14 +223,31 @@ def vessel_frame(spec: dict, facing: int, damage: int = 0, sink: int = 0) -> Ima
 
 
 def turret_frame(size: str, facing: int) -> Image.Image:
+    """A turret rotating in place about its own mount.
+
+    The mount is the projection origin; ``Turreted.Offset`` places it on the
+    deck.  The earlier art drew the mount 15 px ahead of the origin, so the
+    whole turret orbited the hull centre as it turned.
+    """
+
     image = blank()
     draw = ImageDraw.Draw(image)
     yaw = facing * 2 * math.pi / FACINGS
+    if size == "ciws":
+        # Compact close-in weapon: a white dome, a dark rear housing and a
+        # barrel long enough that all 32 facings stay distinct.
+        dome = project(0, 0, yaw, 6)
+        draw.line([project(0, -3, yaw, 6), project(0, -1, yaw, 6)], fill=IDX["hull_dark"], width=2)
+        draw.ellipse((dome[0] - 3, dome[1] - 3, dome[0] + 3, dome[1] + 2), fill=IDX["white"], outline=IDX["hull_dark"])
+        draw.line([project(0, 1, yaw, 7), project(0, 9, yaw, 7)], fill=IDX["black"], width=1)
+        return image
     radius = 5 if size == "large" else 4
-    center = project(0, 15, yaw, 10)
-    draw.ellipse((center[0] - radius, center[1] - radius // 2, center[0] + radius, center[1] + radius // 2 + 2), fill=IDX["hull_light"])
-    barrel_start = project(0, 15, yaw, 12)
-    barrel_end = project(0, 24 if size == "large" else 21, yaw, 12)
+    center = project(0, 0, yaw, 10)
+    # A rear housing and a barrel long enough to separate adjacent facings.
+    draw.line([project(0, -2, yaw, 10), project(0, -radius - 1, yaw, 10)], fill=IDX["hull_dark"], width=3)
+    draw.ellipse((center[0] - radius, center[1] - radius // 2, center[0] + radius, center[1] + radius // 2 + 2), fill=TEAM["hull_light"])
+    barrel_start = project(0, 0, yaw, 12)
+    barrel_end = project(0, 12 if size == "large" else 10, yaw, 12)
     draw.line([barrel_start, barrel_end], fill=IDX["black"], width=2 if size == "large" else 1)
     return image
 
@@ -251,17 +315,76 @@ def recovery_marker(kind: str) -> Image.Image:
     return image
 
 
-def icon_for(spec: dict) -> Image.Image:
-    source = vessel_frame(spec, 4)
-    bounds = source.getbbox()
+def nearest_static(rgb: tuple[int, int, int]) -> int:
+    """Nearest palette entry that is safe in the opaque chrome-palette cameo.
+
+    Excludes transparent 0, the reserved/shadow indices 1, 3 and 4, and the
+    remap and palette-animated range 80..103.
+    """
+
+    return min(
+        (i for i in range(5, 256) if not 80 <= i <= 103),
+        key=lambda i: sum((COLORS[i][c] - rgb[c]) ** 2 for c in range(3)),
+    )
+
+
+def icon_for(name: str, spec: dict) -> Image.Image:
+    """Opaque 64x48 production cameo with a dedicated three-quarter portrait.
+
+    The earlier cameo pasted an enlarged facing-4 world frame over a
+    transparent canvas; its shadow index rendered bright green in the chrome
+    palette and every vessel read as the same flat wedge.
+    """
+
+    art = vessel_frame(spec, 0, yaw=PORTRAIT_YAW, canvas=(64, 48), center=(32, 25),
+                       scale=min(1.25, 50 / spec["length"]), team=False)
+    backdrop = Image.new("RGB", (64, 48))
+    draw = ImageDraw.Draw(backdrop)
+    for y in range(48):
+        if y < 18:
+            t = y / 18
+            color = (round(98 + 34 * t), round(118 + 30 * t), round(132 + 20 * t))
+        else:
+            t = (y - 18) / 30
+            color = (round(44 - 20 * t), round(84 - 34 * t), round(104 - 40 * t))
+        draw.line((0, y, 63, y), fill=color)
+    for x in range(0, 64, 5):
+        draw.point((x + (x // 5) % 3, 28 + (x // 5) % 4), fill=(96, 138, 150))
+    art_rgb = art.convert("RGBA")
+    pixels = art.load()
+    rgba = art_rgb.load()
+    for y in range(48):
+        for x in range(64):
+            index = pixels[x, y]
+            if index == 0:
+                rgba[x, y] = (0, 0, 0, 0)
+            elif index == IDX["shadow"]:
+                rgba[x, y] = (0, 0, 0, 110)
+    composed = backdrop.convert("RGBA")
+    composed.alpha_composite(art_rgb)
+    band = Image.new("RGBA", (64, 14), (0, 0, 0, 185))
+    composed.alpha_composite(band, (0, 34))
+    label = ICON_LABELS[name]
+    text = ImageDraw.Draw(composed)
+    font_size = 9
+    while True:
+        font = ImageFont.truetype(str(FONT_PATH), font_size)
+        box = text.textbbox((0, 0), label, font=font, stroke_width=1)
+        if box[2] - box[0] <= 60 or font_size <= 6:
+            break
+        font_size -= 1
+    text.text(((64 - (box[2] - box[0])) // 2, 36), label, font=font, fill=(245, 245, 236), stroke_width=1, stroke_fill=(10, 10, 10))
     icon = blank((64, 48))
-    if bounds:
-        crop = source.crop(bounds)
-        crop.putpalette(PALETTE)
-        scale = min(58 / crop.width, 40 / crop.height)
-        crop = crop.resize((max(1, round(crop.width * scale)), max(1, round(crop.height * scale))), Image.Resampling.NEAREST)
-        mask = crop.point(lambda value: 0 if value == 0 else 255).convert("L")
-        icon.paste(crop, ((64 - crop.width) // 2, (48 - crop.height) // 2), mask)
+    source = composed.convert("RGB").load()
+    target = icon.load()
+    cache: dict[tuple[int, int, int], int] = {}
+    for y in range(48):
+        for x in range(64):
+            rgb = source[x, y]
+            if rgb not in cache:
+                cache[rgb] = nearest_static(rgb)
+            target[x, y] = cache[rgb]
+    icon.info.pop("transparency", None)
     return icon
 
 
@@ -362,9 +485,11 @@ def main() -> int:
         body_images[name] = idle
         if not args.no_package:
             build_shp(name, idle + damaged + critical + sinking)
-            build_shp(f"{name}_icon", [icon_for(spec)])
+            build_shp(f"{name}_icon", [icon_for(name, spec)])
         if spec.get("turret") and not args.no_package:
             build_shp(f"{name}_turret", [turret_frame("large" if name == "sa_frgt" else "small", f) for f in range(FACINGS)])
+        if spec.get("ciws") and not args.no_package:
+            build_shp(f"{name}_ciws", [turret_frame("ciws", f) for f in range(FACINGS)])
 
     wake = [wake_frame(facing, frame) for facing in range(FACINGS) for frame in range(4)]
     effects = effect_frames()
