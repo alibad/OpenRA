@@ -202,6 +202,8 @@ ChromeLayout:
 	common|chrome/text-notifications.yaml
 
 FluentMessages:
+	ra|fluent/hezbollah.ftl
+	ra|fluent/israel.ftl
 	common|fluent/common.ftl
 	common|fluent/chrome.ftl
 	common|fluent/ingame-debug.ftl

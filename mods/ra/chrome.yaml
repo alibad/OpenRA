@@ -425,9 +425,9 @@ strategic:
 
 flags:
 	Inherits: ^Glyphs
-	Image: glyphs-redsea.png
-	Image2x: glyphs-redsea-2x.png
-	Image3x: glyphs-redsea-3x.png
+	Image: faction-flags.png
+	Image3x: faction-flags-3x.png
+	Image2x: faction-flags-2x.png
 	Regions:
 		saudi: 226, 1, 30, 15
 		yemen: 226, 17, 30, 15
@@ -447,6 +447,8 @@ flags:
 		RandomAllies: 226, 225, 30, 15
 		Random: 226, 241, 30, 15
 		spectator: 226, 241, 30, 15
+		israel: 260, 1, 30, 15
+		hezbollah: 260, 17, 30, 15
 
 music:
 	Inherits: ^Glyphs

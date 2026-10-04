@@ -30,6 +30,60 @@
 			Rules: ra|rules/red-sea.yaml, ra|rules/naval-systems.yaml
 			Weapons: ra|weapons/red-sea.yaml, ra|weapons/naval-systems.yaml
 			Sequences: ra|sequences/red-sea.yaml, ra|sequences/naval-systems.yaml
+		israel-faction:
+			Title: Israel
+			Description: Fictional RTS faction; precision armor and protected support.
+			Effects: Complete faction roster, production trees, support buildings and bot composition.
+			Tradeoffs: High costs and dependency on vulnerable support.
+			Scope: Selectable faction; local development content.
+			Category: Faction packs
+			Version: 1
+			Source: Original project rules and procedural art
+			License: GPL-3.0-or-later code; original project presentation
+			Kind: Faction
+			Dependencies: faction-and-subfaction-contract, red-sea-roster-content, naval-combat-archetypes
+			Rules: ra|rules/levant-common.yaml, ra|rules/israel.yaml
+			Sequences: ra|sequences/israel.yaml
+			Faction:
+				InternalName: israel
+				Side: Allies
+				RandomPool: RandomAllies
+				Doctrine: precision-support
+				Preview: ra|uibits/faction-previews/israel.png
+				Roster:
+					Infantry: ILRIFLE, ILAT, ILOBSERVER, ILRECON
+					Vehicles: MERKAVA, ILSHIELD, ILHOWITZER, NAMER
+					Aircraft: ILFALCON, ILGUNSHIP
+					Navy: ILPATROL, ILFRIGATE, ILTENDER
+					Buildings: FACT, WEAP, TENT, HPAD, ILAIRFIELD, SYRD, ILRELAY, ILWORKSHOP
+					Defenses: ILSENTRY, ILBATTERY, ILATPOST
+		hezbollah-faction:
+			Title: Hezbollah
+			Description: Fictional RTS faction; light forces and concealed defense.
+			Effects: Complete faction roster, production trees, support buildings and bot composition.
+			Tradeoffs: Low durability and dependency on detection gaps.
+			Scope: Selectable faction; local development content.
+			Category: Faction packs
+			Version: 1
+			Source: Original project rules and procedural art
+			License: GPL-3.0-or-later code; original project presentation
+			Kind: Faction
+			Dependencies: faction-and-subfaction-contract, red-sea-roster-content, naval-combat-archetypes
+			Rules: ra|rules/levant-common.yaml, ra|rules/hezbollah.yaml
+			Sequences: ra|sequences/hezbollah.yaml
+			Faction:
+				InternalName: hezbollah
+				Side: Soviet
+				RandomPool: RandomSoviet
+				Doctrine: concealed-defense
+				Preview: ra|uibits/faction-previews/hezbollah.png
+				Roster:
+					Infantry: HZRIFLE, HZAT, HZSPOTTER, HZSCOUT
+					Vehicles: HZTECHNICAL, HZRECOILLESS, HZESCORT, HZROCKETS
+					Aircraft: HZDRONE
+					Navy: HZMISSILEBOAT, HZSKIFF, HZSURVEY
+					Buildings: FACT, WEAP, BARR, AFLD, SPEN, HZRELAY, HZWORKSHOP
+					Defenses: HZBUNKER, HZAANEST, HZCOASTAL
 		saudi-arabia-faction:
 			Title: Saudi Arabia
 			Description: Expeditionary combined arms built around high-quality armor, air power, layered defense, and modern Red Sea naval support.
@@ -683,8 +737,8 @@
 			Components:
 		world-war-iii:
 			Title: World War III
-			Description: Five modern factions, active combat upgrades and AI support, with reusable authoring modules. Gameplay cards explain the units changed by each upgrade.
-			Components: saudi-arabia-faction, turkey-faction, china-faction, yemen-faction, iran-faction, asset-import-audit-pipeline, faction-and-subfaction-contract, minefield-generator, mission-aware-minelayer-ai, supply-logistics-economy, point-defense-interception, building-garrisons, carrier-and-drone-wing, commander-promotions, unit-composition-doctrine-ai, targeted-unit-abilities, salvage-and-scrap-economy, campaign-objective-toolkit, convoy-and-evacuation-mission-pattern, status-and-thermal-system, weather-and-battlefield-lighting, teleport-network, advanced-projectile-library, air-attack-profiles, naval-combat-archetypes, ground-force-archetypes, base-and-defense-archetypes, capture-technology, mind-control-and-disguise, terrain-and-random-map-systems
+			Description: Seven modern factions, active combat upgrades and AI support, with reusable authoring modules. Gameplay cards explain the units changed by each upgrade.
+			Components: hezbollah-faction, israel-faction, saudi-arabia-faction, turkey-faction, china-faction, yemen-faction, iran-faction, asset-import-audit-pipeline, faction-and-subfaction-contract, minefield-generator, mission-aware-minelayer-ai, supply-logistics-economy, point-defense-interception, building-garrisons, carrier-and-drone-wing, commander-promotions, unit-composition-doctrine-ai, targeted-unit-abilities, salvage-and-scrap-economy, campaign-objective-toolkit, convoy-and-evacuation-mission-pattern, status-and-thermal-system, weather-and-battlefield-lighting, teleport-network, advanced-projectile-library, air-attack-profiles, naval-combat-archetypes, ground-force-archetypes, base-and-defense-archetypes, capture-technology, mind-control-and-disguise, terrain-and-random-map-systems
 		layered-defense:
 			Title: Layered Defense
 			Description: Mine warfare, defensive AI, projectile interception, garrisons, status effects, and reusable base defenses.
