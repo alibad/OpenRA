@@ -484,7 +484,7 @@ ILSENTRY:
 		Description: levant-ilsentry-description
 	Voiced:
 		VoiceSet: VehicleVoice
-	Inherits@WW3ROLE: ^RoleRifleInfantry
+	Inherits@WW3ROLE: ^ReusableDefenseStructure
 	-WithBuildingBib:
 ILBATTERY:
 	RenderSprites:
@@ -498,7 +498,7 @@ ILBATTERY:
 		Description: levant-ilbattery-description
 	Voiced:
 		VoiceSet: VehicleVoice
-	Inherits@WW3ROLE: ^RoleAntiAirVehicle
+	Inherits@WW3ROLE: ^ReusableDefenseStructure
 	-WithBuildingBib:
 ILATPOST:
 	RenderSprites:
@@ -514,7 +514,7 @@ ILATPOST:
 		VoiceSet: VehicleVoice
 	Armament:
 		Weapon: RedSeaATGM
-	Inherits@WW3ROLE: ^RoleAntiArmorInfantry
+	Inherits@WW3ROLE: ^ReusableDefenseStructure
 	-WithBuildingBib:
 ILSTRIKE:
 	Inherits: F15SA.STRIKE

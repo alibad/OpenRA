@@ -388,7 +388,7 @@ HZBUNKER:
 		CloakDelay: 125
 		UncloakOn: Attack, Damage
 		CloakTypes: Cloak
-	Inherits@WW3ROLE: ^RoleRifleInfantry
+	Inherits@WW3ROLE: ^ReusableDefenseStructure
 HZAANEST:
 	RenderSprites:
 		PlayerPalette: hezbollahplayer
@@ -401,7 +401,7 @@ HZAANEST:
 		Description: levant-hzaanest-description
 	Voiced:
 		VoiceSet: VehicleVoice
-	Inherits@WW3ROLE: ^RoleAntiAirVehicle
+	Inherits@WW3ROLE: ^ReusableDefenseStructure
 	-WithBuildingBib:
 HZCOASTAL:
 	RenderSprites:
@@ -422,7 +422,7 @@ HZCOASTAL:
 		CloakDelay: 125
 		UncloakOn: Attack, Damage
 		CloakTypes: Cloak
-	Inherits@WW3ROLE: ^RoleAntiArmorInfantry
+	Inherits@WW3ROLE: ^ReusableDefenseStructure
 	-WithBuildingBib:
 HZRELAY:
 	RenderSprites:
