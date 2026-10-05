@@ -526,14 +526,19 @@ namespace OpenRA.Mods.Common.Projectiles
 			var tickLimit = System.Math.Min(maxLookaheadDistance, distCheck) / StepSize;
 			var prevHt = 0;
 
+			// Terrain height in world units, as the missile's position is: 512 per level on rectangular
+			// grids, 724 on isometric (TS/RA2) grids.
+			var cellHeight = world.Map.CellHeightStep.Length;
+
 			// TODO: Make sure cell on map!!!
 			for (var tick = 0; tick <= tickLimit; tick++)
 			{
 				posProbe += step;
-				if (!world.Map.Contains(world.Map.CellContaining(posProbe)))
+				var cell = world.Map.CellContaining(posProbe);
+				if (!world.Map.Contains(cell))
 					break;
 
-				var ht = world.Map.Height[world.Map.CellContaining(posProbe)] * 512;
+				var ht = world.Map.Height[cell] * cellHeight;
 
 				curDist += StepSize;
 				if (ht > predClfHgt)
