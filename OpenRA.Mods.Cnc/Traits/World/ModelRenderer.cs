@@ -55,6 +55,7 @@ namespace OpenRA.Mods.Cnc.Traits
 		static readonly float[] FlipMtx = Util.ScaleMatrix(1, -1, 1);
 		static readonly float[] ShadowScaleFlipMtx = Util.ScaleMatrix(2, -2, 2);
 		static readonly float[] GroundNormal = [0, 0, 1, 1];
+		static readonly float[] UpAxis = [0, 0, 1, 0];
 
 		readonly Renderer renderer;
 		readonly IShader shader;
@@ -131,7 +132,8 @@ namespace OpenRA.Mods.Cnc.Traits
 			foreach (var m in models)
 			{
 				// Convert screen offset back to world coords
-				var offsetVec = Util.MatrixVectorMultiply(invCameraTransform, wr.ScreenVector(m.OffsetFunc()));
+				var offset = OffsetScreenVector(wr, m.OffsetFunc(), cameraTransform);
+				var offsetVec = Util.MatrixVectorMultiply(invCameraTransform, [offset.X, offset.Y, offset.Z, 1]);
 				var offsetTransform = Util.TranslationMatrix(offsetVec[0], offsetVec[1], offsetVec[2]);
 
 				var worldTransform = Util.MakeFloatMatrix(m.RotationFunc().AsMatrix());
@@ -202,7 +204,8 @@ namespace OpenRA.Mods.Cnc.Traits
 				foreach (var m in models)
 				{
 					// Convert screen offset to world offset
-					var offsetVec = Util.MatrixVectorMultiply(invCameraTransform, wr.ScreenVector(m.OffsetFunc()));
+					var offset = OffsetScreenVector(wr, m.OffsetFunc(), cameraTransform);
+					var offsetVec = Util.MatrixVectorMultiply(invCameraTransform, [offset.X, offset.Y, offset.Z, 1]);
 					var offsetTransform = Util.TranslationMatrix(offsetVec[0], offsetVec[1], offsetVec[2]);
 
 					var rotations = Util.MakeFloatMatrix(m.RotationFunc().AsMatrix());
@@ -245,6 +248,43 @@ namespace OpenRA.Mods.Cnc.Traits
 			var screenLightVector = Util.MatrixVectorMultiply(invShadowTransform, ZVector);
 			screenLightVector = Util.MatrixVectorMultiply(cameraTransform, screenLightVector);
 			return new ModelRenderProxy(sprite, shadowSprite, screenCorners, -screenLightVector[2] / screenLightVector[1]);
+		}
+
+		/// <summary>
+		/// Camera-space vector (screen px and depth) for a model's world offset, e.g. a turret's Turreted.Offset.
+		/// Screen x/y are exactly <see cref="WorldRenderer.ScreenVectorComponents"/>, so the model is drawn where
+		/// a sprite with the same offset would be. Its depth, however, only uses the offset's Z: a forward or
+		/// backward offset is depth-tested as if it sat at the actor's origin, so a bow turret ends up behind the
+		/// deck in front of it and a stern turret sinks into the deck, depending on facing.
+		/// Instead, use the depth that the model camera gives the same point: see <see cref="OffsetDepth"/>.
+		/// </summary>
+		public static Vector3 OffsetScreenVector(WorldRenderer wr, in WVec offset, float[] cameraTransform)
+		{
+			var screen = wr.ScreenVectorComponents(offset);
+			var ground = wr.ScreenVectorComponents(new WVec(offset.X, offset.Y, 0));
+			var height = wr.ScreenVectorComponents(new WVec(0, 0, offset.Z));
+			return new Vector3(screen.X, screen.Y, OffsetDepth(ground, height, cameraTransform));
+		}
+
+		/// <summary>
+		/// Camera-space depth of an offset, from the screen vectors of its ground part (X, Y, 0) and its height
+		/// part (0, 0, Z). Changing only the depth slides a point along the view direction, so screen x/y stay
+		/// as given. The ground part gets the depth that puts it in the model's ground plane. The height part gets
+		/// the depth that puts it on the model's up axis (for RenderVoxels' camera, where that axis is vertical
+		/// on screen; otherwise the closest point to it). If the camera looks along the ground or straight down,
+		/// that part keeps its ScreenVector depth.
+		/// </summary>
+		public static float OffsetDepth(in Vector3 ground, in Vector3 height, float[] cameraTransform)
+		{
+			// The model's up axis (ground normal) in camera space; the camera is a rotation, so a camera-space
+			// vector's model-space height is its dot product with this axis.
+			var up = Util.MatrixVectorMultiply(cameraTransform, UpAxis);
+			var upOnScreen = up[0] * up[0] + up[1] * up[1];
+
+			const float Epsilon = 1e-6f;
+			var groundDepth = Math.Abs(up[2]) > Epsilon ? -(up[0] * ground.X + up[1] * ground.Y) / up[2] : ground.Z;
+			var heightDepth = upOnScreen > Epsilon ? height.Y * up[1] * up[2] / upOnScreen : height.Z;
+			return groundDepth + heightDepth;
 		}
 
 		static void CalculateSpriteGeometry(Vector2 tl, Vector2 br, float scale, out Size size, out int2 offset)
