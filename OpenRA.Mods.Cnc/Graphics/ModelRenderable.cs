@@ -271,7 +271,8 @@ namespace OpenRA.Mods.Cnc.Graphics
 					var rotation = Util.MakeFloatMatrix(v.RotationFunc().AsMatrix());
 					var worldTransform = Util.MatrixMultiply(scaleTransform, rotation);
 
-					var pxPos = pxOrigin + wr.ScreenVectorComponents(v.OffsetFunc());
+					// Same offset depth as ModelRenderer.RenderAsync, so the back corner below matches the render
+					var pxPos = pxOrigin + ModelRenderer.OffsetScreenVector(wr, v.OffsetFunc(), cameraTransform);
 					var screenTransform = Util.MatrixMultiply(cameraTransform, worldTransform);
 
 					for (var i = 0; i < 8; i++)
