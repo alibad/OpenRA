@@ -526,6 +526,15 @@ namespace OpenRA.Mods.Common.Projectiles
 			// grids, 724 on isometric (TS/RA2) grids.
 			var cellHeight = world.Map.CellHeightStep.Length;
 
+			// A ramp's surface rises above its cell's base height: up to two levels at the far corner of a fully
+			// sloped tile (MapGrid ramps 13-16). A missile cruising lower than that above the base can fly into it.
+			// So the height to clear (predClfHgt) keeps the missile at least min(CruiseAltitude, two levels) above
+			// the real surface. A missile cruising higher clears every ramp anyway and is unaffected. The cliff-edge
+			// bookkeeping (lastHt, lastHtChg) stays on cell levels: on a ramp the surface changes at every probe,
+			// which would read as an endless series of cliff edges.
+			var cruise = info.CruiseAltitude.Length;
+			var clearance = System.Math.Min(cruise, 2 * cellHeight);
+
 			// TODO: Make sure cell on map!!!
 			for (var tick = 0; tick <= tickLimit; tick++)
 			{
@@ -536,10 +545,15 @@ namespace OpenRA.Mods.Common.Projectiles
 
 				var ht = world.Map.Height[cell] * cellHeight;
 
+				// Terrain surface under the probe, ramps included. Off ramps it equals ht; on rectangular grids it is
+				// 0, so floor stays ht there.
+				var surface = posProbe.Z - world.Map.DistanceAboveTerrain(posProbe).Length;
+				var floor = System.Math.Max(ht, surface + clearance - cruise);
+
 				curDist += StepSize;
-				if (ht > predClfHgt)
+				if (floor > predClfHgt)
 				{
-					predClfHgt = ht;
+					predClfHgt = floor;
 					predClfDist = curDist;
 				}
 
