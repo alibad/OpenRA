@@ -121,7 +121,10 @@ namespace OpenRA
 				}
 
 				mapLocations.Add(package, classification);
-				mapDirectoryTrackers.Add(new MapDirectoryTracker(package, classification));
+
+				// The browser runtime has no FileSystemWatcher (and its in-memory map folders never change underneath us).
+				if (!OperatingSystem.IsBrowser())
+					mapDirectoryTrackers.Add(new MapDirectoryTracker(package, classification));
 			}
 
 			// PERF: Load the mod YAML once outside the loop, and reuse it when resolving each maps custom YAML.

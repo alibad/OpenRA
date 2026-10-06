@@ -52,6 +52,12 @@ namespace OpenRA.Graphics
 
 		public WPos Pos => pos + Offset;
 		public WVec Offset { get; }
+
+		// Read by renderers outside the engine (the web host draws the same sprite at the same place).
+		public Sprite Sprite => sprite;
+		public WPos Origin => pos;
+		public float Scale => scale;
+		public WAngle Rotation => rotation;
 		public PaletteReference Palette { get; }
 		public int ZOffset { get; }
 		public bool IsDecoration { get; }

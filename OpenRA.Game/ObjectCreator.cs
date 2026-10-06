@@ -45,6 +45,14 @@ namespace OpenRA
 
 		static void LoadAssembly(List<Assembly> assemblyList, string resolvedPath)
 		{
+			// Embedded hosts link the mod assemblies directly (the browser build cannot load assemblies from disk),
+			// so resolve them by name from the default load context instead of loading a private copy from a file.
+			if (OperatingSystem.IsBrowser() || (AppContext.TryGetSwitch("OpenRA.EmbeddedModAssemblies", out var embedded) && embedded))
+			{
+				assemblyList.Add(Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(resolvedPath))));
+				return;
+			}
+
 			// .NET doesn't provide any way of querying the metadata of an assembly without either:
 			//   (a) loading duplicate data into the application domain, breaking the world.
 			//   (b) crashing if the assembly has already been loaded.
