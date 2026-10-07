@@ -118,6 +118,21 @@ namespace OpenRA.Graphics
 			return (TextureChannel)nextChannel;
 		}
 
+		/// <summary>Continues on a fresh sheet, so the sprites added next do not share a sheet with the ones before.</summary>
+		public void StartNewSheet()
+		{
+			if (Current == null || (p == int2.Zero && rowHeight == 0))
+				return;
+
+			var previous = Current;
+			Current = allocateSheet();
+			previous.ReleaseBufferAndTryTransferTo(Current);
+			sheets.Add(Current);
+			CurrentChannel = Type == SheetType.Indexed ? TextureChannel.Red : TextureChannel.RGBA;
+			rowHeight = 0;
+			p = int2.Zero;
+		}
+
 		public Sprite Allocate(Size imageSize, float scale = 1f) { return Allocate(imageSize, 0, Vector3.Zero, scale); }
 		public Sprite Allocate(Size imageSize, float zRamp, in Vector3 spriteOffset, float scale = 1f)
 		{
