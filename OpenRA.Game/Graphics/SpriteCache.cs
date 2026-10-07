@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using OpenRA.FileSystem;
@@ -20,8 +21,24 @@ namespace OpenRA.Graphics
 {
 	public delegate ISpriteFrame AdjustFrame(ISpriteFrame input, int index, int total);
 
+	/// <summary>
+	/// Keeps packed sprites between sessions (e.g. the browser host caches them, so a map loads without decoding
+	/// and packing every sprite file again). Render-side only: sprites never affect the simulation.
+	/// </summary>
+	public interface ISpriteCacheStore
+	{
+		/// <summary>The sprites of every reservation token, if the store holds a packing of exactly this reservation set.</summary>
+		IReadOnlyDictionary<int, Sprite[]> TryRestore(SpriteCache cache, string key);
+
+		/// <summary>Called after the reservations were loaded and packed.</summary>
+		void Save(SpriteCache cache, string key, IReadOnlyDictionary<int, Sprite[]> sprites);
+	}
+
 	public sealed class SpriteCache : IDisposable
 	{
+		/// <summary>Optional packed-sprite store used by LoadReservations (null on the desktop).</summary>
+		public static ISpriteCacheStore Store;
+
 		public readonly Dictionary<SheetType, SheetBuilder> SheetBuilders;
 		readonly ISpriteLoader[] loaders;
 		readonly IReadOnlyFileSystem fileSystem;
@@ -79,8 +96,75 @@ namespace OpenRA.Graphics
 			return GetFrames(fileSystem, filename, loaders);
 		}
 
+		/// <summary>Identifies the reservation set (files, frames, frame adjustments, premultiplication), FNV-1a 64.</summary>
+		public string ReservationKey()
+		{
+			var hash = 14695981039346656037UL;
+			void Add(string s)
+			{
+				foreach (var c in s)
+				{
+					hash ^= c;
+					hash *= 1099511628211UL;
+				}
+
+				hash ^= 0xFF;
+				hash *= 1099511628211UL;
+			}
+
+			foreach (var (filename, tokens) in reservationsByFilename)
+			{
+				Add(filename);
+				foreach (var token in tokens)
+				{
+					var rs = spriteReservations[token];
+					Add(token.ToString(CultureInfo.InvariantCulture));
+					Add(rs.Frames.IsDefault ? "*" : string.Join(',', rs.Frames));
+					Add(rs.Premultiplied ? "p" : "-");
+					Add(rs.AdjustFrame == null ? "" : rs.AdjustFrame.Method.DeclaringType?.FullName + "." + rs.AdjustFrame.Method.Name);
+				}
+			}
+
+			return hash.ToString("x16", CultureInfo.InvariantCulture) + "-" + spriteReservations.Count.ToString(CultureInfo.InvariantCulture);
+		}
+
+		bool TryRestore(string key)
+		{
+			var restored = Store.TryRestore(this, key);
+			if (restored == null)
+				return false;
+
+			foreach (var (filename, tokens) in reservationsByFilename)
+			{
+				foreach (var token in tokens)
+				{
+					if (restored.TryGetValue(token, out var sprites) && sprites != null)
+						resolvedSprites[token] = sprites;
+					else
+					{
+						resolvedSprites[token] = null;
+						missingFiles[token] = (filename, spriteReservations[token].Location);
+					}
+				}
+			}
+
+			spriteReservations.Clear();
+			spriteReservations.TrimExcess();
+			reservationsByFilename.Clear();
+			reservationsByFilename.TrimExcess();
+			return true;
+		}
+
 		public void LoadReservations(ModData modData)
 		{
+			string storeKey = null;
+			if (Store != null)
+			{
+				storeKey = ReservationKey();
+				if (TryRestore(storeKey))
+					return;
+			}
+
 			var pendingResolve = new List<(
 				string Filename,
 				int FrameIndex,
@@ -157,6 +241,9 @@ namespace OpenRA.Graphics
 
 			foreach (var sb in SheetBuilders.Values)
 				sb.Current?.ReleaseBuffer();
+
+			if (storeKey != null)
+				Store.Save(this, storeKey, resolvedSprites);
 		}
 
 		public Sprite[] ResolveSprites(int token)
