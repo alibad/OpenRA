@@ -81,7 +81,7 @@ FACTION_ACCENT_REMAPS = {
 # Outline, equipment shadow, equipment highlight, and screen/optic highlight.
 FACTION_DRAW_INDEXES = {
 	"iran": (12, 155, 154, 224),
-	"china": (12, 190, 182, 96),
+	"china": (12, 190, 182, 193),
 	"turkey": (12, 207, 205, 160),
 	"saudi": (12, 155, 154, 160),
 	"yemen": (12, 155, 205, 224),
@@ -534,6 +534,36 @@ def alpha_difference(before: bytes, after: bytes) -> int:
 	return sum(left != right for left, right in zip(before, after))
 
 
+ANIMATED_INDEXES = range(96, 104)
+
+
+def replace_animated_indexes(paths: list[Path]) -> int:
+	"""Move palette-animated indexes to the nearest static color.
+
+	In the player palette 96..102 cycle as water and 103 blinks, so a few
+	source pixels in those entries shimmered on every derived soldier.
+	"""
+
+	replaced = 0
+	for path in paths:
+		with Image.open(path) as source:
+			image = source.copy()
+		values = list(image.tobytes())
+		if not any(value in ANIMATED_INDEXES for value in values):
+			continue
+		palette = image.getpalette()
+		colors = [tuple(palette[i * 3:i * 3 + 3]) for i in range(256)]
+		allowed = [i for i in range(5, 256) if not 80 <= i <= 103]
+		nearest = {
+			index: min(allowed, key=lambda i: sum((colors[i][c] - colors[index][c]) ** 2 for c in range(3)))
+			for index in ANIMATED_INDEXES
+		}
+		replaced += sum(1 for value in values if value in nearest)
+		image.frombytes(bytes(nearest.get(value, value) for value in values))
+		save_indexed(image, path)
+	return replaced
+
+
 def rebuild_detailed_frames(
 	paths: list[Path],
 	profile: InfantryArtProfile,
@@ -558,6 +588,8 @@ def rebuild_detailed_frames(
 		raise RuntimeError(
 			f"{profile.faction} {profile.source_asset} changed only {changed_alpha_pixels} silhouette pixels."
 		)
+
+	replace_animated_indexes(paths)
 
 	for path in paths:
 		with Image.open(path) as frame:

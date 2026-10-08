@@ -17,6 +17,9 @@ sa_frgt:
 	turret:
 		Filename: sa_frgt_turret.shp
 		Facings: 32
+	ciws:
+		Filename: sa_frgt_ciws.shp
+		Facings: 32
 	muzzle:
 		Filename: gunfire2.shp
 		Length: 5

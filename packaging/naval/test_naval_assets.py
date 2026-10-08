@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import re
 import struct
+import sys
 import unittest
 import wave
 
@@ -18,11 +19,15 @@ SEQUENCES = ROOT / "mods" / "ra" / "sequences" / "naval-systems.yaml"
 AUDIT = ROOT / "artifacts" / "naval-audit" / "custom" / "audit-report.json"
 
 VESSELS = ("sa_frgt", "sa_intc", "sa_fss", "ye_mslc", "ye_usv", "ye_surve")
-TURRETS = ("sa_frgt_turret", "sa_intc_turret", "ye_mslc_turret", "ye_surve_turret")
+TURRETS = ("sa_frgt_turret", "sa_frgt_ciws", "sa_intc_turret", "ye_mslc_turret", "ye_surve_turret")
 SOUND_NAMES = (
     "engine-fast", "engine-heavy", "radar-sweep", "naval-alarm", "ciws-burst",
     "missile-launch", "naval-impact", "flooding", "sinking", "rearm", "chaff", "rescue",
 )
+
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import generate_naval_assets as naval  # noqa: E402
 
 
 def shp_frame_count(path: Path) -> int:
@@ -62,6 +67,36 @@ class NavalAssetTests(unittest.TestCase):
         self.assertFalse(audit["runtime_rotation"])
         for vessel in VESSELS:
             self.assertEqual(32, audit["vessels"][vessel]["unique_idle_facings"])
+
+    def test_bow_follows_openra_counter_clockwise_facings(self) -> None:
+        # Facing 0 is north (bow up), 8 west (bow left), 16 south, 24 east.
+        center = (48, 39)
+        for facing, (dx, dy) in {0: (0, -1), 8: (-1, 0), 16: (0, 1), 24: (1, 0)}.items():
+            x, y = naval.project(0, 20, facing * 2 * naval.math.pi / naval.FACINGS)
+            with self.subTest(facing=facing):
+                self.assertEqual(dx, (x > center[0]) - (x < center[0]))
+                self.assertEqual(dy, (y > center[1]) - (y < center[1]))
+
+    def test_turrets_rotate_in_place_about_their_mount(self) -> None:
+        for size in ("large", "small", "ciws"):
+            centers = []
+            for facing in range(naval.FACINGS):
+                image = naval.turret_frame(size, facing)
+                pixels = [(x, y) for y in range(image.height) for x in range(image.width) if image.getpixel((x, y)) not in (0, naval.IDX["black"])]
+                centers.append((sum(p[0] for p in pixels) / len(pixels), sum(p[1] for p in pixels) / len(pixels)))
+            with self.subTest(size=size):
+                xs, ys = [c[0] for c in centers], [c[1] for c in centers]
+                self.assertLess(max(xs) - min(xs), 2.5)
+                self.assertLess(max(ys) - min(ys), 2.5)
+
+    def test_production_icons_are_opaque_authored_cameos(self) -> None:
+        for vessel in VESSELS:
+            icon = naval.icon_for(vessel, naval.VESSELS[vessel])
+            values = set(icon.tobytes())
+            with self.subTest(vessel=vessel):
+                self.assertEqual((64, 48), icon.size)
+                self.assertFalse(values & {0, 1, 3, 4}, "cameos never use transparent/shadow/reserved indices")
+                self.assertFalse(values & set(range(80, 104)), "cameos avoid remap and animated indices")
 
     def test_audio_is_normalized_game_ready_pcm(self) -> None:
         for name in SOUND_NAMES:
