@@ -16,6 +16,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using OpenRA.Mods.Common.Experience;
+using OpenRA.Mods.Common.FactionCatalog;
 using OpenRA.Mods.Common.FileSystem;
 using OpenRA.Network;
 using OpenRA.Support;
@@ -206,6 +207,20 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			mainMenu.Get<ButtonWidget>("QUIT_BUTTON").OnClick = Game.Exit;
 
+			var hasFactionCatalog = FactionCatalogLogic.IsAvailable(modData);
+			var factionsButton = mainMenu.GetOrNull<ButtonWidget>("FACTIONS_BUTTON");
+			if (factionsButton != null)
+			{
+				factionsButton.IsVisible = () => hasFactionCatalog;
+				factionsButton.GetText = FactionCatalogLogic.MainMenuButtonText;
+				factionsButton.OnClick = () => OpenFactionCatalog(MenuType.Main, null);
+				if (!hasFactionCatalog)
+					mainMenu.Get("QUIT_BUTTON").Bounds.Y = factionsButton.Bounds.Y;
+			}
+
+			if (hasFactionCatalog)
+				FactionCatalogPublisher.PublishInBackground(modData, modData.DefaultRules, world.Timestep, "main-menu");
+
 			// Singleplayer menu
 			var singleplayerMenu = widget.Get("SINGLEPLAYER_MENU");
 			singleplayerMenu.IsVisible = () => menuType == MenuType.Singleplayer;
@@ -388,6 +403,8 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 					Game.RunAfterTick(worldToolsMenu.Get<ButtonWidget>("ASSET_LIBRARY_BUTTON").OnClick);
 				else if (Environment.GetEnvironmentVariable("OPENRA_AI_START_WORKSHOP") == "1")
 					Game.RunAfterTick(() => SwitchMenu(MenuType.Workshop));
+				else if (Environment.GetEnvironmentVariable("OPENRA_AI_START_FACTION_CATALOG") == "1" && hasFactionCatalog)
+					Game.RunAfterTick(() => OpenFactionCatalog(MenuType.Main, null));
 			}
 
 			var newsBG = widget.GetOrNull("NEWS_BG");
@@ -655,6 +672,24 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				{ "onExit", () => { Game.Disconnect(); SwitchMenu(MenuType.Singleplayer); } },
 				{ "onStart", () => { RemoveShellmapUI(); lastGameState = MenuPanel.Missions; } },
 				{ "initialMap", map }
+			});
+		}
+
+		void OpenFactionCatalog(MenuType returnMenu, string initialFaction)
+		{
+			SwitchMenu(MenuType.None);
+			Action openExperience = null;
+			if (modData.GetOrNull<ExperienceCatalog>() != null)
+				openExperience = () => Game.OpenWindow("EXPERIENCE_COMPOSER_PANEL", new WidgetArgs
+				{
+					{ "onExit", () => SwitchMenu(returnMenu) }
+				});
+
+			Game.OpenWindow(FactionCatalogLogic.PanelId, new WidgetArgs
+			{
+				{ "onExit", () => SwitchMenu(returnMenu) },
+				{ "initialFaction", initialFaction },
+				{ "onOpenExperience", openExperience },
 			});
 		}
 

@@ -108,7 +108,7 @@
 					Vehicles: M1A2S, SADS
 					Aircraft: F15SA, AH64SA
 					Navy: SA_FRGT, SA_INTC, SA_FSS
-					Buildings: FACT, WEAP, TENT, HPAD, SYRD
+					Buildings: FACT, WEAP, TENT, HPAD, SAFLD, SYRD
 					Defenses: PBOX, GUN, AGUN, SAM
 		yemen-faction:
 			Title: Yemen

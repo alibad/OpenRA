@@ -17,6 +17,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using OpenRA.Graphics;
+using OpenRA.Mods.Common.FactionCatalog;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Primitives;
 using OpenRA.Support;
@@ -104,6 +105,11 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		{
 			this.modData = modData;
 			this.world = world;
+
+			// The companion answers faction/unit questions from this match's rules (static knowledge, never unit positions).
+			if (FactionCatalogLogic.IsAvailable(modData))
+				FactionCatalogPublisher.PublishInBackground(modData, world.Map.Rules, world.Timestep, "match");
+
 			var statusButton = widget.Get<ButtonWidget>("STATUS");
 			var feedToggleButton = widget.Get<ButtonWidget>("FEED_TOGGLE");
 			var actionConfirmButton = widget.Get<ButtonWidget>("ACTION_CONFIRM");
