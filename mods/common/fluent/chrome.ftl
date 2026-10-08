@@ -4,6 +4,9 @@ button-ai-companion-voice-pending = VOICE: ...
 button-ai-companion-voice-toggle =
     .tooltip = Toggle AI Voice
     .tooltipdesc = Silence or restore the companion's spoken audio. Text insights remain visible. Remap it under Settings > Hotkeys > AI Assistant.
+button-ai-companion-feedback =
+    .tooltip = Capture feedback
+    .tooltipdesc = Save a fog-respecting screenshot and live game state, then open the local feedback form.
 
 ## assetbrowser.yaml
 dropdownbutton-assetbrowser-source-selector = Folders
