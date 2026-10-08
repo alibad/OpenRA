@@ -4,6 +4,9 @@ Status: **complete; all decisions settled. Ready to freeze once §9.1 source ver
 is done by a human.**
 Gate: roadmap gate 1 (research and identity contract) for `docs/modern-faction-roadmap.md`
 priority 2.
+Checkpoint B concept board (roadmap gate 2): **concept board ready for product-owner
+review — not approved.** See [`concept/usa/`](concept/usa/README.md); no frame sheet may be
+generated until it is approved.
 
 **The roster in §3 is the full roster. No actor has been removed from any faction in this
 programme.**
@@ -1028,8 +1031,11 @@ Needs a human, not another research pass:
 Art-workstream gates under roadmap gate 2 — these do **not** block freezing this contract,
 and a failed board means revising art, never silently dropping an actor:
 
-- [ ] `USMBT` shown beside `M1A2S` at native scale on all three palettes
-- [ ] `USICV` shown beside `ARAS8` at native scale on all three palettes
+- [ ] `USMBT` shown beside `M1A2S` at native scale on all three palettes — drawn in
+  `concept/usa/usa-comparisons-mbt-icv.png`; concept board ready for product-owner review,
+  not approved
+- [ ] `USICV` shown beside `ARAS8` at native scale on all three palettes — drawn in the same
+  board; concept board ready for product-owner review, not approved
 
 **No content in this programme has been deleted or narrowed.** Where a decision was left
 to a default, the default was the option that removes nothing, and it is labelled as such
