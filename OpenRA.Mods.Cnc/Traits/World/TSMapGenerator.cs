@@ -819,12 +819,15 @@ namespace OpenRA.Mods.Cnc.Traits
 						Terraformer.ResourceDensityMode.BakedAdjacency);
 					terraformer.ZoneFromResources(zoneable, false);
 
-					// Veins should be max density.
-					var veinType = map.Rules.Actors[SystemActors.World].TraitInfoOrDefault<ResourceLayerInfo>().ResourceTypes["Veins"];
-					var veinResourceTile = new ResourceTile(veinType.ResourceIndex, veinType.MaxDensity);
-					foreach (var mpos in map.Resources.CellRegion.MapCoords)
-						if (map.Resources[mpos].Type == veinType.ResourceIndex)
-							map.Resources[mpos] = veinResourceTile;
+					// Veins should be max density. Mods without veins (e.g. RA2-based ones) skip this.
+					var resourceTypes = map.Rules.Actors[SystemActors.World].TraitInfoOrDefault<ResourceLayerInfo>().ResourceTypes;
+					if (resourceTypes.TryGetValue("Veins", out var veinType))
+					{
+						var veinResourceTile = new ResourceTile(veinType.ResourceIndex, veinType.MaxDensity);
+						foreach (var mpos in map.Resources.CellRegion.MapCoords)
+							if (map.Resources[mpos].Type == veinType.ResourceIndex)
+								map.Resources[mpos] = veinResourceTile;
+					}
 				}
 
 				// CivilianBuildings
