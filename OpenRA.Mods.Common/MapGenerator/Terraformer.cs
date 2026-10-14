@@ -227,9 +227,6 @@ namespace OpenRA.Mods.Common.MapGenerator
 		/// </summary>
 		public void BakeMap()
 		{
-			var playerCount = ActorsOfType("mpspawn").Count();
-			Map.PlayerDefinitions = new MapPlayers(Map.Rules, playerCount).ToMiniYaml();
-
 			// Return true iff any of the actors projected footprint satisfies Map.Contains(PPos).
 			// Note that this is not the same as Map.Tiles.Contains or Map.Bounds.Contains.
 			// Note that calling this initializes cell projections.
@@ -240,8 +237,14 @@ namespace OpenRA.Mods.Common.MapGenerator
 					.Any(Map.Contains);
 			}
 
-			Map.ActorDefinitions = ActorPlans
-				.Where(HasProjectedFootprintInMap)
+			var baked = ActorPlans.Where(HasProjectedFootprintInMap).ToList();
+
+			// Count the players from the spawns that are kept: a spawn dropped above would otherwise leave a player
+			// slot without a start position, and the map would fail to start.
+			var playerCount = baked.Count(a => a.Reference.Type == "mpspawn");
+			Map.PlayerDefinitions = new MapPlayers(Map.Rules, playerCount).ToMiniYaml();
+
+			Map.ActorDefinitions = baked
 				.Select((plan, i) => new MiniYamlNode($"Actor{i}", plan.Reference.Save()))
 				.ToImmutableArray();
 		}
@@ -313,13 +316,29 @@ namespace OpenRA.Mods.Common.MapGenerator
 		}
 
 		/// <summary>
-		/// Zone based on Map.Bounds.Contains. This is stricter than Map.Contains, ignoring height.
+		/// Zone cells outside Map.Bounds, and, on maps with terrain height, cells whose projection is not wholly on
+		/// the map: high ground near the top edge draws above it, and ground behind higher ground draws nowhere.
+		/// BakeMap drops actors whose projected footprint is off the map, so a spawn, mine or tree placed on such a
+		/// cell would be lost (a lost spawn left a player without a start position).
 		/// </summary>
 		public void ZoneFromOutOfBounds<T>(CellLayer<T> zoneable, T value)
 		{
+			var height = Map.Grid.MaximumTerrainHeight > 0;
 			foreach (var mpos in Map.AllCells.MapCoords)
+			{
 				if (!Map.Bounds.Contains(mpos.U, mpos.V))
+				{
 					zoneable[mpos] = value;
+					continue;
+				}
+
+				if (!height)
+					continue;
+
+				var projected = Map.ProjectedCellsCovering(mpos);
+				if (projected.Length == 0 || !projected.All(Map.Contains))
+					zoneable[mpos] = value;
+			}
 		}
 
 		/// <summary>
