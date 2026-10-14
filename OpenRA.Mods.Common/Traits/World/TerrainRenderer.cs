@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.Terrain;
@@ -69,6 +70,13 @@ namespace OpenRA.Mods.Common.Traits
 		WorldRenderer worldRenderer;
 		bool disposed;
 
+		/// <summary>
+		/// A tileset's tile cache (every template decoded and packed into sheets: tens of MB of allocations and most of the
+		/// time a world takes to create) is shared by successive worlds on the same tileset instead of rebuilt for each.
+		/// A cache stays alive while a world uses it, and the last one used is kept for the next world.
+		/// </summary>
+		static readonly Dictionary<DefaultTerrain, (DefaultTileCache Cache, int Users)> SharedTileCaches = [];
+
 		public TerrainRenderer(World world)
 		{
 			map = world.Map;
@@ -76,7 +84,32 @@ namespace OpenRA.Mods.Common.Traits
 			if (terrainInfo == null)
 				throw new InvalidDataException($"{nameof(TerrainRenderer)} can only be used with the {nameof(DefaultTerrain)} parser");
 
-			tileCache = new DefaultTileCache(terrainInfo);
+			tileCache = AcquireTileCache(terrainInfo);
+		}
+
+		static DefaultTileCache AcquireTileCache(DefaultTerrain terrainInfo)
+		{
+			// Other tilesets' caches that no world uses any more are freed first.
+			foreach (var kv in SharedTileCaches.ToList())
+			{
+				if (kv.Key != terrainInfo && kv.Value.Users == 0)
+				{
+					kv.Value.Cache.Dispose();
+					SharedTileCaches.Remove(kv.Key);
+				}
+			}
+
+			if (!SharedTileCaches.TryGetValue(terrainInfo, out var entry))
+				entry = (new DefaultTileCache(terrainInfo), 0);
+
+			SharedTileCaches[terrainInfo] = (entry.Cache, entry.Users + 1);
+			return entry.Cache;
+		}
+
+		static void ReleaseTileCache(DefaultTerrain terrainInfo)
+		{
+			if (SharedTileCaches.TryGetValue(terrainInfo, out var entry))
+				SharedTileCaches[terrainInfo] = (entry.Cache, entry.Users - 1);
 		}
 
 		void IWorldLoaded.WorldLoaded(World world, WorldRenderer wr)
@@ -120,7 +153,8 @@ namespace OpenRA.Mods.Common.Traits
 
 			spriteLayer.Dispose();
 
-			tileCache.Dispose();
+			// The shared tile cache outlives this world (AcquireTileCache frees it once another tileset needs the room).
+			ReleaseTileCache(terrainInfo);
 			disposed = true;
 		}
 

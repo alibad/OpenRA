@@ -34,6 +34,9 @@ namespace OpenRA.Mods.Cnc.Graphics
 
 		SheetBuilder sheetBuilder;
 
+		/// <summary>Builders replaced after a sheet overflow: their sheets still hold earlier models until Dispose.</summary>
+		readonly List<SheetBuilder> retiredSheetBuilders = [];
+
 		SheetBuilder CreateSheetBuilder()
 		{
 			var allocated = false;
@@ -183,6 +186,7 @@ namespace OpenRA.Mods.Cnc.Graphics
 				// Sheet overflow - allocate a new sheet and try once more
 				Log.Write("debug", "Voxel sheet overflow! Generating new sheet");
 				sheetBuilder.Current.ReleaseBuffer();
+				retiredSheetBuilders.Add(sheetBuilder);
 				sheetBuilder = CreateSheetBuilder();
 				v = GenerateSlicePlanes(l).SelectMany(x => x).ToArray();
 			}
@@ -237,6 +241,10 @@ namespace OpenRA.Mods.Cnc.Graphics
 		public void Dispose()
 		{
 			vertexBuffer?.Dispose();
+			foreach (var retired in retiredSheetBuilders)
+				retired.Dispose();
+
+			retiredSheetBuilders.Clear();
 			sheetBuilder.Dispose();
 		}
 	}
