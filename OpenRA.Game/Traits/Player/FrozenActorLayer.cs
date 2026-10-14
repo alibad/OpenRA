@@ -269,8 +269,12 @@ namespace OpenRA.Traits
 
 			self.Trait<Shroud>().OnShroudChanged += uv =>
 			{
-				foreach (var fa in partitionedFrozenActors.At(new int2(uv.U, uv.V)))
-					fa.UpdateVisibilityNextTick = true;
+				// Every changed shroud cell of every player comes through here: the same items in the same order
+				// as At(), without an iterator per cell.
+				var p = new int2(uv.U, uv.V);
+				foreach (var kvp in partitionedFrozenActors.BinContaining(p))
+					if (kvp.Value.Contains(p))
+						kvp.Key.UpdateVisibilityNextTick = true;
 			};
 		}
 
