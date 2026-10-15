@@ -11,6 +11,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using OpenRA.Mods.Common.Experience;
 using OpenRA.Traits;
 
 namespace OpenRA.Mods.Common.FileSystem
@@ -45,6 +46,25 @@ namespace OpenRA.Mods.Common.FileSystem
 			if (Packages != null)
 				foreach (var kv in Packages)
 					fileSystem.Mount(kv.Key, kv.Value);
+
+			MountExperiencePacks(manifest, fileSystem, objectCreator);
+		}
+
+		internal static void MountExperiencePacks(Manifest manifest, OpenRA.FileSystem.FileSystem fileSystem, ObjectCreator objectCreator)
+		{
+			if (!manifest.GlobalModData.ContainsKey("ExperienceCatalog"))
+				return;
+			var directory = CapabilityPackRegistry.PackDirectory(manifest.Id);
+			if (CapabilityPackRegistry.Discover(manifest.Id).Count > 0)
+				fileSystem.Mount(directory);
+			var settings = Game.Settings.GetOrCreate<ExperienceSettings>(objectCreator, manifest.Id);
+			var presentation = PresentationPackRegistry.Find(manifest.Id, settings.PresentationPack);
+			if (presentation.Id != PresentationPackDefinition.Default.Id)
+			{
+				presentation.ValidateReplacementTargets(fileSystem.Exists);
+				fileSystem.Mount(presentation.AssetsPath);
+			}
+
 		}
 	}
 }

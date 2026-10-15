@@ -31,8 +31,12 @@ namespace OpenRA
 		[Desc("Automatically start playing the given map.")]
 		public string Map;
 
-		[Desc("Add bots to map slots on auto-start. Format: slot:bottype,slot:bottype (e.g. Multi1:normal,Multi0:rl-agent).")]
+		[Desc("With Launch.Map: seat bots before starting. Format: slot:bottype[:faction],... " +
+			"(e.g. Multi1:normal or Multi0:normal:allies,Multi1:rush:soviets). A bot in Multi0 makes the local player spectate.")]
 		public string Bots;
+
+		[Desc("With Launch.Map: faction for the local player (e.g. allies).")]
+		public string Faction;
 
 		[Desc("Start in multi-session RL mode. A single process hosts multiple concurrent game sessions via gRPC.")]
 		public string MultiSession;

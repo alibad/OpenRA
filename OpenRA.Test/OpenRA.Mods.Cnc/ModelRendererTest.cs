@@ -9,7 +9,7 @@
  */
 #endregion
 
-using OpenRA.Primitives;
+using System.Numerics;
 using NUnit.Framework;
 using OpenRA.Mods.Cnc.Traits;
 using CncUtil = OpenRA.Mods.Cnc.Util;
@@ -25,9 +25,9 @@ namespace OpenRA.Test
 		const float TileScale = 1448;
 
 		// Mirrors WorldRenderer.ScreenVectorComponents
-		static float3 ScreenVector(int x, int y, int z)
+		static Vector3 ScreenVector(int x, int y, int z)
 		{
-			return new float3(TileWidth * x / TileScale, TileHeight * (y - z) / TileScale, TileHeight * z / TileScale);
+			return new Vector3(TileWidth * x / TileScale, TileHeight * (y - z) / TileScale, TileHeight * z / TileScale);
 		}
 
 		// RenderVoxels' camera for a given BodyOrientation.CameraPitch
@@ -36,7 +36,7 @@ namespace OpenRA.Test
 			return CncUtil.MakeFloatMatrix(new WRot(WAngle.Zero, new WAngle(cameraPitch) - new WAngle(256), new WAngle(yaw)).AsMatrix());
 		}
 
-		static float[] ToModelSpace(float[] camera, float3 screen, float depth)
+		static float[] ToModelSpace(float[] camera, Vector3 screen, float depth)
 		{
 			return CncUtil.MatrixVectorMultiply(CncUtil.MatrixInverse(camera), [screen.X, screen.Y, depth, 0]);
 		}

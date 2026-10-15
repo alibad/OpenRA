@@ -27,8 +27,7 @@ namespace OpenRA.Traits
 		[Desc("Pick a random faction as the player's faction out of this list.")]
 		public readonly FrozenSet<string> RandomFactionMembers = [];
 
-		[Desc("Automatically include this faction in the named random faction pools. " +
-			"This allows data-only faction packs to register without replacing the pool definition.")]
+		[Desc("Register this faction with a named random pool without replacing that pool.")]
 		public readonly FrozenSet<string> RandomFactionMemberOf = FrozenSet<string>.Empty;
 
 		[Desc("The side that the faction belongs to. For example, England belongs to the 'Allies' side.")]

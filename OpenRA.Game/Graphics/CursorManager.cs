@@ -95,7 +95,7 @@ namespace OpenRA.Graphics
 				foreach (var f in frames)
 				{
 					// Hotspot is specified relative to the center of the frame
-					var hotspot = f.Offset.ToInt2() - kv.Value.Hotspot - new int2(f.Size) / 2;
+					var hotspot = int2.FromVector(f.Offset) - kv.Value.Hotspot - new int2(f.Size) / 2;
 
 					// Resolve indexed data to real colours
 					var data = f.Data;
@@ -106,7 +106,7 @@ namespace OpenRA.Graphics
 						type = SpriteFrameType.Bgra32;
 					}
 
-					c.Sprites[c.Length++] = SheetBuilder.Add(data, type, f.Size, 0, hotspot);
+					c.Sprites[c.Length++] = SheetBuilder.Add(data, type, f.Size, 0, hotspot.ToVector3());
 
 					// Bounds relative to the hotspot
 					c.Bounds = Rectangle.Union(c.Bounds, new Rectangle(hotspot, f.Size));
@@ -124,7 +124,7 @@ namespace OpenRA.Graphics
 				var offset = new int2(-kv.Value.Size / 2, -kv.Value.Size / 2);
 				for (var i = 0; i < sprites.Length; i++)
 					sprites[i] = SheetBuilder.Add(CursorEffectRenderer.Render(kv.Value, i), SpriteFrameType.Bgra32,
-						new Size(kv.Value.Size, kv.Value.Size), 0, offset);
+						new Size(kv.Value.Size, kv.Value.Size), 0, offset.ToVector3());
 
 				effects.Add(kv.Key, new Effect { Sprites = sprites });
 			}
@@ -153,7 +153,7 @@ namespace OpenRA.Graphics
 					template.Cursors[i]?.Dispose();
 
 					// Calculate the padding to position the frame within sequenceBounds
-					var paddingTL = -(template.Bounds.Location - template.Sprites[i].Offset.XY.ToInt2());
+					var paddingTL = -(template.Bounds.Location - int2.FromVector(template.Sprites[i].Offset));
 					var paddingBR = template.PaddedSize - new int2(template.Sprites[i].Bounds.Size) - paddingTL;
 
 					var hardwareCursor = CreateHardwareCursor(kv.Key, template.Sprites[i], paddingTL, paddingBR, -template.Bounds.Location);
@@ -270,12 +270,12 @@ namespace OpenRA.Graphics
 			{
 				var effectSprite = effect.Sprites[frame % effect.Sprites.Length];
 				renderer.RgbaSpriteRenderer.DrawSprite(effectSprite,
-					mousePos,
+					mousePos.ToVector3(),
 					cursorScale / Game.Renderer.WindowScale);
 			}
 
 			renderer.RgbaSpriteRenderer.DrawSprite(cursorSprite,
-				mousePos,
+				mousePos.ToVector3(),
 				cursorScale / Game.Renderer.WindowScale);
 		}
 

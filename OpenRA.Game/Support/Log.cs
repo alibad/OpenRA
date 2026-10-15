@@ -46,6 +46,10 @@ namespace OpenRA
 			Channel = System.Threading.Channels.Channel.CreateUnbounded<ChannelData>();
 			ChannelWriter = Channel.Writer;
 
+			// The browser (WebAssembly) runtime is single-threaded: Write() writes synchronously there.
+			if (OperatingSystem.IsBrowser())
+				return;
+
 			Thread = new Thread(DoWork)
 			{
 				Name = "OpenRA Logging Thread"
@@ -159,19 +163,25 @@ namespace OpenRA
 
 		public static void Write(string channelName, string value)
 		{
-			ChannelWriter.TryWrite(new ChannelData(channelName, value));
+			if (OperatingSystem.IsBrowser())
+			{
+				if (Channels.ContainsKey(channelName))
+					WriteValue(new ChannelData(channelName, value));
+			}
+			else
+				ChannelWriter.TryWrite(new ChannelData(channelName, value));
 		}
 
 		public static void Write(string channelName, Exception e)
 		{
-			ChannelWriter.TryWrite(new ChannelData(channelName, $"{e.Message}{Environment.NewLine}{e.StackTrace}"));
+			Write(channelName, $"{e.Message}{Environment.NewLine}{e.StackTrace}");
 		}
 
 		public static void Dispose()
 		{
 			CancellationToken.Cancel();
-			Timer.Dispose();
-			Thread.Join();
+			Timer?.Dispose();
+			Thread?.Join();
 		}
 	}
 }

@@ -41,6 +41,16 @@ namespace OpenRA
 		ISoundLoader[] loaders;
 		IReadOnlyFileSystem fileSystem;
 		Cache<string, ISoundSource> sounds;
+
+		/// <summary>
+		/// Optional (null on the desktop): whether an audio file can be read now without waiting, for hosts that fetch
+		/// game files over the network. A sound that is not ready is skipped this time; music waits and starts once it
+		/// is. The host fetches the file meanwhile. Audio only: nothing here affects the simulation.
+		/// </summary>
+		public static Func<string, bool> AudioReady;
+
+		MusicInfo pendingMusic;
+		bool pendingLooped;
 		ISoundSource videoSource;
 		ISound music;
 		ISound video;
@@ -117,6 +127,9 @@ namespace OpenRA
 				return null;
 
 			if (player != null && player != player.World.LocalPlayer)
+				return null;
+
+			if (AudioReady != null && !sounds.ContainsKey(name) && !AudioReady(name))
 				return null;
 
 			return soundEngine.Play2D(sounds[name],
@@ -216,6 +229,15 @@ namespace OpenRA
 
 		public void Tick()
 		{
+			if (pendingMusic != null && AudioReady != null && AudioReady(pendingMusic.Filename))
+			{
+				var m = pendingMusic;
+				var then = onMusicComplete;
+				pendingMusic = null;
+				PlayMusic(m, pendingLooped);
+				onMusicComplete = then;
+			}
+
 			// Song finished
 			if (MusicPlaying && music.Complete)
 			{
@@ -252,6 +274,15 @@ namespace OpenRA
 
 			StopMusic();
 
+			// Not fetched yet: start it from Tick once it is (the game never waits for music).
+			if (AudioReady != null && !AudioReady(m.Filename))
+			{
+				pendingMusic = m;
+				pendingLooped = looped;
+				CurrentMusic = m;
+				return;
+			}
+
 			ISound Stream(ISoundFormat soundFormat) => soundEngine.Play2DStream(
 				soundFormat.GetPCMInputStream(), soundFormat.Channels, soundFormat.SampleBits, soundFormat.SampleRate,
 				looped, true, WPos.Zero, MusicVolume * m.VolumeModifier);
@@ -284,6 +315,7 @@ namespace OpenRA
 
 		public void StopMusic()
 		{
+			pendingMusic = null;
 			if (music != null)
 			{
 				soundEngine.StopSound(music);
@@ -412,6 +444,9 @@ namespace OpenRA
 			{
 				ISound PlaySound()
 				{
+					if (AudioReady != null && !sounds.ContainsKey(name) && !AudioReady(name))
+						return null;
+
 					var volume = InternalSoundVolume * volumeModifier * pool.VolumeModifier;
 					return soundEngine.Play2D(sounds[name], false, relative, pos, volume, attenuateVolume);
 				}

@@ -448,7 +448,7 @@ namespace OpenRA.Server
 				{
 					Mod = ModData.Manifest.Id,
 					Version = ModData.Manifest.Metadata.Version,
-					ConfigurationFingerprint = ModData.GameplayFingerprint,
+				ConfigurationFingerprint = ModData.GameplayFingerprint,
 					AuthToken = token
 				};
 
@@ -918,6 +918,13 @@ namespace OpenRA.Server
 			// Make sure we don't accidentally forward on orders from clients who we have just dropped
 			if (!Conns.Contains(conn))
 				return;
+
+			if (frame != 0 && State != ServerState.GameStarted)
+			{
+				Log.Write("server", $"Dropping client {conn.PlayerIndex} for sending order frame {frame} before the game started.");
+				DropClient(conn);
+				return;
+			}
 
 			if (frame == 0)
 				InterpretServerOrders(conn, data);

@@ -16,7 +16,7 @@ namespace OpenRA.Mods.Common.Traits
 {
 	[TraitLocation(SystemActors.Player)]
 	[Desc("Tracks captured production technology and exposes the original faction production prerequisites.")]
-	public sealed class CapturedTechnologyManagerInfo : TraitInfo, ITechTreePrerequisiteInfo
+	public sealed class CapturedTechnologyManagerInfo : TraitInfo, ITechTreePrerequisiteInfo, Requires<TechTreeInfo>
 	{
 		[Desc("Faction identifiers that may be captured.")]
 		public readonly ImmutableArray<string> Factions = [];

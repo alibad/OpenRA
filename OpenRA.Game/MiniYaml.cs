@@ -208,6 +208,7 @@ namespace OpenRA
 			// This saves on long-term memory usage as parsed values can often live a long time.
 			// A caller can also provide a pool as input, allowing de-duplication across multiple parses.
 			stringPool ??= [];
+			var stringPoolLookup = stringPool.GetAlternateLookup<ReadOnlySpan<char>>();
 
 			var result = new List<List<MiniYamlNode>>
 			{
@@ -325,16 +326,20 @@ namespace OpenRA
 					while (parsedLines.Count > 0 && parsedLines[^1].Level > level)
 						BuildCompletedSubNode(level);
 
-					var keyString = key.IsEmpty ? null : key.ToString();
-					var valueString = value.IsEmpty ? null : value.ToString();
+					string GetOrAdd(ReadOnlySpan<char> value)
+					{
+						if (stringPoolLookup.TryGetValue(value, out var result))
+							return result;
+						stringPool.Add(result = value.ToString());
+						return result;
+					}
+
+					var keyString = key.IsEmpty ? null : GetOrAdd(key);
+					var valueString = value.IsEmpty ? null : GetOrAdd(value);
 
 					// Note: We need to support empty comments here to ensure that empty comments
 					// (i.e. a lone # at the end of a line) can be correctly re-serialized
-					var commentString = comment == ReadOnlySpan<char>.Empty ? null : comment.ToString();
-
-					keyString = keyString == null ? null : stringPool.GetOrAdd(keyString);
-					valueString = valueString == null ? null : stringPool.GetOrAdd(valueString);
-					commentString = commentString == null ? null : stringPool.GetOrAdd(commentString);
+					var commentString = comment == ReadOnlySpan<char>.Empty ? null : GetOrAdd(comment);
 
 					parsedLines.Add((level, keyString, valueString, commentString, location));
 				}
@@ -685,7 +690,9 @@ namespace OpenRA
 			}
 
 			var stringPool = new HashSet<string>(); // Reuse common strings in YAML
-			var yaml = files.Distinct().Select(s => FromStream(fileSystem.Open(s), s, stringPool: stringPool));
+			// Maps may explicitly require a component that is already selected by the mod.
+			// Load its source once: repeated trait removals are not idempotent.
+			var yaml = files.Distinct(StringComparer.Ordinal).Select(s => FromStream(fileSystem.Open(s), s, stringPool: stringPool));
 			if (mapRules != null && mapRules.Nodes.Length > 0)
 				yaml = yaml.Append(mapRules.Nodes);
 

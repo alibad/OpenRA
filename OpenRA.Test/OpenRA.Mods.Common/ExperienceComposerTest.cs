@@ -23,11 +23,18 @@ namespace OpenRA.Test
 	[TestFixture]
 	sealed class ExperienceComposerTest
 	{
+		static string ClassicPath(string relative)
+		{
+			var root = Environment.GetEnvironmentVariable("RTSAI_RECOVERY_CLASSIC_DIR");
+			if (string.IsNullOrWhiteSpace(root))
+				root = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, "..", "mods", "ra"));
+			return Path.GetFullPath(Path.Combine(root, relative));
+		}
+
 		[Test]
 		public void ShippedDefaultIncludesModernFactionsAndEnhancedMechanics()
 		{
-			var path = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory,
-				"..", "mods", "ra", "experiences.yaml"));
+			var path = ClassicPath("experiences.yaml");
 			var catalog = MiniYaml.FromFile(path, false).Single().Value;
 			Assert.That(catalog.Nodes.Single(n => n.Key == "DefaultProfile").Value.Value, Is.EqualTo("world-war-iii"));
 			var profiles = catalog.Nodes.Single(n => n.Key == "Profiles").Value;
@@ -227,8 +234,7 @@ namespace OpenRA.Test
 		[TestCase(TestName = "Built-in faction packs compose complete starting-unit definitions")]
 		public void BuiltInFactionPacksComposeStartingUnits()
 		{
-			var rulesDirectory = Path.GetFullPath(Path.Combine(
-				TestContext.CurrentContext.TestDirectory, "..", "mods", "ra", "rules"));
+			var rulesDirectory = ClassicPath("rules");
 			var files = new[] { "world.yaml", "china.yaml", "iran.yaml", "red-sea.yaml", "turkey.yaml" };
 			var definitions = files.SelectMany(file =>
 			{
@@ -257,8 +263,7 @@ namespace OpenRA.Test
 		[TestCase(TestName = "Built-in faction packs compose AI type extensions without replacing each other")]
 		public void BuiltInFactionPacksComposeBotTypes()
 		{
-			var rulesDirectory = Path.GetFullPath(Path.Combine(
-				TestContext.CurrentContext.TestDirectory, "..", "mods", "ra", "rules"));
+			var rulesDirectory = ClassicPath("rules");
 			var files = new[] { "ai.yaml", "china.yaml", "iran.yaml", "red-sea.yaml", "turkey.yaml" };
 			var player = MiniYaml.Merge(files.Select(file =>
 				MiniYaml.FromFile(Path.Combine(rulesDirectory, file), false).Where(node => node.Key == "Player")))
@@ -537,8 +542,7 @@ namespace OpenRA.Test
 		[Test]
 		public void EveryBuiltInPresetAndFactionResolvesIndependently()
 		{
-			var path = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory,
-				"..", "mods", "ra", "experiences.yaml"));
+			var path = ClassicPath("experiences.yaml");
 			var yaml = MiniYaml.FromFile(path, false).Single().Value;
 			var components = yaml.Nodes.Single(n => n.Key == "Components").Value.Nodes
 				.Select(n => new ExperienceComponent(n.Key, n.Value)).ToDictionary(c => c.Id);
@@ -601,8 +605,7 @@ namespace OpenRA.Test
 
 		static ExperienceCatalog BuiltInCatalog(ExperienceSettings settings, string utilityProfile = null)
 		{
-			var path = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory,
-				"..", "mods", "ra", "experiences.yaml"));
+			var path = ClassicPath("experiences.yaml");
 			return new ExperienceCatalog(MiniYaml.FromFile(path, false).Single().Value, settings,
 				[], PresentationPackDefinition.Default, utilityProfile);
 		}

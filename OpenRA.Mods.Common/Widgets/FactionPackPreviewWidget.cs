@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using System.Numerics;
 using OpenRA.FileFormats;
 using OpenRA.FileSystem;
 using OpenRA.Graphics;
@@ -68,10 +69,10 @@ namespace OpenRA.Mods.Common.Widgets
 				return;
 
 			var scale = Math.Min(RenderBounds.Width / (float)sprite.Size.X, RenderBounds.Height / (float)sprite.Size.Y);
-			var size = (scale * sprite.Size.XY).ToInt2();
+			var size = new int2((int)(scale * sprite.Size.X), (int)(scale * sprite.Size.Y));
 			var location = new int2(RenderBounds.X, RenderBounds.Y) +
 				(new int2(RenderBounds.Width, RenderBounds.Height) - size) / 2;
-			WidgetUtils.DrawSprite(sprite, location, size);
+			WidgetUtils.DrawSprite(sprite, new Vector2(location.X, location.Y), new Size(size.X, size.Y));
 		}
 
 		public override void Removed()

@@ -44,7 +44,7 @@ namespace OpenRA
 		public static CursorManager Cursor;
 		public static bool HideCursor;
 
-		/// <summary>True when running with the Null platform (no GPU/rendering).</summary>
+		/// <summary>True when running on the no-op OpenRA.Platforms.Null platform (Game.Platform=Null).</summary>
 		public static bool IsHeadless => Settings?.Game?.Platform == "Null";
 
 		static WorldRenderer worldRenderer;
@@ -513,6 +513,7 @@ namespace OpenRA
 			Sound.StopVideo();
 
 			ModData = new ModData(manifest, Mods, true);
+			ModData.ActivateSettings();
 
 			LocalPlayerProfile = new LocalPlayerProfile(Path.Combine(Platform.SupportDir, Settings.Game.AuthProfile), ModData.GetOrCreate<PlayerDatabase>());
 
@@ -529,12 +530,10 @@ namespace OpenRA
 				ModData.MapCache.LoadMaps(ModData,
 					loadPreviews: string.IsNullOrEmpty(args.GetValue("Launch.MultiSession", null)));
 
-			// Skip cursor loading in headless mode (no game art assets available)
-			if (!IsHeadless)
-			{
-				Cursor?.Dispose();
-				Cursor = new CursorManager(ModData);
-			}
+			Cursor?.Dispose();
+
+			// The Null platform has no readable textures or hardware cursors.
+			Cursor = IsHeadless ? null : new CursorManager(ModData);
 
 			var metadata = ModData.Manifest.Metadata;
 			if (!string.IsNullOrEmpty(metadata.WindowTitleTranslated))
@@ -1058,28 +1057,31 @@ namespace OpenRA
 			benchmark = new Benchmark(prefix);
 		}
 
-		public static void LoadMap(string launchMap, string launchBots = null)
+		public static void LoadMap(string launchMap, string launchBots = null, string launchFaction = null)
 		{
 			var orders = new List<Order>();
+			if (!string.IsNullOrEmpty(launchFaction))
+				orders.Add(Order.Command($"faction 0 {launchFaction}"));
 
-			// Add bots to slots before readying up.
-			// Format: "slot:bottype,slot:bottype" e.g. "Multi1:normal" or "Multi0:rl-agent,Multi1:normal"
+			// Seat bots before readying up. Entries are slot:bottype[:faction].
 			if (!string.IsNullOrEmpty(launchBots))
 			{
-				var botEntries = launchBots.Split(',')
+				var bots = launchBots.Split(',')
 					.Select(entry => entry.Trim().Split(':'))
-					.Where(parts => parts.Length == 2)
+					.Where(parts => parts.Length is 2 or 3)
 					.ToArray();
 
-				// The local host occupies Multi0 by default. Only move it to spectator
-				// when a bot was explicitly requested for that slot. This preserves the
-				// playable human-vs-bot direct-launch path (for example Multi1:normal).
-				if (botEntries.Any(parts => parts[0] == "Multi0"))
+				// The local host occupies Multi0 by default; only spectate if a bot was requested there.
+				if (bots.Any(parts => parts[0] == "Multi0"))
 					orders.Add(Order.Command("spectate"));
 
-				foreach (var parts in botEntries)
+				// The local server hands out client indices sequentially: the host is 0,
+				// so the n-th bot seated here becomes client n.
+				for (var i = 0; i < bots.Length; i++)
 				{
-					orders.Add(Order.Command($"slot_bot {parts[0]} 0 {parts[1]}"));
+					orders.Add(Order.Command($"slot_bot {bots[i][0]} 0 {bots[i][1]}"));
+					if (bots[i].Length == 3)
+						orders.Add(Order.Command($"faction {i + 1} {bots[i][2]}"));
 				}
 			}
 

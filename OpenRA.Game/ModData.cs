@@ -27,6 +27,12 @@ namespace OpenRA
 {
 	public interface IGlobalModData { }
 
+	public interface IModSettingsLifecycle : IGlobalModData
+	{
+		void Activate(Settings settings);
+		void Capture(Settings settings);
+	}
+
 	/// <summary>
 	/// Allows a mod-defined global data module to select a deterministic subset of
 	/// manifest files. Files listed as managed remain visible to lint/update tools,
@@ -80,6 +86,7 @@ namespace OpenRA
 		public readonly string GameplayFingerprint;
 		public readonly string PresentationFingerprint;
 
+
 		public ILoadScreen LoadScreen { get; }
 		public FS ModFiles;
 		public IReadOnlyFileSystem DefaultFileSystem => ModFiles;
@@ -91,6 +98,14 @@ namespace OpenRA
 		public IReadOnlyDictionary<string, ITerrainInfo> DefaultTerrainInfo => defaultTerrainInfo.Value;
 
 		readonly TypeDictionary modules = [];
+		bool settingsActivated;
+
+		public void ActivateSettings()
+		{
+			foreach (var module in modules.WithInterface<IModSettingsLifecycle>())
+				module.Activate(Game.Settings);
+			settingsActivated = true;
+		}
 
 		public ModData(Manifest mod, InstalledMods mods, bool useLoadScreen = false)
 		{
@@ -302,6 +317,13 @@ namespace OpenRA
 
 		public void Dispose()
 		{
+			if (settingsActivated)
+			{
+				foreach (var module in modules.WithInterface<IModSettingsLifecycle>())
+					module.Capture(Game.Settings);
+				Game.Settings.Save();
+				settingsActivated = false;
+			}
 			LoadScreen?.Dispose();
 			MapCache.Dispose();
 

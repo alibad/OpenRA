@@ -22,7 +22,7 @@ namespace OpenRA.Mods.Common.Traits
 {
 	[TraitLocation(SystemActors.Player)]
 	[Desc("Converts player combat experience into synchronized commander promotion prerequisites.")]
-	public sealed class CommanderPromotionManagerInfo : TraitInfo, ITechTreePrerequisiteInfo
+	public sealed class CommanderPromotionManagerInfo : TraitInfo, ITechTreePrerequisiteInfo, Requires<PlayerExperienceInfo>, Requires<TechTreeInfo>
 	{
 		public readonly ImmutableArray<int> Thresholds = [250, 750, 1500];
 

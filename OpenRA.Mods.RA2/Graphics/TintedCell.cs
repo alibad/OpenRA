@@ -9,6 +9,7 @@
  */
 #endregion
 
+using System.Numerics;
 using System.Collections.Generic;
 using System.Linq;
 using OpenRA.Effects;
@@ -56,7 +57,7 @@ namespace OpenRA.Mods.RA2.Graphics
 		IFinalizedRenderable IRenderable.PrepareRender(WorldRenderer wr) { return this; }
 
 		bool firstTime = true;
-		float3[] screen;
+		Vector3[] screen;
 		int alpha;
 		public void Render(WorldRenderer wr)
 		{

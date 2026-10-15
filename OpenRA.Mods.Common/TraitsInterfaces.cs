@@ -13,6 +13,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Numerics;
 using OpenRA.Activities;
 using OpenRA.GameRules;
 using OpenRA.Graphics;
@@ -155,7 +156,7 @@ namespace OpenRA.Mods.Common.Traits
 
 	[RequireExplicitImplementation]
 	public interface INotifyPowerLevelChanged { void PowerLevelChanged(Actor self); }
-	public interface INotifySupportPower { void Charged(Actor self); void Activated(Actor self); }
+	public interface INotifySupportPower { void Charged(Actor self); void Activated(Actor self, string orderName); }
 
 	public interface INotifyBuildingPlaced { void BuildingPlaced(Actor self, Actor building); }
 	public interface INotifyBurstComplete { void FiredBurst(Actor self, in Target target, Armament a); }
@@ -338,7 +339,7 @@ namespace OpenRA.Mods.Common.Traits
 	{
 		Sprite Sprite { get; }
 		string Palette { get; }
-		float2 Offset(float2 iconSize);
+		Vector2 Offset(Vector2 iconSize);
 		bool IsOverlayActive(ActorInfo ai);
 	}
 
@@ -1028,5 +1029,10 @@ namespace OpenRA.Mods.Common.Traits
 		ImmutableArray<string> Tilesets { get; }
 		ImmutableArray<MapGeneratorOption> Options { get; }
 		int GetPlayerCount(MapGenerationArgs args);
+		bool ValidateArgs(
+			ModData modData,
+			MapGenerationArgs args,
+			Size sizeLimit,
+			MapGeneratorOption.VisibilityFlags visibilityRequirements);
 	}
 }

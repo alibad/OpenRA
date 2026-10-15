@@ -94,31 +94,7 @@ namespace OpenRA.Mods.Common.FileSystem
 					if (!fileSystem.Exists(kv.Key))
 						isContentAvailable = false;
 
-			// Data-only capability packs live under a namespaced directory so their
-			// rules, sequences, and assets cannot collide with built-in mod files.
-			// The ExperienceCatalog selects which declared YAML files become active.
-			var capabilityPackDirectory = CapabilityPackRegistry.PackDirectory(manifest.Id);
-			Directory.CreateDirectory(Path.Combine(capabilityPackDirectory, "experience-packs"));
-			fileSystem.Mount(capabilityPackDirectory);
-
-			// Presentation packs are exact-path asset overlays. Mounting them last
-			// lets images, sounds, and cursor sprites replace the base asset while
-			// preserving automatic fallback for every undeclared file.
-			var experienceSettings = Game.Settings.GetOrCreate<ExperienceSettings>(objectCreator, manifest.Id);
-			var presentationPack = PresentationPackRegistry.Find(manifest.Id, experienceSettings.PresentationPack);
-			if (presentationPack.Id != PresentationPackDefinition.Default.Id)
-			{
-				try
-				{
-					presentationPack.ValidateReplacementTargets(fileSystem.Exists);
-					fileSystem.Mount(presentationPack.AssetsPath);
-				}
-				catch (System.Exception e)
-				{
-					Log.Write("debug", $"Failed to mount presentation pack `{presentationPack.Id}`: {e.Message}");
-					experienceSettings.PresentationPack = PresentationPackDefinition.Default.Id;
-				}
-			}
+			DefaultFileSystemLoader.MountExperiencePacks(manifest, fileSystem, objectCreator);
 		}
 
 		bool IFileSystemExternalContent.InstallContentIfRequired(ModData modData)

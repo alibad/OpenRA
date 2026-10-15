@@ -9,4 +9,8 @@
 		<PackageReference Include="Mono.NAT" Version="3.0.4" />
 		<PackageReference Include="SharpZipLib" Version="1.4.2" />
 	</ItemGroup>
+	<ItemGroup>
+		<!-- The embedded web host (RTSAI-WebGame) builds and ticks a World without the desktop game loop. -->
+		<InternalsVisibleTo Include="OpenRA.WebSim" />
+	</ItemGroup>
 </Project>

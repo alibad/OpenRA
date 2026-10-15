@@ -12,6 +12,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Numerics;
 using OpenRA.GameRules;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.Effects;
@@ -25,6 +26,13 @@ namespace OpenRA.Mods.Common.Projectiles
 	[Desc("Projectile with smart tracking.")]
 	public class MissileInfo : IProjectileInfo
 	{
+		[Desc("Optional interception class; unset retains normal projectile behavior.")]
+		public readonly string PointDefenseType = null;
+
+		[Desc("Apply the weapon impact on interception instead of harmless removal.")]
+		public readonly bool DetonateOnInterception = false;
+
+
 		[Desc("Name of the image containing the projectile sequence.")]
 		public readonly string Image = null;
 
@@ -69,11 +77,7 @@ namespace OpenRA.Mods.Common.Projectiles
 		[Desc("Is the missile blocked by actors with BlocksProjectiles: trait.")]
 		public readonly bool Blockable = true;
 
-		[Desc("Optional class used by PointDefense to intercept this projectile.")]
-		public readonly string PointDefenseType = null;
 
-		[Desc("Apply the weapon impact at the interception point instead of removing the projectile harmlessly.")]
-		public readonly bool DetonateOnInterception = false;
 
 		[Desc("Is the missile aware of terrain height levels. Only needed for mods with real, non-visual height levels.")]
 		public readonly bool TerrainHeightAware = false;
@@ -215,7 +219,7 @@ namespace OpenRA.Mods.Common.Projectiles
 		readonly WAngle minLaunchAngle;
 		readonly WAngle maxLaunchAngle;
 
-		readonly float3 shadowColor;
+		readonly Vector3 shadowColor;
 		readonly float shadowAlpha;
 
 		int ticks;
@@ -312,8 +316,9 @@ namespace OpenRA.Mods.Common.Projectiles
 			if (info.TrailUsePlayerPalette)
 				trailPalette += args.SourceActor.Owner.InternalName;
 
-			shadowColor = new float3(info.ShadowColor.R, info.ShadowColor.G, info.ShadowColor.B) / 255f;
-			shadowAlpha = info.ShadowColor.A / 255f;
+			var sColor = info.ShadowColor.ToVector4();
+			shadowColor = sColor.AsVector3();
+			shadowAlpha = sColor.W;
 		}
 
 		static int LoopRadius(int speed, int rot)

@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using OpenRA.Graphics;
 using OpenRA.Primitives;
 
@@ -80,7 +81,7 @@ namespace OpenRA.Traits
 
 		int flashTicks;
 		TintModifiers flashModifiers;
-		float3 flashTint;
+		Vector3 flashTint;
 		float? flashAlpha;
 
 		public FrozenActor(Actor actor, ICreatesFrozenActors frozenTrait, PPos[] footprint, Player viewer, bool startsRevealed)
@@ -200,11 +201,11 @@ namespace OpenRA.Traits
 		{
 			flashTicks = 5;
 			flashModifiers = TintModifiers.ReplaceColor;
-			flashTint = new float3(color.R, color.G, color.B) / 255f;
+			flashTint = color.ToVector3();
 			flashAlpha = alpha;
 		}
 
-		public void Flash(float3 tint)
+		public void Flash(Vector3 tint)
 		{
 			flashTicks = 5;
 			flashModifiers = TintModifiers.None;
@@ -268,8 +269,12 @@ namespace OpenRA.Traits
 
 			self.Trait<Shroud>().OnShroudChanged += uv =>
 			{
-				foreach (var fa in partitionedFrozenActors.At(new int2(uv.U, uv.V)))
-					fa.UpdateVisibilityNextTick = true;
+				// Every changed shroud cell of every player comes through here: the same items in the same order
+				// as At(), without an iterator per cell.
+				var p = new int2(uv.U, uv.V);
+				foreach (var kvp in partitionedFrozenActors.BinContaining(p))
+					if (kvp.Value.Contains(p))
+						kvp.Key.UpdateVisibilityNextTick = true;
 			};
 		}
 

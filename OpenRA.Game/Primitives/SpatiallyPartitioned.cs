@@ -102,6 +102,14 @@ namespace OpenRA.Primitives
 					action(BinAt(row, col), item, bounds);
 		}
 
+		/// <summary>The bin holding a location, for lookups without an iterator (filter it by Contains, as At does).</summary>
+		public Dictionary<T, Rectangle> BinContaining(int2 location)
+		{
+			var col = (location.X / binSize).Clamp(0, cols - 1);
+			var row = (location.Y / binSize).Clamp(0, rows - 1);
+			return BinAt(row, col);
+		}
+
 		public IEnumerable<T> At(int2 location)
 		{
 			var col = (location.X / binSize).Clamp(0, cols - 1);

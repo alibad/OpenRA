@@ -193,6 +193,7 @@ namespace OpenRA.Mods.Common.FactionCatalog
 		public static FactionCatalogView Build(string mode, Ruleset rules, ExperienceCatalog experience, SharedFactionCatalog catalog,
 			Func<string, string> translate, string catalogError = null)
 		{
+			mode = mode == "rtsai-classic-core" ? "ra" : mode == "rtsai" ? "ra2" : mode;
 			// RA2's rules messages spell line breaks as a literal "\n" for its own tooltips.
 			var lookup = translate ?? (key => key);
 			translate = key => lookup(key)?.Replace("\\n", "\n");

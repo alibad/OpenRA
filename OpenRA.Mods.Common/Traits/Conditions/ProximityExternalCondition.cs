@@ -20,6 +20,9 @@ namespace OpenRA.Mods.Common.Traits
 	[Desc("Applies a condition to actors within a specified range.")]
 	public class ProximityExternalConditionInfo : ConditionalTraitInfo
 	{
+		public readonly string ExperienceComponent = null;
+		public readonly string ExperienceRangeParameter = null;
+
 		[FieldLoader.Require]
 		[Desc("The condition to apply. Must be included in the target actor's ExternalConditions list.")]
 		public readonly string Condition = null;
@@ -37,9 +40,6 @@ namespace OpenRA.Mods.Common.Traits
 		[Desc("Condition is applied permanently to this actor.")]
 		public readonly bool AffectsParent = false;
 
-		[Desc("Optional Experience component and integer parameter that override Range in cells.")]
-		public readonly string ExperienceComponent = null;
-		public readonly string ExperienceRangeParameter = null;
 
 		public readonly string EnableSound = null;
 		public readonly string DisableSound = null;
@@ -50,8 +50,8 @@ namespace OpenRA.Mods.Common.Traits
 	public class ProximityExternalCondition : ConditionalTrait<ProximityExternalConditionInfo>,
 		ITick, INotifyAddedToWorld, INotifyRemovedFromWorld, INotifyOtherProduction, INotifyProximityOwnerChanged
 	{
-		readonly Actor self;
 		readonly WDist activeRange;
+		readonly Actor self;
 
 		readonly Dictionary<Actor, int> tokens = [];
 
@@ -67,10 +67,8 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			this.self = self;
 			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
-			activeRange = !string.IsNullOrEmpty(info.ExperienceComponent) &&
-				experience?.IsComponentActive(info.ExperienceComponent) == true ?
-				WDist.FromCells(experience.GetIntegerParameter(info.ExperienceComponent,
-					info.ExperienceRangeParameter, info.Range.Length / 1024)) : info.Range;
+			activeRange = !string.IsNullOrEmpty(info.ExperienceComponent) && experience?.IsComponentActive(info.ExperienceComponent) == true
+				? WDist.FromCells(experience.GetIntegerParameter(info.ExperienceComponent, info.ExperienceRangeParameter, info.Range.Length / 1024)) : info.Range;
 			cachedRange = WDist.Zero;
 			cachedVRange = WDist.Zero;
 		}

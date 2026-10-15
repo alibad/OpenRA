@@ -82,8 +82,7 @@ namespace OpenRA.Network
 			var data = new List<MiniYamlNode>
 			{
 				new("Handshake", null,
-					new[] { "Mod", "Version", "ConfigurationFingerprint", "Password", "Fingerprint", "AuthSignature", "OrdersProtocol" }
-						.Select(p => FieldSaver.SaveField(this, p)).ToList()),
+					new[] { "Mod", "Version", "ConfigurationFingerprint", "Password", "Fingerprint", "AuthSignature", "OrdersProtocol" }.Select(p => FieldSaver.SaveField(this, p)).ToList()),
 				new("Client", FieldSaver.Save(Client))
 			};
 

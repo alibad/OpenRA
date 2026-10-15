@@ -19,6 +19,8 @@ namespace OpenRA.Graphics
 	public sealed class Sheet : IDisposable
 	{
 		bool dirty;
+		Rectangle? dirtyRegion;
+
 		bool releaseBufferOnCommit;
 		ITexture texture;
 		byte[] data;
@@ -40,6 +42,7 @@ namespace OpenRA.Graphics
 			Size = size;
 		}
 
+		// We are just wrapping an existing texture.
 		public Sheet(SheetType type, ITexture texture)
 		{
 			Type = type;
@@ -50,7 +53,8 @@ namespace OpenRA.Graphics
 		public Sheet(SheetType type, Stream stream)
 		{
 			var png = new Png(stream);
-			Size = new Size(png.Width, png.Height);
+			// Keep source pixels and sprite bounds unchanged. Native texture allocation requires power-of-two sizes.
+			Size = new Size(png.Width, png.Height).NextPowerOf2();
 			data = new byte[4 * Size.Width * Size.Height];
 			Util.FastCopyIntoSprite(new Sprite(this, new Rectangle(0, 0, png.Width, png.Height), TextureChannel.Red), png);
 
@@ -68,7 +72,17 @@ namespace OpenRA.Graphics
 
 			if (data != null && dirty)
 			{
-				texture.SetData(data, Size.Width, Size.Height);
+				// If size of texture does not match the sheet size, the texture needs to be initialized.
+				if (dirtyRegion != null && texture.Size == Size && Size != dirtyRegion?.Size)
+				{
+					var region = dirtyRegion.Value;
+					texture.SetSubData(data, region.X, region.Y, region.Width, region.Height);
+				}
+				else
+					texture.SetData(data, Size.Width, Size.Height);
+
+				dirtyRegion = null;
+
 				dirty = false;
 				if (releaseBufferOnCommit)
 					data = null;
@@ -110,14 +124,16 @@ namespace OpenRA.Graphics
 		{
 			if (data != null)
 				return;
+
 			if (texture == null)
 				data = new byte[4 * Size.Width * Size.Height];
 			else
 				data = texture.GetData();
+
 			releaseBufferOnCommit = false;
 		}
 
-		public void CommitBufferedData()
+		public void CommitBufferedData(Rectangle region)
 		{
 			if (!Buffered)
 				throw new InvalidOperationException(
@@ -125,7 +141,17 @@ namespace OpenRA.Graphics
 					"If you need to completely replace the texture data you should set data into the texture directly. " +
 					"If you need to make only small changes to the texture data consider creating a buffered sheet instead.");
 
+			if (dirtyRegion == null)
+				dirtyRegion = region;
+			else
+				dirtyRegion = Rectangle.Union(dirtyRegion.Value, region);
+
 			dirty = true;
+		}
+
+		public void CommitBufferedData()
+		{
+			CommitBufferedData(new Rectangle(0, 0, Size.Width, Size.Height));
 		}
 
 		public void ReleaseBuffer()

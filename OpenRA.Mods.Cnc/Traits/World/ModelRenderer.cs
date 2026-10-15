@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Numerics;
 using OpenRA.Graphics;
 using OpenRA.Primitives;
 using OpenRA.Traits;
@@ -24,9 +25,9 @@ namespace OpenRA.Mods.Cnc.Traits
 		public readonly Sprite Sprite;
 		public readonly Sprite ShadowSprite;
 		public readonly float ShadowDirection;
-		public readonly float3[] ProjectedShadowBounds;
+		public readonly Vector3[] ProjectedShadowBounds;
 
-		public ModelRenderProxy(Sprite sprite, Sprite shadowSprite, float3[] projectedShadowBounds, float shadowDirection)
+		public ModelRenderProxy(Sprite sprite, Sprite shadowSprite, Vector3[] projectedShadowBounds, float shadowDirection)
 		{
 			Sprite = sprite;
 			ShadowSprite = shadowSprite;
@@ -48,7 +49,7 @@ namespace OpenRA.Mods.Cnc.Traits
 		// Static constants
 		static readonly ImmutableArray<float> ShadowDiffuse = [0, 0, 0];
 		static readonly ImmutableArray<float> ShadowAmbient = [1, 1, 1];
-		static readonly float2 SpritePadding = new(2, 2);
+		static readonly Vector2 SpritePadding = new(2, 2);
 		static readonly float[] ZeroVector = [0, 0, 0, 1];
 		static readonly float[] ZVector = [0, 0, 1, 1];
 		static readonly float[] FlipMtx = Util.ScaleMatrix(1, -1, 1);
@@ -121,12 +122,12 @@ namespace OpenRA.Mods.Cnc.Traits
 				throw new InvalidOperationException("Failed to invert the cameraTransform matrix during RenderAsync.");
 
 			// Sprite rectangle
-			var tl = new float2(float.MaxValue, float.MaxValue);
-			var br = new float2(float.MinValue, float.MinValue);
+			var tl = new Vector2(float.MaxValue, float.MaxValue);
+			var br = new Vector2(float.MinValue, float.MinValue);
 
 			// Shadow sprite rectangle
-			var stl = new float2(float.MaxValue, float.MaxValue);
-			var sbr = new float2(float.MinValue, float.MinValue);
+			var stl = new Vector2(float.MaxValue, float.MaxValue);
+			var sbr = new Vector2(float.MinValue, float.MinValue);
 
 			foreach (var m in models)
 			{
@@ -145,10 +146,10 @@ namespace OpenRA.Mods.Cnc.Traits
 				var shadowBounds = Util.MatrixAABBMultiply(shadowTransform, worldBounds);
 
 				// Aggregate bounds rects
-				tl = float2.Min(tl, new float2(screenBounds[0], screenBounds[1]));
-				br = float2.Max(br, new float2(screenBounds[3], screenBounds[4]));
-				stl = float2.Min(stl, new float2(shadowBounds[0], shadowBounds[1]));
-				sbr = float2.Max(sbr, new float2(shadowBounds[3], shadowBounds[4]));
+				tl = Vector2.Min(tl, new Vector2(screenBounds[0], screenBounds[1]));
+				br = Vector2.Max(br, new Vector2(screenBounds[3], screenBounds[4]));
+				stl = Vector2.Min(stl, new Vector2(shadowBounds[0], shadowBounds[1]));
+				sbr = Vector2.Max(sbr, new Vector2(shadowBounds[3], shadowBounds[4]));
 			}
 
 			// Inflate rects to ensure rendering is within bounds
@@ -168,7 +169,7 @@ namespace OpenRA.Mods.Cnc.Traits
 
 			var shadowScreenTransform = Util.MatrixMultiply(cameraTransform, invShadowTransform);
 			var shadowGroundNormal = Util.MatrixVectorMultiply(shadowTransform, groundNormal);
-			var screenCorners = new float3[4];
+			var screenCorners = new Vector3[4];
 			for (var j = 0; j < 4; j++)
 			{
 				// Project to ground plane
@@ -177,7 +178,7 @@ namespace OpenRA.Mods.Cnc.Traits
 
 				// Rotate to camera-space
 				corners[j] = Util.MatrixVectorMultiply(shadowScreenTransform, corners[j]);
-				screenCorners[j] = new float3(corners[j][0], corners[j][1], 0);
+				screenCorners[j] = new Vector3(corners[j][0], corners[j][1], 0);
 			}
 
 			// Shadows are rendered at twice the resolution to reduce artifacts
@@ -186,12 +187,12 @@ namespace OpenRA.Mods.Cnc.Traits
 
 			sheetBuilderForFrame ??= new SheetBuilder(SheetType.BGRA, AllocateSheet);
 
-			var sprite = sheetBuilderForFrame.Allocate(spriteSize, 0, spriteOffset);
-			var shadowSprite = sheetBuilderForFrame.Allocate(shadowSpriteSize, 0, shadowSpriteOffset);
+			var sprite = sheetBuilderForFrame.Allocate(spriteSize, 0, spriteOffset.ToVector3());
+			var shadowSprite = sheetBuilderForFrame.Allocate(shadowSpriteSize, 0, shadowSpriteOffset.ToVector3());
 			var sb = sprite.Bounds;
 			var ssb = shadowSprite.Bounds;
-			var spriteCenter = new float2(sb.Left + sb.Width / 2, sb.Top + sb.Height / 2);
-			var shadowCenter = new float2(ssb.Left + ssb.Width / 2, ssb.Top + ssb.Height / 2);
+			var spriteCenter = new Vector2(sb.Left + sb.Width / 2, sb.Top + sb.Height / 2);
+			var shadowCenter = new Vector2(ssb.Left + ssb.Width / 2, ssb.Top + ssb.Height / 2);
 
 			var translateMtx = Util.TranslationMatrix(spriteCenter.X - spriteOffset.X, sheetSize - (spriteCenter.Y - spriteOffset.Y), 0);
 			var shadowTranslateMtx = Util.TranslationMatrix(shadowCenter.X - shadowSpriteOffset.X, sheetSize - (shadowCenter.Y - shadowSpriteOffset.Y), 0);
@@ -257,12 +258,12 @@ namespace OpenRA.Mods.Cnc.Traits
 		/// deck in front of it and a stern turret sinks into the deck, depending on facing.
 		/// Instead, use the depth that the model camera gives the same point: see <see cref="OffsetDepth"/>.
 		/// </summary>
-		public static float3 OffsetScreenVector(WorldRenderer wr, in WVec offset, float[] cameraTransform)
+		public static Vector3 OffsetScreenVector(WorldRenderer wr, in WVec offset, float[] cameraTransform)
 		{
 			var screen = wr.ScreenVectorComponents(offset);
 			var ground = wr.ScreenVectorComponents(new WVec(offset.X, offset.Y, 0));
 			var height = wr.ScreenVectorComponents(new WVec(0, 0, offset.Z));
-			return new float3(screen.X, screen.Y, OffsetDepth(ground, height, cameraTransform));
+			return new Vector3(screen.X, screen.Y, OffsetDepth(ground, height, cameraTransform));
 		}
 
 		/// <summary>
@@ -273,7 +274,7 @@ namespace OpenRA.Mods.Cnc.Traits
 		/// on screen; otherwise the closest point to it). If the camera looks along the ground or straight down,
 		/// that part keeps its ScreenVector depth.
 		/// </summary>
-		public static float OffsetDepth(in float3 ground, in float3 height, float[] cameraTransform)
+		public static float OffsetDepth(in Vector3 ground, in Vector3 height, float[] cameraTransform)
 		{
 			// The model's up axis (ground normal) in camera space; the camera is a rotation, so a camera-space
 			// vector's model-space height is its dot product with this axis.
@@ -286,11 +287,11 @@ namespace OpenRA.Mods.Cnc.Traits
 			return groundDepth + heightDepth;
 		}
 
-		static void CalculateSpriteGeometry(float2 tl, float2 br, float scale, out Size size, out int2 offset)
+		static void CalculateSpriteGeometry(Vector2 tl, Vector2 br, float scale, out Size size, out int2 offset)
 		{
 			var width = (int)(scale * (br.X - tl.X));
 			var height = (int)(scale * (br.Y - tl.Y));
-			offset = (0.5f * scale * (br + tl)).ToInt2();
+			offset = int2.FromVector(0.5f * scale * (br + tl));
 
 			// Width and height must be even to avoid rendering glitches
 			if ((width & 1) == 1)

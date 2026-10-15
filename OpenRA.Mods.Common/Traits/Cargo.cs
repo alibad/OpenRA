@@ -101,13 +101,13 @@ namespace OpenRA.Mods.Common.Traits
 		INotifyOwnerChanged, INotifySold, INotifyActorDisposing, IIssueDeployOrder,
 		INotifyCreated, INotifyKilled, ITransformActorInitModifier
 	{
+		readonly int maximumWeight;
 		readonly Actor self;
 		readonly List<Actor> cargo = [];
 		readonly HashSet<Actor> reserves = [];
 		readonly Dictionary<string, Stack<int>> passengerTokens = [];
 		readonly Lazy<IFacing> facing;
 		readonly bool checkTerrainType;
-		readonly int maximumWeight;
 
 		int totalWeight = 0;
 		int reservedWeight = 0;
@@ -129,10 +129,8 @@ namespace OpenRA.Mods.Common.Traits
 			self = init.Self;
 			checkTerrainType = info.UnloadTerrainTypes.Count > 0;
 			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
-			maximumWeight = !string.IsNullOrEmpty(info.ExperienceComponent) &&
-				experience?.IsComponentActive(info.ExperienceComponent) == true ?
-				experience.GetIntegerParameter(info.ExperienceComponent,
-					info.ExperienceCapacityParameter, info.MaxWeight) : info.MaxWeight;
+			maximumWeight = !string.IsNullOrEmpty(info.ExperienceComponent) && experience?.IsComponentActive(info.ExperienceComponent) == true
+				? experience.GetIntegerParameter(info.ExperienceComponent, info.ExperienceCapacityParameter, info.MaxWeight) : info.MaxWeight;
 
 			var runtimeCargoInit = init.GetOrDefault<RuntimeCargoInit>(info);
 			var cargoInit = init.GetOrDefault<CargoInit>(info);

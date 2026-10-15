@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using OpenRA.FileSystem;
@@ -20,8 +21,30 @@ namespace OpenRA.Graphics
 {
 	public delegate ISpriteFrame AdjustFrame(ISpriteFrame input, int index, int total);
 
+	/// <summary>
+	/// Keeps packed sprites between sessions (e.g. the browser host caches them, so a map loads without decoding
+	/// and packing every sprite file again). Render-side only: sprites never affect the simulation.
+	/// </summary>
+	public interface ISpriteCacheStore
+	{
+		/// <summary>The sprites of every reservation token, if the store holds a packing of exactly this reservation set.</summary>
+		IReadOnlyDictionary<int, Sprite[]> TryRestore(SpriteCache cache, string key);
+
+		/// <summary>Called after the reservations were loaded and packed; <paramref name="files"/> maps each token to its file.</summary>
+		void Save(SpriteCache cache, string key, IReadOnlyDictionary<int, Sprite[]> sprites, IReadOnlyDictionary<int, string> files);
+	}
+
 	public sealed class SpriteCache : IDisposable
 	{
+		/// <summary>Optional packed-sprite store used by LoadReservations (null on the desktop).</summary>
+		public static ISpriteCacheStore Store;
+
+		/// <summary>
+		/// Optional (null on the desktop): a group per sprite file, e.g. the faction that uses it. Each group's sprites
+		/// are packed into sheets of their own, so a host can load only the groups a game needs. Render-side only.
+		/// </summary>
+		public static Func<string, string> PackGroup;
+
 		public readonly Dictionary<SheetType, SheetBuilder> SheetBuilders;
 		readonly ISpriteLoader[] loaders;
 		readonly IReadOnlyFileSystem fileSystem;
@@ -74,13 +97,92 @@ namespace OpenRA.Graphics
 			}
 		}
 
+		/// <summary>Every pending reservation (token, file), before LoadReservations.</summary>
+		public IEnumerable<(int Token, string Filename)> ReservedTokens()
+		{
+			foreach (var (filename, tokens) in reservationsByFilename)
+				foreach (var token in tokens)
+					yield return (token, filename);
+		}
+
 		public ISpriteFrame[] LoadFramesUncached(string filename)
 		{
 			return GetFrames(fileSystem, filename, loaders);
 		}
 
+		/// <summary>Identifies the reservation set (files, frames, frame adjustments, premultiplication), FNV-1a 64.</summary>
+		public string ReservationKey()
+		{
+			var hash = 14695981039346656037UL;
+			void Add(string s)
+			{
+				foreach (var c in s)
+				{
+					hash ^= c;
+					hash *= 1099511628211UL;
+				}
+
+				hash ^= 0xFF;
+				hash *= 1099511628211UL;
+			}
+
+			foreach (var (filename, tokens) in reservationsByFilename)
+			{
+				Add(filename);
+				if (PackGroup != null)
+					Add("group:" + PackGroup(filename));
+
+				foreach (var token in tokens)
+				{
+					var rs = spriteReservations[token];
+					Add(token.ToString(CultureInfo.InvariantCulture));
+					Add(rs.Frames.IsDefault ? "*" : string.Join(',', rs.Frames));
+					Add(rs.Premultiplied ? "p" : "-");
+					Add(rs.AdjustFrame == null ? "" : rs.AdjustFrame.Method.DeclaringType?.FullName + "." + rs.AdjustFrame.Method.Name);
+				}
+			}
+
+			return hash.ToString("x16", CultureInfo.InvariantCulture) + "-" + spriteReservations.Count.ToString(CultureInfo.InvariantCulture);
+		}
+
+		bool TryRestore(string key)
+		{
+			var restored = Store.TryRestore(this, key);
+			if (restored == null)
+				return false;
+
+			foreach (var (filename, tokens) in reservationsByFilename)
+			{
+				foreach (var token in tokens)
+				{
+					if (restored.TryGetValue(token, out var sprites) && sprites != null)
+						resolvedSprites[token] = sprites;
+					else
+					{
+						resolvedSprites[token] = null;
+						missingFiles[token] = (filename, spriteReservations[token].Location);
+					}
+				}
+			}
+
+			spriteReservations.Clear();
+			spriteReservations.TrimExcess();
+			reservationsByFilename.Clear();
+			reservationsByFilename.TrimExcess();
+			return true;
+		}
+
 		public void LoadReservations(ModData modData)
 		{
+			string storeKey = null;
+			if (Store != null)
+			{
+				storeKey = ReservationKey();
+				if (TryRestore(storeKey))
+					return;
+			}
+
+			var tokenFiles = new Dictionary<int, string>();
 			var pendingResolve = new List<(
 				string Filename,
 				int FrameIndex,
@@ -94,6 +196,7 @@ namespace OpenRA.Graphics
 				var loadedFrames = GetFrames(fileSystem, filename, loaders);
 				foreach (var token in tokens)
 				{
+					tokenFiles[token] = filename;
 					if (spriteReservations.TryGetValue(token, out var rs))
 					{
 						if (loadedFrames != null)
@@ -132,7 +235,10 @@ namespace OpenRA.Graphics
 
 			// When the sheet builder is adding sprites, it reserves height for the tallest sprite seen along the row.
 			// We can achieve better sheet packing by keeping sprites with similar heights together.
-			var orderedPendingResolve = pendingResolve.OrderBy(x => x.Frame.Size.Height);
+			var orderedPendingResolve = PackGroup == null
+				? pendingResolve.OrderBy(x => x.Frame.Size.Height)
+				: pendingResolve.OrderBy(x => PackGroup(x.Filename) ?? "", StringComparer.Ordinal).ThenBy(x => x.Frame.Size.Height);
+			string currentGroup = null;
 
 			var spriteCache = new Dictionary<(
 				string Filename,
@@ -142,6 +248,19 @@ namespace OpenRA.Graphics
 				Sprite>(pendingResolve.Count);
 			foreach (var (filename, frameIndex, premultiplied, adjustFrame, frame, spritesForToken) in orderedPendingResolve)
 			{
+				if (PackGroup != null)
+				{
+					var group = PackGroup(filename) ?? "";
+					if (group != currentGroup)
+					{
+						if (currentGroup != null)
+							foreach (var sb in SheetBuilders.Values)
+								sb.StartNewSheet();
+
+						currentGroup = group;
+					}
+				}
+
 				// Premultiplied and non-premultiplied sprites must be cached separately
 				// to cover the case where the same image is requested in both versions.
 				spritesForToken[frameIndex] = spriteCache.GetOrAdd(
@@ -157,6 +276,9 @@ namespace OpenRA.Graphics
 
 			foreach (var sb in SheetBuilders.Values)
 				sb.Current?.ReleaseBuffer();
+
+			if (storeKey != null)
+				Store.Save(this, storeKey, resolvedSprites, tokenFiles);
 		}
 
 		public Sprite[] ResolveSprites(int token)

@@ -129,7 +129,6 @@ namespace OpenRA
 				var members = RandomFactionMembers(selected, selectableFactions);
 				if (members.Count == 0)
 					break;
-
 				var faction = members.Random(playerRandom);
 				selected = selectableFactions.FirstOrDefault(f => f.InternalName == faction);
 
@@ -162,6 +161,7 @@ namespace OpenRA
 
 			return factions.FirstOrDefault(f => f.InternalName == factionName) ?? factions.First();
 		}
+
 
 		public Player(World world, Session.Client client, PlayerReference pr, MersenneTwister playerRandom)
 		{

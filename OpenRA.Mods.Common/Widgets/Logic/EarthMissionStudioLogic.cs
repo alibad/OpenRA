@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using System.Numerics;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -145,19 +146,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		[ObjectCreator.UseCtor]
 		public EarthMissionStudioLogic(Widget widget, ModData modData, Action onExit, Action<string> onPlay, Action<string> onEdit)
 		{
-			// WindowScale defines the usable design canvas, but widget positions still
-			// use the complete renderer coordinate space. The previous implementation
-			// centered against the smaller design canvas, which pinned the correctly
-			// scaled panel to the upper-left on high-DPI displays.
-			var renderWidth = Game.Renderer.Resolution.Width;
-			var renderHeight = Game.Renderer.Resolution.Height;
-			var targetWidth = (int)(renderWidth / Game.Renderer.WindowScale * 0.94f);
-			var targetHeight = (int)(renderHeight / Game.Renderer.WindowScale * 0.92f);
-			ScaleLayout(widget, targetWidth / (float)widget.Bounds.Width, targetHeight / (float)widget.Bounds.Height);
-			widget.Bounds.Width = targetWidth;
-			widget.Bounds.Height = targetHeight;
-			widget.Bounds.X = (renderWidth - targetWidth) / 2;
-			widget.Bounds.Y = (renderHeight - targetHeight) / 2;
+			// The YAML canvas uses the renderer's effective coordinates, including native DPI scaling.
 
 			this.modData = modData;
 			this.onExit = onExit;
@@ -507,7 +496,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				{
 					if (requestId != earthPreviewRequestId)
 						return;
-					earthPreview.Update(preview, new float2(0.5f, 0.5f), radiusMeters / (float)earthViewRadiusMeters);
+					earthPreview.Update(preview, new Vector2(0.5f, 0.5f), radiusMeters / (float)earthViewRadiusMeters);
 					earthPreviewLoaded = true;
 					visionStatus = $"{ImageryStyleLabels[resolvedStyle].ToUpperInvariant()} + MAP DATA | READY TO ANALYZE";
 					if (!busy)
@@ -520,7 +509,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			}
 		}
 
-		void MoveEarthPin(float2 point)
+		void MoveEarthPin(Vector2 point)
 		{
 			if (!TryReadCoordinates(out var lat, out var lon))
 				return;

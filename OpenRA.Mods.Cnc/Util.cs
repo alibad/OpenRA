@@ -281,13 +281,14 @@ namespace OpenRA.Mods.Cnc
 			];
 		}
 
+		// Corner offsets as static data and the per-corner vectors on the stack: this runs for every voxel model every
+		// tick and used to allocate 3 uint[] and 16 float[4] per call. Same arithmetic as MatrixVectorMultiply.
+		static ReadOnlySpan<byte> CornerX => [0, 0, 0, 0, 3, 3, 3, 3];
+		static ReadOnlySpan<byte> CornerY => [1, 1, 4, 4, 1, 1, 4, 4];
+		static ReadOnlySpan<byte> CornerZ => [2, 5, 2, 5, 2, 5, 2, 5];
+
 		public static float[] MatrixAABBMultiply(float[] mtx, float[] bounds)
 		{
-			// Corner offsets.
-			var ix = new uint[] { 0, 0, 0, 0, 3, 3, 3, 3 };
-			var iy = new uint[] { 1, 1, 4, 4, 1, 1, 4, 4 };
-			var iz = new uint[] { 2, 5, 2, 5, 2, 5, 2, 5 };
-
 			// Vectors to opposing corner.
 			var ret = new[]
 			{
@@ -295,11 +296,22 @@ namespace OpenRA.Mods.Cnc
 				float.MinValue, float.MinValue, float.MinValue
 			};
 
+			Span<float> vec = stackalloc float[4];
+			Span<float> tvec = stackalloc float[4];
+
 			// Transform vectors and find new bounding box.
 			for (var i = 0; i < 8; i++)
 			{
-				var vec = new[] { bounds[ix[i]], bounds[iy[i]], bounds[iz[i]], 1 };
-				var tvec = MatrixVectorMultiply(mtx, vec);
+				vec[0] = bounds[CornerX[i]];
+				vec[1] = bounds[CornerY[i]];
+				vec[2] = bounds[CornerZ[i]];
+				vec[3] = 1;
+				for (var j = 0; j < 4; j++)
+				{
+					tvec[j] = 0;
+					for (var k = 0; k < 4; k++)
+						tvec[j] += mtx[4 * k + j] * vec[k];
+				}
 
 				ret[0] = Math.Min(ret[0], tvec[0] / tvec[3]);
 				ret[1] = Math.Min(ret[1], tvec[1] / tvec[3]);

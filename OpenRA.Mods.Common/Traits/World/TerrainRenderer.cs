@@ -12,6 +12,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Numerics;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.Terrain;
 using OpenRA.Primitives;
@@ -68,6 +70,13 @@ namespace OpenRA.Mods.Common.Traits
 		WorldRenderer worldRenderer;
 		bool disposed;
 
+		/// <summary>
+		/// A tileset's tile cache (every template decoded and packed into sheets: tens of MB of allocations and most of the
+		/// time a world takes to create) is shared by successive worlds on the same tileset instead of rebuilt for each.
+		/// A cache stays alive while a world uses it, and the last one used is kept for the next world.
+		/// </summary>
+		static readonly Dictionary<DefaultTerrain, (DefaultTileCache Cache, int Users)> SharedTileCaches = [];
+
 		public TerrainRenderer(World world)
 		{
 			map = world.Map;
@@ -75,7 +84,32 @@ namespace OpenRA.Mods.Common.Traits
 			if (terrainInfo == null)
 				throw new InvalidDataException($"{nameof(TerrainRenderer)} can only be used with the {nameof(DefaultTerrain)} parser");
 
-			tileCache = new DefaultTileCache(terrainInfo);
+			tileCache = AcquireTileCache(terrainInfo);
+		}
+
+		static DefaultTileCache AcquireTileCache(DefaultTerrain terrainInfo)
+		{
+			// Other tilesets' caches that no world uses any more are freed first.
+			foreach (var kv in SharedTileCaches.ToList())
+			{
+				if (kv.Key != terrainInfo && kv.Value.Users == 0)
+				{
+					kv.Value.Cache.Dispose();
+					SharedTileCaches.Remove(kv.Key);
+				}
+			}
+
+			if (!SharedTileCaches.TryGetValue(terrainInfo, out var entry))
+				entry = (new DefaultTileCache(terrainInfo), 0);
+
+			SharedTileCaches[terrainInfo] = (entry.Cache, entry.Users + 1);
+			return entry.Cache;
+		}
+
+		static void ReleaseTileCache(DefaultTerrain terrainInfo)
+		{
+			if (SharedTileCaches.TryGetValue(terrainInfo, out var entry))
+				SharedTileCaches[terrainInfo] = (entry.Cache, entry.Users - 1);
 		}
 
 		void IWorldLoaded.WorldLoaded(World world, WorldRenderer wr)
@@ -119,7 +153,8 @@ namespace OpenRA.Mods.Common.Traits
 
 			spriteLayer?.Dispose();
 
-			tileCache?.Dispose();
+			// The shared tile cache outlives this world (AcquireTileCache frees it once another tileset needs the room).
+			ReleaseTileCache(terrainInfo);
 			disposed = true;
 		}
 
@@ -148,7 +183,7 @@ namespace OpenRA.Mods.Common.Traits
 					var u = map.Grid.Type == MapGridType.Rectangular ? x : (x - y) / 2f;
 					var v = map.Grid.Type == MapGridType.Rectangular ? y : (x + y) / 2f;
 
-					var tl = new float2(u * tileSize.Width, (v - 0.5f * tileInfo.Height) * tileSize.Height) - 0.5f * sprite.Size;
+					var tl = new Vector3(u * tileSize.Width, (v - 0.5f * tileInfo.Height) * tileSize.Height, 0) - 0.5f * sprite.Size;
 					var rect = new Rectangle((int)(tl.X + sprite.Offset.X), (int)(tl.Y + sprite.Offset.Y), (int)sprite.Size.X, (int)sprite.Size.Y);
 					templateRect = templateRect.HasValue ? Rectangle.Union(templateRect.Value, rect) : rect;
 				}
@@ -177,10 +212,10 @@ namespace OpenRA.Mods.Common.Traits
 					var sprite = tileCache.TileSprite(tile, 0);
 					var u = gridType == MapGridType.Rectangular ? x : (x - y) / 2f;
 					var v = gridType == MapGridType.Rectangular ? y : (x + y) / 2f;
-					var offset = scale * (new float2(u * ts.Width, (v - 0.5f * tileInfo.Height) * ts.Height) - 0.5f * sprite.Size.XY);
+					var offset = scale * (new Vector2(u * ts.Width, (v - 0.5f * tileInfo.Height) * ts.Height) - 0.5f * sprite.Size.AsVector2());
 					var palette = template.Palette ?? terrainInfo.Palette;
 
-					yield return new UISpriteRenderable(sprite, WPos.Zero, origin + offset.ToInt2(), 0, wr.Palette(palette), scale);
+					yield return new UISpriteRenderable(sprite, WPos.Zero, origin.ToVector2() + offset, 0, wr.Palette(palette), scale);
 				}
 			}
 		}
@@ -203,7 +238,7 @@ namespace OpenRA.Mods.Common.Traits
 					var offset = map.Offset(new CVec(x, y), tileInfo.Height);
 					var palette = wr.Palette(template.Palette ?? terrainInfo.Palette);
 
-					yield return new SpriteRenderable(sprite, origin, offset, 0, palette, 1f, 1f, float3.Ones, TintModifiers.None, false);
+					yield return new SpriteRenderable(sprite, origin, offset, 0, palette, 1f, 1f, Vector3.One, TintModifiers.None, false);
 				}
 			}
 		}
@@ -216,7 +251,7 @@ namespace OpenRA.Mods.Common.Traits
 			var sprite = tileCache.TileSprite(tile, 0);
 			var palette = wr.Palette(((DefaultTerrainTemplateInfo)template)?.Palette ?? terrainInfo.Palette);
 
-			yield return new SpriteRenderable(sprite, origin, WVec.Zero, 0, palette, 1f, 1f, float3.Ones, TintModifiers.None, false);
+			yield return new SpriteRenderable(sprite, origin, WVec.Zero, 0, palette, 1f, 1f, Vector3.One, TintModifiers.None, false);
 		}
 	}
 }
