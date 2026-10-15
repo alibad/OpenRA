@@ -1031,3 +1031,5 @@ button-base-game-ww3 = World War III
 button-base-game-ra2 = RA2
 button-ra2-import = Import my game files
 dialog-ra2-import-failed = Import could not finish: { $message }
+
+button-extras-menu-assetbrowser = Asset library
