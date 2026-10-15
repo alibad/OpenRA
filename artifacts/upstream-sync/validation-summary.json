@@ -1,0 +1,394 @@
+{
+  "engine_commit": "see todo/2026-09-28.md",
+  "headless_matches": {
+    "ra-wwiii-maelstrom-turkey-auto (merge commit)": {
+      "passed": true,
+      "note": "bridge final_state tick 6040; original harness compared 5 s samples only",
+      "locks": {
+        "Multi0": "turkey",
+        "Multi1": "china",
+        "Multi2": "iran",
+        "Multi3": "saudi"
+      },
+      "bots": "Multi1:normal,Multi2:rush,Multi3:turtle",
+      "profile": "world-war-iii",
+      "ticks": 6040,
+      "tick_source": "bridge",
+      "exceptions": 0,
+      "headless_skips": 0,
+      "move_round_trip": {
+        "issued_tick": 10,
+        "arrived_tick": 80,
+        "accepted": true
+      },
+      "auto_delegation_accepted": true,
+      "live_match_verifier": null,
+      "final_sample": {
+        "tick": 5960,
+        "cash": 80,
+        "units": 36,
+        "buildings": [
+          "fact",
+          "fix",
+          "gun",
+          "pbox",
+          "powr",
+          "powr",
+          "powr",
+          "proc",
+          "proc",
+          "tent",
+          "weap"
+        ]
+      }
+    },
+    "ra-wwiii-crossfire-yemen-auto": {
+      "passed": true,
+      "note": null,
+      "locks": {
+        "Multi0": "yemen",
+        "Multi1": "iran",
+        "Multi2": "turkey",
+        "Multi3": "china"
+      },
+      "bots": "Multi1:normal,Multi2:normal,Multi3:rush",
+      "profile": "world-war-iii",
+      "ticks": 6000,
+      "tick_source": "bridge",
+      "exceptions": 0,
+      "headless_skips": 0,
+      "move_round_trip": {
+        "issued_tick": 10,
+        "arrived_tick": 60,
+        "accepted": true
+      },
+      "auto_delegation_accepted": true,
+      "live_match_verifier": null,
+      "final_sample": {
+        "tick": 5890,
+        "cash": 0,
+        "units": 13,
+        "buildings": [
+          "barr",
+          "fact",
+          "fix",
+          "ftur",
+          "powr",
+          "powr",
+          "powr",
+          "powr",
+          "proc",
+          "proc",
+          "tsla",
+          "weap"
+        ]
+      }
+    },
+    "ra-wwiii-maelstrom-china-auto": {
+      "passed": true,
+      "note": null,
+      "locks": {
+        "Multi0": "china",
+        "Multi1": "saudi",
+        "Multi2": "yemen",
+        "Multi3": "iran"
+      },
+      "bots": "Multi1:normal,Multi2:turtle,Multi3:rush",
+      "profile": "world-war-iii",
+      "ticks": 6000,
+      "tick_source": "bridge",
+      "exceptions": 0,
+      "headless_skips": 0,
+      "move_round_trip": {
+        "issued_tick": 10,
+        "arrived_tick": 70,
+        "accepted": true
+      },
+      "auto_delegation_accepted": true,
+      "live_match_verifier": {
+        "map": "Maelstrom",
+        "tick": 20,
+        "cash": 5000,
+        "units": 1,
+        "buildings": 0,
+        "explored_percent": 0.6,
+        "power_balance": 0,
+        "remembered_enemy_buildings": 0,
+        "services": {}
+      },
+      "final_sample": {
+        "tick": 5970,
+        "cash": 0,
+        "units": 13,
+        "buildings": [
+          "cnbastion",
+          "fact",
+          "gun",
+          "powr",
+          "powr",
+          "powr",
+          "proc",
+          "proc",
+          "tent",
+          "weap"
+        ]
+      }
+    },
+    "ra-classic-1": {
+      "passed": true,
+      "note": null,
+      "locks": {
+        "Multi0": "russia",
+        "Multi1": "england",
+        "Multi2": "ukraine",
+        "Multi3": "france"
+      },
+      "bots": "Multi1:normal,Multi2:rush,Multi3:turtle",
+      "profile": "ai-assistant-only",
+      "ticks": 5010,
+      "tick_source": "bridge",
+      "exceptions": 0,
+      "headless_skips": 0,
+      "move_round_trip": {
+        "issued_tick": 10,
+        "arrived_tick": 80,
+        "accepted": true
+      },
+      "auto_delegation_accepted": true,
+      "live_match_verifier": {
+        "map": "Maelstrom",
+        "tick": 20,
+        "cash": 5000,
+        "units": 1,
+        "buildings": 0,
+        "explored_percent": 0.6,
+        "power_balance": 0,
+        "remembered_enemy_buildings": 0,
+        "services": {}
+      },
+      "final_sample": {
+        "tick": 4950,
+        "cash": 0,
+        "units": 2,
+        "buildings": [
+          "fact",
+          "powr",
+          "powr",
+          "proc",
+          "weap"
+        ]
+      }
+    },
+    "ra-classic-2": {
+      "passed": true,
+      "note": null,
+      "locks": {
+        "Multi0": "russia",
+        "Multi1": "england",
+        "Multi2": "ukraine",
+        "Multi3": "france"
+      },
+      "bots": "Multi1:normal,Multi2:rush,Multi3:turtle",
+      "profile": "ai-assistant-only",
+      "ticks": 5000,
+      "tick_source": "bridge",
+      "exceptions": 0,
+      "headless_skips": 0,
+      "move_round_trip": {
+        "issued_tick": 10,
+        "arrived_tick": 70,
+        "accepted": true
+      },
+      "auto_delegation_accepted": true,
+      "live_match_verifier": null,
+      "final_sample": {
+        "tick": 4950,
+        "cash": 0,
+        "units": 21,
+        "buildings": [
+          "barr",
+          "fact",
+          "ftur",
+          "powr",
+          "powr",
+          "proc",
+          "proc",
+          "weap"
+        ]
+      }
+    },
+    "ra-classic-3": {
+      "passed": true,
+      "note": null,
+      "locks": {
+        "Multi0": "russia",
+        "Multi1": "england",
+        "Multi2": "ukraine",
+        "Multi3": "france"
+      },
+      "bots": "Multi1:normal,Multi2:rush,Multi3:turtle",
+      "profile": "ai-assistant-only",
+      "ticks": 5000,
+      "tick_source": "bridge",
+      "exceptions": 0,
+      "headless_skips": 0,
+      "move_round_trip": {
+        "issued_tick": 10,
+        "arrived_tick": 70,
+        "accepted": true
+      },
+      "auto_delegation_accepted": true,
+      "live_match_verifier": null,
+      "final_sample": {
+        "tick": 4960,
+        "cash": 0,
+        "units": 18,
+        "buildings": [
+          "barr",
+          "fact",
+          "ftur",
+          "powr",
+          "powr",
+          "proc",
+          "proc",
+          "weap"
+        ]
+      }
+    },
+    "ra-classic-4": {
+      "passed": true,
+      "note": null,
+      "locks": {
+        "Multi0": "russia",
+        "Multi1": "england",
+        "Multi2": "ukraine",
+        "Multi3": "france"
+      },
+      "bots": "Multi1:normal,Multi2:rush,Multi3:turtle",
+      "profile": "ai-assistant-only",
+      "ticks": 5000,
+      "tick_source": "bridge",
+      "exceptions": 0,
+      "headless_skips": 0,
+      "move_round_trip": {
+        "issued_tick": 10,
+        "arrived_tick": 70,
+        "accepted": true
+      },
+      "auto_delegation_accepted": true,
+      "live_match_verifier": null,
+      "final_sample": {
+        "tick": 4960,
+        "cash": 0,
+        "units": 16,
+        "buildings": [
+          "barr",
+          "fact",
+          "ftur",
+          "powr",
+          "powr",
+          "proc",
+          "proc",
+          "weap"
+        ]
+      }
+    },
+    "cnc-alpha-juno-5-4-bots": {
+      "passed": true,
+      "note": null,
+      "locks": {
+        "Multi0": "gdi",
+        "Multi1": "nod",
+        "Multi2": "gdi",
+        "Multi3": "nod"
+      },
+      "bots": "Multi0:cabal,Multi1:watson,Multi2:hal9001,Multi3:cabal",
+      "profile": null,
+      "ticks": 7035,
+      "tick_source": "replay net frames x3",
+      "exceptions": 0,
+      "headless_skips": 2,
+      "move_round_trip": null,
+      "auto_delegation_accepted": null,
+      "live_match_verifier": null,
+      "final_sample": null
+    },
+    "d2k-carthag-3-bots": {
+      "passed": true,
+      "note": null,
+      "locks": {
+        "Multi0": "atreides",
+        "Multi1": "harkonnen",
+        "Multi2": "ordos"
+      },
+      "bots": "Multi0:omnius,Multi1:vidious,Multi2:gladius",
+      "profile": null,
+      "ticks": 6831,
+      "tick_source": "replay net frames x3",
+      "exceptions": 0,
+      "headless_skips": 2,
+      "move_round_trip": null,
+      "auto_delegation_accepted": null,
+      "live_match_verifier": null,
+      "final_sample": null
+    },
+    "d2k-mission-atreides-06a": {
+      "passed": true,
+      "note": null,
+      "locks": {},
+      "bots": "",
+      "profile": null,
+      "ticks": 4554,
+      "tick_source": "replay net frames x3",
+      "exceptions": 0,
+      "headless_skips": 1,
+      "move_round_trip": null,
+      "auto_delegation_accepted": null,
+      "live_match_verifier": null,
+      "final_sample": null
+    },
+    "ts-2temp7-2-bots": {
+      "passed": true,
+      "note": null,
+      "locks": {
+        "Multi0": "gdi",
+        "Multi1": "nod"
+      },
+      "bots": "Multi0:test,Multi1:test",
+      "profile": null,
+      "ticks": 5616,
+      "tick_source": "replay net frames x3",
+      "exceptions": 0,
+      "headless_skips": 15,
+      "move_round_trip": null,
+      "auto_delegation_accepted": null,
+      "live_match_verifier": null,
+      "final_sample": null
+    }
+  },
+  "ra2_validate_all_lobby_maps": {
+    "maps": 27,
+    "passed": 27
+  },
+  "ra2_china_native_auto_snow_valley": {
+    "passed": true,
+    "tick": 6000,
+    "buildings": [
+      "gacnst",
+      "gapowr",
+      "garefn",
+      "gapile",
+      "r2bastion",
+      "gaweap",
+      "gaairc"
+    ],
+    "observed_units": [
+      "amcv",
+      "cmin",
+      "dog",
+      "r2cnportable",
+      "r2cnrifle",
+      "r2qilin"
+    ]
+  }
+}
