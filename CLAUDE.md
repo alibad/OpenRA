@@ -17,7 +17,7 @@ Open-source C#/.NET RTS engine reimplementing Command & Conquer: Red Alert, Tibe
 
 - The canonical local checkout is `C:\Users\Admin\Code\hq\games\OpenRA`. Use it for routine development launches, manual playtesting, and all user-facing test commands.
 - The default delivery target is `alibad/OpenRA` branch `main`. Completed and validated changes must be integrated and pushed there unless the user explicitly requests a separate branch or pull request.
-- Feature branches and additional worktrees are temporary isolation tools. Do not leave finished work available only in a `codex/*` branch, and do not ask the user to test from a temporary worktree after integration.
+- Use canonical main. Additional worktrees require an explicit owner request; they are not an automatic isolation tool. Do not leave finished work available only on a feature branch or ask the user to test an unintegrated copy.
 - Before integrating, fetch the latest fork `main`. Apply only the task's commits, resolve compatible conflicts without discarding existing features, and validate the exact integrated `main` tree.
 - After pushing, fast-forward the canonical checkout and verify that its local `main` matches `alibad/OpenRA:main`. Provide one test procedure rooted at the canonical checkout.
 - Never force-push, rewrite shared history, hard-reset away unrelated work, or overwrite another worktree. If integration requires a substantive choice between conflicting features, stop and ask the user.
@@ -288,3 +288,12 @@ For reinforcement learning or external AI:
 - `[Sync]` attribute marks fields included in sync hash for desync detection.
 - `[Desc("...")]` attribute documents YAML-exposed fields.
 - License header required on all `.cs` files (GPLv3).
+
+## Worktrees require an explicit owner request (15 October 2026)
+
+- Use the existing canonical checkout. Do not create a Git worktree or a parallel clone unless the owner explicitly asks for it in the current task. This supersedes older instructions permitting worktrees for concurrency, isolation, convenience, or risk.
+- Another session using the checkout is not permission to create a worktree. Coordinate non-overlapping changes, wait, or report the specific blocker; preserve all in-progress work.
+- In the OpenRA/RTS AI repositories, work and commit on canonical `main`. Fetch the correct owner remote and safely incorporate its main before starting, committing, or validating a build. Never reset, force-push, or rewrite another session's commits.
+- If the owner explicitly authorizes a worktree, keep it temporary, start from current main, and integrate validated work back into canonical main. Do not leave the only copy of finished work on a branch or worktree.
+- Before retiring an existing branch or worktree, verify that its unique commits, uncommitted files, and user artifacts are preserved and integrated where appropriate. Never delete unique work to make a checkout look clean.
+- Keep this policy change and local consolidation local. A request to consolidate on main does not by itself authorize a push, deployment, release, or deletion of branches/worktrees.
