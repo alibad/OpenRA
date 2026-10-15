@@ -207,6 +207,7 @@ FluentMessages:
 	ra|fluent/israel.ftl
 	common|fluent/common.ftl
 	common|fluent/chrome.ftl
+	common|fluent/owned-ra2.ftl
 	common|fluent/ingame-debug.ftl
 	common|fluent/hotkeys.ftl
 	common|fluent/rules.ftl
