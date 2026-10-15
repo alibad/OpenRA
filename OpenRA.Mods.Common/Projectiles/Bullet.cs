@@ -27,6 +27,12 @@ namespace OpenRA.Mods.Common.Projectiles
 	[Desc("Projectile that travels in a straight line or arc.")]
 	public class BulletInfo : IProjectileInfo
 	{
+		[Desc("Optional interception class; unset retains normal projectile behavior.")]
+		public readonly string PointDefenseType = null;
+
+		[Desc("Apply the weapon impact on interception instead of harmless removal.")]
+		public readonly bool DetonateOnInterception = false;
+
 		[Desc("Projectile speed in WDist / tick, two values indicate variable velocity.")]
 		public readonly ImmutableArray<WDist> Speed = [new(17)];
 
@@ -250,6 +256,19 @@ namespace OpenRA.Mods.Common.Projectiles
 
 			lastPos = pos;
 			pos = WPos.LerpQuadratic(source, target, angle, ticks, length);
+
+			if (ProjectileInterception.TryIntercept(world, pos, Args.SourceActor.Owner, info.PointDefenseType, Args))
+			{
+				if (info.ContrailLength > 0)
+					world.AddFrameEndTask(w => w.Add(new ContrailFader(pos, contrail)));
+
+				if (info.DetonateOnInterception)
+					Explode(world);
+				else
+					world.AddFrameEndTask(w => w.Remove(this));
+
+				return;
+			}
 
 			if (ShouldExplode(world))
 			{

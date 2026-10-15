@@ -13,12 +13,16 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenRA.Primitives;
 using OpenRA.Traits;
+using OpenRA.Mods.Common.Experience;
 
 namespace OpenRA.Mods.Common.Traits
 {
 	[Desc("Applies a condition to actors within a specified range.")]
 	public class ProximityExternalConditionInfo : ConditionalTraitInfo
 	{
+		public readonly string ExperienceComponent = null;
+		public readonly string ExperienceRangeParameter = null;
+
 		[FieldLoader.Require]
 		[Desc("The condition to apply. Must be included in the target actor's ExternalConditions list.")]
 		public readonly string Condition = null;
@@ -45,6 +49,7 @@ namespace OpenRA.Mods.Common.Traits
 	public class ProximityExternalCondition : ConditionalTrait<ProximityExternalConditionInfo>,
 		ITick, INotifyAddedToWorld, INotifyRemovedFromWorld, INotifyOtherProduction, INotifyProximityOwnerChanged
 	{
+		readonly WDist activeRange;
 		readonly Actor self;
 
 		readonly Dictionary<Actor, int> tokens = [];
@@ -60,6 +65,9 @@ namespace OpenRA.Mods.Common.Traits
 			: base(info)
 		{
 			this.self = self;
+			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
+			activeRange = !string.IsNullOrEmpty(info.ExperienceComponent) && experience?.IsComponentActive(info.ExperienceComponent) == true
+				? WDist.FromCells(experience.GetIntegerParameter(info.ExperienceComponent, info.ExperienceRangeParameter, info.Range.Length / 1024)) : info.Range;
 			cachedRange = WDist.Zero;
 			cachedVRange = WDist.Zero;
 		}
@@ -78,7 +86,7 @@ namespace OpenRA.Mods.Common.Traits
 		protected override void TraitEnabled(Actor self)
 		{
 			Game.Sound.Play(SoundType.World, Info.EnableSound, self.CenterPosition);
-			desiredRange = Info.Range;
+			desiredRange = activeRange;
 			desiredVRange = Info.MaximumVerticalOffset;
 		}
 
@@ -133,7 +141,7 @@ namespace OpenRA.Mods.Common.Traits
 				return;
 
 			// Work around for actors produced within the region not triggering until the second tick.
-			if ((produced.CenterPosition - self.CenterPosition).HorizontalLengthSquared <= Info.Range.LengthSquared)
+			if ((produced.CenterPosition - self.CenterPosition).HorizontalLengthSquared <= activeRange.LengthSquared)
 			{
 				if (!Info.ValidRelationships.HasRelationship(self.Owner.RelationshipWith(produced.Owner)))
 					return;
@@ -171,7 +179,7 @@ namespace OpenRA.Mods.Common.Traits
 				return;
 
 			// Work around for actors changing owner within the region.
-			if ((actor.CenterPosition - self.CenterPosition).HorizontalLengthSquared <= Info.Range.LengthSquared)
+			if ((actor.CenterPosition - self.CenterPosition).HorizontalLengthSquared <= activeRange.LengthSquared)
 			{
 				var hasRelationship = Info.ValidRelationships.HasRelationship(self.Owner.RelationshipWith(actor.Owner));
 				var contains = tokens.TryGetValue(actor, out var token);

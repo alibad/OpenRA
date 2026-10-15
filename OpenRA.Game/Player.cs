@@ -124,9 +124,12 @@ namespace OpenRA
 				?? selectableFactions.Random(playerRandom);
 
 			// Don't loop infinite
-			for (var i = 0; i <= 10 && selected.RandomFactionMembers.Count > 0; i++)
+			for (var i = 0; i <= 10; i++)
 			{
-				var faction = selected.RandomFactionMembers.Random(playerRandom);
+				var members = RandomFactionMembers(selected, selectableFactions);
+				if (members.Count == 0)
+					break;
+				var faction = members.Random(playerRandom);
 				selected = selectableFactions.FirstOrDefault(f => f.InternalName == faction);
 
 				if (selected == null)
@@ -147,6 +150,16 @@ namespace OpenRA
 			var factions = world.Map.Rules.Actors[SystemActors.World].TraitInfos<FactionInfo>();
 
 			return factions.FirstOrDefault(f => f.InternalName == factionName) ?? factions.First();
+		}
+
+		public static IReadOnlyList<string> RandomFactionMembers(
+			FactionInfo faction, IEnumerable<FactionInfo> factionInfos)
+		{
+			return faction.RandomFactionMembers
+				.Concat(factionInfos.Where(candidate => candidate.RandomFactionMemberOf.Contains(faction.InternalName))
+					.Select(candidate => candidate.InternalName))
+				.Distinct()
+				.ToArray();
 		}
 
 		public Player(World world, Session.Client client, PlayerReference pr, MersenneTwister playerRandom)

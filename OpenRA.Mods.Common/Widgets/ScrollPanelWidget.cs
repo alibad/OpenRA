@@ -48,6 +48,7 @@ namespace OpenRA.Mods.Common.Widgets
 		public string ClickDisabledSound = ChromeMetrics.Get<string>("ClickDisabledSound");
 		public string Background = "scrollpanel-bg";
 		public string ScrollBarBackground = "scrollpanel-bg";
+		public Color BackgroundColor = Color.Transparent;
 		public string Button = "scrollpanel-button";
 		public string Decorations = "scrollpanel-decorations";
 		public readonly string DecorationScrollUp = "up";
@@ -148,6 +149,14 @@ namespace OpenRA.Mods.Common.Widgets
 			Scroll(0);
 		}
 
+		void DrawPanelBackground(string collection, Rectangle rect)
+		{
+			if (BackgroundColor.A == 0)
+				WidgetUtils.DrawPanel(collection, rect);
+			else
+				Game.Renderer.RgbaColorRenderer.FillRect(new Vector3(rect.Left, rect.Top, 0), new Vector3(rect.Right, rect.Bottom, 0), BackgroundColor);
+		}
+
 		public override void DrawOuter()
 		{
 			if (!IsVisible())
@@ -190,7 +199,7 @@ namespace OpenRA.Mods.Common.Widgets
 					throw new ArgumentOutOfRangeException();
 			}
 
-			WidgetUtils.DrawPanel(Background, backgroundRect);
+			DrawPanelBackground(Background, backgroundRect);
 
 			if (ScrollBar != ScrollBar.Hidden)
 			{
@@ -201,7 +210,7 @@ namespace OpenRA.Mods.Common.Widgets
 				downDisabled = thumbHeight == 0 || currentListOffset <= Bounds.Height - ContentHeight;
 
 				var thumbHover = Ui.MouseOverWidget == this && thumbRect.Contains(Viewport.LastMousePos);
-				WidgetUtils.DrawPanel(ScrollBarBackground, scrollbarRect);
+				DrawPanelBackground(ScrollBarBackground, scrollbarRect);
 				ButtonWidget.DrawBackground(Button, upButtonRect, upDisabled, upPressed, upHover, false);
 				ButtonWidget.DrawBackground(Button, downButtonRect, downDisabled, downPressed, downHover, false);
 
@@ -267,6 +276,13 @@ namespace OpenRA.Mods.Common.Widgets
 		}
 
 		public bool ScrolledToBottom => targetListOffset == Math.Min(0, Bounds.Height - ContentHeight) || ContentHeight <= Bounds.Height;
+
+		public float CurrentListOffset => currentListOffset;
+
+		public void ScrollToOffset(float offset, bool smooth = false)
+		{
+			SetListOffset(Math.Min(0, Math.Max(Bounds.Height - ContentHeight, offset)), smooth);
+		}
 
 		void ScrollToItem(Widget item, bool smooth = false)
 		{

@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using System.Numerics;
 using OpenRA.Graphics;
 using OpenRA.Primitives;
 using OpenRA.Widgets;
@@ -27,6 +28,7 @@ namespace OpenRA.Mods.Common.Widgets
 
 		public Func<int> GetPercentage;
 		public Func<bool> IsIndeterminate;
+		public Func<Color> GetBarColor;
 
 		// Indeterminate bar properties
 		float offset = 0f;
@@ -44,6 +46,7 @@ namespace OpenRA.Mods.Common.Widgets
 			Percentage = other.Percentage;
 			GetPercentage = other.GetPercentage;
 			IsIndeterminate = other.IsIndeterminate;
+			GetBarColor = other.GetBarColor;
 		}
 
 		public override void Draw()
@@ -59,7 +62,10 @@ namespace OpenRA.Mods.Common.Widgets
 
 			var barOffset = wasIndeterminate ? (int)(0.75 * offset * maxBarWidth) : 0;
 			var barRect = new Rectangle(rb.X + BarMargin.Width + barOffset, rb.Y + BarMargin.Height, barWidth, rb.Height - 2 * BarMargin.Height);
-			WidgetUtils.DrawPanel(Bar, barRect);
+			if (GetBarColor != null)
+				Game.Renderer.RgbaColorRenderer.FillRect(new Vector3(barRect.Left, barRect.Top, 0), new Vector3(barRect.Right, barRect.Bottom, 0), GetBarColor());
+			else
+				WidgetUtils.DrawPanel(Bar, barRect);
 		}
 
 		bool wasIndeterminate;

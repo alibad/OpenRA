@@ -91,6 +91,8 @@ namespace OpenRA.Mods.Common.FileSystem
 				foreach (var kv in RequiredContentFiles)
 					if (!fileSystem.Exists(kv.Key))
 						isContentAvailable = false;
+
+			DefaultFileSystemLoader.MountExperiencePacks(manifest, fileSystem, objectCreator);
 		}
 
 		bool IFileSystemExternalContent.InstallContentIfRequired(ModData modData)

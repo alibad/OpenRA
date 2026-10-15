@@ -163,7 +163,7 @@ namespace OpenRA
 						if (RuleDefinitions.Value != null)
 						{
 							var mapFiles = FieldLoader.GetValue<ImmutableArray<string>>("value", RuleDefinitions.Value);
-							files = files.Concat(mapFiles);
+							files = mapFiles.Except(modData.Rules, StringComparer.Ordinal);
 						}
 
 						var stringPool = new HashSet<string>(); // Reuse common strings in YAML

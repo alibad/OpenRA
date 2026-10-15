@@ -690,7 +690,9 @@ namespace OpenRA
 			}
 
 			var stringPool = new HashSet<string>(); // Reuse common strings in YAML
-			var yaml = files.Select(s => FromStream(fileSystem.Open(s), s, stringPool: stringPool));
+			// Maps may explicitly require a component that is already selected by the mod.
+			// Load its source once: repeated trait removals are not idempotent.
+			var yaml = files.Distinct(StringComparer.Ordinal).Select(s => FromStream(fileSystem.Open(s), s, stringPool: stringPool));
 			if (mapRules != null && mapRules.Nodes.Length > 0)
 				yaml = yaml.Append(mapRules.Nodes);
 

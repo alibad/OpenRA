@@ -18,6 +18,7 @@ using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Orders;
 using OpenRA.Primitives;
 using OpenRA.Traits;
+using OpenRA.Mods.Common.Experience;
 
 namespace OpenRA.Mods.Common.Traits
 {
@@ -26,6 +27,9 @@ namespace OpenRA.Mods.Common.Traits
 	{
 		[Desc("The maximum sum of Passenger.Weight that this actor can support.")]
 		public readonly int MaxWeight = 0;
+
+		public readonly string ExperienceComponent = null;
+		public readonly string ExperienceCapacityParameter = null;
 
 		[Desc("`Passenger.CargoType`s that can be loaded into this actor.")]
 		public readonly FrozenSet<string> Types = [];
@@ -96,6 +100,7 @@ namespace OpenRA.Mods.Common.Traits
 		INotifyOwnerChanged, INotifySold, INotifyActorDisposing, IIssueDeployOrder,
 		INotifyCreated, INotifyKilled, ITransformActorInitModifier
 	{
+		readonly int maximumWeight;
 		readonly Actor self;
 		readonly List<Actor> cargo = [];
 		readonly HashSet<Actor> reserves = [];
@@ -122,6 +127,9 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			self = init.Self;
 			checkTerrainType = info.UnloadTerrainTypes.Count > 0;
+			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
+			maximumWeight = !string.IsNullOrEmpty(info.ExperienceComponent) && experience?.IsComponentActive(info.ExperienceComponent) == true
+				? experience.GetIntegerParameter(info.ExperienceComponent, info.ExperienceCapacityParameter, info.MaxWeight) : info.MaxWeight;
 
 			var runtimeCargoInit = init.GetOrDefault<RuntimeCargoInit>(info);
 			var cargoInit = init.GetOrDefault<CargoInit>(info);
@@ -333,7 +341,7 @@ namespace OpenRA.Mods.Common.Traits
 			return Info.UnloadVoice;
 		}
 
-		public bool HasSpace(int weight) { return totalWeight + reservedWeight + weight <= Info.MaxWeight; }
+		public bool HasSpace(int weight) { return totalWeight + reservedWeight + weight <= maximumWeight; }
 		public bool IsEmpty() { return cargo.Count == 0; }
 
 		public Actor Peek() { return cargo[^1]; }

@@ -514,6 +514,7 @@ namespace OpenRA
 			Sound.StopVideo();
 
 			ModData = new ModData(manifest, Mods, true);
+			ModData.ActivateSettings();
 
 			LocalPlayerProfile = new LocalPlayerProfile(Path.Combine(Platform.SupportDir, Settings.Game.AuthProfile), ModData.GetOrCreate<PlayerDatabase>());
 

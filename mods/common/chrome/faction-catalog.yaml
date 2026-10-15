@@ -1,0 +1,372 @@
+Background@FACTION_CATALOG_PANEL:
+	Logic: FactionCatalogLogic
+	X: (WINDOW_WIDTH - WIDTH) / 2
+	Y: (WINDOW_HEIGHT - HEIGHT) / 2
+	Width: 1440 + ((WINDOW_WIDTH - 80) < 1440) * (WINDOW_WIDTH - 1520)
+	Height: 900 + ((WINDOW_HEIGHT - 40) < 900) * (WINDOW_HEIGHT - 940)
+	Children:
+		LogicKeyListener@CATALOG_KEYS:
+		Label@TITLE:
+			Y: 14
+			Width: PARENT_WIDTH
+			Height: 28
+			Text: label-faction-catalog-title
+			Align: Center
+			Font: Bold
+		Label@SUBTITLE:
+			X: 20
+			Y: 40
+			Width: PARENT_WIDTH - 40
+			Height: 18
+			Align: Center
+			Font: Tiny
+		Background@FACTIONS_HEADER:
+			X: 20
+			Y: 66
+			Width: 250
+			Height: 13
+			Background: separator
+			ClickThrough: true
+			Children:
+				Label@LABEL:
+					Width: PARENT_WIDTH
+					Height: PARENT_HEIGHT
+					Text: label-faction-catalog-factions
+					Align: Center
+					Font: TinyBold
+		ScrollPanel@FACTION_LIST:
+			X: 20
+			Y: 84
+			Width: 250
+			Height: PARENT_HEIGHT - 170
+			TopBottomSpacing: 4
+			ItemSpacing: 2
+			Children:
+				ScrollItem@HEADER_TEMPLATE:
+					X: 4
+					Width: PARENT_WIDTH - 29
+					Height: 20
+					Background: scrollheader
+					Visible: false
+					Children:
+						Label@LABEL:
+							X: 8
+							Width: PARENT_WIDTH - 16
+							Height: PARENT_HEIGHT
+							Font: TinyBold
+				ScrollItem@FACTION_TEMPLATE:
+					X: 4
+					Width: PARENT_WIDTH - 29
+					Height: 42
+					Visible: false
+					EnableChildMouseOver: true
+					Children:
+						ColorBlock@ACCENT:
+							X: 4
+							Y: 6
+							Width: 4
+							Height: 30
+						LabelWithTooltip@NAME:
+							X: 14
+							Y: 3
+							Width: PARENT_WIDTH - 20
+							Height: 20
+							Font: Bold
+							TooltipContainer: FACTION_CATALOG_TOOLTIP_CONTAINER
+							TooltipTemplate: SIMPLE_TOOLTIP
+						Label@DETAIL:
+							X: 14
+							Y: 21
+							Width: PARENT_WIDTH - 20
+							Height: 16
+							Font: Tiny
+		LabelWithTooltip@OTHER_MODE_NOTE:
+			X: 22
+			Y: PARENT_HEIGHT - 82
+			Width: 246
+			Height: 34
+			Font: Tiny
+			TooltipContainer: FACTION_CATALOG_TOOLTIP_CONTAINER
+			TooltipTemplate: SIMPLE_TOOLTIP
+		Background@FACTION_HEADER:
+			X: 285
+			Y: 66
+			Width: (PARENT_WIDTH - 305)
+			Height: 158
+			Background: dialog3
+			Children:
+				ColorBlock@ACCENT_BAR:
+					X: 2
+					Y: 2
+					Width: 6
+					Height: PARENT_HEIGHT - 4
+				LabelWithTooltip@FACTION_NAME:
+					X: 18
+					Y: 8
+					Width: PARENT_WIDTH - 285
+					Height: 24
+					Font: Bold
+					TooltipContainer: FACTION_CATALOG_TOOLTIP_CONTAINER
+					TooltipTemplate: SIMPLE_TOOLTIP
+				LabelWithTooltip@FACTION_TAGLINE:
+					X: 18
+					Y: 31
+					Width: PARENT_WIDTH - 285
+					Height: 18
+					Font: TinyBold
+					TooltipContainer: FACTION_CATALOG_TOOLTIP_CONTAINER
+					TooltipTemplate: SIMPLE_TOOLTIP
+				LabelWithTooltip@FACTION_FACTS:
+					X: 18
+					Y: 49
+					Width: PARENT_WIDTH - 285
+					Height: 18
+					Font: Tiny
+					TooltipContainer: FACTION_CATALOG_TOOLTIP_CONTAINER
+					TooltipTemplate: SIMPLE_TOOLTIP
+				LabelWithTooltip@FACTION_SUMMARY:
+					X: 18
+					Y: 70
+					Width: PARENT_WIDTH - 285
+					Height: 80
+					Font: Tiny
+					VAlign: Top
+					TooltipContainer: FACTION_CATALOG_TOOLTIP_CONTAINER
+					TooltipTemplate: SIMPLE_TOOLTIP
+				Background@SIGNATURE_FRAME:
+					X: PARENT_WIDTH - 255
+					Y: 8
+					Width: 245
+					Height: 142
+					Background: dialog2
+					Children:
+						Label@SIGNATURE_LABEL:
+							Y: 4
+							Width: PARENT_WIDTH
+							Height: 16
+							Text: label-faction-catalog-signature
+							Align: Center
+							Font: TinyBold
+						Sprite@SIGNATURE_ICON:
+							X: (PARENT_WIDTH - WIDTH) / 2
+							Y: 22
+							Width: 64
+							Height: 48
+						Label@SIGNATURE_NAME:
+							X: 6
+							Y: 72
+							Width: PARENT_WIDTH - 12
+							Height: 18
+							Align: Center
+							Font: Bold
+						Label@SIGNATURE_ROLE:
+							X: 6
+							Y: 90
+							Width: PARENT_WIDTH - 12
+							Height: 16
+							Align: Center
+							Font: Tiny
+						Button@SIGNATURE_BUTTON:
+							X: 30
+							Y: 111
+							Width: PARENT_WIDTH - 60
+							Height: 24
+							Text: button-faction-catalog-view-signature
+							Font: TinyBold
+		Background@ROSTER_HEADER:
+			X: 285
+			Y: 232
+			Width: (PARENT_WIDTH - 305) * 47 / 100
+			Height: 13
+			Background: separator
+			ClickThrough: true
+			Children:
+				Label@LABEL:
+					Width: PARENT_WIDTH
+					Height: PARENT_HEIGHT
+					Text: label-faction-catalog-roster
+					Align: Center
+					Font: TinyBold
+		ScrollPanel@ROSTER:
+			X: 285
+			Y: 250
+			Width: (PARENT_WIDTH - 305) * 47 / 100
+			Height: PARENT_HEIGHT - 336
+			TopBottomSpacing: 4
+			ItemSpacing: 2
+			Children:
+				ScrollItem@GROUP_TEMPLATE:
+					X: 4
+					Width: PARENT_WIDTH - 29
+					Height: 20
+					Background: scrollheader
+					Visible: false
+					Children:
+						Label@LABEL:
+							X: 8
+							Width: PARENT_WIDTH - 16
+							Height: PARENT_HEIGHT
+							Font: TinyBold
+				ScrollItem@UNIT_TEMPLATE:
+					X: 4
+					Width: PARENT_WIDTH - 29
+					Height: 52
+					Visible: false
+					EnableChildMouseOver: true
+					Children:
+						Sprite@ICON:
+							X: 2
+							Y: 2
+							Width: 64
+							Height: 48
+						LabelWithTooltip@NAME:
+							X: 74
+							Y: 3
+							Width: PARENT_WIDTH - 164
+							Height: 18
+							Font: Bold
+							TooltipContainer: FACTION_CATALOG_TOOLTIP_CONTAINER
+							TooltipTemplate: SIMPLE_TOOLTIP
+						Label@TAG:
+							X: PARENT_WIDTH - 88
+							Y: 4
+							Width: 80
+							Height: 16
+							Align: Right
+							Font: TinyBold
+						Label@ROLE:
+							X: 74
+							Y: 20
+							Width: PARENT_WIDTH - 82
+							Height: 15
+							Font: Tiny
+						Label@FACTS:
+							X: 74
+							Y: 34
+							Width: PARENT_WIDTH - 82
+							Height: 15
+							Font: Tiny
+		Background@DETAIL_HEADER:
+			X: 295 + (PARENT_WIDTH - 305) * 47 / 100
+			Y: 232
+			Width: (PARENT_WIDTH - 305) - (PARENT_WIDTH - 305) * 47 / 100 - 10
+			Height: 13
+			Background: separator
+			ClickThrough: true
+			Children:
+				Label@LABEL:
+					Width: PARENT_WIDTH
+					Height: PARENT_HEIGHT
+					Text: label-faction-catalog-details
+					Align: Center
+					Font: TinyBold
+		ScrollPanel@DETAIL:
+			X: 295 + (PARENT_WIDTH - 305) * 47 / 100
+			Y: 250
+			Width: (PARENT_WIDTH - 305) - (PARENT_WIDTH - 305) * 47 / 100 - 10
+			Height: PARENT_HEIGHT - 336
+			TopBottomSpacing: 6
+			ItemSpacing: 2
+			Children:
+				Container@DETAIL_TITLE_TEMPLATE:
+					X: 4
+					Width: PARENT_WIDTH - 29
+					Height: 56
+					Visible: false
+					Children:
+						Sprite@ICON:
+							X: 4
+							Y: 2
+							Width: 64
+							Height: 48
+						Label@NAME:
+							X: 76
+							Y: 4
+							Width: PARENT_WIDTH - 84
+							Height: 22
+							Font: Bold
+						Label@ROLE:
+							X: 76
+							Y: 26
+							Width: PARENT_WIDTH - 84
+							Height: 18
+							Font: TinyBold
+				Container@DETAIL_SECTION_TEMPLATE:
+					X: 4
+					Width: PARENT_WIDTH - 29
+					Height: 22
+					Visible: false
+					Children:
+						Background@RULE:
+							Y: 16
+							Width: PARENT_WIDTH
+							Height: 1
+							Background: separator
+							ClickThrough: true
+						Label@LABEL:
+							X: 4
+							Width: PARENT_WIDTH - 8
+							Height: 16
+							Font: TinyBold
+				Container@DETAIL_ROW_TEMPLATE:
+					X: 4
+					Width: PARENT_WIDTH - 29
+					Height: 16
+					Visible: false
+					Children:
+						Label@KEY:
+							X: 8
+							Width: 120
+							Height: 16
+							Font: TinyBold
+						Label@VALUE:
+							X: 132
+							Width: PARENT_WIDTH - 136
+							Height: 16
+							Font: Tiny
+				Label@DETAIL_TEXT_TEMPLATE:
+					X: 12
+					Width: PARENT_WIDTH - 45
+					Height: 16
+					Font: Tiny
+					VAlign: Top
+					Visible: false
+		Button@FACTION_WEB_BUTTON:
+			X: 285
+			Y: PARENT_HEIGHT - 76
+			Width: 200
+			Height: 30
+			Text: button-faction-catalog-web
+			Font: Bold
+			TooltipContainer: FACTION_CATALOG_TOOLTIP_CONTAINER
+		Button@UNIT_WEB_BUTTON:
+			X: 495
+			Y: PARENT_HEIGHT - 76
+			Width: 200
+			Height: 30
+			Text: button-faction-catalog-unit-web
+			Font: Bold
+			TooltipContainer: FACTION_CATALOG_TOOLTIP_CONTAINER
+		Button@EXPERIENCE_BUTTON:
+			X: 715
+			Y: PARENT_HEIGHT - 76
+			Width: 220
+			Height: 30
+			Text: button-main-menu-experience
+			Font: Bold
+		Label@KEY_HINT:
+			X: 285
+			Y: PARENT_HEIGHT - 40
+			Width: (PARENT_WIDTH - 305)
+			Height: 18
+			Text: label-faction-catalog-keys
+			Font: Tiny
+		Button@BACK_BUTTON:
+			X: PARENT_WIDTH - 160
+			Y: PARENT_HEIGHT - 76
+			Width: 140
+			Height: 30
+			Text: button-back
+			Font: Bold
+			Key: escape
+		TooltipContainer@FACTION_CATALOG_TOOLTIP_CONTAINER:

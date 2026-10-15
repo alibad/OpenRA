@@ -99,6 +99,19 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 
 			mainMenu.Get<ButtonWidget>("EXTRAS_BUTTON").OnClick = () => SwitchMenu(MenuType.Extras);
 
+			var studio = mainMenu.GetOrNull<ButtonWidget>("EARTH_STUDIO_BUTTON");
+			if (studio != null)
+				studio.OnClick = () =>
+				{
+					SwitchMenu(MenuType.None);
+					Game.OpenWindow("EARTH_MISSION_PANEL", new WidgetArgs
+					{
+						{ "onExit", () => SwitchMenu(MenuType.Main) },
+						{ "onPlay", (Action<string>)StartSkirmishGame },
+						{ "onEdit", (Action<string>)LoadMapIntoEditor }
+					});
+				};
+
 			mainMenu.Get<ButtonWidget>("QUIT_BUTTON").OnClick = Game.Exit;
 
 			// Singleplayer menu
@@ -444,10 +457,14 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		}
 
 		void StartSkirmishGame()
+			=> StartSkirmishGame(null);
+
+		void StartSkirmishGame(string selectedMap)
 		{
 			SwitchMenu(MenuType.None);
 
-			var map = modData.MapCache.ChooseInitialMap(modData.MapCache.PickLastModifiedMap(MapVisibility.Lobby) ?? Game.Settings.Server.Map, Game.CosmeticRandom);
+			modData.MapCache.UpdateMaps();
+			var map = modData.MapCache.ChooseInitialMap(selectedMap ?? modData.MapCache.PickLastModifiedMap(MapVisibility.Lobby) ?? Game.Settings.Server.Map, Game.CosmeticRandom);
 			Game.Settings.Server.Map = map;
 			Game.Settings.Save();
 

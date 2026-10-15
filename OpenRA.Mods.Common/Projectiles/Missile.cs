@@ -26,6 +26,13 @@ namespace OpenRA.Mods.Common.Projectiles
 	[Desc("Projectile with smart tracking.")]
 	public class MissileInfo : IProjectileInfo
 	{
+		[Desc("Optional interception class; unset retains normal projectile behavior.")]
+		public readonly string PointDefenseType = null;
+
+		[Desc("Apply the weapon impact on interception instead of harmless removal.")]
+		public readonly bool DetonateOnInterception = false;
+
+
 		[Desc("Name of the image containing the projectile sequence.")]
 		public readonly string Image = null;
 
@@ -912,6 +919,16 @@ namespace OpenRA.Mods.Common.Projectiles
 			else
 				pos += move;
 
+			if (ProjectileInterception.TryIntercept(world, pos, args.SourceActor.Owner, info.PointDefenseType, args))
+			{
+				if (info.DetonateOnInterception)
+					Explode(world);
+				else
+					Remove(world);
+
+				return;
+			}
+
 			// Check for walls or other blocking obstacles
 			var shouldExplode = false;
 			if (info.Blockable && BlocksProjectiles.AnyBlockingActorsBetween(world, args.SourceActor.Owner, lastPos, pos, info.Width, out var blockedPos))
@@ -964,6 +981,14 @@ namespace OpenRA.Mods.Common.Projectiles
 			};
 
 			args.Weapon.Impact(Target.FromPos(pos), warheadArgs);
+		}
+
+		void Remove(World world)
+		{
+			if (info.ContrailLength > 0)
+				world.AddFrameEndTask(w => w.Add(new ContrailFader(pos, contrail)));
+
+			world.AddFrameEndTask(w => w.Remove(this));
 		}
 
 		public IEnumerable<IRenderable> Render(WorldRenderer wr)

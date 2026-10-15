@@ -16,6 +16,7 @@ using System.Collections.Immutable;
 using System.Numerics;
 using OpenRA.Activities;
 using OpenRA.Graphics;
+using OpenRA.GameRules;
 using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Graphics;
 using OpenRA.Mods.Common.MapGenerator;
@@ -27,6 +28,14 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.Common.Traits
 {
+	public interface IPointDefense
+	{
+		bool TryIntercept(WPos position, Player projectileOwner, string type, ProjectileArgs args);
+	}
+	public interface INotifyPointDefenseHit
+	{
+		void Hit(int damagePrevented);
+	}
 	public enum VisibilityType { Footprint, CenterPosition, GroundPosition }
 
 	public enum AttackDelayType { Preparation, Attack }

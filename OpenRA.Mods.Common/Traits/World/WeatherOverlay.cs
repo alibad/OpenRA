@@ -16,6 +16,7 @@ using OpenRA.Graphics;
 using OpenRA.Primitives;
 using OpenRA.Support;
 using OpenRA.Traits;
+using OpenRA.Mods.Common.Experience;
 
 namespace OpenRA.Mods.Common.Traits
 {
@@ -25,6 +26,9 @@ namespace OpenRA.Mods.Common.Traits
 	{
 		[Desc("Average number of particles per 100x100 px square.")]
 		public readonly int ParticleDensityFactor = 8;
+
+		public readonly string ExperienceComponent = null;
+		public readonly string ExperienceIntensityParameter = null;
 
 		[Desc("Should the level of the wind change over time, or just stick to the first value of WindLevels?")]
 		public readonly bool ChangingWindLevel = true;
@@ -144,6 +148,7 @@ namespace OpenRA.Mods.Common.Traits
 			}
 		}
 
+		readonly int particleDensityFactor;
 		readonly World world;
 		readonly int fadeInTick;
 		readonly int fadeOutTick;
@@ -167,6 +172,10 @@ namespace OpenRA.Mods.Common.Traits
 			windStrength = info.WindLevels[targetWindStrengthIndex];
 			fadeInTick = info.FadeInTicks > 0 ? info.FadeInTicks : 1;
 			fadeOutTick = info.FadeOutTicks > 0 ? info.FadeOutTicks : 1;
+			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
+			var intensity = !string.IsNullOrEmpty(info.ExperienceComponent) && experience?.IsComponentActive(info.ExperienceComponent) == true
+				? experience.GetIntegerParameter(info.ExperienceComponent, info.ExperienceIntensityParameter, 100) : 100;
+			particleDensityFactor = Math.Max(1, info.ParticleDensityFactor * intensity / 100);
 		}
 
 		void INotifyViewportZoomExtentsChanged.ViewportZoomExtentsChanged(float minZoom, float maxZoom)
@@ -176,7 +185,7 @@ namespace OpenRA.Mods.Common.Traits
 			viewportSize = new Size(s.X, s.Y);
 
 			// Randomly distribute particles within the initial viewport
-			var particleCount = viewportSize.Width * viewportSize.Height * Info.ParticleDensityFactor / 10000;
+			var particleCount = viewportSize.Width * viewportSize.Height * particleDensityFactor / 10000;
 			particles = new Particle[particleCount];
 			var rect = new Rectangle(int2.Zero, viewportSize);
 			for (var i = 0; i < particles.Length; i++)

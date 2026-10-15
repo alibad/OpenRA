@@ -53,7 +53,8 @@ namespace OpenRA.Graphics
 		public Sheet(SheetType type, Stream stream)
 		{
 			var png = new Png(stream);
-			Size = new Size(png.Width, png.Height);
+			// Keep source pixels and sprite bounds unchanged. Native texture allocation requires power-of-two sizes.
+			Size = new Size(png.Width, png.Height).NextPowerOf2();
 			data = new byte[4 * Size.Width * Size.Height];
 			Util.FastCopyIntoSprite(new Sprite(this, new Rectangle(0, 0, png.Width, png.Height), TextureChannel.Red), png);
 

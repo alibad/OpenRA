@@ -12,7 +12,9 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using OpenRA.Mods.Common.Experience;
 using OpenRA.Mods.Common.Traits.BotModules.Squads;
 using OpenRA.Primitives;
 using OpenRA.Traits;
@@ -28,8 +30,20 @@ namespace OpenRA.Mods.Common.Traits
 		public readonly FrozenSet<string> NavalUnitsTypes = [];
 
 		[ActorReference]
+		[Desc("Additional naval unit types grouped by a unique rules component identifier.",
+			"Use this instead of overriding NavalUnitsTypes from composable rules files.")]
+		public readonly FrozenDictionary<string, ImmutableArray<string>> AdditionalNavalUnitsTypes =
+			FrozenDictionary<string, ImmutableArray<string>>.Empty;
+
+		[ActorReference]
 		[Desc("Actor types that are excluded from ground attacks.")]
 		public readonly FrozenSet<string> AirUnitsTypes = [];
+
+		[ActorReference]
+		[Desc("Additional air unit types grouped by a unique rules component identifier.",
+			"Use this instead of overriding AirUnitsTypes from composable rules files.")]
+		public readonly FrozenDictionary<string, ImmutableArray<string>> AdditionalAirUnitsTypes =
+			FrozenDictionary<string, ImmutableArray<string>>.Empty;
 
 		[ActorReference]
 		[Desc("Actor types that should generally be excluded from attack squads.")]
@@ -55,6 +69,10 @@ namespace OpenRA.Mods.Common.Traits
 
 		[Desc("Random number of up to this many units is added to squad size when creating an attack squad.")]
 		public readonly int SquadSizeRandomBonus = 30;
+
+		[Desc("Optional Experience component and integer parameter that override SquadSize.")]
+		public readonly string ExperienceComponent = null;
+		public readonly string ExperienceSquadSizeParameter = null;
 
 		[Desc("Delay (in ticks) between giving out orders to units.")]
 		public readonly int AssignRolesInterval = 50;
@@ -122,6 +140,8 @@ namespace OpenRA.Mods.Common.Traits
 		public readonly Player Player;
 
 		readonly Predicate<Actor> unitCannotBeOrdered;
+		readonly FrozenSet<string> navalUnitTypes;
+		readonly FrozenSet<string> airUnitTypes;
 
 		// Units that the bot already knows about. Any unit not on this list needs to be given a role.
 		readonly HashSet<Actor> activeUnits = [];
@@ -144,15 +164,29 @@ namespace OpenRA.Mods.Common.Traits
 		int attackForceTicks;
 		int minAttackForceDelayTicks;
 		int respondToAttackCooldown = MaxRespondToAttackCooldown; // prevent too many responses to the same wave of attacks
+		readonly int squadSize;
 
 		public SquadManagerBotModule(Actor self, SquadManagerBotModuleInfo info)
 			: base(info)
 		{
 			World = self.World;
 			Player = self.Owner;
+			navalUnitTypes = CombineTypes(info.NavalUnitsTypes, info.AdditionalNavalUnitsTypes);
+			airUnitTypes = CombineTypes(info.AirUnitsTypes, info.AdditionalAirUnitsTypes);
+			var experience = Game.ModData.GetOrNull<ExperienceCatalog>();
+			squadSize = !string.IsNullOrEmpty(info.ExperienceComponent) &&
+				experience?.IsComponentActive(info.ExperienceComponent) == true ?
+				experience.GetIntegerParameter(info.ExperienceComponent,
+					info.ExperienceSquadSizeParameter, info.SquadSize) : info.SquadSize;
 
 			unitCannotBeOrdered = a => a == null || a.Owner != Player || a.IsDead || !a.IsInWorld;
 			constructionYardBuildings = new ActorIndex.NamesAndTrait<BuildingInfo>(World, info.ConstructionYardTypes);
+		}
+
+		static FrozenSet<string> CombineTypes(
+			FrozenSet<string> types, FrozenDictionary<string, ImmutableArray<string>> additionalTypes)
+		{
+			return types.Concat(additionalTypes.Values.SelectMany(values => values)).ToFrozenSet();
 		}
 
 		// Use for proactive targeting.
@@ -391,14 +425,14 @@ namespace OpenRA.Mods.Common.Traits
 
 			foreach (var a in newUnits)
 			{
-				if (Info.AirUnitsTypes.Contains(a.Info.Name))
+				if (IsAirUnit(a.Info))
 				{
 					var air = GetSquadOfType(SquadType.Air);
 					air ??= RegisterNewSquad(bot, SquadType.Air);
 
 					air.Units.Add(a);
 				}
-				else if (Info.NavalUnitsTypes.Contains(a.Info.Name))
+				else if (IsNavalUnit(a.Info))
 				{
 					var ships = GetSquadOfType(SquadType.Naval);
 					ships ??= RegisterNewSquad(bot, SquadType.Naval);
@@ -420,7 +454,7 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			// Create an attack force when we have enough units around our base.
 			// (don't bother leaving any behind for defense)
-			var randomizedSquadSize = Info.SquadSize + World.LocalRandom.Next(Info.SquadSizeRandomBonus);
+			var randomizedSquadSize = squadSize + World.LocalRandom.Next(Info.SquadSizeRandomBonus);
 
 			if (unitsHangingAroundTheBase.Count >= randomizedSquadSize)
 			{
@@ -444,7 +478,7 @@ namespace OpenRA.Mods.Common.Traits
 					groundTroopNum += s.Units.Count;
 			}
 
-			if (groundTroopNum < Info.SquadSize)
+			if (groundTroopNum < squadSize)
 				return;
 
 			var randomAttackableUnit = unitsHangingAroundTheBase.Where(a => a.Info.HasTraitInfo<AttackBaseInfo>()).RandomOrDefault(World.LocalRandom);
@@ -467,8 +501,8 @@ namespace OpenRA.Mods.Common.Traits
 					World.FindActorsInCircle(enemyBaseBuilder.Actor.CenterPosition, WDist.FromCells(Info.RushAttackScanRadius))
 						.Where(unit =>
 							unit.Info.HasTraitInfo<AttackBaseInfo>()
-							&& !Info.AirUnitsTypes.Contains(unit.Info.Name)
-							&& !Info.NavalUnitsTypes.Contains(unit.Info.Name)),
+							&& !IsAirUnit(unit.Info)
+							&& !IsNavalUnit(unit.Info)),
 					randomAttackableUnit)
 					.ToList();
 
@@ -512,7 +546,7 @@ namespace OpenRA.Mods.Common.Traits
 			var unusedUnits = new List<Actor>();
 			foreach (var a in unitsHangingAroundTheBase)
 			{
-				if (a.Info.HasTraitInfo<AircraftInfo>() && !Info.AirUnitsTypes.Contains(a.Info.Name))
+				if (a.Info.HasTraitInfo<AircraftInfo>() && !IsAirUnit(a.Info))
 				{
 					protectSq.Units.Add(a);
 					continue;
@@ -537,6 +571,22 @@ namespace OpenRA.Mods.Common.Traits
 
 			if (protectSq.IsValid && !protectSq.IsTargetValid(protectSq.CenterUnit()))
 				protectSq.SetActorToTarget((attacker, WVec.Zero));
+		}
+
+		bool IsAirUnit(ActorInfo actor)
+		{
+			return airUnitTypes.Contains(actor.Name) || HasStrategicDomain(actor, "air");
+		}
+
+		bool IsNavalUnit(ActorInfo actor)
+		{
+			return navalUnitTypes.Contains(actor.Name) || HasStrategicDomain(actor, "naval");
+		}
+
+		static bool HasStrategicDomain(ActorInfo actor, string domain)
+		{
+			return actor.TraitInfos<StrategicRoleInfo>()
+				.Any(role => role.Domain.Equals(domain, StringComparison.OrdinalIgnoreCase));
 		}
 
 		void IBotPositionsUpdated.UpdatedBaseCenter(CPos newLocation)
