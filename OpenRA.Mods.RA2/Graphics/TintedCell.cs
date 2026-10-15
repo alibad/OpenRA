@@ -12,7 +12,6 @@
 using System.Numerics;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using OpenRA.Effects;
 using OpenRA.Graphics;
 using OpenRA.Mods.RA2.Traits;

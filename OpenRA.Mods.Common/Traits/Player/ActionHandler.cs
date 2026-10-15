@@ -389,7 +389,7 @@ namespace OpenRA.Mods.Common.Traits
 				.Where(a => a.Owner == player && !a.IsDead && a.IsInWorld)
 				.ToArray();
 
-			return world.Map.FindTilesInAnnulus(center, 0, 20)
+			return world.Map.FindTilesInAnnulus(center, 0, maxRadius)
 				.Where(cell => world.CanPlaceBuilding(cell, actorInfo, bi, null)
 					&& bi.IsCloseEnoughToBase(world, player, actorInfo, cell))
 				.Select(cell => new
