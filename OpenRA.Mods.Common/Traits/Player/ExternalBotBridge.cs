@@ -153,6 +153,7 @@ namespace OpenRA.Mods.Common.Traits
 		// newly spawned actors (harvesters, produced units). This avoids expensive
 		// ActorsHavingTrait<T>() enumeration on every check across 64 sessions.
 		readonly List<Actor> cachedMobileActors = new();
+		int cachedTotalCells;
 		readonly List<Actor> cachedBuildingActors = new();
 		int interruptCheckCount;
 		const int FullRefreshEveryNChecks = 4;
@@ -605,6 +606,7 @@ namespace OpenRA.Mods.Common.Traits
 		void SnapshotActors()
 		{
 			cachedMobileActors.Clear();
+			if (cachedTotalCells == 0) cachedTotalCells = world.Map.AllCells.Count();
 			cachedMobileActors.AddRange(world.ActorsHavingTrait<Mobile>());
 			cachedBuildingActors.Clear();
 			cachedBuildingActors.AddRange(world.ActorsHavingTrait<Building>());
@@ -671,6 +673,14 @@ namespace OpenRA.Mods.Common.Traits
 			}
 
 			float exploredPct = prevExploredPct;
+			var shroudForExplored = player?.Shroud;
+			if (shroudForExplored != null && cachedTotalCells > 0)
+			{
+				var exploredCells = 0;
+				foreach (var c in world.Map.AllCells)
+					if (shroudForExplored.IsExplored(c)) exploredCells++;
+				exploredPct = (float)exploredCells / cachedTotalCells * 100f;
+			}
 
 			// On first check of a new advance, just populate prev-state without firing.
 			bool isFirstCheck = prevVisibleEnemyIds.Count == 0 && prevOwnUnitIds.Count == 0;
@@ -686,6 +696,7 @@ namespace OpenRA.Mods.Common.Traits
 			{
 				UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
 					curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
+					UpdateMovingUnits();
 				return "game_over";
 			}
 
@@ -697,6 +708,7 @@ namespace OpenRA.Mods.Common.Traits
 					{
 						UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
 							curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
+						UpdateMovingUnits();
 						return "enemy_spotted";
 					}
 				}
@@ -710,6 +722,7 @@ namespace OpenRA.Mods.Common.Traits
 					{
 						UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
 							curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
+						UpdateMovingUnits();
 						return "unit_destroyed";
 					}
 				}
@@ -725,6 +738,7 @@ namespace OpenRA.Mods.Common.Traits
 						{
 							UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
 								curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
+							UpdateMovingUnits();
 							return "under_attack";
 						}
 					}
@@ -739,6 +753,7 @@ namespace OpenRA.Mods.Common.Traits
 					{
 						UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
 							curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
+						UpdateMovingUnits();
 						return "building_discovered";
 					}
 				}
@@ -755,6 +770,7 @@ namespace OpenRA.Mods.Common.Traits
 					{
 						UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
 							curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
+						UpdateMovingUnits();
 						return "enemy_building_destroyed";
 					}
 				}
@@ -768,6 +784,7 @@ namespace OpenRA.Mods.Common.Traits
 					{
 						UpdatePrevState(curEnemyIds, curOwnUnitIds, curOwnUnitHp,
 							curEnemyBuildingIds, curOwnBuildingIds, exploredPct);
+						UpdateMovingUnits();
 						return "own_building_destroyed";
 					}
 				}
@@ -892,10 +909,7 @@ namespace OpenRA.Mods.Common.Traits
 			// Snapshot actors once at advance start — CheckInterrupts uses cached lists
 			// instead of expensive ActorsHavingTrait calls on every check
 			if (interruptCheckInterval > 0)
-			{
 				SnapshotActors();
-				Console.Error.WriteLine($"[rl-bridge] FastAdvance {n} ticks with interrupt check every {interruptCheckInterval} ticks, {enabledInterrupts.Count} signals, {cachedMobileActors.Count} mobile + {cachedBuildingActors.Count} buildings cached (session {episodeId})");
-			}
 
 			// Set up the TCS before queueing — worker will complete it via ITick.Tick.
 			// Keep a local reference because ITick.Tick nulls the field after completion.

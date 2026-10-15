@@ -35,6 +35,13 @@ namespace OpenRA.Mods.Common.Traits
 		static ModData modData;
 		static readonly object MapCacheLock = new();
 		static readonly object WorldCreateLock = new();
+
+		/// <summary>
+		/// Global tick semaphore: limits concurrent World.Tick() calls across all sessions.
+		/// With IsMultiSession fixes (LongBitSet guard, IsCurrentWorld, InitializeLoaders skip,
+		/// Sound guard), shared state races are eliminated. Allow full parallelism (8 per server).
+		/// </summary>
+		static readonly SemaphoreSlim GlobalTickSemaphore = new(8, 8);
 		static readonly HashSet<string> PreparedMapUids = new();
 
 		/// <summary>Cache resolved MapPreview by map name to avoid repeated MapCache enumeration.</summary>
@@ -55,6 +62,12 @@ namespace OpenRA.Mods.Common.Traits
 
 			/// <summary>Track in-flight work so DestroySession can wait for it to finish.</summary>
 			public volatile WorkItem ActiveWorkItem;
+
+			/// <summary>Last time this session had activity (FastAdvance call). Used by reaper.</summary>
+			public long LastActivityTicks = DateTime.UtcNow.Ticks;
+
+			public void TouchActivity() { LastActivityTicks = DateTime.UtcNow.Ticks; }
+			public TimeSpan IdleTime => DateTime.UtcNow - new DateTime(Interlocked.Read(ref LastActivityTicks));
 
 			public SessionState(OrderManager om, World w)
 			{
@@ -89,6 +102,7 @@ namespace OpenRA.Mods.Common.Traits
 		public static void Initialize(ModData md)
 		{
 			modData = md;
+			Game.IsMultiSession = true;
 			ExternalBotBridge.MultiSessionMode = true;
 			Support.PerfHistory.Disabled = true;
 
@@ -107,6 +121,48 @@ namespace OpenRA.Mods.Common.Traits
 			}
 
 			Log.Write("rl-bridge", $"RLSessionManager initialized: {workerCount} workers, queue capacity {workerCount * 4}");
+
+			// Start session reaper: cleans up sessions idle for >5 minutes.
+			// Prevents leaked sessions from exhausting server capacity.
+			var reaper = new Thread(() =>
+			{
+				while (true)
+				{
+					Thread.Sleep(30_000); // Check every 30s
+					try
+					{
+						var maxIdle = TimeSpan.FromMinutes(5);
+						foreach (var kvp in SessionStates)
+						{
+							if (kvp.Value.IdleTime > maxIdle)
+							{
+								Log.Write("rl-bridge", $"Reaping idle session {kvp.Key} (idle {kvp.Value.IdleTime.TotalSeconds:F0}s)");
+								try { DestroySession(kvp.Key); }
+								catch (Exception e) { Log.Write("rl-bridge", $"Reaper error for {kvp.Key}: {e.Message}"); }
+							}
+						}
+
+						// Also clean up orphaned entries in Sessions that have no SessionState
+						foreach (var kvp in ExternalBotBridge.Sessions)
+						{
+							if (!SessionStates.ContainsKey(kvp.Key))
+							{
+								Log.Write("rl-bridge", $"Reaping orphaned session entry {kvp.Key}");
+								kvp.Value.Deactivate();
+							}
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Write("rl-bridge", $"Reaper sweep error: {e.Message}");
+					}
+				}
+			})
+			{
+				IsBackground = true,
+				Name = "RL-Session-Reaper"
+			};
+			reaper.Start();
 		}
 
 		/// <summary>
@@ -126,7 +182,17 @@ namespace OpenRA.Mods.Common.Traits
 					state.TickLock.Wait();
 					try
 					{
-						TickSession(state, item.Bridge);
+						// Global tick limit: OpenRA engine has static state
+						// that crashes with too many concurrent World.Tick() calls.
+						GlobalTickSemaphore.Wait();
+						try
+						{
+							TickSession(state, item.Bridge);
+						}
+						finally
+						{
+							GlobalTickSemaphore.Release();
+						}
 					}
 					finally
 					{
@@ -155,8 +221,8 @@ namespace OpenRA.Mods.Common.Traits
 		internal static WorkItem SubmitWork(SessionState state, ExternalBotBridge bridge)
 		{
 			var item = new WorkItem(state, bridge);
-			if (!workQueue.TryAdd(item, TimeSpan.Zero))
-				return null; // Queue full — caller should return RESOURCE_EXHAUSTED
+			if (!workQueue.TryAdd(item, TimeSpan.FromSeconds(5)))
+				return null; // Queue persistently full — caller should return RESOURCE_EXHAUSTED
 
 			return item;
 		}
@@ -353,9 +419,47 @@ namespace OpenRA.Mods.Common.Traits
 				return;
 			}
 
-			// 2. Load map from disk (per-session — each needs its own Map instance)
-			var map = mapPreview.ToMap();
-			Log.Write("rl-bridge", $"Session {sessionId}: Map loaded from {mapPreview.Path}, {map.ActorDefinitions.Count()} actor defs");
+			// 2. Load map from disk (per-session — each needs its own Map instance).
+			//    MapPreview.package (its ZipFile handle) gets disposed after first Map creation,
+			//    so cached MapPreview entries become stale. Retry up to 3× with cache invalidation:
+			//    evict the stale entry so ResolvedMaps.GetOrAdd re-opens a fresh ZipFile handle.
+			Map map = null;
+			string mapPath = null;
+			for (var attempt = 0; attempt < 3; attempt++)
+			{
+				try
+				{
+					lock (MapCacheLock)
+					{
+						map = mapPreview.ToMap();
+						mapPath = mapPreview.Path;
+					}
+					break;
+				}
+				catch (ObjectDisposedException)
+				{
+					Log.Write("rl-bridge", $"Session {sessionId}: ZipFile disposed on attempt {attempt + 1}, evicting cache entry for '{mapName}'");
+					ResolvedMaps.TryRemove(mapName, out _);
+					// Re-resolve MapPreview with a fresh handle
+					lock (MapCacheLock)
+					{
+						mapPreview = modData.MapCache.FirstOrDefault(m =>
+							m.Status == MapStatus.Available &&
+							(Path.GetFileName(m.Path) == mapName || m.Uid == mapName));
+					}
+					if (mapPreview == null)
+					{
+						Log.Write("rl-bridge", $"Session {sessionId}: Map '{mapName}' not found after cache eviction");
+						return;
+					}
+				}
+			}
+			if (map == null)
+			{
+				Log.Write("rl-bridge", $"Session {sessionId}: Failed to load map '{mapName}' after 3 attempts");
+				return;
+			}
+			Log.Write("rl-bridge", $"Session {sessionId}: Map loaded from {mapPath}, {map.ActorDefinitions.Count()} actor defs");
 
 			// 3. PrepareMap — must run for every map (sprite sequences are map-specific,
 			//    and randomized scenarios produce unique map UIDs every time).
@@ -372,6 +476,9 @@ namespace OpenRA.Mods.Common.Traits
 
 			// 5. Build LobbyInfo with map slots and bot assignments
 			SetupLobbyInfo(orderManager, mapPreview, map, bots, seed);
+
+			if (Game.Settings.Server.RecordReplays)
+				connection.StartRecording(() => Game.TimestampedFilename(true, extra: $"-RL-{sessionId}"), orderManager.LobbyInfo);
 
 			// 6. World creation + LoadComplete (serialized — traits access shared state).
 			//    With PrepareMap cached and map lookup cached, the lock only covers

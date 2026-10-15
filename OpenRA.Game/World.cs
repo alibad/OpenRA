@@ -218,7 +218,10 @@ namespace OpenRA
 			OrderValidators = WorldActor.TraitsImplementing<IValidateOrder>().ToArray();
 			notifyDisconnected = WorldActor.TraitsImplementing<INotifyPlayerDisconnected>().ToArray();
 
-			LongBitSet<PlayerBitMask>.Reset();
+			// Only reset in single-session mode. In multi-session, other worlds are
+			// actively using bit allocations — resetting corrupts their player masks.
+			if (!Game.IsMultiSession)
+				LongBitSet<PlayerBitMask>.Reset();
 
 			// Create an isolated RNG to simplify synchronization between client and server player faction/spawn assignments
 			var playerRandom = new MersenneTwister(orderManager.LobbyInfo.GlobalSettings.RandomSeed);
@@ -321,6 +324,8 @@ namespace OpenRA
 
 			if (OrderManager.Connection is NetworkConnection nc && nc.Recorder != null)
 				nc.Recorder.Metadata = new ReplayMetadata(gameInfo);
+			else if (OrderManager.Connection is EchoConnection ec && ec.Recorder != null)
+				ec.Recorder.Metadata = new ReplayMetadata(gameInfo);
 		}
 
 		public void PostLoadComplete(WorldRenderer wr)
@@ -620,10 +625,13 @@ namespace OpenRA
 
 			frameEndActions.Clear();
 
-			Game.Sound.StopAudio();
-			Game.Sound.StopVideo();
-			if (IsLoadingGameSave)
-				Game.Sound.DisableAllSounds = false;
+			if (!Game.IsMultiSession)
+			{
+				Game.Sound.StopAudio();
+				Game.Sound.StopVideo();
+				if (IsLoadingGameSave)
+					Game.Sound.DisableAllSounds = false;
+			}
 
 			// Dispose newer actors first, and the world actor last
 			foreach (var a in actors.Values.Reverse())

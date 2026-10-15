@@ -47,6 +47,13 @@ namespace OpenRA
 		/// <summary>True when running on the no-op OpenRA.Platforms.Null platform (Game.Platform=Null).</summary>
 		public static bool IsHeadless => Settings?.Game?.Platform == "Null";
 
+		/// <summary>
+		/// True when running in multi-session RL mode (multiple game worlds in one process).
+		/// Set by RLSessionManager.Initialize(). Guards global static state that would
+		/// corrupt concurrent sessions (LongBitSet, OrderManager, Sound, etc.).
+		/// </summary>
+		public static volatile bool IsMultiSession;
+
 		static WorldRenderer worldRenderer;
 		static string modLaunchWrapper;
 
@@ -1044,6 +1051,12 @@ namespace OpenRA
 
 		public static bool IsCurrentWorld(World world)
 		{
+			// In multi-session mode, each world is "current" (no single active world).
+			// The static OrderManager points to whichever session was last initialized,
+			// which is wrong for all other sessions.
+			if (IsMultiSession)
+				return !world.Disposing;
+
 			return OrderManager != null && OrderManager.World == world && !world.Disposing;
 		}
 
