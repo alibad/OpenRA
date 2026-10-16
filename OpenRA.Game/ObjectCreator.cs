@@ -25,6 +25,7 @@ namespace OpenRA
 		static readonly Dictionary<string, Assembly> ResolvedAssemblies = [];
 
 		readonly Cache<string, Type> typeCache;
+		readonly Dictionary<string, Type> typeOverrides = [];
 		readonly Cache<Type, ConstructorInfo> ctorCache;
 		readonly (Assembly Assembly, string Namespace)[] assemblies;
 
@@ -109,8 +110,20 @@ namespace OpenRA
 				return (T)CreateUsingArgs(ctor, args);
 		}
 
+		/// <summary>An embedded host can explicitly bind a short name that several loaded mods define.</summary>
+		public void SetTypeOverride(string className, Type implementation)
+		{
+			ArgumentException.ThrowIfNullOrEmpty(className);
+			ArgumentNullException.ThrowIfNull(implementation);
+			typeOverrides[className] = implementation;
+			typeCache.Clear();
+		}
+
 		public Type FindType(string className)
 		{
+			if (typeOverrides.TryGetValue(className, out var implementation))
+				return implementation;
+
 			return assemblies
 				.Select(pair => pair.Assembly.GetType(pair.Namespace + "." + className, false))
 				.FirstOrDefault(t => t != null);
