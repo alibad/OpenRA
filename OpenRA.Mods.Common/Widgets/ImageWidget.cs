@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using System.Numerics;
 using OpenRA.Graphics;
 using OpenRA.Primitives;
 using OpenRA.Widgets;
@@ -81,7 +82,7 @@ namespace OpenRA.Mods.Common.Widgets
 				return;
 			}
 
-			var size = sprite.Size.AsVector2();
+			var size = new Vector2(sprite.Size.X, sprite.Size.Y);
 			var scale = Math.Min(Bounds.Width / size.X, Bounds.Height / size.Y);
 			var scaledSize = size * scale;
 			var offset = (RenderBounds.Size.ToVector2() - scaledSize) / 2;
