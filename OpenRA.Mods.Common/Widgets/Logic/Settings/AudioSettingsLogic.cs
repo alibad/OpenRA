@@ -27,7 +27,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		SoundDevice soundDevice;
 
 		[ObjectCreator.UseCtor]
-		public AudioSettingsLogic(ModData modData, SettingsLogic settingsLogic, string panelID, string label, WorldRenderer worldRenderer)
+		public AudioSettingsLogic(ModData modData, ISettingsLogic settingsLogic, string panelID, string label, WorldRenderer worldRenderer)
 		{
 			this.worldRenderer = worldRenderer;
 			soundSettings = modData.GetSettings<SoundSettings>();

@@ -22,7 +22,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		static ServerSettings originalServerSettings;
 
 		[ObjectCreator.UseCtor]
-		public AdvancedSettingsLogic(ModData modData, SettingsLogic settingsLogic, string panelID, string label)
+		public AdvancedSettingsLogic(ModData modData, ISettingsLogic settingsLogic, string panelID, string label)
 		{
 			debugSettings = modData.GetSettings<DebugSettings>();
 			gameSettings = modData.GetSettings<GameSettings>();

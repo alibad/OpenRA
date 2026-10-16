@@ -61,7 +61,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		Widget remapDialog;
 
 		[ObjectCreator.UseCtor]
-		public HotkeysSettingsLogic(ModData modData, SettingsLogic settingsLogic, string panelID, string label, Dictionary<string, MiniYaml> logicArgs)
+		public HotkeysSettingsLogic(ModData modData, ISettingsLogic settingsLogic, string panelID, string label, Dictionary<string, MiniYaml> logicArgs)
 		{
 			this.modData = modData;
 			this.logicArgs = logicArgs;

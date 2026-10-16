@@ -44,7 +44,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		readonly Dictionary<MouseControlStyle, string> controlTypes;
 
 		[ObjectCreator.UseCtor]
-		public InputSettingsLogic(ModData modData, SettingsLogic settingsLogic, string panelID, string label)
+		public InputSettingsLogic(ModData modData, ISettingsLogic settingsLogic, string panelID, string label)
 		{
 			controlTypes = new Dictionary<MouseControlStyle, string>
 			{

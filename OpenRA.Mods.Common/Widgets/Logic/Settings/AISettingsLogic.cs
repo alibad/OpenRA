@@ -157,7 +157,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		readonly ModData modData;
 
 		[ObjectCreator.UseCtor]
-		public AISettingsLogic(ModData modData, SettingsLogic settingsLogic, string panelID, string label)
+		public AISettingsLogic(ModData modData, ISettingsLogic settingsLogic, string panelID, string label)
 		{
 			this.modData = modData;
 			settingsLogic.RegisterSettingsPanel(panelID, label, InitPanel, ResetPanel);

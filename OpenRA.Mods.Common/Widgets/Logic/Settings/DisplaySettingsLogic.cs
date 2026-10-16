@@ -103,7 +103,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		readonly string selectPreset;
 
 		[ObjectCreator.UseCtor]
-		public DisplaySettingsLogic(ModData modData, SettingsLogic settingsLogic, string panelID, string label, WorldRenderer worldRenderer)
+		public DisplaySettingsLogic(ModData modData, ISettingsLogic settingsLogic, string panelID, string label, WorldRenderer worldRenderer)
 		{
 			this.worldRenderer = worldRenderer;
 			this.modData = modData;

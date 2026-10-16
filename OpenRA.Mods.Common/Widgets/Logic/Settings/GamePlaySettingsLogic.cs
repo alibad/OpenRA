@@ -72,7 +72,7 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 		LocalPlayerProfile.LinkState lastState;
 
 		[ObjectCreator.UseCtor]
-		public GameplaySettingsLogic(ModData modData, SettingsLogic settingsLogic, string panelID, string label, WorldRenderer worldRenderer)
+		public GameplaySettingsLogic(ModData modData, ISettingsLogic settingsLogic, string panelID, string label, WorldRenderer worldRenderer)
 		{
 			this.modData = modData;
 			this.worldRenderer = worldRenderer;
