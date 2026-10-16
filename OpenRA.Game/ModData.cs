@@ -146,7 +146,9 @@ namespace OpenRA
 			}
 
 			var fileConfigurations = modules.WithInterface<IModFileConfiguration>().ToArray();
-			Rules = ConfigureFiles(Manifest.Rules, fileConfigurations, c => c.ManagedRules, c => c.ActiveRules);
+			// Owner-authored overrides take precedence over selected experience modules as well as base rules.
+			Rules = ConfigureFiles(Manifest.Rules, fileConfigurations, c => c.ManagedRules, c => c.ActiveRules)
+				.Except(Manifest.FinalRules).Concat(Manifest.FinalRules).ToImmutableArray();
 			Weapons = ConfigureFiles(Manifest.Weapons, fileConfigurations, c => c.ManagedWeapons, c => c.ActiveWeapons);
 			Sequences = ConfigureFiles(Manifest.Sequences, fileConfigurations, c => c.ManagedSequences, c => c.ActiveSequences);
 			CursorDefinitions = ConfigureFiles(Manifest.Cursors, fileConfigurations, c => c.ManagedCursors, c => c.ActiveCursors);

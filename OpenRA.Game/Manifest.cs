@@ -54,7 +54,7 @@ namespace OpenRA
 		public readonly IReadOnlyPackage Package;
 		public readonly ModMetadata Metadata;
 		public readonly ImmutableArray<string>
-			Rules, ServerTraits,
+			Rules, FinalRules, ServerTraits,
 			Sequences, ModelSequences, Cursors, Chrome, ChromeLayout,
 			Weapons, Voices, Notifications, Music, FluentMessages, TileSets,
 			ChromeMetrics, MapCompatibility, Missions, Hotkeys;
@@ -79,7 +79,7 @@ namespace OpenRA
 
 		static readonly FrozenSet<string> ReservedModuleNames = new HashSet<string>
 		{
-			"Include", "Metadata", "FileSystem", "MapFolders", "Rules",
+			"Include", "Metadata", "FileSystem", "MapFolders", "Rules", "FinalRules",
 			"Sequences", "ModelSequences", "Cursors", "Chrome", "Assemblies", "ChromeLayout", "Weapons",
 			"Voices", "Notifications", "Music", "FluentMessages", "TileSets", "ChromeMetrics", "Missions", "Hotkeys",
 			"ServerTraits", "LoadScreen", "DefaultOrderGenerator", "SupportsMapsFrom", "SoundFormats", "SpriteFormats", "VideoFormats",
@@ -122,6 +122,7 @@ namespace OpenRA
 				throw new InvalidDataException("`FileSystem` section is not defined.");
 
 			Rules = YamlList(yaml, "Rules");
+			FinalRules = YamlList(yaml, "FinalRules");
 			Sequences = YamlList(yaml, "Sequences");
 			ModelSequences = YamlList(yaml, "ModelSequences");
 			Cursors = YamlList(yaml, "Cursors");
