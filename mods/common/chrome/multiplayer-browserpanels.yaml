@@ -24,6 +24,7 @@ ScrollPanel@MULTIPLAYER_CLIENT_LIST:
 			Visible: false
 			Children:
 				Image@FLAG:
+					FitToBounds: true
 					X: 4
 					Y: 5
 					Width: 32

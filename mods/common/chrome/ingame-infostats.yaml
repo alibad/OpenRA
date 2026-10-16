@@ -109,6 +109,7 @@ Container@SKIRMISH_STATS:
 							TooltipContainer: TOOLTIP_CONTAINER
 							TooltipTemplate: SIMPLE_TOOLTIP
 						Image@FACTIONFLAG:
+							FitToBounds: true
 							X: 230
 							Y: 5
 							Width: 32

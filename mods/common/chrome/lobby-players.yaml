@@ -132,6 +132,7 @@ Container@LOBBY_PLAYER_BIN:
 							PanelRoot: FACTION_DROPDOWN_PANEL_ROOT # ensure that tooltips for the options are on top of the dropdown panel
 							Children:
 								Image@FACTIONFLAG:
+									FitToBounds: true
 									X: 5
 									Y: 5
 									Width: 30
@@ -242,6 +243,7 @@ Container@LOBBY_PLAYER_BIN:
 							Height: 25
 							Children:
 								Image@FACTIONFLAG:
+									FitToBounds: true
 									X: 5
 									Y: 5
 									Width: 30
@@ -495,6 +497,7 @@ ScrollPanel@FACTION_DROPDOWN_TEMPLATE:
 			TooltipContainer: TOOLTIP_CONTAINER
 			Children:
 				Image@FLAG:
+					FitToBounds: true
 					X: 5
 					Y: 5
 					Width: 30

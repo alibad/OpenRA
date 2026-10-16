@@ -72,6 +72,7 @@ Background@WORLD_TOOLTIP:
 			Height: 23
 			Font: Bold
 		Image@FLAG:
+			FitToBounds: true
 			X: 7
 			Y: 27
 			Width: 32
@@ -102,6 +103,7 @@ Background@SPAWN_TOOLTIP:
 			Height: 23
 			Font: Bold
 		Image@FLAG:
+			FitToBounds: true
 			X: 7
 			Y: 7
 			Width: 32

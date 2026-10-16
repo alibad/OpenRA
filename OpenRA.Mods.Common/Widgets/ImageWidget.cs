@@ -24,6 +24,8 @@ namespace OpenRA.Mods.Common.Widgets
 		public string ImageCollection = "";
 		public string ImageName = "";
 		public bool ClickThrough = true;
+		[Desc("Fit the sprite inside the widget bounds, preserving its aspect ratio.")]
+		public bool FitToBounds;
 		public Func<string> GetImageName;
 		public Func<string> GetImageCollection;
 		public Func<Sprite> GetSprite;
@@ -53,6 +55,7 @@ namespace OpenRA.Mods.Common.Widgets
 			: base(other)
 		{
 			ClickThrough = other.ClickThrough;
+			FitToBounds = other.FitToBounds;
 			ImageName = other.ImageName;
 			GetImageName = other.GetImageName;
 			ImageCollection = other.ImageCollection;
@@ -71,7 +74,18 @@ namespace OpenRA.Mods.Common.Widgets
 
 		public override void Draw()
 		{
-			WidgetUtils.DrawSprite(GetSprite(), RenderOrigin.ToVector2());
+			var sprite = GetSprite();
+			if (!FitToBounds || Bounds.Width <= 0 || Bounds.Height <= 0)
+			{
+				WidgetUtils.DrawSprite(sprite, RenderOrigin.ToVector2());
+				return;
+			}
+
+			var size = sprite.Size.AsVector2();
+			var scale = Math.Min(Bounds.Width / size.X, Bounds.Height / size.Y);
+			var scaledSize = size * scale;
+			var offset = (RenderBounds.Size.ToVector2() - scaledSize) / 2;
+			WidgetUtils.DrawSprite(sprite, RenderOrigin.ToVector2() + offset, scaledSize);
 		}
 
 		public override bool HandleMouseInput(MouseInput mi)
