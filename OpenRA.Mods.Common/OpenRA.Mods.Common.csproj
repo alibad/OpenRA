@@ -1,4 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup Condition="'$(RuntimeIdentifier)' == 'browser-wasm'">
+		<DefineConstants>$(DefineConstants);BROWSER</DefineConstants>
+	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\OpenRA.Game\OpenRA.Game.csproj">
 			<Private>False</Private>
@@ -11,7 +14,8 @@
 		<PackageReference Include="TagLibSharp" Version="2.3.0" />
 		<PackageReference Include="rix0rrr.BeaconLib" Version="1.0.2" />
 		<PackageReference Include="Pfim" Version="0.11.3" />
-		<PackageReference Include="Grpc.AspNetCore" Version="2.67.0" />
+		<PackageReference Include="Grpc.AspNetCore" Version="2.67.0" Condition="'$(RuntimeIdentifier)' != 'browser-wasm'" />
+		<PackageReference Include="Grpc.Core.Api" Version="2.67.0" Condition="'$(RuntimeIdentifier)' == 'browser-wasm'" />
 		<PackageReference Include="Google.Protobuf" Version="3.29.3" />
 		<PackageReference Include="Grpc.Tools" Version="2.69.0">
 			<PrivateAssets>all</PrivateAssets>
@@ -19,7 +23,7 @@
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(RuntimeIdentifier)' != 'browser-wasm'" />
 	</ItemGroup>
 	<!-- Use protoc to generate from .proto when available (default local dev) -->
 	<ItemGroup Condition="'$(SKIP_PROTOC)' == ''">

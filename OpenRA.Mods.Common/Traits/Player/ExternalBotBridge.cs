@@ -17,11 +17,13 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Grpc.Core;
+#if !BROWSER
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+#endif
 using OpenRA.Traits;
 using RLProto = OpenRA.Mods.Common.RL;
 
@@ -76,7 +78,9 @@ namespace OpenRA.Mods.Common.Traits
 		[ThreadStatic]
 		internal static string NextSessionId;
 
+#if !BROWSER
 		static WebApplication grpcApp;
+#endif
 		static bool grpcServerStarted;
 		static readonly object GrpcLock = new();
 
@@ -200,6 +204,12 @@ namespace OpenRA.Mods.Common.Traits
 		/// Start the gRPC server. Called from Activate() in single-session mode,
 		/// or from RLSessionManager.StartGrpcServer() in multi-session mode.
 		/// </summary>
+#if BROWSER
+		internal static void StartGrpcServer(int port)
+		{
+			throw new PlatformNotSupportedException("The external bot server requires the desktop game. Browser advice uses its worker bridge.");
+		}
+#else
 		internal static void StartGrpcServer(int port)
 		{
 			lock (GrpcLock)
@@ -246,6 +256,7 @@ namespace OpenRA.Mods.Common.Traits
 			}
 		}
 
+#endif
 		public void Activate(Player p)
 		{
 			if (p.World.IsReplay)
