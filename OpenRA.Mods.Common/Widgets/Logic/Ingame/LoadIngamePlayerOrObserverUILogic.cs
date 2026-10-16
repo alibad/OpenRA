@@ -62,16 +62,18 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 			if (experience != null && world.LocalPlayer != null)
 			{
 				var summary = $"{experience.ActiveTitle}: {experience.ActiveFactionCount} modern factions and " +
-					$"{experience.ActiveCapabilityCount} gameplay modules. Shared AI controls included.";
+					$"{experience.ActiveCapabilityCount} gameplay modules.";
 				if (experience.ActiveAuthoringCount > 0)
 					summary += $" {experience.ActiveAuthoringCount} authoring modules support compatible maps and rosters.";
 				if (Game.ModData.Manifest.Id == "ra2" && experience.ActiveComponentIds.Length == 0)
 				{
 					var countries = world.WorldActor.Info.TraitInfos<FactionInfo>().Count(faction => faction.Selectable && faction.RandomFactionMembers.Count == 0);
-					summary = $"Red Alert 2: {countries} original countries. Shared AI controls included; modern faction packs are disabled in this experience.";
+					summary = $"Red Alert 2: {countries} original countries; modern faction packs are disabled in this experience.";
 				}
 
-				TextNotificationsManager.AddSystemLine("Experience", summary);
+				Log.Write("debug", "Experience: " + summary);
+				if (Game.Settings.Debug.DisplayDeveloperSettings)
+					TextNotificationsManager.AddSystemLine("Experience", summary);
 			}
 
 			world.GameOver += () =>
