@@ -378,7 +378,8 @@ namespace OpenRA.Mods.Common.FactionCatalog
 		/// <summary>
 		/// Where an installed or development build keeps the product catalog, in priority order:
 		/// explicit override, product root, macOS app resources (engine dir), Windows package/product
-		/// submodule (engine/openra), and a canonical engine checkout beside the product checkout.
+		/// submodule (engine/openra), an engine inside the RTSAI-Mod checkout (RTSAI-Mod/engine), and a canonical
+		/// engine checkout beside RTSAI-Mod, which holds the master catalog.
 		/// </summary>
 		public static IEnumerable<string> CandidatePaths(string engineDir, Func<string, string> getEnvironmentVariable)
 		{
@@ -395,7 +396,8 @@ namespace OpenRA.Mods.Common.FactionCatalog
 
 			yield return Path.GetFullPath(Path.Combine(engineDir, RelativePath));
 			yield return Path.GetFullPath(Path.Combine(engineDir, "..", "..", RelativePath));
-			yield return Path.GetFullPath(Path.Combine(engineDir, "..", "OpenRA-AI", RelativePath));
+			yield return Path.GetFullPath(Path.Combine(engineDir, "..", RelativePath));
+			yield return Path.GetFullPath(Path.Combine(engineDir, "..", "RTSAI-Mod", RelativePath));
 		}
 
 		public static string Locate(string engineDir, Func<string, string> getEnvironmentVariable, Func<string, bool> fileExists)

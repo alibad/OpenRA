@@ -235,7 +235,8 @@ namespace OpenRA.Test
 			{
 				Path.GetFullPath(Path.Combine(engine, "catalog", "factions.json")),
 				Path.GetFullPath(Path.Combine(engine, "..", "..", "catalog", "factions.json")),
-				Path.GetFullPath(Path.Combine(engine, "..", "OpenRA-AI", "catalog", "factions.json")),
+				Path.GetFullPath(Path.Combine(engine, "..", "catalog", "factions.json")),
+				Path.GetFullPath(Path.Combine(engine, "..", "RTSAI-Mod", "catalog", "factions.json")),
 			}));
 
 			// Windows packages and the product submodule: <root>/engine/openra -> <root>/catalog.
