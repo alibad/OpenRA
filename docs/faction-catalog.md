@@ -1,7 +1,7 @@
 # Native Faction Catalog
 
 The Faction Catalog is a native screen that presents the product's shared
-faction/unit catalog (`OpenRA-AI/catalog/factions.json`) for the loaded game
+faction/unit catalog (`RTSAI-Mod/catalog/factions.json`) for the loaded game
 mode. The engine's loaded rules are authoritative. The catalog adds only
 editorial text, signature units, mode availability and public web links.
 
@@ -30,7 +30,8 @@ The engine tries these in order and uses the first that exists:
 2. `$OPENRA_AI_ROOT/catalog/factions.json`
 3. `EngineDir/catalog/factions.json` (macOS bundle, where Resources is the engine dir)
 4. `EngineDir/../../catalog/factions.json` (Windows package, product submodule)
-5. `EngineDir/../OpenRA-AI/catalog/factions.json` (canonical sibling checkout)
+5. `EngineDir/../catalog/factions.json` (an engine inside the RTSAI-Mod checkout, `RTSAI-Mod/engine`)
+6. `EngineDir/../RTSAI-Mod/catalog/factions.json` (canonical engine beside RTSAI-Mod, which holds the master)
 
 If none exists, the screen still works from rules alone and hides web links.
 

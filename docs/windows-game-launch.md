@@ -3,8 +3,9 @@
 Use `launch-game.cmd` from the canonical OpenRA checkout. It starts the shared
 companion, discovers both games, and restores the last game selection.
 
-The sibling OpenRA-AI repository supplies the companion and maintained RA2
-overlay. `OpenRA-AI/scripts/setup.ps1 -SkipWeb` installs source dependencies,
+The sibling RTSAI-Mod repository supplies the companion (`RTSAI-Mod/companion`,
+formerly the OpenRA-AI repository) and maintained RA2 overlay.
+`RTSAI-Mod/companion/scripts/setup.ps1 -SkipWeb` installs source dependencies,
 the checksum-pinned local AI pack, builds the engine/launcher, and prepares RA2.
 The source launcher can bootstrap missing companion dependencies and cached RA2
 data. First setup requires internet access; repeat launches reuse installed data.

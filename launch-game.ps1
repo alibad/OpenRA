@@ -78,7 +78,8 @@ function Resolve-CompanionRuntime([string]$RequestedRoot) {
 	if (-not [string]::IsNullOrWhiteSpace($env:OPENRA_AI_ROOT)) {
 		$candidates.Add($env:OPENRA_AI_ROOT)
 	}
-	$candidates.Add((Join-Path (Split-Path -Parent $engineRoot) "OpenRA-AI"))
+	# The companion moved from the archived OpenRA-AI checkout into RTSAI-Mod/companion on 1 Nov 2026.
+	$candidates.Add((Join-Path (Split-Path -Parent $engineRoot) "RTSAI-Mod\companion"))
 
 	foreach ($candidate in $candidates) {
 		$root = [IO.Path]::GetFullPath($candidate)
@@ -165,14 +166,14 @@ $ports = $null
 if ($companionRequested) {
 	$runtime = Resolve-CompanionRuntime $CompanionRoot
 	if ($null -eq $runtime -and -not $ValidateOnly) {
-		$sourceSetup = Join-Path (Split-Path -Parent $engineRoot) "OpenRA-AI\scripts\setup.ps1"
+		$sourceSetup = Join-Path (Split-Path -Parent $engineRoot) "RTSAI-Mod\companion\scripts\setup.ps1"
 		if (Test-Path -LiteralPath $sourceSetup) {
 			& $sourceSetup -SkipEngine -SkipWeb
 			$runtime = Resolve-CompanionRuntime $CompanionRoot
 		}
 	}
 	if ($null -eq $runtime) {
-		throw "The OpenRA AI companion runtime was not found. Run ..\OpenRA-AI\scripts\setup.ps1 -SkipEngine, set OPENRA_AI_ROOT, or pass -NoCompanion to intentionally launch without it."
+		throw "The OpenRA AI companion runtime was not found. Run ..\RTSAI-Mod\companion\scripts\setup.ps1 -SkipEngine, set OPENRA_AI_ROOT, or pass -NoCompanion to intentionally launch without it."
 	}
 
 	$reservedPorts = [Collections.Generic.HashSet[int]]::new()
